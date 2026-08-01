@@ -117,38 +117,69 @@ def main():
     wins = sum(1 for lg in fold_ids
                if wll([r for r in allrows if r["lg"] == lg], "bt_sa")
                < wll([r for r in allrows if r["lg"] == lg], "elo_sa"))
-    prod_temp = temperature_fit(np.array([r["bt_sa"] for r in allrows]), np.array([r["y"] for r in allrows]))
-    improves = (m["bt_sa_temp"][0] < m["bt_sa"][0] - 1e-4) and (m["bt_sa_temp"][4] < m["bt_sa"][4] - 1e-3)
-    decision = "temperature_validated" if improves else "identity"
+    # --- production-aligned SYMMETRIC OOF temperature test (the conclusive one) ---
+    # Symmetrize each side-neutral OOF obs with its (B,A,1-y,1-p) mirror at half weight, then fit a
+    # zero-intercept temperature strictly on prior folds. This removes team-a base-rate confounding
+    # while preserving P(A>B)+P(B>A)=1. If temperature still fails here, identity is conclusively frozen.
+    sym_prior, id_rows, tp_rows = [], [], []
+    for _, rows in per_fold:
+        bts = (temperature_fit(np.array([p for p, _ in sym_prior]), np.array([y for _, y in sym_prior]))
+               if len(sym_prior) >= 100 else 1.0)                      # >=50 real obs (x2 mirrored)
+        for r in rows:
+            p, y, w = r["bt_neutral"], r["y"], 0.5 * r["w"]
+            for pp, yy in ((p, y), (1 - p, 1 - y)):
+                id_rows.append((w, yy, pp)); tp_rows.append((w, yy, sig(bts * lgt(pp))))
+        for r in rows:
+            sym_prior += [(r["bt_neutral"], r["y"]), (1 - r["bt_neutral"], 1 - r["y"])]
+    id_ll, id_br, _, _, id_ece = metrics(id_rows)
+    tp_ll, tp_br, _, _, tp_ece = metrics(tp_rows)
+    sym_pass = (tp_ll < id_ll - 1e-4) and (tp_ece < id_ece - 1e-3)
+    bts_prod = temperature_fit(np.array([p for p, _ in sym_prior]), np.array([y for _, y in sym_prior]))
+    decision = "temperature_validated" if sym_pass else "identity_side_neutral_bbt"
 
-    L += ["", f"**B-bt beats A-elo (side-aware) in {wins}/{len(fold_ids)} folds** on log-loss "
-          f"(pooled {m['bt_sa'][0]:.4f} vs {m['elo_sa'][0]:.4f}).",
-          f"Production temperature (all-OOF fit) b={prod_temp:.4f} "
-          f"({'softens' if prod_temp < 1 else 'sharpens'}).", "",
-          "## Decision",
-          f"- Symmetric temperature improves OOS log-loss AND ECE over side-aware B-bt: **{improves}**.",
-          f"- => **production = {decision}** " +
-          ("(apply the temperature to side-neutral probs)." if improves
-           else "(freeze at identity side-neutral B-bt; no calibration layer)."),
-          "- Ranking unaffected; B-bt remains the primary candidate."]
+    L += ["", f"**B-bt beats A-elo in {wins}/{len(fold_ids)} folds** (side-aware diagnostic, pooled "
+          f"{m['bt_sa'][0]:.4f} vs {m['elo_sa'][0]:.4f}).",
+          "", "## Two scores, reported separately",
+          f"- **side-aware DIAGNOSTIC** (actual side known): B-bt log-loss **{m['bt_sa'][0]:.4f}**.",
+          f"- **production-aligned side-neutral** (side unknown, what ships): B-bt log-loss "
+          f"**{m['bt_neutral'][0]:.4f}**.",
+          "", "## Production-aligned symmetric OOF temperature test (conclusive)",
+          "Each OOF side-neutral obs + its (B,A,1-y,1-p) mirror, half weight; zero-intercept temperature "
+          "fit strictly on prior folds. Removes team-a base-rate confounding.",
+          "", "| symmetric OOF | log-loss | Brier | ECE |", "|---|--:|--:|--:|",
+          f"| identity (b=1) | {id_ll:.4f} | {id_br:.4f} | {id_ece:.4f} |",
+          f"| rolling temperature | {tp_ll:.4f} | {tp_br:.4f} | {tp_ece:.4f} |",
+          "", "## Decision",
+          f"- symmetric temperature improves OOS (log-loss AND ECE): **{sym_pass}**.",
+          f"- => **production = {decision}**"
+          + ("." if sym_pass else " -- identity CONCLUSIVELY frozen (symmetric test failed)."),
+          "- c=+0.088 rules out radiant-side ADVANTAGE as the main cause of the +0.4 intercept, but",
+          "  NOT all orientation effects; team-a ordering / evaluation base-rate remain unresolved.",
+          "- Ranking unaffected; B-bt stays the selected rating model."]
     with open(os.path.join(DOCS, "calibration-sideaware.md"), "w", encoding="utf-8") as fh:
         fh.write("\n".join(L) + "\n")
 
-    prod = {"production_mode": decision if improves else "identity_side_neutral_bbt",
-            "temperature_b": round(prod_temp, 6), "temperature_form": "sigmoid(b*logit(p)); b<1 softens",
-            "validated_side_aware": bool(improves),
-            "side_aware_bbt_logloss": round(m["bt_sa"][0], 4), "bbt_temp_logloss": round(m["bt_sa_temp"][0], 4),
+    prod = {"production_mode": decision, "selected_model": "B-bt",
+            "calibration_layer": "temperature" if sym_pass else "none (identity)",
+            "symmetric_oof_temperature_b": round(bts_prod, 6),
+            "temperature_form": "sigmoid(b*logit(p)); b<1 softens, b>1 sharpens",
+            "symmetric_oof_pass": bool(sym_pass),
+            "symmetric_oof_identity_logloss": round(id_ll, 4), "symmetric_oof_temp_logloss": round(tp_ll, 4),
+            "side_aware_diagnostic_logloss": round(m["bt_sa"][0], 4),
+            "production_side_neutral_logloss": round(m["bt_neutral"][0], 4),
             "bbt_vs_elo_fold_wins": f"{wins}/{len(fold_ids)}",
             "mean_radiant_c_bt": round(float(np.mean(cb_list)), 4),
             "as_of_cutoff": "2026-08-01", "git_commit": _commit(),
-            "note": ("Side-aware eval: radiant coeff fit train-only per fold; held-out scored on actual "
-                     "sides; production prob is side-neutral (avg of both side assignments). Only "
-                     "symmetry-preserving temperature tested. Refit at TI cutoff on pre-cutoff OOF only; "
-                     "never update from crowd%, odds, or results.")}
+            "note": ("Production = identity side-neutral B-bt. AT THE TI CUTOFF: refit B-bt on all "
+                     "eligible pre-cutoff data and emit side-neutral probs; do NOT refit any Platt "
+                     "(there is no production Platt). The temperature candidate stays DISABLED unless "
+                     "the preregistered symmetric-OOF test passes. c=+0.088 rules out radiant advantage "
+                     "as the main intercept cause but not team-a ordering / base-rate effects "
+                     "(unresolved). Never update from crowd%, odds, or results.")}
     with open(os.path.join(INPUTS, "production_platt.json"), "w", encoding="utf-8") as fh:
         json.dump(prod, fh, ensure_ascii=False, indent=2)
     print("\n".join(L))
-    print(f"\nproduction decision: {prod['production_mode']} | commit {prod['git_commit']}")
+    print(f"\nproduction: {decision} | symmetric temp pass={sym_pass} | commit {prod['git_commit']}")
 
 
 if __name__ == "__main__":

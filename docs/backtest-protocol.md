@@ -168,17 +168,20 @@ Gate unchanged. No TI2026 probabilities until it passes.
 - On receiving screenshots, first classify their content — crowd pick %, official prediction
   probabilities, or true odds — before deciding use.
 
-- **Track-2 calibration: production = IDENTITY side-neutral B-bt (VALIDATED by the side-aware eval).**
-  Side-aware eval (`calibration-sideaware.md`, measurement fix, no search): radiant coeff fit
-  train-only per fold (c~+0.088), held-out maps scored on ACTUAL sides, side-neutral production probs
-  by averaging both side assignments, only symmetry-preserving temperature tested. Definitive:
-  (i) the ~+0.4 calibration intercept **persists after orientation correction** -> orientation is NOT
-  the cause; its decomposition (base rate / ordering / model centering) is **unresolved**;
-  (ii) symmetric temperature does **not** improve OOS (LL 0.6444 -> 0.6500; the fit even sharpens) ->
-  **no calibration layer**; (iii) **B-bt still beats A-elo 17/23 folds** side-aware (0.6444 vs
-  0.6547). Temperature form: `q = sigmoid(b*logit(p))`, `b<1` softens, `b>1` sharpens.
-  `production_platt.json` records the decision + as-of cutoff + commit; refit at the TI cutoff on
-  pre-cutoff OOF only; never update from crowd%/odds/results. Frozen = the pipeline spec, not numbers.
+- **Track-2 calibration: production = IDENTITY side-neutral B-bt (CONCLUSIVELY frozen).**
+  Two scores, reported separately: **0.6444** side-aware diagnostic (actual side known) vs **0.6518**
+  production-aligned side-neutral (side unknown -- what ships). The clean **symmetric-OOF temperature
+  test** (`calibration-sideaware.md`; each OOF obs + its (B,A,1-y,1-p) mirror at half weight;
+  zero-intercept temperature fit strictly on prior folds; removes team-a base-rate confounding,
+  preserves P(A>B)+P(B>A)=1) shows temperature **fails** (LL 0.6518 -> 0.6573, ECE 0.038 -> 0.049) ->
+  **no calibration layer**. The symmetrized side-neutral B-bt is already well-calibrated (ECE 0.038).
+  Measured c=+0.088 rules out radiant-side **advantage** as the main cause of the fixed-side +0.4
+  intercept, but **not** team-a ordering / evaluation base-rate effects (unresolved; symmetrization
+  confirms they were the confound). **B-bt still beats A-elo 17/23 folds.** Temperature form:
+  `q = sigmoid(b*logit(p))`, `b<1` softens, `b>1` sharpens. AT THE TI CUTOFF: **refit B-bt** on all
+  eligible pre-cutoff data and emit side-neutral probs -- **no production Platt to refit**; the
+  temperature candidate stays DISABLED unless the preregistered symmetric-OOF test passes. Never
+  update from crowd%/odds/results. Frozen = the pipeline spec, not the numbers.
 
 - **Simulator gate:** `simulate.py` is mechanics-validated only (monotonicity + normalization on
   synthetic strengths). Before ANY formal tournament output (even model-only Track 1) it must pass a

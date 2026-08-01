@@ -1,13 +1,17 @@
 {
   "production_mode": "identity_side_neutral_bbt",
-  "temperature_b": 1.118759,
-  "temperature_form": "sigmoid(b*logit(p)); b<1 softens",
-  "validated_side_aware": false,
-  "side_aware_bbt_logloss": 0.6444,
-  "bbt_temp_logloss": 0.65,
+  "selected_model": "B-bt",
+  "calibration_layer": "none (identity)",
+  "symmetric_oof_temperature_b": 1.156852,
+  "temperature_form": "sigmoid(b*logit(p)); b<1 softens, b>1 sharpens",
+  "symmetric_oof_pass": false,
+  "symmetric_oof_identity_logloss": 0.6518,
+  "symmetric_oof_temp_logloss": 0.6573,
+  "side_aware_diagnostic_logloss": 0.6444,
+  "production_side_neutral_logloss": 0.6518,
   "bbt_vs_elo_fold_wins": "17/23",
   "mean_radiant_c_bt": 0.0877,
   "as_of_cutoff": "2026-08-01",
-  "git_commit": "0544779",
-  "note": "Side-aware eval: radiant coeff fit train-only per fold; held-out scored on actual sides; production prob is side-neutral (avg of both side assignments). Only symmetry-preserving temperature tested. Refit at TI cutoff on pre-cutoff OOF only; never update from crowd%, odds, or results."
+  "git_commit": "e17fdb0",
+  "note": "Production = identity side-neutral B-bt. AT THE TI CUTOFF: refit B-bt on all eligible pre-cutoff data and emit side-neutral probs; do NOT refit any Platt (there is no production Platt). The temperature candidate stays DISABLED unless the preregistered symmetric-OOF test passes. c=+0.088 rules out radiant advantage as the main intercept cause but not team-a ordering / base-rate effects (unresolved). Never update from crowd%, odds, or results."
 }
