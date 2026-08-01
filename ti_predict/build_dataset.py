@@ -49,6 +49,8 @@ def main():
     seen = {}
     for m in matches:
         mid = int(m["match_id"])
+        if int(m["overlap"]) < 4:          # 3/5 = predecessor lineup -> player-prior only, not team history
+            continue
         if mid in seen:
             continue
         sc = scan.get(mid)
@@ -61,6 +63,7 @@ def main():
         sid = sc.get("series_id") or 0
         seen[mid] = {"match_id": mid, "start_time": sc.get("start_time"),
                      "date": datetime.fromtimestamp(sc["start_time"], timezone.utc).date().isoformat() if sc.get("start_time") else "",
+                     "leagueid": sc.get("leagueid"),
                      "team_a": ident(our_id), "team_b": ident(opp_id),
                      "a_won": int(bool(a_won)), "series_id": sid, "overlap_a": int(m["overlap"])}
 
@@ -93,7 +96,7 @@ def main():
         r["bo2_draw"] = int(r["series_key"] in bo2_draw_keys)
 
     os.makedirs(PROC, exist_ok=True)
-    cols = ["match_id", "start_time", "date", "team_a", "team_b", "a_won", "series_key",
+    cols = ["match_id", "start_time", "date", "leagueid", "team_a", "team_b", "a_won", "series_key",
             "series_size", "weight", "bo2_draw", "overlap_a"]
     with open(os.path.join(PROC, "dataset_maps.csv"), "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore"); w.writeheader(); w.writerows(rows)
