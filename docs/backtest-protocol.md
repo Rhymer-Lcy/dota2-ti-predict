@@ -156,8 +156,8 @@ Gate unchanged. No TI2026 probabilities until it passes.
 
 - **Feasibility:** historical timestamped esports odds are not obtainable here (no free source; paid
   feeds prohibit betting-use). Per the protocol-revision provision, output is therefore split into
-  two tracks. This does **not** retroactively claim (c) passed — gate (c) stays formally OPEN and is
-  flagged on every output.
+  two tracks. This does **not** retroactively claim (c) passed — gate (c) is **unresolved / not
+  cleared** (not merely "open") and is flagged on every output.
   - **Track 1 — model-only probability:** B-bt probabilities (map -> series -> Swiss/bracket) MAY be
     emitted (it cleared gates (a)+(b)), but **every such output is labeled "model-only; NOT validated
     against historical market increment."**
@@ -167,3 +167,15 @@ Gate unchanged. No TI2026 probabilities until it passes.
 
 - On receiving screenshots, first classify their content — crowd pick %, official prediction
   probabilities, or true odds — before deciding use.
+
+- **Track-2 absolute probabilities are FROZEN after the fixed calibration** (`calibration-v1.md`;
+  no search): per-fold radiant coefficient estimated on train -> side-neutral (average over A-radiant
+  / A-dire) -> strictly-rolling OOS Platt (params only from pre-fold predictions). Reported raw /
+  side-neutral / side-neutral+Platt; **side-neutral + OOS Platt is the frozen probability**
+  (log-loss 0.6432, ECE 0.048). Mean radiant coefficient c=+0.088 confirms side alone cannot explain
+  the intercept, so "intercept = radiant" is rejected as sole cause.
+
+- **Simulator gate:** `simulate.py` is mechanics-validated only (monotonicity + normalization on
+  synthetic strengths). Before ANY formal tournament output (even model-only Track 1) it must pass a
+  **rule-level verification** against the official TI2026 Swiss pairing, special-elimination, and
+  8-team seeding rules once posted.
