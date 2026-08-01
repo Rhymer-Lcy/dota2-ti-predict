@@ -68,6 +68,13 @@ python -m ti_predict.series        # self-test of the series math
 De-vig is `from ti_predict.devig import shin`. OpenDota needs no key; STRATZ token (optional) goes
 in `.env.local` (copy `.env.template`).
 
+Commit messages follow Conventional Commits with a **subject <=72 chars, pure ASCII**, enforced by
+a hook (no manual checking). Install it once per clone:
+
+```
+cp scripts/git-hooks/commit-msg .git/hooks/commit-msg && chmod +x .git/hooks/commit-msg
+```
+
 ## Data & hygiene
 See [`docs/data-sources.md`](docs/data-sources.md). OpenDota is the free primary source; there is
 **no reliable free odds API** (odds come from screenshots). Never commit tokens or paid-odds data.

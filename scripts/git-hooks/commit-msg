@@ -1,0 +1,16 @@
+#!/bin/sh
+# House commit rule: subject line <= 72 chars and pure ASCII (Conventional Commits).
+# Install once:  cp scripts/git-hooks/commit-msg .git/hooks/commit-msg && chmod +x .git/hooks/commit-msg
+subject=$(grep -v '^#' "$1" | sed '/^[[:space:]]*$/d' | head -n1)
+if printf '%s' "$subject" | LC_ALL=C grep -q '[^ -~]'; then
+  echo "commit-msg: subject has non-ASCII characters; use ASCII only:" >&2
+  echo "  $subject" >&2
+  exit 1
+fi
+n=$(printf '%s' "$subject" | wc -c | tr -d ' ')
+if [ "$n" -gt 72 ]; then
+  echo "commit-msg: subject is $n chars (>72); shorten to <=72:" >&2
+  echo "  $subject" >&2
+  exit 1
+fi
+exit 0
