@@ -153,18 +153,55 @@ Findings:
 - **Nigma** shows 13 maps at 3/5 -> roster in flux within the window; stable core = 28 at 5/5.
   OG (13) / HULIGANI (10) / Falcons (7) / LGD (6) at 4/5 -> stand-in usage to model as discounted.
 
-Caveat (gate 4, still open): the window starts **2026-05-15**, so a roster formed earlier is
-truncated. **Resilience** (formed ~April) likely has pre-05-15 official games outside this snapshot,
-so its "8" is partly window-truncation, not pure few-games. Finalizing gate 4 needs the pro-universe
-scan extended back (~to March) and/or a Liquipedia event cross-check.
+Caveat (now RESOLVED in step 3b below): this table's window starts **2026-05-15**, truncating
+early-forming rosters (e.g. Resilience). The pro-universe was extended back to 2026-02 and coverage
+re-run — see the authoritative 5-month table in step 3b.
 
-## Next B0 step → then modeling (gate still holds)
-1. **Extend the pro-universe scan back to ~2026-03** and rerun coverage, so thin counts reflect
-   real few-games rather than window truncation (esp. Resilience).
-2. **Rebuild `canonical_identity.csv` in the multi-id schema**: `organization -> [source_team_id...]`
-   (from the source_team_ids above) `-> per-match roster_key`, with observed vs evidenced-valid time
-   and `roster_confirmed_at_cutoff` / continuity split.
-3. **Reconcile Xtreme / Resilience / 1w / HULIGANI vs the public schedule** (Liquipedia).
-Only after (1)-(3): assemble the training set from `roster_matches.csv` (series-capped via
-`series_id`; thin/stale shrinkage for Resilience/HULIGANI/OG) and run baselines + rolling backtest
-per `modeling-plan.md`. **B0 stays FAILED and the model gate stays closed until reconciliation.**
+## B0 step 3b — deeper window (5-month) + gate-4 reconciliation
+Pro-universe extended to **2026-02-27 .. 08-01** (9000 matches, `scan_promatches.py`) and coverage
+re-run. Authoritative roster-centric counts:
+
+| team | 5/5 | 4/5 | 3/5 | series | window | source_ids (primary first) |
+|------|----:|----:|----:|----:|--------|----------------------------|
+| Aurora | 117 | 26 | 0 | 55 | 02-28..07-15 | 9467224 |
+| BetBoom | 140 | 0 | 0 | 66 | 03-07..08-01 | 8255888 |
+| Falcons | 90 | 17 | 0 | 47 | 03-07..07-31 | 9247354 |
+| Liquid | 89 | 38 | 0 | 44 | 02-28..07-31 | 2163 |
+| Tundra->1w | 96 | 31 | 0 | 47 | 02-28..07-31 | 10182357\|10150413\|8291895 |
+| Xtreme | 115 | 5 | 0 | 55 | 02-28..07-31 | 10208071\|8261500 |
+| Yandex | 71 | 26 | 0 | 35 | 03-07..07-19 | 9823272 |
+| Resilience | 35 | 0 | 0 | 18 | 04-08..08-01 | 10207984\|5017210\|9316703 |
+| Vici | 98 | 19 | 0 | 43 | 03-07..08-01 | 726228 |
+| LGD (SA) | 113 | 14 | 0 | 53 | 03-07..08-01 | 10150538\|10208068\|10144195\|9303484 |
+| OG | 21 | 44 | 0 | 9 | 03-07..07-12 | 2586976 |
+| GamerLegion | 76 | 15 | 0 | 33 | 03-22..07-11 | 9964962 |
+| Spirit | 63 | 39 | 23 | 35 | 03-07..07-16 | 7119388 |
+| PARIVISION | 80 | 66 | 0 | 37 | 03-07..07-19 | 9824702\|9572001 |
+| HULIGANI | 129 | 10 | 6 | 52 | 03-12..07-31 | 10208009\|10182299\|10149530\|9303383 |
+| Nigma | 28 | 0 | 102 | 14 | 06-21..07-31 | 10136357 |
+
+**Gate-4 reconciliation (missing vs few-games) — four flagged teams RESOLVED:**
+- **Tundra->1w**: public-source confirmed — 1win signed the full Tundra roster (Pure/bzm/33/Ari/
+  Whitemon) effective **2026-06-01**, playing as **1w Team** at TI (esports.gg, dotesports,
+  gamereactor). Matches the id stitch 8291895->10150413->10182357; 96 maps. Real, not missing.
+- **Resilience**: public-source confirmed — 2026-founded CN roster (YSR-04E/plAnet/echo/Zzq/niu),
+  2nd at ESL Challenger China S3, won TI CN qualifier. Explains 35 maps since 04-08. Real.
+- **Xtreme (115)** / **HULIGANI (129; id 9303383 carries 105 maps Mar-May)** jumped once ids were
+  stitched -> earlier low counts were id-splitting/window, not OpenDota gaps.
+- Conclusion: low counts were **window-truncation + id-splitting, NOT 漏抓**. Coverage adequate.
+
+**Remaining genuine roster-flux (modeling shrinkage, not a data gap):**
+- **Nigma**: current five only **28** maps together (since 06-21); 102 at 3/5 = predecessor lineup
+  -> current roster is thin; predecessor games feed the player-prior only.
+- **OG**: stable five only **21**; 44 at 4/5 = heavy stand-in use -> discount stand-in maps.
+
+**Canonical schema rebuilt (multi-id, no single active id):** `inputs/canonical_identity.csv`
+(per-org: roster + all source_team_ids + primary + confirmed-at-cutoff) and `inputs/canonical_sources.csv`
+(per org x source_id observed windows), via `build_canonical.py`.
+
+## B0 CLOSED (2026-08-01)
+Stale ids re-resolved, id-splits stitched roster-centrically, rosters confirmed at cutoff, coverage
+adequate, missing-vs-few reconciled against public sources. **Model gate OPEN.** Next: assemble the
+training set from `roster_matches.csv` (1842 maps; series-capped via `series_id`; shrinkage for
+Nigma / OG / Resilience), then baselines (Elo / time-decay Elo / Glicko-2) + rolling backtest per
+`modeling-plan.md`. **Predictions only after the backtest gate.**
