@@ -60,10 +60,49 @@ survived roster changes. → Drop the OpenDota rating now; treat the id-age/samp
 to-be-confirmed explanation, and build + backtest our own opponent-adjusted, recency/roster-aware
 rating.
 
-## Next B0 steps (still pre-model, gate holds)
-1. **Re-resolve the current team_ids** for BetBoom and LGD (and re-check Tundra/Nigma recency);
-   verify each id's recent matches actually belong to the current roster.
-2. **Derive `roster_key` from recent match player lists** (ignore the unreliable current-member
-   flag); compute roster overlap over time.
-3. Only then assemble the training set (recent, cross-region weighted, series-capped) and run the
-   baseline comparison + rolling backtest per `modeling-plan.md`.
+## B0 step 2 — identity & roster resolution (done 2026-08-01)
+Via `ti_predict/resolve_identity.py` (recent `proMatches` scan 2026-05-15..08-01 + match-detail
+roster extraction). Authoritative map: `data/ti2026/inputs/canonical_identity.csv`; recent
+map+series rows for gate 3: `data/ti2026/processed/recent_matches.csv` (599 rows).
+
+**6 of 16 team_ids were stale/wrong and are re-resolved** — modeling on the original ids would have
+rated the wrong roster (Xtreme's original id was both stale *and* a different roster):
+
+| org | old id | active id | current roster | recent maps |
+|-----|-------:|----------:|----------------|:-----------:|
+| BetBoom (BoomBoys) | 9131584 | **8255888** | Kiritych~, gpk~, MieRo, Save-, Kataomi` | 59 |
+| Xtreme Gaming | 8261500 | **10208071** | Ame, NothingToSay, Xxs, fy, xNova | **3** |
+| Team Resilience | 5017210 | **10207984** | YSR-04E, Echozz, niu, planet, zzq | **2** |
+| LGD Gaming (SA) | 15 | **10150538** | Yuma, TaiLung, Wisper, Thiolicor, KingJungles | 58 |
+| Nigma Galaxy | 7554697 | **10136357** | SumaiL-, OmaR, Davai, GH, lorenof | 41 |
+| Tundra (kept id, inactive) | — | 8291895 | 33, Ari, Whitemon, bzm, Pure | 11 |
+
+The other 10 kept their id; rosters extracted + confirmed. `teams.csv` updated to active ids (old
+ids kept in notes + canonical map).
+
+**Confidence caveat (important):** the `confidence=high` column means the *roster was identified*
+confidently (5 accounts, stable across the two most-recent matches). It says **nothing about data
+sufficiency for rating** — those are separate:
+
+| data sufficiency | teams |
+|------------------|-------|
+| OK (≥~30 recent maps, active) | Aurora, BetBoom, Falcons, Liquid, Yandex, Vici, LGD, OG, GamerLegion, Spirit, Nigma; PARIVISION (30, borderline) |
+| THIN / problematic | **Xtreme (3, brand-new superteam id)**, **Resilience (2)**, **Tundra (11, no games since May)**, HULIGANI (21, new org) |
+
+**Missing-data disposition (gate 4) — flagged for manual Liquipedia confirm (OpenDota blocks
+automated fetch):**
+- Xtreme (3) / Resilience (2): new ids appearing only recently → few games looks *genuinely* real
+  (fresh rosters); confirm no extra matches hide under yet another id.
+- Tundra (11, no games since 2026-05-18): plausibly a real summer break by an invited team; confirm
+  vs schedule and treat as stale form regardless.
+- HULIGANI (21, all June 2026): new EU qualifier; 21 maps likely its whole record; confirm.
+
+**As-of:** rosters are "as of 2026-08-01" (correct for the live pick). For the rolling backtest each
+event's rosters must be re-frozen at that event's cutoff; the resolver reads only matches up to run
+time, and no post-cutoff match is used to confirm an earlier roster.
+
+## Next B0 step → then modeling (gate still holds)
+Assemble the training set from `recent_matches.csv` (recent, cross-region, **series-capped** via
+`series_id`), applying the thin/stale handling above (team-level backbone + shrunk player prior +
+widened uncertainty for Xtreme/Resilience/Tundra/HULIGANI). Then run the baseline comparison +
+rolling backtest per `modeling-plan.md`. No TI2026 probabilities until it clears the gate.
