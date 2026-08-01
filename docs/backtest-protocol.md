@@ -113,3 +113,30 @@ calibration only.
    TI-vs-TI dedup). Training set = current-roster maps only (overlap >= 4).
 
 Gate unchanged (above). No TI2026 probabilities until it passes.
+
+---
+
+## Addendum B — universe/folds/screening locks (frozen 2026-08-01)
+
+1. **Rating universe != evaluation set.** Ratings train on the **full pro universe** (8544 maps in
+   the as-of window, `universe_maps.csv`) so opponents are identified by their *other* games;
+   **evaluation is restricted to the 1177 preregistered target maps** (current TI rosters). Sizes
+   reported separately. Non-TI teams keep a fixed `t{id}` identity (calibration only; their roster
+   churn is out of scope).
+
+2. **Explicit frozen fold table** (`inputs/folds.csv`, 23 folds) — one per event (leagueid) with
+   `league_name, start, end, cutoff, n_target, n_train_universe`. **Training eligibility is by time,
+   not league membership:** a map trains iff `start_time < fold.cutoff`. This prevents leakage from
+   temporally overlapping events (a concurrent league's later maps are excluded by the time cutoff).
+   Exact formulas/constants for the four candidates: `model-implementation.md`.
+
+3. **Screening semantics.** v1 is untuned and is a *screening* comparison. A clear, calibrated winner
+   over `A-elo` advances; a **tie or universal failure triggers a separately preregistered
+   nested-tuning v2** (tuning strictly inside each outer training fold) rather than a conclusion that
+   the model families failed.
+
+4. **Robustness reporting.** Report per-fold sizes and **leave-one-event-out (LOEO)** sensitivity of
+   the aggregate, so neither many tiny folds nor one large event (e.g. DreamLeague S29 = 169, EWC =
+   142) silently determines the outcome. Uncertainty via event-blocked bootstrap (Addendum A.5).
+
+Gate unchanged. No TI2026 probabilities until it passes.
