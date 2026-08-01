@@ -32,6 +32,17 @@ player_ids, source, confidence`. Weight historical matches by roster overlap wit
 on roster change lower inheritance **and** raise uncertainty; distinguish a temporary stand-in from
 a real transfer.
 
+**Coverage must be roster-centric, not id-centric** (learned the hard way — see data-audit-b0.md):
+count a roster's games as the matches its current five played **across all team_ids**, found by
+pulling the five players' own histories and keeping matches where >=4 of 5 appear. Counting one
+"active" id's maps under-counts whenever an org splits/renames ids (Xtreme, Resilience, Tundra→1w)
+and would feed *fake* thin-sample shrinkage.
+
+**Split the stability field:** `roster_confirmed_at_cutoff` (the five are confirmed as of the
+prediction date — basis: official TI roster / recent matches / announcement) is separate from
+`roster_continuity_60d` / `_10series` (how long they've actually played together). Two recent
+matches agreeing confirms *identity at cutoff*, not *continuity*.
+
 ## B0 hard gates — data must clear these before any training
 1. **Canonical identity map** (above) resolved for all 16 teams, with time-validity, source and
    confidence — not a one-off id replacement.

@@ -101,6 +101,22 @@ automated fetch):**
 event's rosters must be re-frozen at that event's cutoff; the resolver reads only matches up to run
 time, and no post-cutoff match is used to confirm an earlier roster.
 
+## B0 step 2 — REOPENED (id-splitting verified from the proMatches scan)
+The step-2 map above used a **single active id per org** — wrong when an org splits/renames ids.
+Verified from `raw/promatches_scan.json` (no new fetch), same-org ids **both active** in the window:
+
+| org | ids seen (name, maps, dates) | problem |
+|-----|------------------------------|---------|
+| Xtreme | 8261500 "Xtreme Gaming" 38 (05-16..07-14) **+** 10208071 "Xtreme Gaming" 3 (07-31) | I kept only the 3; real games are on 8261500 |
+| Tundra→1w | 8291895 "Tundra" 11 (to 05-18) **+** 10182357 "1w" 17 (07-07..07-31) | roster moved to **1w**; not "inactive since May" |
+| Resilience | 5017210 6 (06-15..18) **+** 10207984 2 (07-31) | split across two ids |
+| LGD (careful) | 10150538 "LGD Gaming" 58 (SA roster, my pick) vs 9580444 "PSG.LGD" 20 vs 10208068 "LGD.Pinghu" 3 | distinct rosters — must **not** merge |
+
+This confirms the external review: **Tundra must become 1w; Xtreme's history is cut; Resilience's
+games are split.** `canonical_identity.csv` v1 (single active id) is **superseded** — being rebuilt
+roster-centrically by `ti_predict/roster_coverage.py` (track the five players across every id).
+**B0 gate remains FAILED; model gate stays closed.**
+
 ## Next B0 step → then modeling (gate still holds)
 Assemble the training set from `recent_matches.csv` (recent, cross-region, **series-capped** via
 `series_id`), applying the thin/stale handling above (team-level backbone + shrunk player prior +
