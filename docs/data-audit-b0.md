@@ -117,8 +117,54 @@ games are split.** `canonical_identity.csv` v1 (single active id) is **supersede
 roster-centrically by `ti_predict/roster_coverage.py` (track the five players across every id).
 **B0 gate remains FAILED; model gate stays closed.**
 
+## B0 step 3 — roster-centric coverage (done, corrected 2026-08-01)
+Via `ti_predict/roster_coverage.py`: each roster's five players' own match lists intersected with the
+pro-match universe (proMatches snapshot), counted only when >=4 are on the **same side**, layered
+5/5 (direct) · 4/5 (stand-in) · 3/5 (player-prior only), de-duped by map_id, series_id kept.
+Window = snapshot span **2026-05-15 .. 08-01**. Detail: `data/ti2026/processed/roster_matches.csv`
+(735 maps); summary: `roster_coverage.csv`.
+
+| org | 5/5 | 4/5 | 3/5 | series(5/5) | window (>=4/5) | source_team_ids |
+|-----|----:|----:|----:|-----:|----------------|-----------------|
+| Aurora Gaming | 61 | 0 | 0 | 32 | 05-15..07-15 | 9467224 |
+| BetBoom Team | 59 | 0 | 0 | 32 | 05-15..07-31 | 8255888 |
+| Team Falcons | 44 | 7 | 0 | 26 | 05-15..07-31 | 9247354 |
+| Team Liquid | 50 | 0 | 0 | 29 | 05-15..07-31 | 2163 |
+| Tundra->1w | 52 | 0 | 0 | 29 | 05-16..07-31 | 8291895 \| 10150413 \| 10182357 |
+| Xtreme Gaming | 41 | 0 | 0 | 25 | 05-16..07-31 | 8261500 \| 10208071 |
+| Team Yandex | 42 | 0 | 0 | 24 | 05-26..07-19 | 9823272 |
+| Team Resilience | 8 | 0 | 0 | 4 | 06-15..07-31 | 5017210 \| 10207984 |
+| Vici Gaming | 51 | 0 | 0 | 22 | 05-15..07-31 | 726228 |
+| LGD Gaming (SA) | 61 | 6 | 0 | 32 | 05-15..07-31 | 10144195 \| 10150538 \| 10208068 |
+| OG | 21 | 13 | 0 | 9 | 05-26..07-12 | 2586976 |
+| GamerLegion | 31 | 0 | 0 | 14 | 05-15..07-11 | 9964962 |
+| Team Spirit | 54 | 0 | 0 | 31 | 05-15..07-16 | 7119388 |
+| PARIVISION | 59 | 0 | 0 | 29 | 05-16..07-19 | 9572001 \| 9824702 |
+| HULIGANI | 24 | 10 | 0 | 9 | 06-01..07-31 | 10149530 \| 10182299 \| 10208009 |
+| Nigma Galaxy | 28 | 0 | 13 | 14 | 06-21..07-31 | 10136357 |
+
+Findings:
+- **The apparent "thin samples" were mostly id-splitting.** Roster-centric aggregation restores
+  Xtreme (3->41), Tundra->1w (11->52), Resilience (2->8), PARIVISION (30->59). Only **Resilience (8)**
+  is now genuinely light; OG (21) / HULIGANI (24) are modest; the rest are well-covered.
+- **id-splitting is rampant this cycle** — 6 orgs span 2-3 team_ids (new ids minted ~late July for TI
+  registration). This is why the single-`active_team_id` model failed; the multi-id schema is required.
+- **LGD kept its three rosters separate** automatically (PSG.LGD 9580444 not in LGD's list).
+- **Nigma** shows 13 maps at 3/5 -> roster in flux within the window; stable core = 28 at 5/5.
+  OG (13) / HULIGANI (10) / Falcons (7) / LGD (6) at 4/5 -> stand-in usage to model as discounted.
+
+Caveat (gate 4, still open): the window starts **2026-05-15**, so a roster formed earlier is
+truncated. **Resilience** (formed ~April) likely has pre-05-15 official games outside this snapshot,
+so its "8" is partly window-truncation, not pure few-games. Finalizing gate 4 needs the pro-universe
+scan extended back (~to March) and/or a Liquipedia event cross-check.
+
 ## Next B0 step → then modeling (gate still holds)
-Assemble the training set from `recent_matches.csv` (recent, cross-region, **series-capped** via
-`series_id`), applying the thin/stale handling above (team-level backbone + shrunk player prior +
-widened uncertainty for Xtreme/Resilience/Tundra/HULIGANI). Then run the baseline comparison +
-rolling backtest per `modeling-plan.md`. No TI2026 probabilities until it clears the gate.
+1. **Extend the pro-universe scan back to ~2026-03** and rerun coverage, so thin counts reflect
+   real few-games rather than window truncation (esp. Resilience).
+2. **Rebuild `canonical_identity.csv` in the multi-id schema**: `organization -> [source_team_id...]`
+   (from the source_team_ids above) `-> per-match roster_key`, with observed vs evidenced-valid time
+   and `roster_confirmed_at_cutoff` / continuity split.
+3. **Reconcile Xtreme / Resilience / 1w / HULIGANI vs the public schedule** (Liquipedia).
+Only after (1)-(3): assemble the training set from `roster_matches.csv` (series-capped via
+`series_id`; thin/stale shrinkage for Resilience/HULIGANI/OG) and run baselines + rolling backtest
+per `modeling-plan.md`. **B0 stays FAILED and the model gate stays closed until reconciliation.**
