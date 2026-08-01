@@ -32,25 +32,33 @@ Numbers are per **OpenDota team_id** (maps = matches OpenDota has for that id).
    LGD / PARIVISION / HULIGANI. → do **not** trust that flag; derive `roster_key` from the player
    account_ids in recent match data (or Liquipedia).
 3. **Thin samples** — HULIGANI (21 maps, only June 2026), PARIVISION (75), Resilience (77/365d=29),
-   BetBoom (stale). Team-level recent form is too thin here → these need player-level ratings and/or
-   heavy shrinkage toward the market/field.
+   BetBoom (stale). Team-level recent form is thin here — but note "thin" must first be confirmed as
+   *真实少赛* vs *OpenDota 漏抓* (see gate 4 in modeling-plan). Where genuinely thin: keep the
+   **current roster's team-level rating as the backbone**, add the five players' history only as a
+   **heavily-shrunk auxiliary prior with widened uncertainty** (not a pure player model), and lean
+   on market anchoring; the backtest decides whether player-level info is kept.
 4. **Veteran ids mix years of history** — Liquid (14y, id since 2012), Vici, OG, Nigma. Recent
    roster games under the id can be tiny (Liquid min-roster-games = 7). → window to recent + roster
    continuity, never the id's all-time record.
 
-## The Elo divergence, now explained with evidence (correcting the earlier over-claim)
-Earlier I said the OpenDota "Xtreme ~1211 vs Yandex/PVISION ~1500+" gap "proved" small-sample/new
-roster. That attribution was premature. The audit shows the real mechanism:
-- **Xtreme 8261500**: 1109 maps of history (2021→2026, .55 win rate). OpenDota's naive K=32 Elo
-  (seed 1000) settles a long, near-.550 record close to the low-1200s — an **all-history average**,
-  not current strength.
-- **Yandex 9823272 / PVISION 9824702**: **new ids** (since 2025-07) with high recent win rates
-  (.60 / .64) over **few games** and a narrow league set (Yandex 18 / PVISION 5 leagues, vs
-  Xtreme's 68). A young id with a hot, narrow record **drifts up** without the long regression a
-  veteran id carries.
-So the gap is an artifact of **id age × win rate × opponent/league breadth**, not a clean
-current-strength signal → **do not use the OpenDota `rating` field.** (This is exactly why the plan
-builds its own opponent-adjusted, recency/roster-aware rating and backtests it.)
+## The Elo divergence — working hypothesis, not a proven decomposition
+Earlier I said the "Xtreme ~1211 vs Yandex/PVISION ~1500+" gap "proved" small-sample / new roster.
+That was premature, and any precise causal story stays a hypothesis until we replay each id's full
+ordered match sequence against opponent ratings.
+
+**Firmly established by the audit:** OpenDota's `rating` mixes different eras, rosters and
+data-coverage conditions under one id, so **it cannot be used as a current-strength indicator.**
+
+**Hypothesis (to verify by replay), not fact:** Xtreme (8261500) is a long single-id history
+(1109 maps, ~.55); Yandex/PVISION are young ids (since 2025-07) with few games and narrow
+opposition. Caveats that keep this a hypothesis: plain Elo has **no automatic mean-reversion** — an
+old id is not pushed down merely for being old; its rating is set by opponents, match order and
+recent results. A young id's seed influence only decays with games. And **league *count* is not in
+the Elo formula** — it is just a **proxy for schedule breadth**; what actually matters is *which*
+opponents, their ratings, the order, missing data, how a Bo3 updates the rating, and whether the id
+survived roster changes. → Drop the OpenDota rating now; treat the id-age/sample story as a
+to-be-confirmed explanation, and build + backtest our own opponent-adjusted, recency/roster-aware
+rating.
 
 ## Next B0 steps (still pre-model, gate holds)
 1. **Re-resolve the current team_ids** for BetBoom and LGD (and re-check Tundra/Nigma recency);

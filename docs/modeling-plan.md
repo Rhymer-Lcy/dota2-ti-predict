@@ -19,12 +19,38 @@ checking.
 > was an over-attribution; corrected here.)
 
 ## Entity separation — three distinct keys (do not conflate)
-- **org name** (e.g. Team Falcons) — branding only; includes TI aliases (BoomBoys=BetBoom,
+Do **not** just swap a wrong id for one "correct" id — a club can change id again, and one id can
+carry several rosters. Maintain a time-versioned identity map:
+
+- **organization** — club / brand (e.g. Team Falcons); includes TI aliases (BoomBoys=BetBoom,
   Team Vision=PARIVISION).
-- **opendota_team_id** — data key; may carry stale roster history or fork into a new id.
-- **roster_key** — the current five players; the *true* unit of strength. Store the five starters
-  per match; weight historical matches by overlap with the current roster; on roster change lower
-  inheritance **and** raise uncertainty; distinguish a temporary stand-in from a real transfer.
+- **source_team_id** — the OpenDota id(s) actually used; **one org may map to several ids over time**.
+- **roster_key** — the specific five players; the *true* unit of strength.
+
+Record per mapping row: `organization, source_team_id, roster_key, valid_from, valid_to,
+player_ids, source, confidence`. Weight historical matches by roster overlap with the current five;
+on roster change lower inheritance **and** raise uncertainty; distinguish a temporary stand-in from
+a real transfer.
+
+## B0 hard gates — data must clear these before any training
+1. **Canonical identity map** (above) resolved for all 16 teams, with time-validity, source and
+   confidence — not a one-off id replacement.
+2. **As-of / no-lookahead.** Reconstruct "who is the current roster" using only information knowable
+   *before* the prediction cutoff (entry lists, official announcements, starting lineups of matches
+   already played, subs visible then). Never use a post-cutoff match to confirm an earlier roster —
+   that leaks the future into the rolling backtest.
+3. **Store map-level AND series-level.** Keep `series_id, map_id, best_of, series_result,
+   map_result, stage, date, patch, roster_a, roster_b`. Without series structure the "series-weight
+   cap" (a 2:1 Bo3 must not outweigh a 2:0 via three "independent" maps) cannot be applied.
+4. **Audit missing data, not just low counts.** 21 maps can mean *few games played* OR *OpenDota
+   missed events*. Cross-check each team against the public schedule (known events ingested? map
+   counts consistent? online qualifiers present? matches split across a renamed id? duplicates?).
+   Apply shrinkage only when the sample is genuinely small; if data is missing, backfill first.
+
+## Thin-sample teams
+Backbone = the current roster's **team-level** rating; add player history only as a heavily-shrunk
+auxiliary prior with widened uncertainty (never "new team = average of five players' old ratings").
+Player-level info enters the model only if the rolling backtest shows it adds value.
 
 ## Phase B1 — competing baselines (pick by backtest, don't pre-declare a winner)
 - **A — plain Elo** (opponent strength only).
