@@ -25,11 +25,12 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
 - **Model: SELECTED & FROZEN (spec, not numbers).** B0 closed (multi-id canonical + roster-centric
   coverage + opponent-graph gate). Screening backtest (event-frozen rolling, 23 folds; universe 8544
   / eval 1177) → **Bradley-Terry (B-bt)** wins **17/23 folds** (bootstrap CI excludes 0), best Brier
-  + calibration. Absolute probability = **raw side-neutral B-bt** — the OOS-Platt "gain" proved to be
-  a fixed-team_a-side (radiant) eval artifact and the symmetric temperature does not reproduce it, so
-  **calibration is UNVALIDATED (production defaults to identity)**; a temperature candidate + cutoff +
-  commit are stored in [`data/ti2026/inputs/production_platt.json`](data/ti2026/inputs/production_platt.json),
-  to be validated by a side-aware eval. See `docs/backtest-results-v1.md`, `robustness-v1.md`, `calibration-v1.md`.
+  + calibration. A **side-aware eval reconfirms B-bt beats A-elo 17/23 folds** (0.6444 vs 0.6547) and
+  shows the calibration intercept **persists after orientation correction** (not radiant; train
+  c~+0.088) while symmetric temperature does not improve OOS → **production = raw side-neutral B-bt
+  (identity), no calibration layer** (decision + as-of cutoff + commit in
+  [`data/ti2026/inputs/production_platt.json`](data/ti2026/inputs/production_platt.json); refit at TI
+  cutoff). See `docs/backtest-results-v1.md`, `robustness-v1.md`, `calibration-v1.md`, `calibration-sideaware.md`.
 - **What is frozen is the pipeline SPEC, not the final TI2026 numbers** — those come from an
   as-of-cutoff refit using this frozen model + calibration. The production calibration is refit at
   the TI cutoff on pre-cutoff rolling-OOF preds only; **never** updated from crowd%, odds, or results.

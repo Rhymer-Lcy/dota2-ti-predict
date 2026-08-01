@@ -168,14 +168,17 @@ Gate unchanged. No TI2026 probabilities until it passes.
 - On receiving screenshots, first classify their content — crowd pick %, official prediction
   probabilities, or true odds — before deciding use.
 
-- **Track-2 calibration: pipeline frozen; production = IDENTITY (UNVALIDATED).** Fixed step
-  (`calibration-v1.md`, no search): per-fold radiant coeff on train -> side-neutral -> rolling-OOS
-  recalibration. The full-Platt ECE gain (0.097->0.048) proved to be a **fixed-team_a-side (radiant)
-  eval artifact** (mean radiant c=+0.088 cannot explain intercept +0.5); the production-safe
-  **symmetric temperature does NOT reproduce it** (LL 0.6573 > 0.6518 raw). So **production = raw
-  side-neutral B-bt (identity)**; the temperature is stored only as an unvalidated candidate. A valid
-  calibration test needs a **side-aware eval** (recorded next step, run when unparked). The frozen
-  item is the **pipeline spec, not final numbers** — an as-of-cutoff refit produces those.
+- **Track-2 calibration: production = IDENTITY side-neutral B-bt (VALIDATED by the side-aware eval).**
+  Side-aware eval (`calibration-sideaware.md`, measurement fix, no search): radiant coeff fit
+  train-only per fold (c~+0.088), held-out maps scored on ACTUAL sides, side-neutral production probs
+  by averaging both side assignments, only symmetry-preserving temperature tested. Definitive:
+  (i) the ~+0.4 calibration intercept **persists after orientation correction** -> orientation is NOT
+  the cause; its decomposition (base rate / ordering / model centering) is **unresolved**;
+  (ii) symmetric temperature does **not** improve OOS (LL 0.6444 -> 0.6500; the fit even sharpens) ->
+  **no calibration layer**; (iii) **B-bt still beats A-elo 17/23 folds** side-aware (0.6444 vs
+  0.6547). Temperature form: `q = sigmoid(b*logit(p))`, `b<1` softens, `b>1` sharpens.
+  `production_platt.json` records the decision + as-of cutoff + commit; refit at the TI cutoff on
+  pre-cutoff OOF only; never update from crowd%/odds/results. Frozen = the pipeline spec, not numbers.
 
 - **Simulator gate:** `simulate.py` is mechanics-validated only (monotonicity + normalization on
   synthetic strengths). Before ANY formal tournament output (even model-only Track 1) it must pass a

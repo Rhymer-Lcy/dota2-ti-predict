@@ -19,18 +19,15 @@ the intercept-as-radiant idea is rejected as the sole cause; the Platt layer doe
    side-neutral step, and the OOS-Platt recipe — **not the final TI2026 numbers**. The
    final numbers come from an **as-of-cutoff refit** using this frozen model + calibration.
 2. Warm-up above: only the Platt-calibrated obs benefit; identity folds are uncorrected.
-3. **Production calibration status: UNVALIDATED -> default IDENTITY.** The full-Platt ECE
-   gain (0.097->0.048) is a fixed-team_a-side (radiant) eval artifact; the production-safe
-   symmetric temperature does NOT reproduce it on this side-confounded eval (LL 0.6573 >
-   0.6518 raw). So production = raw side-neutral B-bt for now; the temperature is stored as
-   an unvalidated candidate (`inputs/production_platt.json`, cutoff + commit, pre-cutoff OOF
-   only; **refit at TI cutoff; never update from crowd%/odds/results**).
+3. **This file is the side-neutral DIAGNOSTIC; the production decision lives in**
+   **`calibration-sideaware.md`** (the side-aware eval removes the orientation confound).
+   Temperature form: q = sigmoid(b*logit(p)); b<1 softens, b>1 sharpens.
 
-## Read (correction to the earlier 'materially improves' claim)
-- side-neutral ~ raw (eval fixes team_a = radiant; radiant c=+0.088 cannot explain +0.5).
-- The full-Platt ECE drop is **largely a fixed-side eval artifact** (its intercept absorbs
-  the radiant bias) and does NOT transfer to symmetric production.
-- The production-safe temperature (a=0) does **not** improve the side-confounded eval, so
-  **production calibration is NOT yet validated** -> default to identity (raw side-neutral
-  B-bt). A valid test needs a side-aware eval; recorded as the next calibration step to run
-  when unparked (a measurement fix, not a hyperparameter search). Ranking is unaffected.
+## Read (superseded for the production decision by the side-aware eval)
+- side-neutral ~ raw (this eval fixes team_a = radiant; train radiant c=+0.088).
+- The full-Platt ECE drop is an **orientation-specific base-rate offset absorbed by its
+  intercept** in this fixed-orientation eval; its decomposition (radiant advantage /
+  ordering / base rate / model centering) is **unresolved** and does not transfer to
+  symmetric production.
+- The side-aware eval (`calibration-sideaware.md`) is definitive: the intercept persists
+  after orientation correction, symmetric temperature does not help -> **production = identity side-neutral B-bt**. Ranking unaffected.

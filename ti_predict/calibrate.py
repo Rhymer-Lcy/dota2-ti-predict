@@ -158,23 +158,11 @@ def main():
     id_f = sum(1 for m, _ in warm if m == "identity"); id_o = sum(n for m, n in warm if m == "identity")
     pl_f = sum(1 for m, _ in warm if m == "platt"); pl_o = sum(n for m, n in warm if m == "platt")
 
-    # Full Platt (diagnostic, matches the table) vs PRODUCTION temperature (slope-only, symmetric),
-    # both fit on ALL historical rolling-OOF side-neutral preds (all pre-TI cutoff).
+    # Full-Platt (diagnostic) + symmetric temperature on all rolling-OOF side-neutral preds.
+    # The production decision and production_platt.json are owned by calibrate_sideaware.py (the
+    # side-aware eval, which removes the orientation confound); this file is the DIAGNOSTIC only.
     Ap, Bp = platt_fit(np.array(seen_sn), np.array(seen_y))
     Bt = temperature_fit(np.array(seen_sn), np.array(seen_y))
-    prod = {"production_mode": "identity_until_validated",
-            "candidate_temperature_b_unvalidated": round(Bt, 6),
-            "diagnostic_full_platt": {"a": round(float(Ap), 6), "b": round(float(Bp), 6)},
-            "fit_on_oof_obs": len(seen_y), "as_of_cutoff": "2026-08-01", "git_commit": _commit(),
-            "note": ("Production default = IDENTITY (raw side-neutral B-bt). The full-Platt ECE gain "
-                     "is a fixed-team_a-side (radiant) eval artifact; the production-safe symmetric "
-                     "temperature does NOT reproduce it on this side-confounded backtest (worse LL), "
-                     "so calibration is UNVALIDATED for production. Validate via a side-aware eval "
-                     "(base sigmoid(d+c), c=train radiant term; then symmetric temperature; production "
-                     "marginalizes side) when unparked. Refit at TI cutoff on pre-cutoff OOF only; "
-                     "never update from crowd%, odds, or results.")}
-    with open(os.path.join(INPUTS, "production_platt.json"), "w", encoding="utf-8") as fh:
-        json.dump(prod, fh, ensure_ascii=False, indent=2)
 
     L += ["", "## Warm-up accounting (OOF Platt needs >=50 prior obs)",
           f"- identity (warm-up) folds: **{id_f}** ({id_o} obs); Platt-calibrated folds: **{pl_f}** "
@@ -184,26 +172,24 @@ def main():
           "   side-neutral step, and the OOS-Platt recipe — **not the final TI2026 numbers**. The",
           "   final numbers come from an **as-of-cutoff refit** using this frozen model + calibration.",
           "2. Warm-up above: only the Platt-calibrated obs benefit; identity folds are uncorrected.",
-          "3. **Production calibration status: UNVALIDATED -> default IDENTITY.** The full-Platt ECE",
-          "   gain (0.097->0.048) is a fixed-team_a-side (radiant) eval artifact; the production-safe",
-          "   symmetric temperature does NOT reproduce it on this side-confounded eval (LL 0.6573 >",
-          "   0.6518 raw). So production = raw side-neutral B-bt for now; the temperature is stored as",
-          "   an unvalidated candidate (`inputs/production_platt.json`, cutoff + commit, pre-cutoff OOF",
-          "   only; **refit at TI cutoff; never update from crowd%/odds/results**).",
-          "", "## Read (correction to the earlier 'materially improves' claim)",
-          "- side-neutral ~ raw (eval fixes team_a = radiant; radiant c=+0.088 cannot explain +0.5).",
-          "- The full-Platt ECE drop is **largely a fixed-side eval artifact** (its intercept absorbs",
-          "  the radiant bias) and does NOT transfer to symmetric production.",
-          "- The production-safe temperature (a=0) does **not** improve the side-confounded eval, so",
-          "  **production calibration is NOT yet validated** -> default to identity (raw side-neutral",
-          "  B-bt). A valid test needs a side-aware eval; recorded as the next calibration step to run",
-          "  when unparked (a measurement fix, not a hyperparameter search). Ranking is unaffected."]
+          "3. **This file is the side-neutral DIAGNOSTIC; the production decision lives in**",
+          "   **`calibration-sideaware.md`** (the side-aware eval removes the orientation confound).",
+          "   Temperature form: q = sigmoid(b*logit(p)); b<1 softens, b>1 sharpens.",
+          "", "## Read (superseded for the production decision by the side-aware eval)",
+          "- side-neutral ~ raw (this eval fixes team_a = radiant; train radiant c=+0.088).",
+          "- The full-Platt ECE drop is an **orientation-specific base-rate offset absorbed by its",
+          "  intercept** in this fixed-orientation eval; its decomposition (radiant advantage /",
+          "  ordering / base rate / model centering) is **unresolved** and does not transfer to",
+          "  symmetric production.",
+          "- The side-aware eval (`calibration-sideaware.md`) is definitive: the intercept persists",
+          "  after orientation correction, symmetric temperature does not help -> **production ="
+          " identity side-neutral B-bt**. Ranking unaffected."]
     out = "\n".join(L) + "\n"
     with open(os.path.join(DOCS, "calibration-v1.md"), "w", encoding="utf-8") as fh:
         fh.write(out)
     print(f"warm-up: {id_f} identity folds ({id_o} obs), {pl_f} Platt folds ({pl_o} obs)")
-    print(f"production temperature b={Bt:.4f} (a=0, symmetric) stored on {len(seen_y)} OOF obs, "
-          f"commit {prod['git_commit']}; full-Platt diagnostic a={Ap:+.4f} b={Bp:.4f}")
+    print(f"[diagnostic only] full-Platt a={Ap:+.4f} b={Bp:.4f}; temperature b={Bt:.4f}. "
+          f"Production decision -> calibrate_sideaware / production_platt.json")
 
 
 if __name__ == "__main__":
