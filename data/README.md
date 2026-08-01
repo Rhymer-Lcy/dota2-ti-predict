@@ -19,6 +19,15 @@ Rules (mirrors the odds-pipeline lesson):
   them. Do not hand-edit.
 - Never put API tokens here; they live in `.env.local` at the repo root.
 
+Provenance (so a prediction input can be reconstructed even though raw/ is gitignored):
+- The **fetch scripts** (`ti_predict/…`) and the **data-source doc** (`docs/data-sources.md`) are
+  tracked — they are the recipe.
+- Every pull writes a small **tracked manifest** (`inputs/fetch-manifest.jsonl`): one line per pull
+  with `endpoint, params, fetched_at, data_cutoff, n_records, sha256` of the raw payload. That plus
+  the script version (repo SHA) lets us re-derive or verify any past `raw/` snapshot.
+- The **raw→processed transform** is a tracked script, never a hand edit, so `processed/` is fully
+  reproducible from `raw/` + code.
+
 Column conventions:
 - `teams.csv`: `team,qualification,opendota_team_id,notes` — fill `opendota_team_id` from the
   OpenDota `/teams` lookup when the fetcher is written.

@@ -22,17 +22,20 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
      [`docs/predictions-contest.md`](docs/predictions-contest.md) for the reality-check);
   3. public pick % per option, if shown (the differentiation signal);
   4. the Swiss draw/seeding once posted.
-- **Model: pending.** The team-rating + Swiss + bracket simulators are not written yet; they need a
-  fresh OpenDota pull (current form) and the draw. **No team strengths are hard-coded — they must
-  come from live data, never guessed.**
+- **Model: audit first (see [`docs/modeling-plan.md`](docs/modeling-plan.md)).** No production model
+  or champion probabilities until a **data audit (B0)** + **competing baselines (plain Elo /
+  time-decay Elo / Glicko-2)** are compared under a **rolling backtest**, and the model beats plain
+  Elo or adds increment over the market. Weights are chosen by backtest, **not** hand-set. OpenDota
+  team IDs are resolved (`data/ti2026/inputs/teams.csv`); **no team strengths are hard-coded.**
 
 ## Two paths (pick one when inputs arrive)
 - **A — fast (today, once screenshots arrive):** de-vig the contest's shown win% / a bookmaker's
   odds with `devig.py`, expand to series scores with `series.py`, produce a chalk (favourites) base
   + a few contrarian differentiators. Mirrors the football screenshot workflow.
-- **B — full model:** pull recent pro results from OpenDota → team rating (Elo/Glicko/logistic) →
-  per-map `p` → series/Swiss/bracket probabilities as an independent cross-check. More work, more
-  robust.
+- **B — full model (audit-gated):** B0 data audit → competing baselines → rolling backtest →
+  (only if it earns it) team rating → per-map `p` → series/Swiss/bracket probabilities as an
+  independent cross-check. See [`docs/modeling-plan.md`](docs/modeling-plan.md). More work, more
+  robust; complexity must prove itself before it ships.
 
 ## Strategy note (read before picking an all-favourites slate)
 If the top reward tier is a **hard percentile cutoff** (e.g. top 5% all get the same), pure
@@ -44,7 +47,7 @@ EV-max. Which regime applies depends on the reward table — confirm it first.
 
 ## Layout
 ```
-docs/            research write-ups (format & field, contest, data sources, research log)
+docs/            write-ups: format & field, contest, data sources, modeling-plan, research log
 ti_predict/      python package: devig.py (reused), series.py (esports series math), + models TODO
 data/            gitignored except inputs/ — see data/README.md
   ti2026/

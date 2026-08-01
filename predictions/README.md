@@ -1,9 +1,8 @@
 # predictions/ layout & output format
 
 Our locked, published picks — **tracked** (small text, the deliverable). Lock before each phase's
-deadline and do not edit after; corrections go in a new dated file with a note (same discipline as
-the archived soccer project). No paid-circle prose article this time — the output is a list you
-read and copy into the client.
+deadline and do not edit after; corrections go in a new dated file with a note. No paid-circle prose
+this time — the output is a list you read and copy into the client.
 
 ```
 ti2026/
@@ -13,28 +12,37 @@ ti2026/
 
 ## Output format — JSON source of truth + rendered Markdown
 
-Each phase produces a pair with the same basename:
+Each phase produces a pair with the same basename: `picks_<MMDD>.json` (machine-readable source of
+truth) and `picks_<MMDD>.md` (human-readable table auto-rendered from the JSON, for reading and
+copying into the game).
 
-- `picks_<MMDD>.json` — **machine-readable source of truth**, one record per question:
-  ```json
-  {
-    "question_id": "swiss_4-0",
-    "question": "Which teams finish the Swiss stage 4-0?",
-    "pick": ["Team Falcons"],
-    "our_prob": 0.19,
-    "crowd_pct": 0.34,
-    "points": 10,
-    "ev_points": 1.9,
-    "tag": "contrarian",
-    "rationale": "model 19% vs crowd 34% overrates favourite; ...",
-    "locked_at": "2026-08-13T09:00:00+08:00"
-  }
-  ```
-- `picks_<MMDD>.md` — **human-readable table auto-rendered from the JSON**, for the friend to read
-  and copy into the game. Columns: question · our pick · our prob · crowd % · points · EV ·
-  chalk/contrarian.
+**Store every option's full numbers, not just the pick** — so a post-mortem can tell whether a miss
+came from the strength estimate, the market blend, the crowd shift, or the pick-selection layer:
 
-Why both: JSON keeps every pick auditable and lets us rank by EV / tag contrarian differentiators
-and run a post-hoc review; the Markdown is what a human actually reads. `tag` is `chalk`
-(model favourite) or `contrarian` (deliberate differentiation vs the crowd) so we can review which
-kind of call paid off, exactly like the football post-mortems.
+```json
+{
+  "question_id": "champion",
+  "question": "Tournament champion",
+  "question_type": "single_choice",
+  "as_of": "2026-08-10T12:00:00Z",
+  "data_cutoff": "2026-08-09T23:59:59Z",
+  "model_version": "0.1.0",
+  "model_commit": "abc1234",
+  "market_source": "screenshot:bookmaker-x",
+  "market_timestamp": "2026-08-10T11:30:00Z",
+  "uncertainty": "high",
+  "options": [
+    {"team": "Team Falcons", "model_prob": 0.18, "market_prob": 0.21,
+     "final_prob": 0.20, "crowd_pct": 0.24, "points": 5.2, "expected_points": 1.04}
+  ],
+  "pick": ["Team Falcons"],
+  "tag": "chalk",
+  "rationale": "final 20% ≈ market; crowd 24% only mild over-pick; not a differentiator"
+}
+```
+
+Field notes: `question_type` (single_choice / multi / ranking / over_under / stat); `as_of` = when
+the pick was made, `data_cutoff` = last data included, `model_commit` = repo SHA (reproducibility);
+`market_*` = odds provenance; `uncertainty` from the rating RD / big-event shrinkage; `tag` =
+`chalk` (model favourite) or `contrarian` (deliberate differentiation vs the crowd). The Markdown
+view renders: question · pick · final_prob · crowd_% · points · expected_points · tag.
