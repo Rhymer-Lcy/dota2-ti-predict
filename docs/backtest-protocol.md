@@ -140,3 +140,30 @@ Gate unchanged (above). No TI2026 probabilities until it passes.
    142) silently determines the outcome. Uncertainty via event-blocked bootstrap (Addendum A.5).
 
 Gate unchanged. No TI2026 probabilities until it passes.
+
+---
+
+## Addendum C — market-gate feasibility & two-track output (frozen 2026-08-01)
+
+- **B-bt promoted to the primary model candidate** (v1 gates (a) log-loss + (b) calibration passed:
+  17/23 folds, bootstrap CI excludes 0, best Brier + ECE). See `backtest-results-v1.md`.
+
+- **Current client screenshots do NOT clear the historical market-OOS gate (c).** The screenshot
+  "crowd percentage" is the share of *contest participants* who picked an option (an input to
+  expected-points), **not** a bookmaker's implied probability; and a single current snapshot cannot
+  fit a fusion coefficient alpha **out of sample**. Strictly clearing (c) still requires multiple
+  historical folds with **timestamped odds visible at each fold's cutoff**.
+
+- **Feasibility:** historical timestamped esports odds are not obtainable here (no free source; paid
+  feeds prohibit betting-use). Per the protocol-revision provision, output is therefore split into
+  two tracks. This does **not** retroactively claim (c) passed — gate (c) stays formally OPEN and is
+  flagged on every output.
+  - **Track 1 — model-only probability:** B-bt probabilities (map -> series -> Swiss/bracket) MAY be
+    emitted (it cleared gates (a)+(b)), but **every such output is labeled "model-only; NOT validated
+    against historical market increment."**
+  - **Track 2 — contest decision:** once the client's questions, point values and crowd percentages
+    are provided, compute **expected points on the FIXED B-bt probabilities**. This is **not** market
+    fusion; **no alpha is fit**; crowd% is used only for EV / differentiation, never as a probability.
+
+- On receiving screenshots, first classify their content — crowd pick %, official prediction
+  probabilities, or true odds — before deciding use.

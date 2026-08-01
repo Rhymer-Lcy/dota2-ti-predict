@@ -175,6 +175,7 @@ def main():
 
     # per (model, fold): list of (w, y, p) on target maps
     rec = {name: defaultdict(list) for name in MODELS}
+    dump = []                                  # flat per-prediction dump for robustness reuse
     for f in folds:
         cut = f["cutoff_ts"]
         train = [m for m in uni if m["start_time"] < cut]
@@ -186,6 +187,11 @@ def main():
             for m in evalmaps:
                 p = pred(m["team_a"], m["team_b"])
                 rec[name][f["leagueid"]].append((m["weight"], m["a_won"], p))
+                dump.append({"model": name, "leagueid": f["leagueid"],
+                             "match_id": m["match_id"], "y": m["a_won"], "p": round(p, 6)})
+    with open(os.path.join(PROC, "backtest_preds.csv"), "w", newline="", encoding="utf-8") as fh:
+        w_ = csv.DictWriter(fh, fieldnames=["model", "leagueid", "match_id", "y", "p"])
+        w_.writeheader(); w_.writerows(dump)
 
     fold_ids = [f["leagueid"] for f in folds if rec["A-elo"].get(f["leagueid"])]
     names = list(MODELS)
