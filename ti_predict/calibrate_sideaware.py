@@ -155,7 +155,13 @@ def main():
           + ("." if sym_pass else " -- identity CONCLUSIVELY frozen (symmetric test failed)."),
           "- c=+0.088 rules out radiant-side ADVANTAGE as the main cause of the +0.4 intercept, but",
           "  NOT all orientation effects; team-a ordering / evaluation base-rate remain unresolved.",
-          "- Ranking unaffected; B-bt stays the selected rating model."]
+          "- Ranking unaffected; B-bt stays the selected rating model.",
+          "", "## Scope of the claim",
+          "- The symmetric-OOF test establishes that **identity is the best VALIDATED production choice",
+          "  among the frozen candidates** (B-bt + side-neutral + the tested recalibrations) -- NOT that",
+          "  identity is universally or theoretically optimal.",
+          "- ECE 0.038 supports acceptable calibration **under the specified symmetric binning**; it is",
+          "  an **auxiliary** metric -- **log-loss and Brier remain primary.**"]
     with open(os.path.join(DOCS, "calibration-sideaware.md"), "w", encoding="utf-8") as fh:
         fh.write("\n".join(L) + "\n")
 

@@ -182,6 +182,9 @@ Gate unchanged. No TI2026 probabilities until it passes.
   eligible pre-cutoff data and emit side-neutral probs -- **no production Platt to refit**; the
   temperature candidate stays DISABLED unless the preregistered symmetric-OOF test passes. Never
   update from crowd%/odds/results. Frozen = the pipeline spec, not the numbers.
+  **Scope:** identity is the best *validated* choice **among the frozen candidates**, not universally
+  or theoretically optimal; ECE (under the specified symmetric binning) is an **auxiliary** metric,
+  with **log-loss and Brier primary**.
 
 - **Simulator gate:** `simulate.py` is mechanics-validated only (monotonicity + normalization on
   synthetic strengths). Before ANY formal tournament output (even model-only Track 1) it must pass a

@@ -29,3 +29,10 @@ Each OOF side-neutral obs + its (B,A,1-y,1-p) mirror, half weight; zero-intercep
 - c=+0.088 rules out radiant-side ADVANTAGE as the main cause of the +0.4 intercept, but
   NOT all orientation effects; team-a ordering / evaluation base-rate remain unresolved.
 - Ranking unaffected; B-bt stays the selected rating model.
+
+## Scope of the claim
+- The symmetric-OOF test establishes that **identity is the best VALIDATED production choice among the
+  frozen candidates** (B-bt + side-neutral + the tested recalibrations) -- NOT that identity is
+  universally or theoretically optimal.
+- ECE 0.038 supports acceptable calibration **under the specified symmetric binning**; it is an
+  **auxiliary** metric -- **log-loss and Brier remain primary.**
