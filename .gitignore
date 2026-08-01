@@ -1,0 +1,23 @@
+# Secrets — never commit
+.env.local
+
+# Python caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Large / regenerable data: raw API pulls, processed snapshots, model caches
+/data/*/raw/
+/data/*/processed/
+*.joblib
+*.npz
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# NOTE (lesson from the odds-pipeline archive): do NOT blanket-ignore data/ and
+# predictions/. The small, irreplaceable, hand-entered inputs (data/*/inputs/),
+# the docs, and our published predictions ARE tracked on purpose — only secrets,
+# big regenerable pulls, and caches are ignored above.
