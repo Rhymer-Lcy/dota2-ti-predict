@@ -13,8 +13,10 @@ slope, ECE. Also prints the mean radiant coefficient c (to test the "intercept =
 Writes docs/calibration-v1.md. Run: python -m ti_predict.calibrate
 """
 import csv
+import json
 import math
 import os
+import subprocess
 from collections import defaultdict
 
 import numpy as np
@@ -24,7 +26,16 @@ from ti_predict.backtest import load
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(REPO, "docs")
+INPUTS = os.path.join(REPO, "data", "ti2026", "inputs")
 EPS = 1e-6
+
+
+def _commit():
+    try:
+        return subprocess.check_output(["git", "-C", REPO, "rev-parse", "--short", "HEAD"],
+                                       text=True).strip()
+    except Exception:
+        return "unknown"
 
 
 def sig(x):
@@ -68,6 +79,17 @@ def platt_fit(p, y):
     return r.x
 
 
+def temperature_fit(p, y):
+    """Slope-only (a=0) recalibration: symmetric, so sigmoid(b*logit(p)) + sigmoid(b*logit(1-p)) = 1.
+    Production-safe for side-neutral probabilities (preserves P(A)+P(B)=1)."""
+    lp = np.log(np.clip(p, EPS, 1 - EPS) / (1 - np.clip(p, EPS, 1 - EPS)))
+
+    def nll(b):
+        q = sig(b * lp)
+        return -(y * np.log(q + EPS) + (1 - y) * np.log(1 - q + EPS)).sum()
+    return float(minimize_scalar(nll, bounds=(0.1, 3.0), method="bounded").x)
+
+
 def metrics(rows):  # rows: (w, y, p)
     w = np.array([r[0] for r in rows]); y = np.array([r[1] for r in rows]); p = np.clip(np.array([r[2] for r in rows]), EPS, 1 - EPS)
     ll = (w * -(y * np.log(p) + (1 - y) * np.log(1 - p))).sum() / w.sum()
@@ -107,19 +129,22 @@ def main():
 
     per_fold.sort(key=lambda x: x[0])
     # strictly-rolling OOS Platt on side-neutral
-    seen_sn, seen_y = [], []
+    seen_sn, seen_y, warm = [], [], []
     for _, rows in per_fold:
         if len(seen_y) >= 50:
             A, B = platt_fit(np.array(seen_sn), np.array(seen_y))
+            Bt_r = temperature_fit(np.array(seen_sn), np.array(seen_y)); mode = "platt"
         else:
-            A, B = 0.0, 1.0                       # identity until enough history
+            A, B, Bt_r = 0.0, 1.0, 1.0; mode = "identity"    # identity until enough history
+        warm.append((mode, len(rows)))
         for r in rows:
             lp = math.log(min(max(r["sn"], EPS), 1 - EPS) / (1 - min(max(r["sn"], EPS), 1 - EPS)))
-            r["snp"] = float(sig(A + B * lp))
+            r["snp"] = float(sig(A + B * lp)); r["snt"] = float(sig(Bt_r * lp))
         seen_sn += [r["sn"] for r in rows]; seen_y += [r["y"] for r in rows]
 
     allrows = [r for _, rows in per_fold for r in rows]
-    variants = {"raw B-bt": "raw", "side-neutral": "sn", "side-neutral + OOS Platt": "snp"}
+    variants = {"raw B-bt": "raw", "side-neutral": "sn", "side-neutral + OOS Platt (diag)": "snp",
+                "side-neutral + OOS temperature (production)": "snt"}
     L = ["# v1 fixed calibration (side-neutral + strictly-rolling OOS Platt)", "",
          f"Mean per-fold radiant coefficient c = **{np.mean(cs):+.3f}** (range {min(cs):+.3f}..{max(cs):+.3f}).",
          f"logit(0.53) = +0.12 for reference: c is small, so it CANNOT explain intercept ~ +0.5 —",
@@ -129,17 +154,56 @@ def main():
     for name, key in variants.items():
         ll, br, a, b, ece = metrics([(r["w"], r["y"], r[key]) for r in allrows])
         L.append(f"| {name} | {ll:.4f} | {br:.4f} | {a:+.3f} | {b:.3f} | {ece:.4f} |")
-    L += ["", "## Read",
-          "- side-neutral ~ raw here (eval fixes team_a = radiant, so averaging over sides barely",
-          "  shifts it) -> confirms side alone does not fix the intercept.",
-          "- the **OOS Platt layer** is what corrects intercept and slope; its parameters use only",
-          "  pre-fold predictions (no leakage). **This is the absolute probability frozen for Track-2",
-          "  EV.** Ranking is unchanged (calibration is monotone).",
-          "- Platt is identity for the earliest folds (<50 prior obs); later folds are recalibrated."]
+    # warm-up accounting
+    id_f = sum(1 for m, _ in warm if m == "identity"); id_o = sum(n for m, n in warm if m == "identity")
+    pl_f = sum(1 for m, _ in warm if m == "platt"); pl_o = sum(n for m, n in warm if m == "platt")
+
+    # Full Platt (diagnostic, matches the table) vs PRODUCTION temperature (slope-only, symmetric),
+    # both fit on ALL historical rolling-OOF side-neutral preds (all pre-TI cutoff).
+    Ap, Bp = platt_fit(np.array(seen_sn), np.array(seen_y))
+    Bt = temperature_fit(np.array(seen_sn), np.array(seen_y))
+    prod = {"production_mode": "identity_until_validated",
+            "candidate_temperature_b_unvalidated": round(Bt, 6),
+            "diagnostic_full_platt": {"a": round(float(Ap), 6), "b": round(float(Bp), 6)},
+            "fit_on_oof_obs": len(seen_y), "as_of_cutoff": "2026-08-01", "git_commit": _commit(),
+            "note": ("Production default = IDENTITY (raw side-neutral B-bt). The full-Platt ECE gain "
+                     "is a fixed-team_a-side (radiant) eval artifact; the production-safe symmetric "
+                     "temperature does NOT reproduce it on this side-confounded backtest (worse LL), "
+                     "so calibration is UNVALIDATED for production. Validate via a side-aware eval "
+                     "(base sigmoid(d+c), c=train radiant term; then symmetric temperature; production "
+                     "marginalizes side) when unparked. Refit at TI cutoff on pre-cutoff OOF only; "
+                     "never update from crowd%, odds, or results.")}
+    with open(os.path.join(INPUTS, "production_platt.json"), "w", encoding="utf-8") as fh:
+        json.dump(prod, fh, ensure_ascii=False, indent=2)
+
+    L += ["", "## Warm-up accounting (OOF Platt needs >=50 prior obs)",
+          f"- identity (warm-up) folds: **{id_f}** ({id_o} obs); Platt-calibrated folds: **{pl_f}** "
+          f"({pl_o} obs). The aggregate improvement above is driven by the {pl_o} Platt-calibrated obs.",
+          "", "## Reproducibility (frozen spec, not frozen numbers)",
+          "1. **What is frozen is the Track-2 probability PIPELINE (spec)** — the B-bt model, the",
+          "   side-neutral step, and the OOS-Platt recipe — **not the final TI2026 numbers**. The",
+          "   final numbers come from an **as-of-cutoff refit** using this frozen model + calibration.",
+          "2. Warm-up above: only the Platt-calibrated obs benefit; identity folds are uncorrected.",
+          "3. **Production calibration status: UNVALIDATED -> default IDENTITY.** The full-Platt ECE",
+          "   gain (0.097->0.048) is a fixed-team_a-side (radiant) eval artifact; the production-safe",
+          "   symmetric temperature does NOT reproduce it on this side-confounded eval (LL 0.6573 >",
+          "   0.6518 raw). So production = raw side-neutral B-bt for now; the temperature is stored as",
+          "   an unvalidated candidate (`inputs/production_platt.json`, cutoff + commit, pre-cutoff OOF",
+          "   only; **refit at TI cutoff; never update from crowd%/odds/results**).",
+          "", "## Read (correction to the earlier 'materially improves' claim)",
+          "- side-neutral ~ raw (eval fixes team_a = radiant; radiant c=+0.088 cannot explain +0.5).",
+          "- The full-Platt ECE drop is **largely a fixed-side eval artifact** (its intercept absorbs",
+          "  the radiant bias) and does NOT transfer to symmetric production.",
+          "- The production-safe temperature (a=0) does **not** improve the side-confounded eval, so",
+          "  **production calibration is NOT yet validated** -> default to identity (raw side-neutral",
+          "  B-bt). A valid test needs a side-aware eval; recorded as the next calibration step to run",
+          "  when unparked (a measurement fix, not a hyperparameter search). Ranking is unaffected."]
     out = "\n".join(L) + "\n"
     with open(os.path.join(DOCS, "calibration-v1.md"), "w", encoding="utf-8") as fh:
         fh.write(out)
-    print(out)
+    print(f"warm-up: {id_f} identity folds ({id_o} obs), {pl_f} Platt folds ({pl_o} obs)")
+    print(f"production temperature b={Bt:.4f} (a=0, symmetric) stored on {len(seen_y)} OOF obs, "
+          f"commit {prod['git_commit']}; full-Platt diagnostic a={Ap:+.4f} b={Bp:.4f}")
 
 
 if __name__ == "__main__":

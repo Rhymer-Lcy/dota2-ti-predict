@@ -1,0 +1,12 @@
+{
+  "production_mode": "identity_until_validated",
+  "candidate_temperature_b_unvalidated": 1.156852,
+  "diagnostic_full_platt": {
+    "a": 0.403305,
+    "b": 0.698327
+  },
+  "fit_on_oof_obs": 1177,
+  "as_of_cutoff": "2026-08-01",
+  "git_commit": "2bec8f1",
+  "note": "Production default = IDENTITY (raw side-neutral B-bt). The full-Platt ECE gain is a fixed-team_a-side (radiant) eval artifact; the production-safe symmetric temperature does NOT reproduce it on this side-confounded backtest (worse LL), so calibration is UNVALIDATED for production. Validate via a side-aware eval (base sigmoid(d+c), c=train radiant term; then symmetric temperature; production marginalizes side) when unparked. Refit at TI cutoff on pre-cutoff OOF only; never update from crowd%, odds, or results."
+}

@@ -168,12 +168,14 @@ Gate unchanged. No TI2026 probabilities until it passes.
 - On receiving screenshots, first classify their content — crowd pick %, official prediction
   probabilities, or true odds — before deciding use.
 
-- **Track-2 absolute probabilities are FROZEN after the fixed calibration** (`calibration-v1.md`;
-  no search): per-fold radiant coefficient estimated on train -> side-neutral (average over A-radiant
-  / A-dire) -> strictly-rolling OOS Platt (params only from pre-fold predictions). Reported raw /
-  side-neutral / side-neutral+Platt; **side-neutral + OOS Platt is the frozen probability**
-  (log-loss 0.6432, ECE 0.048). Mean radiant coefficient c=+0.088 confirms side alone cannot explain
-  the intercept, so "intercept = radiant" is rejected as sole cause.
+- **Track-2 calibration: pipeline frozen; production = IDENTITY (UNVALIDATED).** Fixed step
+  (`calibration-v1.md`, no search): per-fold radiant coeff on train -> side-neutral -> rolling-OOS
+  recalibration. The full-Platt ECE gain (0.097->0.048) proved to be a **fixed-team_a-side (radiant)
+  eval artifact** (mean radiant c=+0.088 cannot explain intercept +0.5); the production-safe
+  **symmetric temperature does NOT reproduce it** (LL 0.6573 > 0.6518 raw). So **production = raw
+  side-neutral B-bt (identity)**; the temperature is stored only as an unvalidated candidate. A valid
+  calibration test needs a **side-aware eval** (recorded next step, run when unparked). The frozen
+  item is the **pipeline spec, not final numbers** — an as-of-cutoff refit produces those.
 
 - **Simulator gate:** `simulate.py` is mechanics-validated only (monotonicity + normalization on
   synthetic strengths). Before ANY formal tournament output (even model-only Track 1) it must pass a

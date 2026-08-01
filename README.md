@@ -7,7 +7,7 @@ at risk). Goal: place in the top reward tier of the global leaderboard.
 Method reuses the calibrated-probability approach from the archived soccer `odds-pipeline`
 (market de-vig via Shin, cross-checked by an independent model), adapted to esports series.
 
-## Status (2026-08-01)
+## Status (2026-08-01) — modeling track PARKED, awaiting screenshots
 - **Research: done & reconciled against the official Dota 2 blog (2026-07-31).** Event, 16-team
   field (with TI gambling-brand renames — BetBoom→BoomBoys, PARIVISION→Team Vision), format
   (**5-round Swiss Bo3: 4W direct / 4L out / 10→special-elim 5-5 → 8-team main event**), contest
@@ -22,11 +22,24 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
      [`docs/predictions-contest.md`](docs/predictions-contest.md) for the reality-check);
   3. public pick % per option, if shown (the differentiation signal);
   4. the Swiss draw/seeding once posted.
-- **Model: audit first (see [`docs/modeling-plan.md`](docs/modeling-plan.md)).** No production model
-  or champion probabilities until a **data audit (B0)** + **competing baselines (plain Elo /
-  time-decay Elo / Glicko-2)** are compared under a **rolling backtest**, and the model beats plain
-  Elo or adds increment over the market. Weights are chosen by backtest, **not** hand-set. OpenDota
-  team IDs are resolved (`data/ti2026/inputs/teams.csv`); **no team strengths are hard-coded.**
+- **Model: SELECTED & FROZEN (spec, not numbers).** B0 closed (multi-id canonical + roster-centric
+  coverage + opponent-graph gate). Screening backtest (event-frozen rolling, 23 folds; universe 8544
+  / eval 1177) → **Bradley-Terry (B-bt)** wins **17/23 folds** (bootstrap CI excludes 0), best Brier
+  + calibration. Absolute probability = **raw side-neutral B-bt** — the OOS-Platt "gain" proved to be
+  a fixed-team_a-side (radiant) eval artifact and the symmetric temperature does not reproduce it, so
+  **calibration is UNVALIDATED (production defaults to identity)**; a temperature candidate + cutoff +
+  commit are stored in [`data/ti2026/inputs/production_platt.json`](data/ti2026/inputs/production_platt.json),
+  to be validated by a side-aware eval. See `docs/backtest-results-v1.md`, `robustness-v1.md`, `calibration-v1.md`.
+- **What is frozen is the pipeline SPEC, not the final TI2026 numbers** — those come from an
+  as-of-cutoff refit using this frozen model + calibration. The production calibration is refit at
+  the TI cutoff on pre-cutoff rolling-OOF preds only; **never** updated from crowd%, odds, or results.
+- **Market gate (c): unresolved / not cleared** (no historical timestamped odds; current screenshots
+  are not a substitute). Output is two-track: **Track 1** model-only (labeled "not market-validated")
+  + **Track 2** expected points on the FIXED probs (no alpha, not fusion). See protocol Addendum C.
+- **Simulator:** mechanics-validated (`ti_predict/simulate.py`); needs an official-rules verification
+  (Swiss pairing / special elimination / seeding) before any formal tournament output.
+- **No TI2026 probabilities emitted.** Blocked on: client screenshots (classify fields first) + the
+  official Swiss draw.
 
 ## Two paths (pick one when inputs arrive)
 - **A — fast (today, once screenshots arrive):** de-vig the contest's shown win% / a bookmaker's
