@@ -82,12 +82,24 @@ robustness only.
   per-year format reconstruction - a real effort, not free. Decide how far back to go given the payoff
   (a friend's cosmetic-reward game) before spending it.
 
+## 6b. Scope decision (client, 2026-08-03) - LOCKED
+Chosen: **D2 (2026 events for inner tuning) + TI2024 and TI2025 as OUTER held-out tests.**
+- The 2026 events are the INNER tuning set (nested half-life / weight / roster-variant selection).
+- **TI2024 and TI2025 are outer held-out: parameters are NEVER adjusted using their results.** They
+  are predicted once with the config frozen from 2026-only selection.
+- **Decision rule:** if the TI2024 and TI2025 outer results CONFLICT, or their sample is
+  insufficient, KEEP the frozen B-bt. Do not force-tune for maximum historical score.
+- Full multi-year (TI2022/2023) and Phase-2 replay remain out of scope for now.
+
 ## 7. Deliverable staging
-- **D1 (this commit):** this plan + event-manifest schema + framework skeleton + a runnable Phase-3
+- **D1 (done):** this plan + event-manifest schema + framework skeleton + runnable Phase-3
   `compare_policies.py`.
-- **D2 (on approval, no new data):** pre-registered variant sweep on the 2026 events with nested
-  tuning + the Phase-3 A/B/C report; per-event tables + event-blocked bootstrap.
-- **D3 (on scope approval, new data):** historical-TI acquisition + Phase-2 tournament replay.
+- **D2 (in progress, no new data):** pre-registered variant sweep on the 2026 events with nested
+  tuning + the Phase-3 A/B/C report; per-event tables + event-blocked bootstrap. Produces the FROZEN
+  config, selected on 2026 events only.
+- **D3 (approved, new data - TI2024 + TI2025 only):** acquire those two events' pre-lock data +
+  as-of-lock rosters; predict each ONCE with the D2-frozen config as an outer held-out test; Phase-2
+  replay only if the format is faithfully reconstructable. No re-tuning on TI24/25 outcomes.
 - Main-event (14-series) entry stays deferred until the group draw is set.
 
 ## 8. Anti-leakage checklist (every run asserts/records)
