@@ -20,17 +20,19 @@ extremes. Six categories, 16 individual slots, one team per slot:
 |---------------------|------:|----------------------------------------------------------------|
 | 4-0                 |     1 | sole undefeated; advances directly                             |
 | 4-1                 |     2 | advance directly                                               |
-| decider winner      |     5 | a 3-2 team that WINS the extra elimination-round match         |
-| decider loser       |     5 | a 2-3 team that LOSES the extra elimination-round match        |
+| decider winner      |     5 | a team (3-2 OR 2-3) that WINS its extra elimination-round match |
+| decider loser       |     5 | a team (3-2 OR 2-3) that LOSES its extra elimination-round match|
 | 1-4                 |     2 | eliminated                                                     |
 | 0-4                 |     1 | sole winless; eliminated                                       |
 | total               |    16 |                                                                |
 
-"decider winner/loser" (Chinese client: taotaisai shengzhe / baizhe) are the 5 winners and 5 losers
+"decider winner/loser" (Chinese client: taotaisai shengzhe / baizhe) are the 5 WINNERS and 5 LOSERS
 of the extra elimination round played among the five 3-2 teams and five 2-3 teams. They are NOT a
-single "special winner/loser". Advancing 8 = one 4-0 + two 4-1 + five decider winners. The middle 10
-slots (both decider buckets) are the hardest; the extremes (4-0, 0-4, 4-1, 1-4) are where model
-confidence is highest.
+single "special winner/loser", and -- critically -- they are NOT the 3-2 / 2-3 record groups: each
+extra-round match is a 3-2 team vs a 2-3 team, and a 2-3 team can win while a 3-2 team can lose. So
+the "decider winner" bucket may contain 0-5 of the 2-3 teams (and "decider loser" 0-5 of the 3-2
+teams). Advancing 8 = one 4-0 + two 4-1 + five decider winners. The middle 10 slots (both decider
+buckets) are the hardest; the extremes (4-0, 0-4, 4-1, 1-4) are where model confidence is highest.
 
 ## 3. Group-stage prediction - scoring
 Points depend ONLY on how many slots are correct. No wrong-answer penalty, no underdog weighting, no
@@ -65,6 +67,8 @@ displayed. There is no crowd% input available for this contest.
   countdown before submitting.
 - Main-event prediction opens ~13 days out -> approximately 2026-08-16.
 - Winner rewards finalized 2026-08-28.
+- Because submission is irreversible, target completion at least one hour before the lock, and
+  reconfirm the exact in-client countdown (hour:minute, server timezone) on the day.
 
 ## 6. Rewards
 Participation rewards (claimable): Aegis chat emote, TI wallpaper, TI chat wheel (four voice lines).
@@ -87,25 +91,55 @@ percentile vs all submitted lineups each period. This is a different optimizatio
 rating model and is OUT OF SCOPE unless explicitly chosen; noted here only because it contributes to
 the final activity-points ranking.
 
-## 9. Group-stage FORMAT (drives the simulator)
-- Modified 5-round Swiss, 16 teams, all series Bo3.
-- Two initial pods; rounds 1-3 pair only within a team's initial pod; round 4 pairs across pods;
-  round 5 for advancement/elimination-deciding matches pairs to MAXIMIZE rank gap (a deliberate
-  inversion of the usual "closest ranks" rule).
-- Pairing principles: same record first, avoid rematches, minimize rank gap (except R5 deciders).
-- After 5 rounds: top 3 advance directly; the five 3-2 and five 2-3 teams play an extra
-  elimination round; ranks 14-16 are eliminated.
-- Extra elimination-round seeding: the highest-ranked 3-2 team picks its 2-3 opponent, then the next
-  3-2 team picks from the remaining 2-3 teams, etc. The 5 winners advance (top 8 to main event); the
-  5 losers are eliminated.
-- Main-event seeding is by final Swiss rank.
-- Swiss ranking tiebreakers, in order: (1) series wins; (2) series losses; (3) opponents' series
-  wins (strength of schedule); (4) match (map) win rate; (5) opponents' average win rate; (6) average
-  game duration, shorter is better; (7) coin flip.
+## 9. Group-stage FORMAT (drives the simulator) -- verified 2026-08-03
+- Modified Swiss, UP TO 5 rounds, 16 teams, every series Bo3. A team STOPS once it reaches its 4th
+  series win (advances directly) or 4th series loss (eliminated); it plays no further Swiss rounds.
+  So 4-0 and 0-4 teams play only 4 series; 4-1 / 3-2 / 2-3 / 1-4 teams play 5. "5-round" is the max
+  number of pairing rounds, not a per-team game count.
+- Same-record pairing forces a STRUCTURALLY FIXED post-Swiss record distribution:
+  4-0 x1, 4-1 x2, 3-2 x5, 2-3 x5, 1-4 x2, 0-4 x1 (= 16 teams, 39 series).
+- Two initial pods of 8. Rounds 1-3 pair only within a team's own pod; round 4 pairs across pods
+  (this is what pairs the two unbeaten pod leaders, producing the single 4-0). Round 5 pairs the
+  remaining record groups.
+- Pairing principles: (a) same record first [hard]; (b) avoid rematches [soft -- "try to avoid"];
+  (c) minimize rank gap [soft]. EXCEPTION: in round 5, ONLY matches whose loser is directly
+  eliminated (the 1-3 matches) are paired to MAXIMIZE the rank gap; every other R5 match keeps the
+  normal minimize-gap rule. Do NOT generalize gap-maximizing to the 3-1 or 2-2 R5 matches.
+  R5 match types: 3-1 (winner 4-1 advances / loser 3-2 to decider); 2-2 (both to decider);
+  1-3 (winner 2-3 to decider / loser 1-4 out -- this last one is the gap-maximized match).
+- After Swiss: the 3 top-ranked teams (the 4-0 and the two 4-1) advance directly; the five 3-2 and
+  five 2-3 teams play an extra elimination round; the 1-4 x2 and 0-4 x1 (ranks 14-16) are eliminated.
+- Extra elimination round: five Bo3 matches, each a 3-2 team vs a 2-3 team. Seeding is a PICK ORDER:
+  the highest-ranked 3-2 team picks any of the five 2-3 teams; the next 3-2 team picks from those
+  remaining; and so on; the last 3-2 team faces the last 2-3 team. The 5 match WINNERS advance (top 8
+  to main event) and fill the client's "decider winner" slots; the 5 LOSERS are eliminated and fill
+  "decider loser". A 2-3 team can win and a 3-2 team can lose, so these buckets are NOT the 3-2 / 2-3
+  record groups -- see section 2. The predictor must compute P(record) x opponent-selection x
+  decider-win, not drop the 3-2 teams mechanically into "decider winner".
+- Main-event seeding is by final Swiss rank (a 2-3 team that wins its decider still seeds by its own
+  Swiss rank; the decider only decides advance vs eliminate).
+- Swiss ranking tiebreakers, in order: (1) series_wins; (2) series_losses; (3) opponents_series_wins
+  (strength of schedule -- NOT head-to-head); (4) game_win_percentage (per map/game, not per series);
+  (5) opponents_average_game_win_percentage; (6) average_game_duration (shorter is better);
+  (7) coin_toss. No head-to-head tiebreaker is used.
 
-The simulator (`ti_predict/simulate.py`) must implement the two-pod pairing, R5 gap-maximizing
-deciders, the pick-order extra elimination round, and these tiebreakers, and pass rule-level
-verification BEFORE any formal output. It is currently only mechanics-validated.
+### Two points the official rules do NOT resolve (modeling assumptions, not lookups)
+- C5 -- pairing tie-break: when several legal pairings satisfy the principles equally, the official
+  text does not state how the organizer chooses (random draw / fixed seeding / manual), nor the
+  precedence when "avoid rematch" and "minimize gap" conflict. The simulator must ENUMERATE or SAMPLE
+  over all rule-legal pairings rather than hard-code one, and report this as modeled uncertainty.
+- D4 -- opponent choice in the extra round: the rules fix the pick ORDER but not WHICH 2-3 opponent a
+  3-2 team picks (a strategic team decision). Default assumption: each 3-2 team, in pick order, takes
+  the remaining 2-3 opponent that MAXIMIZES its own model win probability (rational self-interest),
+  with a sensitivity check under random assignment (and optional selection noise). State the
+  assumption on every output.
+
+The simulator (`ti_predict/simulate.py`) must implement: the stop-at-4W/4L up-to-5-round Swiss; the
+two-pod R1-3 / cross-pod R4 pairing; the narrow R5 gap-maximizing rule for elimination matches only;
+the pick-order extra elimination round with the D4 opponent-choice assumption; the C5 legal-pairing
+sampling; and the 7 tiebreakers -- then pass rule-level verification BEFORE any formal output. It is
+currently only mechanics-validated. Runtime inputs still needed at lock time: the official two-pod
+split (C1) and the round-1 pairings (C2).
 
 ## 10. Field - confirmed 16 (matches inputs/teams.csv)
 Direct invites (7): Aurora Gaming, BetBoom Team (BoomBoys), Team Falcons, Team Liquid, Tundra Esports
@@ -121,12 +155,30 @@ the unrelated Astana "Future Games" event). No B0 reopening is required.
   the source's CST is US Central).
 - The prediction is a 16-slot full assignment, not a 6-extreme pick; "decider winner/loser" are 5+5
   teams, not one "special winner/loser".
+- The Swiss is UP TO 5 rounds with stop-at-4-wins / stop-at-4-losses, NOT a fixed 5 rounds for every
+  team (verified 2026-08-03; corrects the earlier "5-round" phrasing).
+- "decider winner" != the 3-2 record group and "decider loser" != the 2-3 record group; the decider
+  match is 3-2 vs 2-3 and either can win (corrects the earlier bucket mapping).
+- The R5 "maximize rank gap" rule applies ONLY to matches whose loser is directly eliminated (the
+  1-3 matches), not to all round-5 matches (corrects the earlier over-broad phrasing).
 
-## 12. Open items to confirm before emitting any TI15 numbers
-1. Exact in-client lock timestamp (day/hour/minute).
-2. Rule-level verification of the Swiss pairing / R5 deciders / extra elimination round / tiebreakers
-   against the official ruleset, then implemented in the simulator (gate).
-3. Whether reward tiers stack (affects only how aggressively to chase a tier, not the slate itself).
+## 12. Open items
+Rule-level verification is DONE (2026-08-03, cross-checked vs dota2.com/esports/ti15/tirules,
+Liquipedia, CyberScore, Strafe). What remains:
+
+Runtime inputs, published with the official draw around Aug 13 (feed into the simulator, not blockers
+to building it):
+1. C1 -- the actual two-pod split (which 8 teams in each initial group).
+2. C2 -- the actual round-1 pairings within each pod (organizer-preset; seeding algorithm unknown).
+3. G1 -- the exact in-client lock timestamp (best external estimate: Aug 13 15:00 UTC = 23:00
+   Beijing); confirm on the client.
+
+Low priority / non-blocking:
+4. G2 -- whether reward tiers stack (structure implies they do not; affects only how hard to chase a
+   tier, not the slate). No official wording seen.
+
+Modeling assumptions (decided in code, not lookups; see section 9): C5 legal-pairing sampling and D4
+opponent-choice. These are stated on every output and covered by sensitivity checks.
 
 ## Sources
 - In-client activity, transcribed by the client owner, 2026-08-03 (primary).
