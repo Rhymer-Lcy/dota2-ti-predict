@@ -91,6 +91,42 @@ Chosen: **D2 (2026 events for inner tuning) + TI2024 and TI2025 as OUTER held-ou
   insufficient, KEEP the frozen B-bt. Do not force-tune for maximum historical score.
 - Full multi-year (TI2022/2023) and Phase-2 replay remain out of scope for now.
 
+## 6c. D3 pre-registration (LOCKED 2026-08-03, before any TI24/25 results)
+D3 is an OUTER validation with a hard exit rule, not another tuning round. Two TIs are limited
+evidence (directional, not a final statistical verdict). All rules below are frozen before scoring;
+both events are scored simultaneously (looking at TI2024 then changing anything makes TI2024 a dev set
+and only TI2025 remains a true outer test).
+
+**Frozen scope - allowed:** fixed `hl=90` and fixed `hl=180`; one data source; one event filter; one
+identity/roster rule set; one lock time per event; predict TI2024 and TI2025 exactly once each.
+**Not allowed:** new half-lives (240/365...), new event weights, new roster-decay formulas,
+per-event roster patches, or any look-then-modify-then-test-the-other flow.
+
+**Production-switch rule (pre-registered):** change production from `hl=90` to `hl=180` ONLY IF ALL:
+1. TI2024 AND TI2025 event-level log-loss are BOTH better than 90;
+2. combined log-loss improvement is at least `dLL <= -0.002`;
+3. Brier and calibration are not materially worse;
+4. no concentrated breakdown on the major-roster-change / stand-in subset;
+5. identity verification is clean (no old-org strength wrongly inherited by a new roster).
+Otherwise KEEP `hl=90` - including: split result (one TI wins, one loses); both win but tiny;
+log-loss better yet calibration clearly worse; improvement driven by a few extreme games; any
+unresolved identity/roster doubt. Series accuracy is REPORTED but auxiliary; primary = event-level
+log-loss, then Brier, calibration, stability/failure cases. Challenger-to-production: 180 must prove
+itself; 90 does not have to re-prove itself.
+
+**Required diagnostics (before the decision):**
+- roster-stability subgroups (stable / one change / two-plus / stand-in-or-uncertain), 90 vs 180 each;
+- per-team and per-match loss-contribution: the largest 90-vs-180 differences, to confirm a broad
+  improvement rather than one or two upsets;
+- effective sample size per team under 90 vs 180 (to tell variance-reduction from stale-roster bias).
+
+**Identity discipline (biggest risk, per event, frozen before scoring):** org names; OpenDota team
+ids; actual five-player rosters + stand-ins; renames / acquisitions / shell relationships; pre-lock
+team affiliation; which history may be inherited and which may not. Prevent: post-hoc roster backfill;
+merging same-name-different-org records; a new org inheriting an old org's full strength; a
+transferred player's future identity leaking into the past; any TI main-event result entering
+training. Deliver a HUMAN-VERIFIABLE identity/roster table per event BEFORE running any scoring.
+
 ## 7. Deliverable staging
 - **D1 (done):** this plan + event-manifest schema + framework skeleton + runnable Phase-3
   `compare_policies.py`.
