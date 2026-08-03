@@ -1,6 +1,8 @@
-"""Faithful TI15 group-stage simulator: Swiss (up to 5 rounds) + extra elimination round.
+"""Rules-based TI15 group-stage simulator: Swiss (up to 5 rounds) + extra elimination round.
 
-Implements the verified official rules (docs/contest-official-ti15.md sec 9):
+Implements the PUBLIC official rules and passes structural / property tests; it does NOT claim to
+exactly replicate the organizer's UNPUBLISHED pairing decisions (see the C5 / D4 / duration-tiebreak
+assumptions below). Implements (docs/contest-official-ti15.md sec 9):
   - 16 teams, every series Bo3 (simulated map-by-map so game-level tiebreakers exist).
   - Up to 5 Swiss rounds; a team STOPS at its 4th series win (advances) or 4th series loss (out).
   - Two 8-team initial pods: rounds 1-3 pair only within a team's pod; round 4 pairs across pods;
@@ -77,18 +79,23 @@ def _gwp(t, st):
     return st["mw"][t] / n if n else 0.0
 
 
+def _real_key(t, st):
+    """The official tiebreaker key WITHOUT the coin toss (higher = better under reverse sort).
+
+    Order: series_wins, -series_losses, opponents_series_wins, game_win_pct,
+    opponents_avg_game_win_pct. The 6th criterion (avg_game_duration) is unmodelable and is folded
+    into the coin toss; floats are rounded so FP noise never fabricates a distinct rank.
+    """
+    opps = st["opp"][t]
+    osw = sum(st["w"][o] for o in opps)
+    oagwp = sum(_gwp(o, st) for o in opps) / len(opps) if opps else 0.0
+    return (st["w"][t], -st["l"][t], osw, round(_gwp(t, st), 12), round(oagwp, 12))
+
+
 def standings(teams, st, rng):
-    """Rank teams best->worst by the official tiebreakers; ties broken at random (coin toss)."""
+    """Rank teams best->worst by the official tiebreakers; remaining ties broken at random."""
     rand = {t: rng.random() for t in teams}
-
-    def key(t):
-        opps = st["opp"][t]
-        osw = sum(st["w"][o] for o in opps)
-        oagwp = sum(_gwp(o, st) for o in opps) / len(opps) if opps else 0.0
-        # sort ascending on the negations so that reverse=True puts the best team first
-        return (st["w"][t], -st["l"][t], osw, _gwp(t, st), oagwp, rand[t])
-
-    return sorted(teams, key=key, reverse=True)
+    return sorted(teams, key=lambda t: _real_key(t, st) + (rand[t],), reverse=True)
 
 
 def _matchings(lst):
@@ -138,12 +145,16 @@ def _by_record(teams, st):
     return g
 
 
-def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic"):
+def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic", diag=False):
     """Run one full group stage. `pods` = (podA_list, podB_list), 8 teams each.
 
     r1_pairings: optional list of (a, b) for the actual posted round-1 draw (must respect pods);
                  if None, round 1 is paired randomly within each pod.
-    Returns {team: bucket} for all 16 teams.
+    elim_choice (D4 opponent-choice sensitivity scenarios):
+      'strategic' -- each 3-2 team picks the remaining 2-3 opponent it is strongest against;
+      'noisy'     -- picks probabilistically, weighted toward (not fixed on) weaker opponents;
+      'random'    -- uniform random pick (boundary control).
+    Returns {team: bucket}; if diag, returns ({team: bucket}, diagnostics).
     """
     podA, podB = pods
     teams = list(podA) + list(podB)
@@ -200,12 +211,30 @@ def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic")
             bucket[t] = "0-4"
     assert len(threes) == 5 and len(twos) == 5, (len(threes), len(twos))
 
+    # tiebreak-depth diagnostic: measured on the Swiss standings BEFORE the decider round adds games.
+    # tie_16 = any two of the 16 share an identical real key (a coin toss actually arbitrated);
+    # tie_32 = two 3-2 teams tie -> the decider PICK ORDER is coin-toss-decided (bucket-relevant).
+    d = None
+    if diag:
+        k16 = [_real_key(t, st) for t in teams]
+        k32 = [_real_key(t, st) for t in threes]
+        d = {"tie_16": len(set(k16)) < 16, "tie_32": len(set(k32)) < len(k32)}
+
     # ---- extra elimination round: 3-2 teams pick 2-3 opponents in rank order ----
     pick_order = standings(threes, st, rng)                 # highest-ranked 3-2 picks first
     pool = list(twos)
     for a in pick_order:
         if elim_choice == "random":
             opp = pool[rng.randrange(len(pool))]
+        elif elim_choice == "noisy":                        # weight toward weaker opponents for `a`
+            ws = [map_p(strength[a], strength[o]) for o in pool]
+            r = rng.random() * sum(ws)
+            c = 0.0
+            for o, w in zip(pool, ws):
+                c += w
+                if r <= c:
+                    opp = o
+                    break
         else:                                               # strategic: strongest matchup for `a`
             opp = min(pool, key=lambda o: strength[o])
         pool.remove(opp)
@@ -214,22 +243,34 @@ def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic")
         bucket[lose] = "decider_loss"
 
     assert len(bucket) == 16
-    return bucket
+    return (bucket, d) if diag else bucket
 
 
-def monte_carlo(pods, strength, n=20000, seed=20260813, r1_pairings=None, elim_choice="strategic"):
-    """Return P[team][bucket] over n simulations, plus the exact per-run bucket counts (invariant)."""
+def monte_carlo(pods, strength, n=20000, seed=20260813, r1_pairings=None, elim_choice="strategic",
+                return_diag=False):
+    """Return P[team][bucket] over n simulations (per-run bucket counts are an asserted invariant).
+
+    If return_diag, also return {'tie_16_rate', 'tie_32_rate', 'n'}: how often a coin toss actually
+    arbitrated the standings, and how often it decided the bucket-relevant 3-2 pick order.
+    """
     rng = random.Random(seed)
     teams = list(pods[0]) + list(pods[1])
     tally = {t: {b: 0 for b in BUCKETS} for t in teams}
+    tie16 = tie32 = 0
     for _ in range(n):
-        bucket = simulate_one(pods, strength, rng, r1_pairings, elim_choice)
+        out = simulate_one(pods, strength, rng, r1_pairings, elim_choice, diag=return_diag)
+        bucket, d = out if return_diag else (out, None)
         counts = defaultdict(int)
         for t, b in bucket.items():
             tally[t][b] += 1
             counts[b] += 1
         assert dict(counts) == CAPACITY, dict(counts)        # structural invariant every run
-    return {t: {b: tally[t][b] / n for b in BUCKETS} for t in teams}
+        if d:
+            tie16 += d["tie_16"]; tie32 += d["tie_32"]
+    P = {t: {b: tally[t][b] / n for b in BUCKETS} for t in teams}
+    if return_diag:
+        return P, {"tie_16_rate": tie16 / n, "tie_32_rate": tie32 / n, "n": n}
+    return P
 
 
 if __name__ == "__main__":
