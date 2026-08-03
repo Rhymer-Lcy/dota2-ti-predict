@@ -130,13 +130,22 @@ training. Deliver a HUMAN-VERIFIABLE identity/roster table per event BEFORE runn
 ## 7. Deliverable staging
 - **D1 (done):** this plan + event-manifest schema + framework skeleton + runnable Phase-3
   `compare_policies.py`.
-- **D2 (in progress, no new data):** pre-registered variant sweep on the 2026 events with nested
-  tuning + the Phase-3 A/B/C report; per-event tables + event-blocked bootstrap. Produces the FROZEN
-  config, selected on 2026 events only.
-- **D3 (approved, new data - TI2024 + TI2025 only):** acquire those two events' pre-lock data +
-  as-of-lock rosters; predict each ONCE with the D2-frozen config as an outer held-out test; Phase-2
-  replay only if the format is faithfully reconstructable. No re-tuning on TI24/25 outcomes.
+- **D2 (done):** nested B-bt half-life sweep on the 23 2026 events (results-d2-halflife.md). The
+  no-lookahead nested improvement over hl=90 is not significant (pooled -0.0014, event-blocked 95% CI
+  includes 0, 12/23 fold-wins); hl=180 is only pooled-best on the stable 2026 window.
+- **D3 (ARCHIVED / DEFERRED, decision 2026-08-03):** NOT executed. Rebuilding two historical B0
+  identity+universe pipelines (TI2024 + TI2025) is a large data project whose marginal value does not
+  match the cost for this use case, especially as the D2 signal for 180 is weak and the switch rule
+  defaults to 90. Retained for a possible future run: the two event manifests (events/ti2024.json,
+  ti2025.json), the framework skeleton, and the pre-registered switch rule (sec 6c). Do NOT run a
+  single TI in isolation (violates the "both TIs" rule).
 - Main-event (14-series) entry stays deferred until the group draw is set.
+
+## 8b. Decision log
+- **2026-08-03 - production half-life LOCKED at hl=90.** hl=180 did not clear the pre-registered
+  challenger bar (D2 out-of-sample improvement not significant); D3 outer validation was deferred on
+  cost grounds. Production stays frozen B-bt, hl=90. Revisit only if the project is reused long-term
+  or a low-cost historical identity pipeline becomes available.
 
 ## 8. Anti-leakage checklist (every run asserts/records)
 cutoff timestamp; training set ends < cutoff; rosters as-of-lock; params chosen from earlier events
