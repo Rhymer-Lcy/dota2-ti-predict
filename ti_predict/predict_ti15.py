@@ -67,9 +67,12 @@ def synthetic_strengths(teams):
 
 
 def bt_strengths_for(teams, cutoff_date):
-    """Real B-bt log-strengths as of the cutoff, mapped to the 16 teams by opendota_team_id.
+    """Real B-bt log-strengths as of the cutoff, mapped to the 16 teams by ORGANIZATION NAME.
 
-    Requires the processed universe dataset. Raises with a clear message if data or ids are missing.
+    The frozen universe (universe.py) collapses each TI roster's source_team_ids to its organization
+    name, so a team's strength key is teams.csv 'team' (== canonical organization), not a raw
+    opendota_team_id. Requires the processed universe dataset; raises clearly if data or keys are
+    missing.
     """
     from ti_predict.backtest import load
     from ti_predict.calibrate import bt_strengths
@@ -81,14 +84,14 @@ def bt_strengths_for(teams, cutoff_date):
     smap = bt_strengths(train, cut)
     out, missing = {}, []
     for t in teams:
-        key = str(t["opendota_team_id"])
+        key = t["team"]                      # organization name == universe.py ident() for TI rosters
         if key in smap:
-            out[t["team"]] = float(smap[key])
+            out[key] = float(smap[key])
         else:
-            missing.append(f"{t['team']} (id {key})")
+            missing.append(key)
     if missing:
         raise SystemExit("B-bt strengths missing for: " + ", ".join(missing)
-                         + "\n(check team-id -> dataset-key mapping / roster canonicalization)")
+                         + "\n(check organization name vs universe key / roster canonicalization)")
     return out, len(train)
 
 
