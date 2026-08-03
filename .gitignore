@@ -24,3 +24,6 @@ Thumbs.db
 
 # pipeline rehearsal outputs (predict_ti15 --dry-run)
 .dryrun/
+
+# generated backtest reports
+backtest2/reports/
