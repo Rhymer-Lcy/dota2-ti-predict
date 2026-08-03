@@ -1,0 +1,9 @@
+{
+  "_comment": "TI15 official group draw template. Copy to draw.json and fill with the POSTED draw. Team names must match data/ti2026/inputs/teams.csv 'team' column exactly. podA and podB are 8 teams each. r1_pairings are the posted round-1 matchups: 4 pairs within podA and 4 within podB (round 1 never crosses pods). Then run: python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff YYYY-MM-DD",
+  "podA": ["TEAM-A1", "TEAM-A2", "TEAM-A3", "TEAM-A4", "TEAM-A5", "TEAM-A6", "TEAM-A7", "TEAM-A8"],
+  "podB": ["TEAM-B1", "TEAM-B2", "TEAM-B3", "TEAM-B4", "TEAM-B5", "TEAM-B6", "TEAM-B7", "TEAM-B8"],
+  "r1_pairings": [
+    ["TEAM-A1", "TEAM-A2"], ["TEAM-A3", "TEAM-A4"], ["TEAM-A5", "TEAM-A6"], ["TEAM-A7", "TEAM-A8"],
+    ["TEAM-B1", "TEAM-B2"], ["TEAM-B3", "TEAM-B4"], ["TEAM-B5", "TEAM-B6"], ["TEAM-B7", "TEAM-B8"]
+  ]
+}
