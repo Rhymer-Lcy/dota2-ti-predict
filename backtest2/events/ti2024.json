@@ -1,0 +1,31 @@
+{
+  "event": "ti2024",
+  "tier": "world_championship",
+  "lock_time": "2024-09-04T00:00:00Z",
+  "lock_time_confidence": "date confirmed (group stage Sep 4-5); exact hour/timezone TBC",
+  "eligible_training_end": "2024-09-04T00:00:00Z",
+  "field": ["Team Spirit", "Xtreme Gaming", "Team Falcons", "Team Liquid", "Gaimin Gladiators",
+            "BetBoom Team", "Entity", "Tundra Esports", "1win", "Team Zero", "G2.iG",
+            "Talon Esports", "Aurora", "Nouns", "HEROIC", "Beastcoast"],
+  "field_source": "en.wikipedia.org/wiki/The_International_2024 (16 teams: 6 invite, 10 qualifier)",
+  "format": "round_robin_groups",
+  "format_params": {"groups": 4, "teams_per_group": 4, "best_of": 2, "eliminations_in_group": 0,
+                    "note": "4x4 round robin Bo2; determines upper/lower playoff seeding. NOT the 2026 Swiss."},
+  "groups": {},
+  "first_round": [],
+  "phases_supported": [1],
+  "phase1_role": "match-model log-loss test for hl=90 vs hl=180 (format-agnostic)",
+  "scoring_rule": null,
+  "actual_results_source": "opendota league TBD (TI2024 / TI13, Copenhagen) - pull pending",
+  "results": {"_status": "PENDING pull - map/series outcomes, scoring only, never training"},
+  "rosters": {"_status": "PENDING - as-of-2024-09-04 lineups + source_team_ids per team (identity reconstruction)"},
+  "identity_risks": {
+    "1win": "2024 org; distinct from the 2026 '1w Team' (which is the acquired Tundra roster). Do NOT merge.",
+    "Aurora": "2024 SEA 'Aurora' is a DIFFERENT roster/org from 2025 'Aurora Gaming' (EEU) and 2026 Aurora. Resolve per year.",
+    "Tundra Esports": "2024 Tundra roster differs from the roster that in 2026 plays as 1w Team. Use as-of-lock lineup.",
+    "BetBoom Team": "2024 roster; the 2026 BoomBoys rename is later. Resolve by as-of-lock players, not name.",
+    "Xtreme Gaming / Team Spirit / Team Falcons / Team Liquid": "same org names recur across years but rosters differ; snapshot at lock, do not inherit strength across years."
+  },
+  "data_version": "opendota pull <date> - pending",
+  "notes": "Phase-1 only (round-robin Bo2, not reconstructed as a tournament). The pre-lock universe (pro matches before 2024-09-04, keyed by as-of-lock identities) must be built before scoring."
+}

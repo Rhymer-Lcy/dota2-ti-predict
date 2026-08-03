@@ -1,0 +1,32 @@
+{
+  "event": "ti2025",
+  "tier": "world_championship",
+  "lock_time": "2025-09-04T00:00:00Z",
+  "lock_time_confidence": "date confirmed (group stage Sep 4-7); exact hour/timezone TBC",
+  "eligible_training_end": "2025-09-04T00:00:00Z",
+  "field": ["Team Liquid", "PARIVISION", "BetBoom Team", "Team Tidebound", "Yakutou Brothers",
+            "Team Spirit", "Team Falcons", "Tundra Esports", "NAVI Junior", "Nigma Galaxy",
+            "Aurora Gaming", "Team Nemesis", "BOOM Esports", "Xtreme Gaming", "Wildcard", "HEROIC"],
+  "field_source": "en.wikipedia.org/wiki/The_International_2025 (16 teams: 8 invite, 8 qualifier)",
+  "format": "swiss_stop3",
+  "format_params": {"rounds": 5, "best_of": 3, "wins_to_advance": 3,
+                    "note": "Swiss Bo3, top 3 advance directly; 3-win threshold. CLOSE to but NOT the 2026 Swiss (which is 4-win + two-pod + decider round)."},
+  "groups": {},
+  "first_round": [],
+  "phases_supported": [1],
+  "phase1_role": "match-model log-loss test for hl=90 vs hl=180 (format-agnostic)",
+  "scoring_rule": null,
+  "actual_results_source": "opendota league TBD (TI2025 / TI14, Hamburg) - pull pending",
+  "results": {"_status": "PENDING pull - map/series outcomes, scoring only, never training"},
+  "rosters": {"_status": "PENDING - as-of-2025-09-04 lineups + source_team_ids per team (identity reconstruction)"},
+  "identity_risks": {
+    "Yakutou Brothers": "invite that REPLACED Gaimin Gladiators; verify it is a distinct roster, resolve its source ids.",
+    "Aurora Gaming": "2025 EEU 'Aurora Gaming' vs 2024 SEA 'Aurora' vs 2026 Aurora - resolve per year; do not merge.",
+    "NAVI Junior": "academy/junior roster distinct from NAVI main; do not inherit NAVI main strength.",
+    "PARIVISION": "2025 roster; in 2026 renamed Team Vision - resolve by as-of-lock players.",
+    "Team Tidebound / Team Nemesis / Wildcard / BOOM Esports": "verify each org's as-of-lock lineup and source ids; new/renamed orgs are the leakage risk.",
+    "BetBoom / Team Spirit / Team Falcons / Team Liquid / Tundra / Xtreme": "recurring names, different rosters across years; snapshot at lock."
+  },
+  "data_version": "opendota pull <date> - pending",
+  "notes": "Phase-1 only. Swiss-3win could optionally support a Phase-2 replay under its OWN format, but that is not needed for the hl=90/180 decision. Build the pre-lock universe (pro matches before 2025-09-04) before scoring."
+}
