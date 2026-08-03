@@ -21,3 +21,6 @@ Thumbs.db
 # predictions/. The small, irreplaceable, hand-entered inputs (data/*/inputs/),
 # the docs, and our published predictions ARE tracked on purpose — only secrets,
 # big regenerable pulls, and caches are ignored above.
+
+# pipeline rehearsal outputs (predict_ti15 --dry-run)
+.dryrun/
