@@ -30,6 +30,14 @@ layer, no crowd% fusion (docs/CHECKPOINT.md, validation-plan-v2.md sec 8b). Lock
   simulate.double_elim) under the POSTED main-event seeding + official rules verification, then emit
   its own slate. Not started yet by design.
 
+## Safety gates enforced by --official (not just runbook discipline)
+- cutoff must be a timezone-aware ISO timestamp with a time (date-only is rejected);
+- the local universe must be fresh: its latest map within 3 days of the cutoff, else the run is
+  blocked (override with `--allow-stale` only if there truly are no pre-lock games);
+- the draw file must be a valid two-pod partition of the 16 with complete round-1 pairings;
+- the run records provenance in the manifest: universe rows + latest-map time, SHA-256 of
+  teams.csv / canonical_identity.csv / universe_maps.csv / draw.json, git commit + dirty flag.
+
 ## Notes
 - The slate maximizes expected number correct; the Phase-3 study found max-correct == max-points for
   this model (compare_policies.py), so no separate points-optimized slate is needed unless a real draw
