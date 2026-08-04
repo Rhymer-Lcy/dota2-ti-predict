@@ -24,7 +24,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ti_predict.assign import assign
-from ti_predict.predict_ti15 import (bt_strengths_for, load_teams, resolve_draw,
+from ti_predict.predict_ti15 import (bt_strengths_for, load_teams, parse_cutoff, resolve_draw,
                                      synthetic_strengths)
 from ti_predict.swiss import BUCKETS, CAPACITY, simulate_one
 
@@ -35,13 +35,13 @@ GROUP_POINTS = {0: 0, 1: 30, 2: 60, 3: 120, 4: 360, 5: 720, 6: 1200, 7: 1800, 8:
 FVEC = np.array([GROUP_POINTS[k] for k in range(17)])
 
 
-def archive(pods, strength, n, seed, elim_choice):
+def archive(pods, strength, n, seed, elim_choice, r1=None, c=0.0):
     """Run n sims; return (teams, rb) where rb[t] is an int array of team t's realized bucket/sim."""
     rng = random.Random(seed)
     teams = list(pods[0]) + list(pods[1])
     real = {t: np.empty(n, dtype=np.int8) for t in teams}
     for k in range(n):
-        bucket = simulate_one(pods, strength, rng, None, elim_choice)
+        bucket = simulate_one(pods, strength, rng, r1, elim_choice, c=c)
         for t, b in bucket.items():
             real[t][k] = BIDX[b]
     return teams, real
@@ -104,22 +104,26 @@ def slate_str(asg):
 def main():
     ap = argparse.ArgumentParser(description="Phase-3 policy comparison (model-conditional dry-run)")
     ap.add_argument("--strengths", choices=("synthetic", "bt"), default="synthetic")
-    ap.add_argument("--cutoff", help="YYYY-MM-DD (required for bt)")
+    ap.add_argument("--cutoff", help="YYYY-MM-DD or full ISO timestamp (required for bt)")
+    ap.add_argument("--draw", help="path to draw.json (real pods + round-1 pairings)")
     ap.add_argument("--sims", type=int, default=20000)
     ap.add_argument("--seed", type=int, default=20260813)
     a = ap.parse_args()
 
     teams_rows = load_teams()
+    c = 0.0
     if a.strengths == "bt":
         if not a.cutoff:
             sys.exit("--strengths bt requires --cutoff")
-        strength, ssrc = bt_strengths_for(teams_rows, a.cutoff)[0], f"B-bt @ {a.cutoff}"
+        cut_ts, cut_iso = parse_cutoff(a.cutoff)
+        strength, c, _ = bt_strengths_for(teams_rows, cut_ts)
+        ssrc = f"B-bt @ {cut_iso} (c={c:+.3f})"
     else:
         strength, ssrc = synthetic_strengths(teams_rows), "synthetic (non-predictive)"
-    pods, _, draw_src = resolve_draw(teams_rows, None)
+    pods, r1, draw_src = resolve_draw(teams_rows, a.draw)
 
     # primary scenario (strategic D4): archive -> P -> policy A -> policy B
-    teams, rb = archive(pods, strength, a.sims, a.seed, "strategic")
+    teams, rb = archive(pods, strength, a.sims, a.seed, "strategic", r1=r1, c=c)
     P = P_from(teams, rb, a.sims)
     slate, expK, _ = assign(P)
     asgA = asg_from_slate(slate)
@@ -130,7 +134,7 @@ def main():
     # robustness (policy C view): re-evaluate A and B under each D4 scenario's own archive
     scen_pts = {"A": {}, "B": {}}
     for sc in ("strategic", "noisy", "random"):
-        _, rbx = archive(pods, strength, a.sims, a.seed + 1, sc)
+        _, rbx = archive(pods, strength, a.sims, a.seed + 1, sc, r1=r1, c=c)
         scen_pts["A"][sc] = ef(kcur(asgA, rbx, a.sims))
         scen_pts["B"][sc] = ef(kcur(asgB, rbx, a.sims))
     worst = {p: min(scen_pts[p].values()) for p in ("A", "B")}
@@ -138,11 +142,13 @@ def main():
 
     out = {
         "status": "MODEL-CONDITIONAL STRATEGY SIMULATION - NOT an empirical backtest; no crowd%",
-        "strengths": ssrc, "draw": draw_src, "sims": a.sims, "seed": a.seed,
+        "strengths": ssrc, "radiant_c": round(c, 4), "draw": draw_src,
+        "sims": a.sims, "seed": a.seed,
         "policy_A_max_expected_correct": {
             "expected_correct": round(expK, 3), "expected_points": round(efA, 1),
             "slate": slate_str(asgA)},
-        "policy_B_max_expected_points": {
+        "policy_B_points_local_search": {
+            "method": "pairwise-swap hill climb from A (LOCAL optimum, not proven global)",
             "expected_correct": round(float(kcur(asgB, rb, a.sims).mean()), 3),
             "expected_points": round(efB, 1), "slate": slate_str(asgB)},
         "points_gain_B_over_A": round(efB - efA, 1),
@@ -160,9 +166,9 @@ def main():
 
     print(f"[{out['status']}]")
     print(f"strengths={ssrc} | sims={a.sims} | seed={a.seed}\n")
-    print(f"A  max E[correct]: E[correct]={expK:.2f}  E[points]={efA:.0f}")
-    print(f"B  max E[points] : E[correct]={kcur(asgB, rb, a.sims).mean():.2f}  E[points]={efB:.0f}"
-          f"  (+{efB - efA:.0f} pts vs A)")
+    print(f"A  max E[correct]      : E[correct]={expK:.2f}  E[points]={efA:.0f}")
+    print(f"B  local-search E[pts] : E[correct]={kcur(asgB, rb, a.sims).mean():.2f}  "
+          f"E[points]={efB:.0f}  (+{efB - efA:.0f} vs A; local optimum, not proven global)")
     print("\nrobustness E[points] across D4 scenarios:")
     for p in ("A", "B"):
         row = "  ".join(f"{sc}={scen_pts[p][sc]:.0f}" for sc in ("strategic", "noisy", "random"))
