@@ -30,7 +30,7 @@ is **optional**, not forced (it may still lift B-bt further).
 
 ## Next
 1. Obtain timestamped odds (a bookmaker feed, or the contest's in-client win% / crowd% from the
-   friend's screenshots) to run the market-only / model-only / fused comparison with alpha fit
+   the client's screenshots) to run the market-only / model-only / fused comparison with alpha fit
    strictly out of sample.
 2. Optional v2: nested-tuning of B-bt (half-life, ridge) strictly inside each outer training fold.
 3. Only after (c) passes: produce TI2026 map/series/bracket probabilities from B-bt (market-anchored

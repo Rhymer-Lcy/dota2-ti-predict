@@ -56,8 +56,6 @@ def format_slate(slate, exp_correct):
 
 
 if __name__ == "__main__":
-    import random
-
     from ti_predict.swiss import monte_carlo
 
     teams = [f"T{i:02d}" for i in range(16)]

@@ -1,5 +1,10 @@
 # Backtest protocol — FROZEN 2026-08-01 (pre-registered before any results)
 
+> Historical pre-registration. The market-out-of-sample gate and two-track output (Addendum C) were
+> later abandoned as not applicable (the contest has no odds market and no crowd percentages); see
+> `docs/contest-official-ti15.md` and `docs/validation-plan-v2.md`. The rolling-backtest core and its
+> no-leakage discipline remain valid and were carried forward.
+
 This is committed before fitting or reporting any model numbers. Changing it after seeing results is
 a protocol violation; if a change is unavoidable it must be a new dated section, not an edit.
 

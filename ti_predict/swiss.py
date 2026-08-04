@@ -20,8 +20,8 @@ assumptions below). Implements (docs/contest-official-ti15.md sec 9):
     coin_toss.
 
 Modeling assumptions where the official text is silent (docs sec 9):
-  - C5 pairing tie-break: among rule-legal pairings we minimize rematches first, then optimize the
-    gap objective, then break remaining ties at RANDOM (samples the organizer's unspecified choice).
+  - C5 pairing tie-break: among rule-legal pairings the algorithm minimizes rematches first, then
+    optimizes the gap objective, then breaks remaining ties at RANDOM (samples the unspecified choice).
     Ranking ties (undeveloped SoS in early rounds) also break at random -> this is the modeled
     pairing uncertainty.
   - D4 opponent choice: each 3-2 team, in pick order, takes the remaining 2-3 opponent it is
@@ -35,12 +35,9 @@ import os
 import random
 import sys
 from collections import defaultdict
-from itertools import permutations
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-BUCKETS = ("4-0", "4-1", "decider_win", "decider_loss", "1-4", "0-4")
-CAPACITY = {"4-0": 1, "4-1": 2, "decider_win": 5, "decider_loss": 5, "1-4": 2, "0-4": 1}
+from ti_predict.contest_rules import BUCKETS, CAPACITY
 
 
 def map_p(sa, sb):
@@ -133,7 +130,7 @@ def pair_group(group, st, rng, gap="min", cross_pod=None):
     assert len(group) % 2 == 0, ("odd group", group)
     order = standings(group, st, rng)
     idx = {t: i for i, t in enumerate(order)}
-    best, best_key = None, None
+    best_key = None
     cands = []
     for m in _matchings(order):
         if cross_pod is not None and any(cross_pod[a] == cross_pod[b] for a, b in m):

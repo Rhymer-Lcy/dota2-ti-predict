@@ -1,69 +1,78 @@
-# AUTHORITATIVE PROJECT CHECKPOINT (frozen)
+# AUTHORITATIVE PROJECT CHECKPOINT (final freeze, 2026-08-04)
 
-Preserved before compaction. Do NOT reinterpret, reopen, or silently modify any frozen decision.
-On restoration after a compact, restate this briefly and WAIT for the client screenshots; do not
-resume modeling work unprompted.
+Single source of truth for the frozen state. Do not reinterpret, reopen, or silently modify a frozen
+decision. Git history and committed documents govern.
 
-## PROJECT
-TI2026 prediction repository. Git history and committed documents are the source of truth. Continue
-to obey the commit-message hook: subject <=72 characters and ASCII only.
+## Status
+Pipeline built, validated, hard-gated, and audited. No TI15 probabilities emitted. Awaiting the
+official group draw (~2026-08-13); on the draw, follow docs/lockday-runbook.md.
 
-## DATA / B0 -- CLOSED
-- Team identity and roster coverage have been audited and repaired.
-- Modeling is roster-centric, not based on a single OpenDota team_id.
-- One organization or roster may span multiple source_team_ids.
-- Tundra -> 1w, Xtreme, Resilience, PARIVISION and other ID splits have been resolved.
-- Training data and canonical identity artifacts are reproducible and committed.
-- Do not reopen B0 unless new client inputs expose a concrete contradiction.
+## Frozen model and parameters
+- Production model: identity side-neutral Bradley-Terry (B-bt).
+- Time-decay half-life: 90 days (ti_predict/contest_rules.PRODUCTION_HALF_LIFE_DAYS), applied
+  explicitly in the production path (not an implicit default).
+- Map probability: side-neutral 0.5*(sigmoid(d+c) + sigmoid(d-c)), d = strength_a - strength_b,
+  c = train-only radiant coefficient at the cutoff (about +0.09).
+- No Platt or temperature calibration layer.
+- Selection basis: event-frozen rolling backtest (B-bt beats plain Elo in 17/23 folds). The D2 nested
+  half-life sweep found no significant out-of-sample gain over 90 (pooled -0.0014, event-blocked 95%
+  CI includes 0, 12/23 fold-wins); D3 (TI2024/TI2025 outer validation) was deferred on cost. hl=90 is
+  locked as production.
+- Official constants are centralized in ti_predict/contest_rules.py.
 
-## MODELING TRACK -- PARKED, FINAL
-- Selected rating model: B-bt.
-- B-bt beat A-elo in 17/23 event-frozen rolling folds.
-- Reconfirmed by weighting sensitivity, LOEO robustness and side-aware evaluation.
-- Production model: identity side-neutral B-bt.
-- No Platt or temperature calibration layer is enabled.
-- Symmetry-preserving rolling-OOF temperature scaling was tested and rejected.
-- Identity is only the best validated production choice among the frozen candidates, not universally
-  or theoretically optimal.
-- Production-aligned historical metrics: log-loss 0.6518; Brier 0.2298; symmetric-binning ECE 0.0384.
-- ECE is auxiliary; log-loss and Brier remain primary.
-- 0.6444 is a side-aware diagnostic using actual sides and must not be presented as production
-  performance.
-- Frozen means the pipeline specification is frozen, not the final TI2026 numerical probabilities.
-- No further model selection, parameter search, calibration work or probability output may run
-  before client inputs arrive.
+## Prediction target (group stage)
+Full 16-slot classification: 4-0 x1, 4-1 x2, decider_win x5, decider_loss x5, 1-4 x2, 0-4 x1. Scored
+by number correct; the points curve is convex, with no wrong-answer penalty, no underdog weighting,
+and no crowd percentages (the client exposes none). Verified rules: docs/contest-official-ti15.md.
 
-## MARKET STATUS
-- Historical market-validation gate remains unresolved / not cleared.
-- Current client crowd pick percentages cannot clear that gate.
-- Crowd share is not a probability, bookmaker odds or calibration input.
-- Do not fit a fusion alpha from a current screenshot.
-- True bookmaker odds, if later supplied, must be clearly distinguished from crowd pick share and
-  official prediction probabilities.
+## Code state
+- ti_predict/swiss.py: rules-based Swiss + decider simulator; structural invariant asserted per run;
+  common-random-numbers D4 sensitivity.
+- ti_predict/assign.py: Hungarian max-expected-correct 16-slot solver.
+- ti_predict/predict_ti15.py: hard-gated entry (dry-run vs official) with provenance manifest.
+- backtest2/compare_policies.py: model-conditional policy study (max-correct equals max-points here).
+- Current code: the audit-freeze commit on main (this file's commit); prior baseline 98f2079.
 
-## SIMULATOR
-- Mechanics are implemented and internally validated.
-- Before any formal tournament output, verify the official TI2026 rules: Swiss pairing rules;
-  repeat-match restrictions; special-elimination pairings; main-event seeding; bracket format and
-  Bo3/Bo5 rules.
-- Do not emit formal advancement or championship probabilities before this rules verification.
+## Tests (pytest) - all passing
+tests/ holds 27 tests: official constants; map_pn side-neutral symmetry; structural 1/2/5/5/2/1
+invariant; probability row and column sums; fixed-seed reproducibility; CRN D4 sensitivity capacities;
+assignment capacity and expected-correct accounting; cutoff format and timezone gate; draw-file valid
+and invalid boundaries; manifest required fields; JSON/Markdown consistency; B-bt 16-team mapping
+(auto-skipped without the local universe).
+Run: python -m pytest -q
+Also: python -m ti_predict.swiss ; python -m ti_predict.assign ; python -m ti_predict.predict_ti15 --dry-run
 
-## CLIENT INPUTS STILL REQUIRED
-Priority input is screenshots from the Dota 2 client, not offshore bookmaker screenshots. Request
-complete screenshots showing: (1) every prediction question; (2) all answer options; (3) points or
-scoring rules; (4) crowd pick percentages, if displayed; (5) reward tiers and score thresholds;
-(6) prediction lock time or countdown.
+## Public-repo reproducibility boundary
+- A clean clone reproduces: install (requirements.txt), imports, simulator/solver self-tests, the
+  synthetic dry-run, and the full pytest suite (data-dependent tests auto-skip).
+- The real B-bt path needs the gitignored processed universe
+  (data/ti2026/processed/universe_maps.csv), regenerated per docs/lockday-runbook.md
+  (fetch_opendota -> resolve_identity / roster_coverage -> build_canonical -> universe ->
+  build_dataset). Without it the bt path raises a clear error; the public repo alone cannot
+  reconstruct unpublished match data.
 
-Classify screenshots field by field as: crowd pick percentage; official prediction probability; true
-bookmaker odds; points/reward information; question/option text.
+## Lock-day single command
+After refreshing data through the cutoff and entering the posted draw (docs/lockday-runbook.md):
+python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T15:00:00Z
 
-## NEXT EXECUTION ORDER
-1. Receive and classify the client screenshots.
-2. Extract all questions, options, points, crowd shares, reward thresholds and cutoff times.
-3. Verify official tournament rules.
-4. At the actual prediction cutoff, refit the frozen B-bt model using all eligible pre-cutoff data.
-5. Produce side-neutral model-only probabilities with no calibration layer.
-6. Keep model probability and crowd share separate.
-7. Use crowd share only in the contest expected-points decision layer.
-8. Clearly label outputs as not historically market-validated.
-9. Save machine-readable JSON as the fact source and render a human-readable Markdown table.
+## External inputs still required
+1. The official two-pod split and round-1 pairings (draw.json), posted around 2026-08-13.
+2. The exact in-client lock timestamp (a timezone-aware ISO value).
+3. A universe refreshed through the cutoff (the official freshness gate blocks a stale run).
+
+## Residual assumptions (documented and sensitivity-checked)
+- C5 pairing tie-break: sample among rule-legal pairings (fewest rematches, then the gap objective,
+  then random) - the organizer's exact tie-break is unpublished.
+- D4 decider opponent choice: strategic (strongest available opponent) is primary; noisy and random
+  are reported as common-random-numbers sensitivity.
+- Ranking tiebreaker 6 (average game duration) is unmodeled and folded into the coin toss; the
+  measured rate at which it would decide anything is negligible.
+- The simulator is structural/property-tested; it does not claim to replicate the organizer's
+  unpublished pairing decisions.
+- The main-event (14-series) track is deferred until the group draw is set.
+- Historical D3 (TI2024/TI2025) is archived: manifests, framework, and the pre-registered switch rule
+  are retained for a possible future run.
+
+## Discipline
+Conventional Commits, subject <=72 characters and ASCII (hook-enforced). Production is never updated
+from crowd percentages, odds, or results, and is not re-tuned on TI2024/TI2025 outcomes.

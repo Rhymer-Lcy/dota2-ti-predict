@@ -1,5 +1,8 @@
 # Modeling plan — audit first, let baselines compete, complexity must earn its place
 
+> Historical plan. The frozen model and final validation are in `docs/validation-plan-v2.md` and
+> `docs/CHECKPOINT.md`; the market and two-path framing here is superseded.
+
 Revised 2026-08-01 after external review. **Core principle: do NOT pre-commit to "Glicko-2 + hand
 weights" and start reporting champion probabilities.** Prove data coverage first, then let simple
 models compete under a rolling backtest; added complexity is allowed only when it yields *stable*

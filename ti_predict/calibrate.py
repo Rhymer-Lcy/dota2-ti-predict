@@ -12,8 +12,6 @@ Reports raw B-bt / side-neutral / side-neutral+OOS-Platt: log-loss, Brier, calib
 slope, ECE. Also prints the mean radiant coefficient c (to test the "intercept = radiant" claim).
 Writes docs/calibration-v1.md. Run: python -m ti_predict.calibrate
 """
-import csv
-import json
 import math
 import os
 import subprocess
@@ -147,7 +145,7 @@ def main():
                 "side-neutral + OOS temperature (production)": "snt"}
     L = ["# v1 fixed calibration (side-neutral + strictly-rolling OOS Platt)", "",
          f"Mean per-fold radiant coefficient c = **{np.mean(cs):+.3f}** (range {min(cs):+.3f}..{max(cs):+.3f}).",
-         f"logit(0.53) = +0.12 for reference: c is small, so it CANNOT explain intercept ~ +0.5 —",
+         "logit(0.53) = +0.12 for reference: c is small, so it CANNOT explain intercept ~ +0.5 --",
          "the intercept-as-radiant idea is rejected as the sole cause; the Platt layer does the real work.",
          "", "| variant | log-loss | Brier | intercept a | slope b | ECE |",
          "|---------|-----:|-----:|-----:|-----:|-----:|"]

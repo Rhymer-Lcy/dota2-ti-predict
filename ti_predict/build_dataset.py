@@ -78,7 +78,6 @@ def main():
     series_rows, bo2_draw_keys = [], set()
     for key, ms in by_series.items():
         size = len(ms)
-        a_wins = sum(m["a_won"] for m in ms)      # from team_a-of-first-map perspective is not stable; count per map
         # Bo2 draw = exactly 2 maps and the two maps had opposite winners *relative to a fixed team*.
         is_bo2_draw = False
         if size == 2:
@@ -112,7 +111,7 @@ def main():
     print(f"  series: {len(series_rows)} ({sum(s['is_singleton'] for s in series_rows)} singletons); "
           f"Bo2-draw series: {len(bo2_draw_keys)}")
     print(f"  real-series size histogram: {dict(sorted(sizes.items()))}")
-    print(f"  wrote dataset_maps.csv + dataset_series.csv")
+    print("  wrote dataset_maps.csv + dataset_series.csv")
 
 
 if __name__ == "__main__":

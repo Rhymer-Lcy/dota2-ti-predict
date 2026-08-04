@@ -26,13 +26,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ti_predict.assign import assign
 from ti_predict.predict_ti15 import (bt_strengths_for, load_teams, parse_cutoff, resolve_draw,
                                      synthetic_strengths)
-from ti_predict.swiss import BUCKETS, CAPACITY, simulate_one
+from ti_predict.contest_rules import GROUP_SCORE
+from ti_predict.swiss import BUCKETS, simulate_one
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BIDX = {b: i for i, b in enumerate(BUCKETS)}
-GROUP_POINTS = {0: 0, 1: 30, 2: 60, 3: 120, 4: 360, 5: 720, 6: 1200, 7: 1800, 8: 2520, 9: 3360,
-                10: 4320, 11: 5400, 12: 6600, 13: 7920, 14: 9360, 15: 10920, 16: 12000}
-FVEC = np.array([GROUP_POINTS[k] for k in range(17)])
+FVEC = np.array([GROUP_SCORE[k] for k in range(17)])
 
 
 def archive(pods, strength, n, seed, elim_choice, r1=None, c=0.0):

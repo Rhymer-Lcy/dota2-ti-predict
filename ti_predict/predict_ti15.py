@@ -33,6 +33,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ti_predict.assign import assign
+from ti_predict.contest_rules import PRODUCTION_HALF_LIFE_DAYS, STALE_MAX_DAYS
 from ti_predict.swiss import BUCKETS, CAPACITY, d4_sensitivity_crn, monte_carlo
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,7 +43,7 @@ TEAMS_CSV = os.path.join(INPUTS, "teams.csv")
 CANON_CSV = os.path.join(INPUTS, "canonical_identity.csv")
 UNIVERSE_CSV = os.path.join(PROC, "universe_maps.csv")
 D4_SCENARIOS = ("strategic", "noisy", "random")
-STALE_SECS = 3 * 86400          # official run rejects a universe whose latest map is >3d pre-cutoff
+STALE_SECS = STALE_MAX_DAYS * 86400   # official run rejects a universe whose latest map is too old
 C5_POLICY = ("enumerate legal perfect pairings; minimize rematches, then optimize the rank-gap "
              "objective (min, or max for round-5 elimination matches), then break ties at random "
              "with a fixed seed")
@@ -79,6 +80,14 @@ def _iso(ts):
     return datetime.fromtimestamp(ts, timezone.utc).isoformat()
 
 
+def _relpath(p):
+    """Repo-relative path for display, tolerant of a draw file on a different drive/mount."""
+    try:
+        return os.path.relpath(p, REPO)
+    except ValueError:
+        return p
+
+
 def _tz_aware(s):
     """True only for a timezone-aware ISO timestamp WITH a time component (rejects date-only)."""
     try:
@@ -105,8 +114,8 @@ def synthetic_strengths(teams):
 def parse_cutoff(s):
     """Accept 'YYYY-MM-DD' or a full ISO-8601 timestamp (e.g. 2026-08-13T15:00:00Z).
 
-    Returns (unix_ts, canonical_utc_iso). A date-only value is treated as 00:00 UTC; the runbook uses
-    a full timestamp so pre-lock same-day matches are not silently excluded (GPT review #3).
+    Returns (unix_ts, canonical_utc_iso). A date-only value is treated as 00:00 UTC; official runs
+    require a full timestamp so pre-lock same-day matches are not silently excluded.
     """
     try:
         dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
@@ -132,7 +141,7 @@ def bt_strengths_for(teams, cut_ts):
     train = [m for m in uni if m["start_time"] < cut_ts]
     if not train:
         raise SystemExit("no training maps before cutoff")
-    smap = bt_strengths(train, cut_ts)
+    smap = bt_strengths(train, cut_ts, hl=PRODUCTION_HALF_LIFE_DAYS)
     out, missing = {}, []
     for t in teams:
         key = t["team"]                      # organization name == universe.py ident() for TI rosters
@@ -150,10 +159,10 @@ def bt_strengths_for(teams, cut_ts):
 def resolve_draw(teams, draw_path, require_r1=False):
     """Return (pods, r1_pairings, source). Draw file references teams by their teams.csv 'team' name.
 
-    Full validation (GPT review #2): pods are two disjoint sets of 8 that partition exactly the 16
-    teams with no duplicates; if require_r1 (official mode) the round-1 draw MUST be present, exactly
-    8 within-pod matches of two distinct teams covering every team exactly once. A missing r1 is
-    rejected in official mode (it would otherwise be randomized yet still labeled OFFICIAL).
+    Full validation: pods are two disjoint sets of 8 that partition exactly the 16 teams with no
+    duplicates; if require_r1 (official mode) the round-1 draw MUST be present, exactly 8 within-pod
+    matches of two distinct teams covering every team exactly once. A missing r1 is rejected in
+    official mode (it would otherwise be randomized yet still labeled OFFICIAL).
     """
     names = {t["team"] for t in teams}
     if not draw_path:
@@ -178,7 +187,7 @@ def resolve_draw(teams, draw_path, require_r1=False):
     if not raw:
         if require_r1:
             sys.exit("draw: official run requires r1_pairings (the posted round-1 matchups)")
-        return (podA, podB), None, os.path.relpath(draw_path, REPO)
+        return (podA, podB), None, _relpath(draw_path)
     r1 = [tuple(p) for p in raw]
     if len(r1) != 8:
         sys.exit(f"draw: r1_pairings must have exactly 8 matches, found {len(r1)}")
@@ -193,7 +202,7 @@ def resolve_draw(teams, draw_path, require_r1=False):
         seen += [a, b]
     if sorted(seen) != sorted(allp):
         sys.exit("draw: r1_pairings must cover every team exactly once")
-    return (podA, podB), r1, os.path.relpath(draw_path, REPO)
+    return (podA, podB), r1, _relpath(draw_path)
 
 
 def se(p, n):
@@ -242,6 +251,7 @@ def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengt
         "data_cutoff": cutoff,
         "strengths_source": strengths_source,
         "radiant_c": round(c, 4),
+        "half_life_days": PRODUCTION_HALF_LIFE_DAYS,
         "map_prob": "side-neutral 0.5*(sigmoid(d+c)+sigmoid(d-c))",
         "training_maps": train_maps,
         "provenance": provenance,

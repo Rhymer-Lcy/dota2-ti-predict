@@ -80,7 +80,7 @@ robustness only.
 - **Requires a historical-data project (scope, then approve before fetching):** multi-TI outer folds
   (2022-2025) and Phase-2 replay need OpenDota pulls back years PLUS per-event roster snapshots and
   per-year format reconstruction - a real effort, not free. Decide how far back to go given the payoff
-  (a friend's cosmetic-reward game) before spending it.
+  (a cosmetic-reward prediction game) before spending it.
 
 ## 6b. Scope decision (client, 2026-08-03) - LOCKED
 Chosen: **D2 (2026 events for inner tuning) + TI2024 and TI2025 as OUTER held-out tests.**

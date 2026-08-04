@@ -1,5 +1,8 @@
 # The International 2026 — format & field
 
+> Historical research record. The verified official group-stage format is in
+> `docs/contest-official-ti15.md` (sec 9); where this early note differs, that document governs.
+
 Research snapshot 2026-08-01, **reconciled against the official Dota 2 blog (2026-07-31)** plus
 media corroboration. Tags: **[C]** confirmed (official + ≥1 source); **[P]** probable (precedent);
 **[TBD]** not yet public. Sources in [research-log.md](research-log.md).

@@ -1,5 +1,9 @@
 # Data sources for TI 2026 modeling
 
+> Note: the TI15 contest exposes no odds and no crowd percentages, so the odds/screenshot workflow
+> below does not apply to it (`devig.py` / `series.py` remain generic reusable utilities). OpenDota
+> is the data source used by the production pipeline.
+
 Research snapshot 2026-08-01. Sources in [research-log.md](research-log.md).
 
 Two things we need very different sources for: **team-strength data** (to build our own win

@@ -1,5 +1,8 @@
 # Research log — TI 2026 prediction project
 
+> Dated research log. For the current authoritative state see `README.md`,
+> `docs/contest-official-ti15.md` and `docs/validation-plan-v2.md`.
+
 Provenance for the synthesized docs. Each entry: date, what was checked, source URLs. Synthesis
 lives in the topic docs; this file is the citation trail.
 
@@ -28,7 +31,7 @@ lives in the topic docs; this file is the citation trail.
   - https://vgtimes.com/gaming-news/162669-valve-releases-the-international-2026-compendium-for-dota-2-completely-revamps-fantasy-league.html
   - https://teamplay.gg/blog/dota-2-international-compendium-rewards
 - **Not found on web:** exact per-question points; exact reward percentile thresholds (the literal
-  "top 5%"). These are in-client only → need friend's screenshots. Liquipedia Rewards page
+  "top 5%"). These are in-client only → need the client's screenshots. Liquipedia Rewards page
   (https://liquipedia.net/dota2/The_International_2026_Rewards) 403s to automated fetch.
 
 **Data sources** (→ [data-sources.md](data-sources.md))

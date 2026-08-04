@@ -1,5 +1,10 @@
 # TI 2026 Predictions contest — mechanics, scoring, rewards
 
+> Superseded. The verified contest mechanics, scoring and rewards are in
+> `docs/contest-official-ti15.md`. This earlier write-up predates confirmation and is kept as a
+> record; its market/odds and unknown-reward framing no longer applies (the client shows no crowd
+> percentages and there is no odds market).
+
 Research snapshot 2026-08-01, reconciled against the official Dota 2 blog (2026-07-31). Tags
 **[C]** confirmed / **[P]** probable / **[TBD]** client-only or unpublished. Sources in
 [research-log.md](research-log.md). In-game proper nouns are given English (Chinese) so they can be
@@ -8,7 +13,7 @@ matched against a CN client.
 Skill-based prediction for **cosmetic rewards — not gambling** (no stake, no money at risk).
 
 ## Two separate free activities, both leaderboard-scored
-- **[C] Predictions (赛事预测)** — predict tournament outcomes; the friend's target.
+- **[C] Predictions (赛事预测)** — predict tournament outcomes; the target.
 - **[C] Fantasy (梦幻挑战)** — draft pro players for fantasy points; a **separate** contest with its
   own scoring. New this year: a **Coach** customization; you pick **1 core + 1 mid + 1 support, each
   from a different team**, with reroll tokens. (Noted for completeness; not the current focus.)
