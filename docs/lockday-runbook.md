@@ -15,9 +15,11 @@ layer, no crowd% fusion (docs/CHECKPOINT.md, validation-plan-v2.md sec 8b). Lock
 3. **Enter the official draw.** Copy data/ti2026/inputs/draw.example.json to draw.json; fill podA/podB
    (8 each) and r1_pairings from the POSTED draw (team names must match teams.csv 'team' exactly).
 4. **Confirm the exact lock time** from the client countdown (hour:minute, timezone).
-5. **Run the official slate:**
-   `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13`
-   (the gate refuses unless the draw file, bt strengths, and cutoff are all present).
+5. **Run the official slate** (use the exact lock time as an ISO timestamp so pre-lock same-day
+   matches are included):
+   `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T15:00:00Z`
+   The gate refuses unless the draw file (validated two-pod partition AND round-1 pairings), bt
+   strengths, and cutoff are all present.
 6. **Read + submit.** Outputs at predictions/ti2026/group-stage/ti15_group_prediction.{json,md}. Fill
    the client's 16 slots from the slate: 4-0 x1, 4-1 x2, decider_win x5, decider_loss x5, 1-4 x2,
    0-4 x1. Buckets flagged [selection-sensitive] are the least certain (mid-table). Submit in-client
