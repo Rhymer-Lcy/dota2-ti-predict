@@ -66,22 +66,37 @@ def synthetic_strengths(teams):
     return {t["team"]: round(-1.4 + 2.8 * i / (n - 1), 4) for i, t in enumerate(teams)}
 
 
-def bt_strengths_for(teams, cutoff_date):
-    """Real B-bt log-strengths as of the cutoff, mapped to the 16 teams by ORGANIZATION NAME.
+def parse_cutoff(s):
+    """Accept 'YYYY-MM-DD' or a full ISO-8601 timestamp (e.g. 2026-08-13T15:00:00Z).
+
+    Returns (unix_ts, canonical_utc_iso). A date-only value is treated as 00:00 UTC; the runbook uses
+    a full timestamp so pre-lock same-day matches are not silently excluded (GPT review #3).
+    """
+    try:
+        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        dt = datetime.strptime(s, "%Y-%m-%d")
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return int(dt.timestamp()), dt.astimezone(timezone.utc).isoformat()
+
+
+def bt_strengths_for(teams, cut_ts):
+    """Real B-bt log-strengths + radiant coefficient c as of the cutoff, keyed by ORGANIZATION NAME.
 
     The frozen universe (universe.py) collapses each TI roster's source_team_ids to its organization
     name, so a team's strength key is teams.csv 'team' (== canonical organization), not a raw
-    opendota_team_id. Requires the processed universe dataset; raises clearly if data or keys are
-    missing.
+    opendota_team_id. c is the train-only radiant coefficient (calibrate.est_c) used for the frozen
+    side-neutral map prob. Requires the processed universe dataset; raises clearly if data/keys are
+    missing. Returns (strengths, c, n_train).
     """
     from ti_predict.backtest import load
-    from ti_predict.calibrate import bt_strengths
-    cut = int(datetime.strptime(cutoff_date, "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp())
+    from ti_predict.calibrate import bt_strengths, est_c
     uni, _, _ = load()
-    train = [m for m in uni if m["start_time"] < cut]
+    train = [m for m in uni if m["start_time"] < cut_ts]
     if not train:
-        raise SystemExit(f"no training maps before cutoff {cutoff_date}")
-    smap = bt_strengths(train, cut)
+        raise SystemExit("no training maps before cutoff")
+    smap = bt_strengths(train, cut_ts)
     out, missing = {}, []
     for t in teams:
         key = t["team"]                      # organization name == universe.py ident() for TI rosters
@@ -92,34 +107,65 @@ def bt_strengths_for(teams, cutoff_date):
     if missing:
         raise SystemExit("B-bt strengths missing for: " + ", ".join(missing)
                          + "\n(check organization name vs universe key / roster canonicalization)")
-    return out, len(train)
+    return out, float(est_c(train, smap)), len(train)
 
 
-def resolve_draw(teams, draw_path):
-    """Return (pods, r1_pairings, source). Draw file references teams by their teams.csv 'team' name."""
+def resolve_draw(teams, draw_path, require_r1=False):
+    """Return (pods, r1_pairings, source). Draw file references teams by their teams.csv 'team' name.
+
+    Full validation (GPT review #2): pods are two disjoint sets of 8 that partition exactly the 16
+    teams with no duplicates; if require_r1 (official mode) the round-1 draw MUST be present, exactly
+    8 within-pod matches of two distinct teams covering every team exactly once. A missing r1 is
+    rejected in official mode (it would otherwise be randomized yet still labeled OFFICIAL).
+    """
     names = {t["team"] for t in teams}
-    if draw_path:
-        with open(draw_path, encoding="utf-8") as fh:
-            d = json.load(fh)
-        podA, podB = d["podA"], d["podB"]
-        r1 = [tuple(p) for p in d.get("r1_pairings", [])] or None
-        for grp in (podA, podB, [x for p in (r1 or []) for x in p]):
-            bad = [x for x in grp if x not in names]
-            assert not bad, f"draw references unknown teams: {bad}"
-        assert len(podA) == 8 and len(podB) == 8, "each pod must have 8 teams"
-        return (podA, podB), r1, os.path.relpath(draw_path, REPO)
-    # synthetic split (dry-run only): alternate teams.csv order into two pods; random round 1
-    order = [t["team"] for t in teams]
-    return (order[0::2], order[1::2]), None, "synthetic (teams.csv split, random round 1)"
+    if not draw_path:
+        if require_r1:
+            sys.exit("official run requires --draw with the posted pods and round-1 pairings")
+        order = [t["team"] for t in teams]      # synthetic split (dry-run only), random round 1
+        return (order[0::2], order[1::2]), None, "synthetic (teams.csv split, random round 1)"
+
+    with open(draw_path, encoding="utf-8") as fh:
+        d = json.load(fh)
+    podA, podB = list(d.get("podA", [])), list(d.get("podB", []))
+    if len(podA) != 8 or len(podB) != 8:
+        sys.exit("draw: podA and podB must each list 8 teams")
+    allp = podA + podB
+    if len(set(allp)) != 16:
+        sys.exit("draw: pods must be 16 distinct teams (duplicate or overlap found)")
+    if set(allp) != names:
+        sys.exit(f"draw: pods must partition exactly the 16 teams; mismatch {set(allp) ^ names}")
+    pod_of = {t: "A" for t in podA}; pod_of.update({t: "B" for t in podB})
+
+    raw = d.get("r1_pairings") or []
+    if not raw:
+        if require_r1:
+            sys.exit("draw: official run requires r1_pairings (the posted round-1 matchups)")
+        return (podA, podB), None, os.path.relpath(draw_path, REPO)
+    r1 = [tuple(p) for p in raw]
+    if len(r1) != 8:
+        sys.exit(f"draw: r1_pairings must have exactly 8 matches, found {len(r1)}")
+    seen = []
+    for a, b in r1:
+        if a not in names or b not in names:
+            sys.exit(f"draw: r1 references unknown team(s): {a}, {b}")
+        if a == b:
+            sys.exit(f"draw: r1 match has a team against itself: {a}")
+        if pod_of[a] != pod_of[b]:
+            sys.exit(f"draw: r1 match crosses pods: {a} vs {b}")
+        seen += [a, b]
+    if sorted(seen) != sorted(allp):
+        sys.exit("draw: r1_pairings must cover every team exactly once")
+    return (podA, podB), r1, os.path.relpath(draw_path, REPO)
 
 
 def se(p, n):
     return math.sqrt(max(p * (1 - p), 0.0) / n)
 
 
-def sensitivity(pods, strength, n, seed, r1):
+def sensitivity(pods, strength, n, seed, r1, c=0.0):
     """Run all three D4 scenarios; return {scenario: P} and the buckets whose membership changes."""
-    Ps = {sc: monte_carlo(pods, strength, n=n, seed=seed, r1_pairings=r1, elim_choice=sc)
+    Ps = {sc: monte_carlo(pods, strength, n=n, seed=seed, r1_pairings=r1, elim_choice=sc, c=c)
           for sc in D4_SCENARIOS}
     slates = {sc: {b: {t for t, _ in assign(Ps[sc])[0][b]} for b in BUCKETS} for sc in D4_SCENARIOS}
     sensitive = {}
@@ -133,11 +179,11 @@ def sensitivity(pods, strength, n, seed, r1):
 
 
 def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengths_source,
-          train_maps):
+          train_maps, c=0.0):
     P, diag = monte_carlo(pods, strength, n=n, seed=seed, r1_pairings=r1,
-                          elim_choice="strategic", return_diag=True)
+                          elim_choice="strategic", return_diag=True, c=c)
     slate, exp_correct, rows = assign(P)
-    _, sensitive = sensitivity(pods, strength, n, seed, r1)
+    _, sensitive = sensitivity(pods, strength, n, seed, r1, c=c)
 
     assigned = {t: b for t, b, _ in rows}
     per_team = {}
@@ -158,6 +204,8 @@ def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengt
         "code_commit": _commit(),
         "data_cutoff": cutoff,
         "strengths_source": strengths_source,
+        "radiant_c": round(c, 4),
+        "map_prob": "side-neutral 0.5*(sigmoid(d+c)+sigmoid(d-c))",
         "training_maps": train_maps,
         "n_sims": n, "seed": seed,
         "c5_pairing_policy": C5_POLICY,
@@ -165,8 +213,10 @@ def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengt
         "d4_selection_sensitive_buckets": sensitive,
         "tiebreak_diagnostic": {"tie_16_rate": round(diag["tie_16_rate"], 4),
                                 "tie_32_rate": round(diag["tie_32_rate"], 4),
-                                "note": "fraction of sims where a coin toss arbitrated the standings "
-                                        "(tie_16) / the bucket-relevant 3-2 pick order (tie_32)"},
+                                "note": "fraction of sims where the first five tiebreakers all tie, "
+                                        "so the result falls to the unmodeled avg-duration/coin-toss "
+                                        "tail: overall (tie_16) / bucket-relevant 3-2 pick order "
+                                        "(tie_32)"},
         "draw_source": draw_source,
         "pods": {"A": list(pods[0]), "B": list(pods[1])},
         "r1_pairings": [list(p) for p in r1] if r1 else None,
@@ -241,19 +291,20 @@ def main():
             sys.exit("OFFICIAL RUN BLOCKED:\n  - " + "\n  - ".join(problems))
 
     # ---- strengths ----
-    train_maps = None
+    train_maps, c, cut_iso = None, 0.0, a.cutoff
     if a.strengths == "bt":
         if not a.cutoff:
-            sys.exit("--strengths bt requires --cutoff YYYY-MM-DD")
-        strength, train_maps = bt_strengths_for(teams, a.cutoff)
-        ssrc = f"B-bt @ {a.cutoff}"
+            sys.exit("--strengths bt requires --cutoff (YYYY-MM-DD or full ISO timestamp)")
+        cut_ts, cut_iso = parse_cutoff(a.cutoff)
+        strength, c, train_maps = bt_strengths_for(teams, cut_ts)
+        ssrc = f"B-bt @ {cut_iso} (radiant c={c:+.3f})"
     else:
         strength = synthetic_strengths(teams)
         ssrc = "synthetic (non-predictive)"
 
-    pods, r1, draw_source = resolve_draw(teams, a.draw)
-    out = build(teams, strength, pods, r1, draw_source, a.sims, a.seed, mode, a.cutoff, ssrc,
-                train_maps)
+    pods, r1, draw_source = resolve_draw(teams, a.draw, require_r1=a.official)
+    out = build(teams, strength, pods, r1, draw_source, a.sims, a.seed, mode, cut_iso, ssrc,
+                train_maps, c=c)
 
     outdir = a.out or (os.path.join(REPO, "predictions", "ti2026", "group-stage")
                        if a.official else os.path.join(REPO, ".dryrun"))
