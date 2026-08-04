@@ -44,20 +44,31 @@ CAPACITY = {"4-0": 1, "4-1": 2, "decider_win": 5, "decider_loss": 5, "1-4": 2, "
 
 
 def map_p(sa, sb):
-    """Single-map win probability for a vs b from log-strengths (side-neutral)."""
+    """Raw single-map win probability for a vs b from log-strengths, sigmoid(sa - sb)."""
     return 1.0 / (1.0 + math.exp(-(sa - sb)))
 
 
-def _new_state(teams):
+def map_pn(sa, sb, c=0.0):
+    """Production side-neutral map win prob: 0.5*(sigmoid(d+c)+sigmoid(d-c)), d=sa-sb.
+
+    Matches the frozen spec (calibration-sideaware.md / production_platt.json): sides are unknown at
+    TI, so the radiant coefficient c (estimated on pre-cutoff training data) is averaged out. c=0
+    reduces exactly to raw sigmoid(d).
+    """
+    d = sa - sb
+    return 0.5 * (1.0 / (1.0 + math.exp(-(d + c))) + 1.0 / (1.0 + math.exp(-(d - c))))
+
+
+def _new_state(teams, c=0.0):
     return {"w": {t: 0 for t in teams}, "l": {t: 0 for t in teams},
             "mw": {t: 0 for t in teams}, "ml": {t: 0 for t in teams},
-            "opp": {t: [] for t in teams}, "played": set()}
+            "opp": {t: [] for t in teams}, "played": set(), "c": c}
 
 
 def _play(a, b, strength, st, rng, best_of=3):
     """Simulate a Bo3 map-by-map; update series + map records and opponent lists."""
     need = best_of // 2 + 1
-    pa = map_p(strength[a], strength[b])
+    pa = map_pn(strength[a], strength[b], st["c"])
     aw = bw = 0
     while aw < need and bw < need:
         if rng.random() < pa:
@@ -145,9 +156,10 @@ def _by_record(teams, st):
     return g
 
 
-def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic", diag=False):
+def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic", diag=False, c=0.0):
     """Run one full group stage. `pods` = (podA_list, podB_list), 8 teams each.
 
+    c: production radiant coefficient for the side-neutral map prob (0 = raw sigmoid).
     r1_pairings: optional list of (a, b) for the actual posted round-1 draw (must respect pods);
                  if None, round 1 is paired randomly within each pod.
     elim_choice (D4 opponent-choice sensitivity scenarios):
@@ -160,7 +172,7 @@ def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic",
     teams = list(podA) + list(podB)
     assert len(podA) == 8 and len(podB) == 8, "each pod must have 8 teams"
     pod_of = {t: "A" for t in podA}; pod_of.update({t: "B" for t in podB})
-    st = _new_state(teams)
+    st = _new_state(teams, c)
 
     # ---- Round 1: within pod, preset draw or random ----
     if r1_pairings is not None:
@@ -212,8 +224,9 @@ def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic",
     assert len(threes) == 5 and len(twos) == 5, (len(threes), len(twos))
 
     # tiebreak-depth diagnostic: measured on the Swiss standings BEFORE the decider round adds games.
-    # tie_16 = any two of the 16 share an identical real key (a coin toss actually arbitrated);
-    # tie_32 = two 3-2 teams tie -> the decider PICK ORDER is coin-toss-decided (bucket-relevant).
+    # A tie here means the first five tiebreakers were all equal, so the result is decided by the
+    # UNMODELED tail (avg game duration, else coin toss). tie_16 = any two of the 16 tie; tie_32 =
+    # two 3-2 teams tie -> the decider PICK ORDER falls to that tail (bucket-relevant).
     d = None
     if diag:
         k16 = [_real_key(t, st) for t in teams]
@@ -227,7 +240,7 @@ def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic",
         if elim_choice == "random":
             opp = pool[rng.randrange(len(pool))]
         elif elim_choice == "noisy":                        # weight toward weaker opponents for `a`
-            ws = [map_p(strength[a], strength[o]) for o in pool]
+            ws = [map_pn(strength[a], strength[o], st["c"]) for o in pool]
             r = rng.random() * sum(ws)
             c = 0.0
             for o, w in zip(pool, ws):
@@ -247,18 +260,20 @@ def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic",
 
 
 def monte_carlo(pods, strength, n=20000, seed=20260813, r1_pairings=None, elim_choice="strategic",
-                return_diag=False):
+                return_diag=False, c=0.0):
     """Return P[team][bucket] over n simulations (per-run bucket counts are an asserted invariant).
 
-    If return_diag, also return {'tie_16_rate', 'tie_32_rate', 'n'}: how often a coin toss actually
-    arbitrated the standings, and how often it decided the bucket-relevant 3-2 pick order.
+    c: production radiant coefficient for the side-neutral map prob (0 = raw sigmoid).
+    If return_diag, also return {'tie_16_rate', 'tie_32_rate', 'n'}: how often the first five
+    tiebreakers all tie (result decided by the unmodeled avg-duration/coin-toss tail) overall, and
+    how often that decides the bucket-relevant 3-2 pick order.
     """
     rng = random.Random(seed)
     teams = list(pods[0]) + list(pods[1])
     tally = {t: {b: 0 for b in BUCKETS} for t in teams}
     tie16 = tie32 = 0
     for _ in range(n):
-        out = simulate_one(pods, strength, rng, r1_pairings, elim_choice, diag=return_diag)
+        out = simulate_one(pods, strength, rng, r1_pairings, elim_choice, diag=return_diag, c=c)
         bucket, d = out if return_diag else (out, None)
         counts = defaultdict(int)
         for t, b in bucket.items():
