@@ -156,17 +156,24 @@ def _by_record(teams, st):
     return g
 
 
-def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic", diag=False, c=0.0):
-    """Run one full group stage. `pods` = (podA_list, podB_list), 8 teams each.
+def _series_winner(a, b, strength, c, rng, best_of=3):
+    """Simulate a Bo3 map-by-map WITHOUT mutating state; return (winner, loser)."""
+    need = best_of // 2 + 1
+    pa = map_pn(strength[a], strength[b], c)
+    aw = bw = 0
+    while aw < need and bw < need:
+        if rng.random() < pa:
+            aw += 1
+        else:
+            bw += 1
+    return (a, b) if aw > bw else (b, a)
 
-    c: production radiant coefficient for the side-neutral map prob (0 = raw sigmoid).
-    r1_pairings: optional list of (a, b) for the actual posted round-1 draw (must respect pods);
-                 if None, round 1 is paired randomly within each pod.
-    elim_choice (D4 opponent-choice sensitivity scenarios):
-      'strategic' -- each 3-2 team picks the remaining 2-3 opponent it is strongest against;
-      'noisy'     -- picks probabilistically, weighted toward (not fixed on) weaker opponents;
-      'random'    -- uniform random pick (boundary control).
-    Returns {team: bucket}; if diag, returns ({team: bucket}, diagnostics).
+
+def _swiss(pods, strength, rng, r1_pairings, c):
+    """Run the Swiss stage (up to 5 rounds). Returns (st, bucket_partial, threes, twos).
+
+    bucket_partial holds only the record-decided buckets (4-0/4-1/1-4/0-4); the decider round is run
+    separately (see _deciders) so D4 scenarios can share one Swiss outcome under common random numbers.
     """
     podA, podB = pods
     teams = list(podA) + list(podB)
@@ -174,7 +181,7 @@ def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic",
     pod_of = {t: "A" for t in podA}; pod_of.update({t: "B" for t in podB})
     st = _new_state(teams, c)
 
-    # ---- Round 1: within pod, preset draw or random ----
+    # Round 1: within pod, preset draw or random
     if r1_pairings is not None:
         for a, b in r1_pairings:
             assert pod_of[a] == pod_of[b], "round-1 pairing crosses pods"
@@ -185,32 +192,31 @@ def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic",
             for i in range(0, 8, 2):
                 _play(pod[i], pod[i + 1], strength, st, rng)
 
-    # ---- Rounds 2-3: within pod, same record, min gap ----
+    # Rounds 2-3: within pod, same record, min gap
     for _ in range(2):
         for pod in (podA, podB):
             for rec, grp in _by_record(pod, st).items():
                 for a, b in pair_group(grp, st, rng, gap="min"):
                     _play(a, b, strength, st, rng)
 
-    # ---- Round 4: cross pod, same record ----
+    # Round 4: cross pod, same record
     for rec, grp in _by_record(teams, st).items():
         for a, b in pair_group(grp, st, rng, gap="min", cross_pod=pod_of):
             _play(a, b, strength, st, rng)
 
-    # after R4: 4-0 and 0-4 are done; 3-1 / 2-2 / 1-3 continue
     active = [t for t in teams if st["w"][t] < 4 and st["l"][t] < 4]
 
-    # ---- Round 5: 1-3 group are elimination matches (max gap); others min gap ----
+    # Round 5: only 1-3 matches are elimination (loser out) -> max gap; others min gap
     for rec, grp in _by_record(active, st).items():
-        gap = "max" if rec == (1, 3) else "min"          # loser of a 1-3 match is eliminated
+        gap = "max" if rec == (1, 3) else "min"
         for a, b in pair_group(grp, st, rng, gap=gap):
             _play(a, b, strength, st, rng)
 
-    # ---- classify records into buckets ----
     rec_of = {t: (st["w"][t], st["l"][t]) for t in teams}
+    threes = [t for t in teams if rec_of[t] == (3, 2)]
+    twos = [t for t in teams if rec_of[t] == (2, 3)]
+    assert len(threes) == 5 and len(twos) == 5, (len(threes), len(twos))
     bucket = {}
-    threes = [t for t in teams if rec_of[t] == (3, 2)]      # 3-2 teams
-    twos = [t for t in teams if rec_of[t] == (2, 3)]        # 2-3 teams
     for t in teams:
         r = rec_of[t]
         if r == (4, 0):
@@ -221,42 +227,88 @@ def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic",
             bucket[t] = "1-4"
         elif r == (0, 4):
             bucket[t] = "0-4"
-    assert len(threes) == 5 and len(twos) == 5, (len(threes), len(twos))
+    return st, bucket, threes, twos
 
-    # tiebreak-depth diagnostic: measured on the Swiss standings BEFORE the decider round adds games.
-    # A tie here means the first five tiebreakers were all equal, so the result is decided by the
-    # UNMODELED tail (avg game duration, else coin toss). tie_16 = any two of the 16 tie; tie_32 =
-    # two 3-2 teams tie -> the decider PICK ORDER falls to that tail (bucket-relevant).
+
+def _deciders(pick_order, twos, strength, c, rng_choice, rng_match, elim_choice):
+    """Run the 5 extra-elimination matches. rng_choice picks opponents; rng_match plays the series.
+
+    Separate streams let the D4 scenarios reuse identical MATCH randomness (common random numbers),
+    isolating the opponent-choice effect. Returns {team: 'decider_win'|'decider_loss'}.
+    """
+    pool = list(twos)
+    res = {}
+    for a in pick_order:
+        if elim_choice == "random":
+            opp = pool[rng_choice.randrange(len(pool))]
+        elif elim_choice == "noisy":                        # weight toward weaker opponents for `a`
+            ws = [map_pn(strength[a], strength[o], c) for o in pool]
+            r = rng_choice.random() * sum(ws)
+            cum = 0.0
+            for o, w in zip(pool, ws):
+                cum += w
+                if r <= cum:
+                    opp = o
+                    break
+        else:                                               # strategic: strongest matchup for `a`
+            opp = min(pool, key=lambda o: strength[o])
+        pool.remove(opp)
+        win, lose = _series_winner(a, opp, strength, c, rng_match)
+        res[win] = "decider_win"
+        res[lose] = "decider_loss"
+    return res
+
+
+def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic", diag=False, c=0.0):
+    """Run one full group stage (Swiss + decider). `pods` = (podA_list, podB_list), 8 teams each.
+
+    c: production radiant coefficient for the side-neutral map prob (0 = raw sigmoid).
+    r1_pairings: optional list of (a, b) for the actual posted round-1 draw (must respect pods);
+                 if None, round 1 is paired randomly within each pod.
+    elim_choice (D4 opponent-choice sensitivity scenarios):
+      'strategic' -- each 3-2 team picks the remaining 2-3 opponent it is strongest against;
+      'noisy'     -- picks probabilistically, weighted toward (not fixed on) weaker opponents;
+      'random'    -- uniform random pick (boundary control).
+    Returns {team: bucket}; if diag, returns ({team: bucket}, diagnostics). One shared rng is used
+    for choice and match here, preserving the single-stream behaviour.
+    """
+    st, bucket, threes, twos = _swiss(pods, strength, rng, r1_pairings, c)
+    teams = list(pods[0]) + list(pods[1])
+
+    # tiebreak-depth diagnostic on the Swiss standings BEFORE the decider adds games. A tie means the
+    # first five tiebreakers were equal, so the result falls to the UNMODELED avg-duration/coin-toss
+    # tail. tie_16 = any two of the 16 tie; tie_32 = two 3-2 teams tie (decider pick order affected).
     d = None
     if diag:
         k16 = [_real_key(t, st) for t in teams]
         k32 = [_real_key(t, st) for t in threes]
         d = {"tie_16": len(set(k16)) < 16, "tie_32": len(set(k32)) < len(k32)}
 
-    # ---- extra elimination round: 3-2 teams pick 2-3 opponents in rank order ----
     pick_order = standings(threes, st, rng)                 # highest-ranked 3-2 picks first
-    pool = list(twos)
-    for a in pick_order:
-        if elim_choice == "random":
-            opp = pool[rng.randrange(len(pool))]
-        elif elim_choice == "noisy":                        # weight toward weaker opponents for `a`
-            ws = [map_pn(strength[a], strength[o], st["c"]) for o in pool]
-            r = rng.random() * sum(ws)
-            c = 0.0
-            for o, w in zip(pool, ws):
-                c += w
-                if r <= c:
-                    opp = o
-                    break
-        else:                                               # strategic: strongest matchup for `a`
-            opp = min(pool, key=lambda o: strength[o])
-        pool.remove(opp)
-        win, lose = _play(a, opp, strength, st, rng)
-        bucket[win] = "decider_win"
-        bucket[lose] = "decider_loss"
-
+    bucket.update(_deciders(pick_order, twos, strength, c, rng, rng, elim_choice))
     assert len(bucket) == 16
     return (bucket, d) if diag else bucket
+
+
+def d4_sensitivity_crn(pods, strength, n=20000, seed=20260813, r1_pairings=None, c=0.0,
+                       choices=("strategic", "noisy", "random")):
+    """Common-random-numbers D4 sensitivity: per sim, ONE shared Swiss outcome and a shared pick
+    order + decider-match RNG across all choices; only the opponent-choice rule varies. This isolates
+    the opponent-choice effect from Monte-Carlo path noise. Returns {choice: P[team][bucket]}.
+    """
+    teams = list(pods[0]) + list(pods[1])
+    tally = {ch: {t: {b: 0 for b in BUCKETS} for t in teams} for ch in choices}
+    for k in range(n):
+        base = seed * 1_000_003 + k
+        st, bucket0, threes, twos = _swiss(pods, strength, random.Random(base * 7 + 3), r1_pairings, c)
+        pick_order = standings(threes, st, random.Random(base * 7 + 4))   # common across choices
+        for ch in choices:
+            rc, rm = random.Random(base * 7 + 5), random.Random(base * 7 + 6)  # reset -> common
+            b = dict(bucket0)
+            b.update(_deciders(pick_order, twos, strength, c, rc, rm, ch))
+            for t, bb in b.items():
+                tally[ch][t][bb] += 1
+    return {ch: {t: {b: tally[ch][t][b] / n for b in BUCKETS} for t in teams} for ch in choices}
 
 
 def monte_carlo(pods, strength, n=20000, seed=20260813, r1_pairings=None, elim_choice="strategic",
