@@ -137,6 +137,11 @@ def bt_strengths_for(teams, cut_ts):
     """
     from ti_predict.backtest import load
     from ti_predict.calibrate import bt_strengths, est_c
+    if not os.path.exists(UNIVERSE_CSV):
+        raise SystemExit(
+            "processed universe not found (data/ti2026/processed/universe_maps.csv). The public repo "
+            "does not ship match data; regenerate it per docs/lockday-runbook.md: fetch_opendota -> "
+            "resolve_identity / roster_coverage -> build_canonical -> universe -> build_dataset.")
     uni, _, _ = load()
     train = [m for m in uni if m["start_time"] < cut_ts]
     if not train:
