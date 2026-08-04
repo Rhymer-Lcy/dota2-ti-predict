@@ -33,12 +33,16 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ti_predict.assign import assign
-from ti_predict.swiss import BUCKETS, CAPACITY, monte_carlo
+from ti_predict.swiss import BUCKETS, CAPACITY, d4_sensitivity_crn, monte_carlo
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INPUTS = os.path.join(REPO, "data", "ti2026", "inputs")
+PROC = os.path.join(REPO, "data", "ti2026", "processed")
 TEAMS_CSV = os.path.join(INPUTS, "teams.csv")
+CANON_CSV = os.path.join(INPUTS, "canonical_identity.csv")
+UNIVERSE_CSV = os.path.join(PROC, "universe_maps.csv")
 D4_SCENARIOS = ("strategic", "noisy", "random")
+STALE_SECS = 3 * 86400          # official run rejects a universe whose latest map is >3d pre-cutoff
 C5_POLICY = ("enumerate legal perfect pairings; minimize rematches, then optimize the rank-gap "
              "objective (min, or max for round-5 elimination matches), then break ties at random "
              "with a fixed seed")
@@ -50,6 +54,38 @@ def _commit():
                                        text=True).strip()
     except Exception:
         return "unknown"
+
+
+def _git_dirty():
+    try:
+        return bool(subprocess.check_output(["git", "-C", REPO, "status", "--porcelain"],
+                                            text=True).strip())
+    except Exception:
+        return None
+
+
+def _sha256(path):
+    import hashlib
+    if not path or not os.path.exists(path):
+        return None
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _iso(ts):
+    return datetime.fromtimestamp(ts, timezone.utc).isoformat()
+
+
+def _tz_aware(s):
+    """True only for a timezone-aware ISO timestamp WITH a time component (rejects date-only)."""
+    try:
+        dt = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+    except (ValueError, AttributeError):
+        return False
+    return dt.tzinfo is not None and "T" in str(s)
 
 
 def load_teams():
@@ -107,7 +143,8 @@ def bt_strengths_for(teams, cut_ts):
     if missing:
         raise SystemExit("B-bt strengths missing for: " + ", ".join(missing)
                          + "\n(check organization name vs universe key / roster canonicalization)")
-    return out, float(est_c(train, smap)), len(train)
+    uni_max = max(m["start_time"] for m in uni)
+    return out, float(est_c(train, smap)), len(train), len(uni), uni_max
 
 
 def resolve_draw(teams, draw_path, require_r1=False):
@@ -164,9 +201,9 @@ def se(p, n):
 
 
 def sensitivity(pods, strength, n, seed, r1, c=0.0):
-    """Run all three D4 scenarios; return {scenario: P} and the buckets whose membership changes."""
-    Ps = {sc: monte_carlo(pods, strength, n=n, seed=seed, r1_pairings=r1, elim_choice=sc, c=c)
-          for sc in D4_SCENARIOS}
+    """CRN D4 sensitivity: buckets whose membership changes across opponent-choice scenarios, with a
+    shared Swiss outcome + shared match RNG per sim (isolates the choice effect from path noise)."""
+    Ps = d4_sensitivity_crn(pods, strength, n=n, seed=seed, r1_pairings=r1, c=c, choices=D4_SCENARIOS)
     slates = {sc: {b: {t for t, _ in assign(Ps[sc])[0][b]} for b in BUCKETS} for sc in D4_SCENARIOS}
     sensitive = {}
     base = slates["strategic"]
@@ -179,7 +216,7 @@ def sensitivity(pods, strength, n, seed, r1, c=0.0):
 
 
 def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengths_source,
-          train_maps, c=0.0):
+          train_maps, c=0.0, provenance=None):
     P, diag = monte_carlo(pods, strength, n=n, seed=seed, r1_pairings=r1,
                           elim_choice="strategic", return_diag=True, c=c)
     slate, exp_correct, rows = assign(P)
@@ -207,6 +244,7 @@ def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengt
         "radiant_c": round(c, 4),
         "map_prob": "side-neutral 0.5*(sigmoid(d+c)+sigmoid(d-c))",
         "training_maps": train_maps,
+        "provenance": provenance,
         "n_sims": n, "seed": seed,
         "c5_pairing_policy": C5_POLICY,
         "d4_primary": "strategic", "d4_scenarios": list(D4_SCENARIOS),
@@ -255,7 +293,8 @@ def to_markdown(out):
         L.append("| " + t + " | " + " | ".join(f"{out['probabilities'][t][b]:.3f}" for b in BUCKETS)
                  + " |")
     L += ["", "## Notes",
-          f"- tiebreak coin-toss rate: standings {m['tiebreak_diagnostic']['tie_16_rate']:.3f}, "
+          f"- first-five-tiebreakers-tie rate (falls to unmodeled avg-duration/coin-toss tail): "
+          f"standings {m['tiebreak_diagnostic']['tie_16_rate']:.3f}, "
           f"3-2 pick order {m['tiebreak_diagnostic']['tie_32_rate']:.3f}",
           f"- D4 selection-sensitive buckets: "
           f"{m['d4_selection_sensitive_buckets'] or 'none'}",
@@ -269,11 +308,15 @@ def main():
     g.add_argument("--dry-run", action="store_true")
     g.add_argument("--official", action="store_true")
     ap.add_argument("--strengths", choices=("synthetic", "bt"), default="synthetic")
-    ap.add_argument("--cutoff", help="YYYY-MM-DD frozen data cutoff (required for bt / official)")
+    ap.add_argument("--cutoff", help="date (YYYY-MM-DD) for dry-run; official needs a full ISO "
+                                     "timestamp with timezone, e.g. 2026-08-13T15:00:00Z")
     ap.add_argument("--draw", help="path to draw.json (pods + round-1 pairings)")
     ap.add_argument("--sims", type=int, default=40000)
     ap.add_argument("--seed", type=int, default=20260813)
     ap.add_argument("--out", help="output directory")
+    ap.add_argument("--allow-stale", action="store_true",
+                    help="official: skip the data-freshness gate (use only if there genuinely are no "
+                         "pre-lock matches near the cutoff)")
     a = ap.parse_args()
     mode = "official" if a.official else "dry-run"
     teams = load_teams()
@@ -285,26 +328,43 @@ def main():
             problems.append("--draw must point to the posted official draw file (pods + round 1)")
         if a.strengths != "bt":
             problems.append("--strengths must be 'bt' (no synthetic strengths in official mode)")
-        if not a.cutoff:
-            problems.append("--cutoff (frozen data cutoff) is required")
+        if not _tz_aware(a.cutoff):
+            problems.append("--cutoff must be a timezone-aware ISO timestamp with a time, e.g. "
+                            "2026-08-13T15:00:00Z (date-only would truncate at 00:00 UTC)")
         if problems:
             sys.exit("OFFICIAL RUN BLOCKED:\n  - " + "\n  - ".join(problems))
 
     # ---- strengths ----
-    train_maps, c, cut_iso = None, 0.0, a.cutoff
+    train_maps, c, cut_iso, provenance = None, 0.0, a.cutoff, None
     if a.strengths == "bt":
         if not a.cutoff:
             sys.exit("--strengths bt requires --cutoff (YYYY-MM-DD or full ISO timestamp)")
         cut_ts, cut_iso = parse_cutoff(a.cutoff)
-        strength, c, train_maps = bt_strengths_for(teams, cut_ts)
+        strength, c, train_maps, uni_rows, uni_max = bt_strengths_for(teams, cut_ts)
         ssrc = f"B-bt @ {cut_iso} (radiant c={c:+.3f})"
+        provenance = {"requested_cutoff": cut_iso, "universe_rows": uni_rows,
+                      "universe_max_start_time": _iso(uni_max),
+                      "universe_lag_days_before_cutoff": round((cut_ts - uni_max) / 86400, 2),
+                      "teams_sha256": _sha256(TEAMS_CSV),
+                      "canonical_identity_sha256": _sha256(CANON_CSV),
+                      "universe_sha256": _sha256(UNIVERSE_CSV), "draw_sha256": _sha256(a.draw),
+                      "git_commit": _commit(), "git_dirty": _git_dirty()}
+        # data-freshness gate: a stale universe must not silently produce an OFFICIAL slate
+        if a.official and not a.allow_stale and (cut_ts - uni_max) > STALE_SECS:
+            sys.exit(f"OFFICIAL RUN BLOCKED: universe latest map {_iso(uni_max)} is "
+                     f"{provenance['universe_lag_days_before_cutoff']}d before cutoff {cut_iso}; "
+                     f"refresh the data (or pass --allow-stale if there truly are no pre-lock games).")
+        if a.official and provenance["git_dirty"]:
+            print("WARNING: repo is dirty (uncommitted changes) for an official run.", file=sys.stderr)
     else:
         strength = synthetic_strengths(teams)
         ssrc = "synthetic (non-predictive)"
 
     pods, r1, draw_source = resolve_draw(teams, a.draw, require_r1=a.official)
+    if provenance is not None:
+        provenance["draw_sha256"] = _sha256(a.draw)      # recompute now the draw path is validated
     out = build(teams, strength, pods, r1, draw_source, a.sims, a.seed, mode, cut_iso, ssrc,
-                train_maps, c=c)
+                train_maps, c=c, provenance=provenance)
 
     outdir = a.out or (os.path.join(REPO, "predictions", "ti2026", "group-stage")
                        if a.official else os.path.join(REPO, ".dryrun"))

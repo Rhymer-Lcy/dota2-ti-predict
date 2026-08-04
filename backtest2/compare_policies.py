@@ -116,7 +116,7 @@ def main():
         if not a.cutoff:
             sys.exit("--strengths bt requires --cutoff")
         cut_ts, cut_iso = parse_cutoff(a.cutoff)
-        strength, c, _ = bt_strengths_for(teams_rows, cut_ts)
+        strength, c, _, _, _ = bt_strengths_for(teams_rows, cut_ts)
         ssrc = f"B-bt @ {cut_iso} (c={c:+.3f})"
     else:
         strength, ssrc = synthetic_strengths(teams_rows), "synthetic (non-predictive)"
