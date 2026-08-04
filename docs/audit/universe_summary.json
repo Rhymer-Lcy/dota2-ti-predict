@@ -1,0 +1,33 @@
+{
+  "note": "desensitized universe summary for external audit; no raw match data / no API keys",
+  "cutoff": "2026-08-01T00:00:00+00:00",
+  "universe_rows": 8544,
+  "universe_min_start_time": "2026-02-27T20:49:07+00:00",
+  "universe_max_start_time": "2026-08-01T09:05:36+00:00",
+  "train_maps_before_cutoff": 8532,
+  "radiant_c": 0.092,
+  "strengths_16": {
+    "PARIVISION": 1.3235,
+    "Team Yandex": 1.1048,
+    "Team Falcons": 1.0868,
+    "BetBoom Team": 1.0617,
+    "Aurora Gaming": 0.9313,
+    "Team Spirit": 0.8726,
+    "Team Liquid": 0.6924,
+    "Nigma Galaxy": 0.6317,
+    "LGD Gaming": 0.6237,
+    "Tundra Esports": 0.5271,
+    "Vici Gaming": 0.5255,
+    "Team Resilience": 0.5218,
+    "GamerLegion": 0.3798,
+    "Xtreme Gaming": 0.2786,
+    "HULIGANI": 0.261,
+    "OG": 0.0293
+  },
+  "hashes": {
+    "teams_csv": "6fa7689f954f39e9147281ab6e21c265436f10a668694a701c780b8e623016df",
+    "canonical_identity_csv": "516acb024e141fd5711f219fc474bbc956b605e3d25fe9b5d9c6f74def9dc61b",
+    "universe_maps_csv": "994d53ebd75d58c9573f627bc89d8f4f09593e711a27f2e07d9a70559bc523af"
+  },
+  "git_commit": "ce4524c"
+}
