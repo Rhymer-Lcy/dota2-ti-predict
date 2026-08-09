@@ -178,8 +178,13 @@ def resolve_draw(teams, draw_path, require_r1=False):
         order = [t["team"] for t in teams]      # synthetic split (dry-run only), random round 1
         return (order[0::2], order[1::2]), None, "synthetic (teams.csv split, random round 1)"
 
-    with open(draw_path, encoding="utf-8") as fh:
-        d = json.load(fh)
+    try:
+        with open(draw_path, encoding="utf-8") as fh:
+            d = json.load(fh)
+    except (OSError, json.JSONDecodeError) as e:
+        sys.exit(f"draw: cannot read {draw_path}: {e}")
+    if not isinstance(d, dict):
+        sys.exit("draw: top-level JSON must be an object with podA/podB/r1_pairings")
     podA, podB = list(d.get("podA", [])), list(d.get("podB", []))
     if len(podA) != 8 or len(podB) != 8:
         sys.exit("draw: podA and podB must each list 8 teams")
