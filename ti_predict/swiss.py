@@ -309,17 +309,22 @@ def d4_sensitivity_crn(pods, strength, n=20000, seed=20260813, r1_pairings=None,
 
 
 def monte_carlo(pods, strength, n=20000, seed=20260813, r1_pairings=None, elim_choice="strategic",
-                return_diag=False, c=0.0):
+                return_diag=False, c=0.0, return_archive=False):
     """Return P[team][bucket] over n simulations (per-run bucket counts are an asserted invariant).
 
     c: production radiant coefficient for the side-neutral map prob (0 = raw sigmoid).
     If return_diag, also return {'tie_16_rate', 'tie_32_rate', 'n'}: how often the first five
     tiebreakers all tie (result decided by the unmodeled avg-duration/coin-toss tail) overall, and
     how often that decides the bucket-relevant 3-2 pick order.
+    If return_archive, also return {team: [bucket_index per simulation]} (indices into BUCKETS),
+    enabling downstream expected-points optimization on the same simulation set.
+    Return shape: P, then diag if requested, then archive if requested.
     """
     rng = random.Random(seed)
     teams = list(pods[0]) + list(pods[1])
     tally = {t: {b: 0 for b in BUCKETS} for t in teams}
+    bidx = {b: i for i, b in enumerate(BUCKETS)}
+    arch = {t: [] for t in teams} if return_archive else None
     tie16 = tie32 = 0
     for _ in range(n):
         out = simulate_one(pods, strength, rng, r1_pairings, elim_choice, diag=return_diag, c=c)
@@ -328,13 +333,18 @@ def monte_carlo(pods, strength, n=20000, seed=20260813, r1_pairings=None, elim_c
         for t, b in bucket.items():
             tally[t][b] += 1
             counts[b] += 1
+            if arch is not None:
+                arch[t].append(bidx[b])
         assert dict(counts) == CAPACITY, dict(counts)        # structural invariant every run
         if d:
             tie16 += d["tie_16"]; tie32 += d["tie_32"]
     P = {t: {b: tally[t][b] / n for b in BUCKETS} for t in teams}
+    ret = [P]
     if return_diag:
-        return P, {"tie_16_rate": tie16 / n, "tie_32_rate": tie32 / n, "n": n}
-    return P
+        ret.append({"tie_16_rate": tie16 / n, "tie_32_rate": tie32 / n, "n": n})
+    if return_archive:
+        ret.append(arch)
+    return ret[0] if len(ret) == 1 else tuple(ret)
 
 
 if __name__ == "__main__":

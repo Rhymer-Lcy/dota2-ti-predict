@@ -31,9 +31,11 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
+import numpy as np
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ti_predict.assign import assign
-from ti_predict.contest_rules import PRODUCTION_HALF_LIFE_DAYS, STALE_MAX_DAYS
+from ti_predict.contest_rules import (GROUP_SCORE, PRODUCTION_HALF_LIFE_DAYS, STALE_MAX_DAYS)
 from ti_predict.swiss import BUCKETS, CAPACITY, d4_sensitivity_crn, monte_carlo
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -214,6 +216,73 @@ def se(p, n):
     return math.sqrt(max(p * (1 - p), 0.0) / n)
 
 
+_FVEC = np.array([GROUP_SCORE[k] for k in range(17)])
+_BIDX = {b: i for i, b in enumerate(BUCKETS)}
+
+
+def _points(asg, arch):
+    """Expected official points of an assignment on a simulation archive (numpy bucket indices)."""
+    n = len(next(iter(arch.values())))
+    K = np.zeros(n, dtype=np.int16)
+    for t, b in asg.items():
+        K += arch[t] == _BIDX[b]
+    return float(_FVEC[K].mean()), K
+
+
+def _swap_search(asg, arch):
+    """Pairwise-swap hill climb on expected official points (local optimum, not global)."""
+    asg = dict(asg)
+    best, K = _points(asg, arch)
+    teams = list(asg)
+    for _ in range(6):
+        improved = False
+        for i in range(len(teams)):
+            for j in range(i + 1, len(teams)):
+                t1, t2 = teams[i], teams[j]
+                b1, b2 = asg[t1], asg[t2]
+                if b1 == b2:
+                    continue
+                delta = ((arch[t1] == _BIDX[b2]).astype(np.int16) + (arch[t2] == _BIDX[b1])
+                         - (arch[t1] == _BIDX[b1]) - (arch[t2] == _BIDX[b2]))
+                cand = float(_FVEC[K + delta].mean())
+                if cand > best + 1e-9:
+                    asg[t1], asg[t2] = b2, b1
+                    K = K + delta
+                    best = cand
+                    improved = True
+        if not improved:
+            break
+    return asg, best
+
+
+def points_refinement(asgA, arch_opt, arch_ver, seed):
+    """Verified expected-points refinement of the Hungarian slate (decision layer only).
+
+    Swap-search on the optimize archive proposes a slate; it is adopted ONLY if an independent
+    verification archive shows a paired per-simulation points gain over the Hungarian slate
+    exceeding two bootstrap standard errors. Otherwise the Hungarian slate stands. Evidence for the
+    rule: backtest2/solver_study.py (held-out paired gain +18.3 +/- 5.5 on a boundary-pair draw;
+    zero effect when no boundary pair exists; multi-start and 3-cycle added nothing over swaps).
+    """
+    asgB, _ = _swap_search(asgA, arch_opt)
+    moves = sorted(t for t in asgB if asgB[t] != asgA[t])
+    if not moves:
+        return asgA, {"proposed_moves": [], "adopted": False, "paired_gain": 0.0,
+                      "paired_gain_se": 0.0, "rule": "no move proposed; Hungarian slate stands"}
+    n = len(next(iter(arch_ver.values())))
+    _, KB = _points(asgB, arch_ver)
+    _, KA = _points(asgA, arch_ver)
+    d = _FVEC[KB].astype(np.float64) - _FVEC[KA]
+    rng = np.random.default_rng(seed)
+    boots = [float(d[rng.integers(0, n, n)].mean()) for _ in range(500)]
+    gain, se_ = float(d.mean()), float(np.std(boots))
+    adopted = gain > 2.0 * se_
+    return (asgB if adopted else asgA), {
+        "proposed_moves": moves, "adopted": bool(adopted),
+        "paired_gain": round(gain, 1), "paired_gain_se": round(se_, 1),
+        "rule": "adopt iff independent-archive paired gain > 2 se"}
+
+
 def sensitivity(pods, strength, n, seed, r1, c=0.0):
     """CRN D4 sensitivity: buckets whose membership changes across opponent-choice scenarios, with a
     shared Swiss outcome + shared match RNG per sim (isolates the choice effect from path noise)."""
@@ -231,12 +300,26 @@ def sensitivity(pods, strength, n, seed, r1, c=0.0):
 
 def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengths_source,
           train_maps, c=0.0, provenance=None):
-    P, diag = monte_carlo(pods, strength, n=n, seed=seed, r1_pairings=r1,
-                          elim_choice="strategic", return_diag=True, c=c)
-    slate, exp_correct, rows = assign(P)
-    _, sensitive = sensitivity(pods, strength, n, seed, r1, c=c)
+    P, diag, arch = monte_carlo(pods, strength, n=n, seed=seed, r1_pairings=r1,
+                                elim_choice="strategic", return_diag=True, c=c,
+                                return_archive=True)
+    arch = {t: np.asarray(v, dtype=np.int8) for t, v in arch.items()}
+    slate_h, exp_correct_h, rows_h = assign(P)
+    asgA = {t: b for t, b, _ in rows_h}
 
-    assigned = {t: b for t, b, _ in rows}
+    # verified expected-points refinement (decision layer; independent verification archive)
+    _, arch_ver = monte_carlo(pods, strength, n=n, seed=seed + 424243, r1_pairings=r1,
+                              elim_choice="strategic", c=c, return_archive=True)
+    arch_ver = {t: np.asarray(v, dtype=np.int8) for t, v in arch_ver.items()}
+    assigned, refine = points_refinement(asgA, arch, arch_ver, seed + 7)
+
+    slate = {b: sorted(((t, P[t][b]) for t in assigned if assigned[t] == b),
+                       key=lambda x: -x[1]) for b in BUCKETS}
+    rows = [(t, assigned[t], P[t][assigned[t]]) for t in assigned]
+    exp_correct = sum(p for _, _, p in rows)
+    refine["hungarian_expected_correct"] = round(exp_correct_h, 3)
+
+    _, sensitive = sensitivity(pods, strength, n, seed, r1, c=c)
     per_team = {}
     for t in P:
         b = assigned[t]
@@ -262,6 +345,7 @@ def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengt
         "provenance": provenance,
         "n_sims": n, "seed": seed,
         "c5_pairing_policy": C5_POLICY,
+        "points_refinement": refine,
         "d4_primary": "strategic", "d4_scenarios": list(D4_SCENARIOS),
         "d4_selection_sensitive_buckets": sensitive,
         "tiebreak_diagnostic": {"tie_16_rate": round(diag["tie_16_rate"], 4),
