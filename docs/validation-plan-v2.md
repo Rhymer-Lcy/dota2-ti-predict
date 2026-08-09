@@ -141,11 +141,37 @@ training. Deliver a HUMAN-VERIFIABLE identity/roster table per event BEFORE runn
   single TI in isolation (violates the "both TIs" rule).
 - Main-event (14-series) entry stays deferred until the group draw is set.
 
+## 7b. Pre-lock research round (2026-08-09) - executed and closed
+A final high-effort round before the official prediction, run under the same discipline (full
+results: backtest2/results-prelock-research.md):
+- **Timing:** lock estimate corrected to 2026-08-13T02:00:00Z (10:00 UTC+8; graded, not first-hand;
+  in-client countdown is final). Draw not yet published.
+- **Pre-draw rehearsal** (backtest2/pre_draw.py): draw-marginal slate over three sampled-draw
+  mechanisms; 14/16 slots invariant; only (BetBoom Team, Team Falcons) trade 4-1 / decider_win.
+  Research-labeled; not official.
+- **Challengers** (backtest2/ensemble_study.py): logit ensembles of B-bt with A-elo / B-eloTD /
+  C-glicko2 at fixed and prequential weights - ALL worse than pure B-bt (dLL +0.004..+0.008, blocked
+  CIs exclude 0); the no-lookahead adaptive selector chose pure B-bt in 23/23 folds. Falsified.
+  Roster-overlap weights, event-tier weights, patch regimes, player priors: deferred with documented
+  data-support reasons (no leakage-safe construction available from current data).
+- **Decision layer** (backtest2/solver_study.py): held-out paired protocol found one real effect - a
+  convexity-driven boundary-pair swap worth +18.3 +/- 5.5 points on one of three draws; multi-start
+  and 3-cycle added nothing. ADOPTED into production as a fail-safe verified refinement
+  (ti_predict/predict_ti15.points_refinement: adopt only if an independent verification archive
+  shows paired gain > 2 se). The frozen model is untouched.
+- **Market snapshot** (Polymarket 2026-08-07): top-of-field agrees with B-bt; the 1w Team divergence
+  is explained by the local data gap (universe ends 2026-08-01), reinforcing the mandatory lock-day
+  refresh. Anomaly check only; no fusion.
+
 ## 8b. Decision log
 - **2026-08-03 - production half-life LOCKED at hl=90.** hl=180 did not clear the pre-registered
   challenger bar (D2 out-of-sample improvement not significant); D3 outer validation was deferred on
   cost grounds. Production stays frozen B-bt, hl=90. Revisit only if the project is reused long-term
   or a low-cost historical identity pipeline becomes available.
+- **2026-08-09 - pre-lock research round closed.** Ensemble challengers falsified (sec 7b);
+  production model REMAINS identity side-neutral B-bt hl=90. One decision-layer change promoted with
+  held-out evidence: the verified expected-points refinement (fail-safe; Hungarian stands unless an
+  independent archive confirms > 2 se paired gain). Lock estimate corrected to 02:00 UTC.
 
 ## 8. Anti-leakage checklist (every run asserts/records)
 cutoff timestamp; training set ends < cutoff; rosters as-of-lock; params chosen from earlier events

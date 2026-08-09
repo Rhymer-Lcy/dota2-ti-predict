@@ -42,7 +42,11 @@ error). CONFIRM the exact in-client countdown and submit >= 1h early.
   teams.csv / canonical_identity.csv / universe_maps.csv / draw.json, git commit + dirty flag.
 
 ## Notes
-- The slate maximizes expected number correct; the Phase-3 study found max-correct == max-points for
-  this model (compare_policies.py), so no separate points-optimized slate is needed unless a real draw
-  changes that (re-run compare_policies at cutoff to confirm).
+- The official pipeline maximizes expected number correct (Hungarian) and then applies a VERIFIED
+  expected-points refinement automatically: a swap search may propose a boundary-pair change, adopted
+  only if an independent verification archive confirms a paired points gain > 2 se (evidence:
+  backtest2/results-prelock-research.md sec 4). The manifest records proposed moves, the paired
+  gain/se, and whether the refinement was adopted - submit the slate exactly as printed.
 - No crowd pick-share exists in the client, so there is no anti-crowd / fusion step.
+- Boundary watch from the pre-draw study: (BetBoom Team, Team Falcons) trade 4-1 / decider_win
+  depending on the draw; expect the real draw + refreshed data to resolve it.

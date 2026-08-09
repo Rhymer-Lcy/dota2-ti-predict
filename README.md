@@ -7,7 +7,7 @@ at risk). Goal: place in the top reward tier of the global leaderboard.
 Method reuses the calibrated-probability approach from the archived soccer `odds-pipeline`
 (market de-vig via Shin, cross-checked by an independent model), adapted to esports series.
 
-## Status (2026-08-04) — pipeline built, validated, gated; awaiting the group draw
+## Status (2026-08-09) — pipeline built, validated, gated; awaiting the group draw
 - **Contest rules: verified** (official Valve in-client TI15 activity, not a third-party game). The
   group prediction is a full **16-slot classification** — 4-0 x1, 4-1 x2, decider-win x5,
   decider-loss x5, 1-4 x2, 0-4 x1 — scored by number correct (convex `f(K)`, no penalty, no underdog
@@ -38,11 +38,14 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
 
 ## Strategy note
 Scoring is by **number correct** with a **convex** points curve, **no underdog weighting, no penalty,
-and no crowd pick-share** shown in the client. So the base slate simply **maximizes expected correct**
-([`ti_predict/assign.py`](ti_predict/assign.py)); a model-conditional study
-([`backtest2/compare_policies.py`](backtest2/compare_policies.py)) found max-expected-correct is
-essentially also max-expected-points here. There is **no anti-crowd / contrarian layer** because the
-client exposes no pick-share to differentiate against. The higher reward tiers (top-100 / top-1500 /
+and no crowd pick-share** shown in the client. The base slate **maximizes expected correct**
+([`ti_predict/assign.py`](ti_predict/assign.py)); because the points curve is convex, the pipeline
+then applies a **verified expected-points refinement** — a swap search may adjust a near-tie boundary
+pair, adopted only when an independent verification archive confirms the paired gain beyond noise
+(evidence: [`backtest2/results-prelock-research.md`](backtest2/results-prelock-research.md)). A
+challenger round (ensembles with Elo / EloTD / Glicko-2) was **falsified out-of-sample**, so the
+frozen B-bt stands on evidence. There is **no anti-crowd / contrarian layer** because the client
+exposes no pick-share to differentiate against. The higher reward tiers (top-100 / top-1500 /
 percentile) also depend on the separate main-event and Fantasy sub-games, which are out of scope for
 now.
 
