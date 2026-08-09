@@ -265,9 +265,17 @@ def points_refinement(asgA, arch_opt, arch_ver, seed):
 
     Swap-search on the optimize archive proposes a slate; it is adopted ONLY if an independent
     verification archive shows a paired per-simulation points gain over the Hungarian slate
-    exceeding two bootstrap standard errors. Otherwise the Hungarian slate stands. Evidence for the
-    rule: backtest2/solver_study.py (held-out paired gain +18.3 +/- 5.5 on a boundary-pair draw;
-    zero effect when no boundary pair exists; multi-start and 3-cycle added nothing over swaps).
+    exceeding two bootstrap standard errors. Otherwise the Hungarian slate stands.
+
+    Evidence (adversarially audited, backtest2/refine_audit.py + results-adversarial.md): the true
+    effect of a boundary-pair swap is about +6 points (fresh-archive combined estimate +6.5 +/- 1.0;
+    the originally reported +18.3 was a winner's-curse-typical high draw). In 30 end-to-end
+    replications the rule adopted zero harmful moves; on draws without a boundary pair it proposes
+    rarely and the gate filters further. NOTE: the paired_gain recorded in the manifest is
+    conditioned on adoption and therefore biased upward (observed factor about 1.7); read it as an
+    optimistic estimate of a genuinely positive effect. Gate power at 40k sims is about 80% for a
+    true +6 effect; 120000 sims raise it to about 94% (recommended for the official run).
+    Multi-start, 3-cycle and simulated-annealing searches found nothing beyond pairwise swaps.
     """
     asgB, _ = _swap_search(asgA, arch_opt)
     moves = sorted(t for t in asgB if asgB[t] != asgA[t])
