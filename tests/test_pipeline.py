@@ -6,9 +6,10 @@ from ti_predict.predict_ti15 import build, load_teams, resolve_draw, synthetic_s
 
 REQUIRED_MANIFEST_FIELDS = ["mode", "status", "generated_at", "code_commit", "data_cutoff",
                             "strengths_source", "radiant_c", "half_life_days", "map_prob",
-                            "n_sims", "seed", "c5_pairing_policy", "d4_primary",
-                            "d4_selection_sensitive_buckets", "tiebreak_diagnostic", "draw_source",
-                            "pods", "r1_pairings", "teams", "expected_correct", "caveats"]
+                            "n_sims", "seed", "c5_pairing_policy", "points_refinement",
+                            "d4_primary", "d4_selection_sensitive_buckets", "tiebreak_diagnostic",
+                            "draw_source", "pods", "r1_pairings", "teams", "expected_correct",
+                            "caveats"]
 
 
 def _build_synth(n=800):

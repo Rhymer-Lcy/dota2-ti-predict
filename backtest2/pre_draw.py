@@ -29,7 +29,7 @@ from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ti_predict.assign import assign
-from ti_predict.contest_rules import BUCKETS, CAPACITY
+from ti_predict.contest_rules import BUCKETS
 from ti_predict.predict_ti15 import bt_strengths_for, load_teams, parse_cutoff, synthetic_strengths
 from ti_predict.swiss import simulate_one, monte_carlo
 
