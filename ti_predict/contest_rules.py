@@ -27,14 +27,25 @@ PRODUCTION_HALF_LIFE_DAYS = 90
 # this many days before the cutoff (unless explicitly overridden).
 STALE_MAX_DAYS = 3
 
-# Group-stage prediction lock: best-supported external estimate, NOT first-hand-confirmed.
-# Evidence (2026-08-09): predictions "lock before the first match begins on August 13 at 10am CST"
-# (Hotspawn); read as China Standard Time (UTC+8, the host timezone) this is 02:00 UTC, which also
-# matches the in-client "9 days" countdown observed 2026-08-03. The earlier 15:00 UTC value traced to
-# the same sentence parsed as US Central and is considered a conversion error. Valve has not posted
-# exact daily times; the in-client countdown is the final authority. The official pipeline never
-# defaults to this value - it requires an explicit timezone-aware --cutoff.
+# Group-stage prediction lock. Evidence (re-verified 2026-08-09, tiered):
+# - Tier 1 wording: Valve blog 2026-07-31 (dota2.com/newsentry/678505520073540063): guesses must be
+#   in "before the first match starts (10am CST, Thursday 8/13)" - lock == first match by Valve's
+#   own construction.
+# - Tier 1 timezone convention: Valve's TI2026 ticket post uses CST = China Standard Time
+#   ("2pm China Standard Time ... From 2:30pm (CST)"), so 10:00 UTC+8 = 02:00 UTC. The circulating
+#   15:00 GMT figure is a US-Central misparse of the same sentence (would be 23:00 in Shanghai).
+# - Consistent with the in-client "9 days" countdown observed 2026-08-03 and with TI2025's
+#   10:00-local day-1 start.
+# Caveats: Valve has not spelled the timezone unambiguously for this specific sentence; the Chinese
+# localization omits it; the league feed (league_id 19719) carries no per-match times yet. The
+# in-client countdown is the FINAL authority; the official pipeline never defaults to this value -
+# it requires an explicit timezone-aware --cutoff.
 GROUP_LOCK_UTC = "2026-08-13T02:00:00Z"
+
+# Machine-readable official schedule source (the data behind the game client). Poll for the draw:
+# round-1 nodes gain team ids + scheduled_time once published. League window opens 2026-08-12 00:00
+# UTC; TI2025's round-1 pairings were published about 47 hours before its first match.
+LEAGUE_FEED_URL = ("https://www.dota2.com/webapi/IDOTA2League/GetLeagueData/v001/?league_id=19719")
 
 # Total base prize pool (USD).
 PRIZE_POOL_USD = 1_600_000

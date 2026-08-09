@@ -14,13 +14,21 @@ error). CONFIRM the exact in-client countdown and submit >= 1h early.
 2. **Re-check the 16 rosters for last-minute stand-ins / swaps.** Compare each org's as-of-lock lineup
    to data/ti2026/inputs/teams.csv + canonical_identity.csv; update source ids only if a roster
    actually changed. Do NOT inherit strength across a roster change.
-3. **Enter the official draw.** Copy data/ti2026/inputs/draw.example.json to draw.json; fill podA/podB
-   (8 each) and r1_pairings from the POSTED draw (team names must match teams.csv 'team' exactly).
-4. **Confirm the exact lock time** from the client countdown (hour:minute, timezone).
+3. **Watch for the draw** (expected around 2026-08-11; TI2025's round-1 pairings came ~47 h before
+   its first match). Machine-readable source - poll until round-1 nodes carry team ids:
+   `https://www.dota2.com/webapi/IDOTA2League/GetLeagueData/v001/?league_id=19719`
+   Then copy data/ti2026/inputs/draw.example.json to draw.json; fill podA/podB (8 each) and
+   r1_pairings from the POSTED draw (team names must match teams.csv 'team' exactly). If the
+   published structure shows NO pod split, construct pods as an 8/8 partition consistent with the
+   posted round-1 pairings and note it in the output (pods are a pairing-preference assumption; the
+   pre-draw study measured the slate impact of pod mechanisms as at most the boundary pair).
+4. **Confirm the exact lock time** from the client countdown (hour:minute, timezone). Best-supported
+   estimate: 2026-08-13 10:00 UTC+8 = 02:00 UTC (Tier-1 wording; see contest doc sec 5).
 5. **Run the official slate** (use the exact confirmed lock time as a timezone-aware ISO timestamp so
-   pre-lock same-day matches are included; 02:00:00Z below is the current best estimate - replace it
-   with the confirmed in-client time):
-   `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z`
+   pre-lock same-day matches are included; 02:00:00Z below is the best-supported estimate - replace
+   it with the confirmed in-client time). Use 120000 simulations: the points-refinement gate has
+   about 94% power at 120k vs about 80% at the 40k default (backtest2/results-adversarial.md):
+   `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 120000`
    The gate refuses unless the draw file (validated two-pod partition AND round-1 pairings), bt
    strengths, and cutoff are all present.
 6. **Read + submit.** Outputs at predictions/ti2026/group-stage/ti15_group_prediction.{json,md}. Fill

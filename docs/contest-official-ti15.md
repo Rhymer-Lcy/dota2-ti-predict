@@ -61,19 +61,29 @@ model materially and correctly disagrees with the likely-chalk crowd.
 The client selection UI shows only team logos. No pick-share / heat / community-vote percentage is
 displayed. There is no crowd% input available for this contest.
 
-## 5. Timing (re-verified 2026-08-09; client showed relative countdowns on 2026-08-03)
-- Group-stage predictions lock when the FIRST group-stage match begins on 2026-08-13. Best-supported
-  reading of the published hour ("10am CST", Hotspawn): 10:00 China Standard Time (UTC+8) =
-  **2026-08-13T02:00:00Z**. The circulating "15:00 UTC / 23:00 Beijing" figure traces to the same
-  sentence parsed as US Central time and is graded a conversion error; it is also inconsistent with
-  the in-client "9 days" countdown observed 2026-08-03. Valve has not published exact daily start
-  times; **the in-client countdown is the final authority - reconfirm hour:minute before submitting**.
+## 5. Timing (re-verified 2026-08-09 with TIER-1 sources; client countdowns observed 2026-08-03)
+- Group-stage predictions lock when the FIRST group-stage match begins - by Valve's own wording
+  (Tier 1, Valve blog 2026-07-31, dota2.com/newsentry/678505520073540063): "before the first match
+  starts (10am CST, Thursday 8/13)". Valve's TI2026 ticket post demonstrably uses CST = China
+  Standard Time ("2pm China Standard Time ... From 2:30pm (CST)"), so the strongly supported reading
+  is 10:00 UTC+8 = **2026-08-13T02:00:00Z**. The circulating "15:00 GMT" figure (Strafe) is that same
+  Valve sentence parsed as US Central and would be 23:00 in Shanghai - graded a conversion error; it
+  is also inconsistent with the in-client "9 days" countdown observed 2026-08-03 and with TI2025's
+  10:00-local day-1 start. Caveats: Valve has not spelled the timezone unambiguously for this
+  specific sentence; the official Chinese localization omits the deadline sentence entirely; the
+  league feed carries no per-match times yet. **The in-client countdown is the final authority -
+  reconfirm hour:minute before submitting.**
+- Machine-readable official schedule source (the data behind the game client):
+  `https://www.dota2.com/webapi/IDOTA2League/GetLeagueData/v001/?league_id=19719`. As of 2026-08-09
+  its Swiss round-1 nodes have no teams and no scheduled_time. The league window opens 2026-08-12
+  00:00 UTC; TI2025's round-1 pairings were published about 47 hours before its first match, so
+  expect the TI2026 draw around 2026-08-11.
 - Main-event prediction opens ~13 days after 2026-08-03 -> approximately 2026-08-16.
 - Winner rewards finalized 2026-08-28.
 - Because submission is irreversible, target completion at least one hour before the lock, and
   reconfirm the exact in-client countdown (hour:minute, server timezone) on the day.
-- Group draw status 2026-08-09: the two pods and round-1 pairings are NOT yet published (Liquipedia
-  round 1 still TBD); expect them shortly before 2026-08-13.
+- Group draw status 2026-08-09: pods and round-1 pairings NOT published (Valve feed nodes empty;
+  Liquipedia under construction; DLTV/BLAST empty).
 
 ## 6. Rewards
 Participation rewards (claimable): Aegis chat emote, TI wallpaper, TI chat wheel (four voice lines).
@@ -127,6 +137,17 @@ the final activity-points ranking.
   (strength of schedule -- NOT head-to-head); (4) game_win_percentage (per map/game, not per series);
   (5) opponents_average_game_win_percentage; (6) average_game_duration (shorter is better);
   (7) coin_toss. No head-to-head tiebreaker is used.
+
+### Tier-1 confirmation and one residual format uncertainty (2026-08-09)
+Valve's league data feed (league_id 19719) CONFIRMS the core format at Tier 1: a 16-team Swiss node
+group with max_rounds=5 and win_loss_limit=4, advancing 3 to the playoff plus 10 into a 5-match
+elimination round - exactly the structure implemented in the simulator. However, NO machine-readable
+or database source mentions the "two initial pods"; that detail rests solely on the in-client rules
+transcription (the official rulebook page is a script-rendered shell that cannot be read
+programmatically). Residual risk is bounded: the pre-draw study found 14/16 slots invariant across
+three different pod mechanisms, the record distribution 1/2/5/5/2/1 is forced regardless of pods,
+and once the real round-1 pairings post, round 1 is exact. If the published draw shows no pod
+structure, treat the pod constraint as a pairing-preference assumption and note it on the output.
 
 ### Two points the official rules do NOT resolve (modeling assumptions, not lookups)
 - C5 -- pairing tie-break: when several legal pairings satisfy the principles equally, the official
