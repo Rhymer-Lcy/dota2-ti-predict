@@ -112,7 +112,7 @@ def synthetic_strengths(teams):
 
 
 def parse_cutoff(s):
-    """Accept 'YYYY-MM-DD' or a full ISO-8601 timestamp (e.g. 2026-08-13T15:00:00Z).
+    """Accept 'YYYY-MM-DD' or a full ISO-8601 timestamp (e.g. 2026-08-13T02:00:00Z).
 
     Returns (unix_ts, canonical_utc_iso). A date-only value is treated as 00:00 UTC; official runs
     require a full timestamp so pre-lock same-day matches are not silently excluded.
@@ -324,7 +324,7 @@ def main():
     g.add_argument("--official", action="store_true")
     ap.add_argument("--strengths", choices=("synthetic", "bt"), default="synthetic")
     ap.add_argument("--cutoff", help="date (YYYY-MM-DD) for dry-run; official needs a full ISO "
-                                     "timestamp with timezone, e.g. 2026-08-13T15:00:00Z")
+                                     "timestamp with timezone, e.g. 2026-08-13T02:00:00Z")
     ap.add_argument("--draw", help="path to draw.json (pods + round-1 pairings)")
     ap.add_argument("--sims", type=int, default=40000)
     ap.add_argument("--seed", type=int, default=20260813)
@@ -345,7 +345,7 @@ def main():
             problems.append("--strengths must be 'bt' (no synthetic strengths in official mode)")
         if not _tz_aware(a.cutoff):
             problems.append("--cutoff must be a timezone-aware ISO timestamp with a time, e.g. "
-                            "2026-08-13T15:00:00Z (date-only would truncate at 00:00 UTC)")
+                            "2026-08-13T02:00:00Z (date-only would truncate at 00:00 UTC)")
         if problems:
             sys.exit("OFFICIAL RUN BLOCKED:\n  - " + "\n  - ".join(problems))
 

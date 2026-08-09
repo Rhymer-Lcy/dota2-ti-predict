@@ -11,8 +11,9 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
 - **Contest rules: verified** (official Valve in-client TI15 activity, not a third-party game). The
   group prediction is a full **16-slot classification** — 4-0 x1, 4-1 x2, decider-win x5,
   decider-loss x5, 1-4 x2, 0-4 x1 — scored by number correct (convex `f(K)`, no penalty, no underdog
-  weighting, **no crowd% shown**). Group predictions lock **~2026-08-13 15:00 UTC = 23:00 Beijing**
-  (confirm the in-client countdown). Full write-up: [`docs/contest-official-ti15.md`](docs/contest-official-ti15.md).
+  weighting, **no crowd% shown**). Group predictions lock at the **first group-stage match,
+  ~2026-08-13 10:00 UTC+8 = 02:00 UTC** (best-supported estimate; the in-client countdown is the
+  final authority). Full write-up: [`docs/contest-official-ti15.md`](docs/contest-official-ti15.md).
 - **Field: confirmed 16** in [`data/ti2026/inputs/teams.csv`](data/ti2026/inputs/teams.csv), matching
   the official field (BetBoom/BoomBoys, PARIVISION/Team Vision, Tundra roster → 1w Team, etc.).
 - **Model: FROZEN.** Production = identity **side-neutral B-bt**, half-life **90**, map prob

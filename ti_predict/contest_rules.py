@@ -27,8 +27,14 @@ PRODUCTION_HALF_LIFE_DAYS = 90
 # this many days before the cutoff (unless explicitly overridden).
 STALE_MAX_DAYS = 3
 
-# Group-stage prediction lock: best external estimate; confirm the in-client countdown before use.
-GROUP_LOCK_UTC = "2026-08-13T15:00:00Z"
+# Group-stage prediction lock: best-supported external estimate, NOT first-hand-confirmed.
+# Evidence (2026-08-09): predictions "lock before the first match begins on August 13 at 10am CST"
+# (Hotspawn); read as China Standard Time (UTC+8, the host timezone) this is 02:00 UTC, which also
+# matches the in-client "9 days" countdown observed 2026-08-03. The earlier 15:00 UTC value traced to
+# the same sentence parsed as US Central and is considered a conversion error. Valve has not posted
+# exact daily times; the in-client countdown is the final authority. The official pipeline never
+# defaults to this value - it requires an explicit timezone-aware --cutoff.
+GROUP_LOCK_UTC = "2026-08-13T02:00:00Z"
 
 # Total base prize pool (USD).
 PRIZE_POOL_USD = 1_600_000

@@ -53,7 +53,7 @@ Also: python -m ti_predict.swiss ; python -m ti_predict.assign ; python -m ti_pr
 
 ## Lock-day single command
 After refreshing data through the cutoff and entering the posted draw (docs/lockday-runbook.md):
-python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T15:00:00Z
+python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z
 
 ## External inputs still required
 1. The official two-pod split and round-1 pairings (draw.json), posted around 2026-08-13.

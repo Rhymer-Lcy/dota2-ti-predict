@@ -1,8 +1,10 @@
 # Lock-day runbook - TI15 group-stage prediction (~2026-08-13)
 
-Production model is FROZEN: B-bt, half-life 90 (fit_bt default), identity side-neutral, no calibration
-layer, no crowd% fusion (docs/CHECKPOINT.md, validation-plan-v2.md sec 8b). Lock is ~2026-08-13
-15:00 UTC = 23:00 Beijing - CONFIRM the exact in-client countdown and submit >= 1h early.
+Production model is FROZEN: B-bt, half-life 90 (applied explicitly in the production path), identity
+side-neutral, no calibration layer, no crowd% fusion (docs/CHECKPOINT.md, validation-plan-v2.md).
+Lock = first group-stage match, best-supported estimate **2026-08-13 10:00 UTC+8 = 02:00 UTC**
+(docs/contest-official-ti15.md sec 5; the older 15:00 UTC figure is graded a timezone-conversion
+error). CONFIRM the exact in-client countdown and submit >= 1h early.
 
 ## Steps
 1. **Refresh data through the cutoff.** Current universe ends 2026-08-01; re-pull and rebuild so the
@@ -15,9 +17,10 @@ layer, no crowd% fusion (docs/CHECKPOINT.md, validation-plan-v2.md sec 8b). Lock
 3. **Enter the official draw.** Copy data/ti2026/inputs/draw.example.json to draw.json; fill podA/podB
    (8 each) and r1_pairings from the POSTED draw (team names must match teams.csv 'team' exactly).
 4. **Confirm the exact lock time** from the client countdown (hour:minute, timezone).
-5. **Run the official slate** (use the exact lock time as an ISO timestamp so pre-lock same-day
-   matches are included):
-   `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T15:00:00Z`
+5. **Run the official slate** (use the exact confirmed lock time as a timezone-aware ISO timestamp so
+   pre-lock same-day matches are included; 02:00:00Z below is the current best estimate - replace it
+   with the confirmed in-client time):
+   `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z`
    The gate refuses unless the draw file (validated two-pod partition AND round-1 pairings), bt
    strengths, and cutoff are all present.
 6. **Read + submit.** Outputs at predictions/ti2026/group-stage/ti15_group_prediction.{json,md}. Fill

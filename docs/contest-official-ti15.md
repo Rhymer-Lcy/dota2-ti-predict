@@ -61,14 +61,19 @@ model materially and correctly disagrees with the likely-chalk crowd.
 The client selection UI shows only team logos. No pick-share / heat / community-vote percentage is
 displayed. There is no crowd% input available for this contest.
 
-## 5. Timing (client showed relative countdowns on 2026-08-03)
-- Group-stage prediction locks ~9 days out -> approximately 2026-08-13. Public coverage puts the lock
-  at Thu 2026-08-13 15:00 UTC = 23:00 Beijing (group stage begins). Confirm the exact in-client
-  countdown before submitting.
-- Main-event prediction opens ~13 days out -> approximately 2026-08-16.
+## 5. Timing (re-verified 2026-08-09; client showed relative countdowns on 2026-08-03)
+- Group-stage predictions lock when the FIRST group-stage match begins on 2026-08-13. Best-supported
+  reading of the published hour ("10am CST", Hotspawn): 10:00 China Standard Time (UTC+8) =
+  **2026-08-13T02:00:00Z**. The circulating "15:00 UTC / 23:00 Beijing" figure traces to the same
+  sentence parsed as US Central time and is graded a conversion error; it is also inconsistent with
+  the in-client "9 days" countdown observed 2026-08-03. Valve has not published exact daily start
+  times; **the in-client countdown is the final authority - reconfirm hour:minute before submitting**.
+- Main-event prediction opens ~13 days after 2026-08-03 -> approximately 2026-08-16.
 - Winner rewards finalized 2026-08-28.
 - Because submission is irreversible, target completion at least one hour before the lock, and
   reconfirm the exact in-client countdown (hour:minute, server timezone) on the day.
+- Group draw status 2026-08-09: the two pods and round-1 pairings are NOT yet published (Liquipedia
+  round 1 still TBD); expect them shortly before 2026-08-13.
 
 ## 6. Rewards
 Participation rewards (claimable): Aegis chat emote, TI wallpaper, TI chat wheel (four voice lines).
@@ -151,8 +156,9 @@ the unrelated Astana "Future Games" event). No B0 reopening is required.
 
 ## 11. Corrections to earlier notes
 - Prize pool is $1.6M (the earlier $1M was the Astana Future Games event).
-- Group-prediction lock is ~Aug 13 15:00 UTC = 23:00 Beijing (earlier "10:00 CST" read CST as China;
-  the source's CST is US Central).
+- [2026-08-03 entry, itself revised 2026-08-09 - see the bullet below] Group-prediction lock was
+  restated as ~Aug 13 15:00 UTC = 23:00 Beijing on the assumption the source's "10am CST" meant US
+  Central; that assumption is now graded wrong.
 - The prediction is a 16-slot full assignment, not a 6-extreme pick; "decider winner/loser" are 5+5
   teams, not one "special winner/loser".
 - The Swiss is UP TO 5 rounds with stop-at-4-wins / stop-at-4-losses, NOT a fixed 5 rounds for every
@@ -161,6 +167,10 @@ the unrelated Astana "Future Games" event). No B0 reopening is required.
   match is 3-2 vs 2-3 and either can win (corrects the earlier bucket mapping).
 - The R5 "maximize rank gap" rule applies ONLY to matches whose loser is directly eliminated (the
   1-3 matches), not to all round-5 matches (corrects the earlier over-broad phrasing).
+- 2026-08-09: the lock-time estimate is revised from 15:00 UTC to 02:00 UTC (10:00 UTC+8). The
+  earlier note read the source's "10am CST" as US Central; the China Standard Time reading matches
+  the host timezone and the in-client countdown arithmetic. Neither is first-hand Valve wording -
+  the in-client countdown remains the final authority (sec 5).
 
 ## 12. Open items
 Rule-level verification is DONE (2026-08-03, cross-checked vs dota2.com/esports/ti15/tirules,
@@ -170,7 +180,7 @@ Runtime inputs, published with the official draw around Aug 13 (feed into the si
 to building it):
 1. C1 -- the actual two-pod split (which 8 teams in each initial group).
 2. C2 -- the actual round-1 pairings within each pod (organizer-preset; seeding algorithm unknown).
-3. G1 -- the exact in-client lock timestamp (best external estimate: Aug 13 15:00 UTC = 23:00
+3. G1 -- the exact in-client lock timestamp (best external estimate: Aug 13 02:00 UTC = 10:00 UTC+8; see sec 5, older 23:00
    Beijing); confirm on the client.
 
 Low priority / non-blocking:
