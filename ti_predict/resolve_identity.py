@@ -17,9 +17,15 @@ import csv
 import hashlib
 import json
 import os
+import sys
 import time
 import urllib.request
 from datetime import datetime, timezone
+
+# Player nicknames may contain characters outside the Windows console codepage (e.g. card suits);
+# without this the pipeline crashes mid-run on such a print (observed 2026-08-09 rehearsal).
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(errors="replace")
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TI = os.path.join(REPO, "data", "ti2026")
