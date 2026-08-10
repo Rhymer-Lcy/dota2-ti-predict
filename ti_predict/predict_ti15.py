@@ -21,7 +21,9 @@ Usage:
   python -m ti_predict.predict_ti15 --dry-run
   python -m ti_predict.predict_ti15 --dry-run --strengths bt --cutoff 2026-06-01
   python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json \
-      --strengths bt --cutoff 2026-08-13
+      --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 120000
+  (official mode REQUIRES a timezone-aware ISO timestamp; replace 02:00:00Z with the lock time
+  confirmed in-client on the day)
 """
 import argparse
 import json

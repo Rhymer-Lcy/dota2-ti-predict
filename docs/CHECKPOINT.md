@@ -6,8 +6,10 @@ decision. Git history and committed documents govern.
 ## Status
 Pipeline built, validated, hard-gated, audited, and now ADVERSARIALLY re-validated
 (backtest2/results-adversarial.md, 2026-08-09): the promoted points refinement survived refutation
-testing with its effect size corrected (+6.5 +/- 1.0, not +18.3); all model challengers remain
-falsified; the lock time is upgraded to Tier-1 Valve evidence; the data-refresh rehearsal fixed two
+testing with its effect size corrected (+6.5 +/- 1.0, not +18.3); no model challenger passed the
+promotion gate (fixed ensembles were materially worse; the ridge lambda=0.5 variant showed a pooled
+improvement but failed on event consistency, 11/23 fold wins, with an event-blocked CI crossing
+zero); the lock time is upgraded to Tier-1 Valve evidence; the data-refresh rehearsal fixed two
 real pipeline defects and confirmed all 16 rosters unchanged through 2026-08-09. No OFFICIAL
 prediction emitted; clearly-labeled pre-draw research exists under backtest2/. Awaiting the official
 group draw (expected ~2026-08-11; league feed nodes still empty); on the draw, follow

@@ -1,7 +1,9 @@
-"""Frozen official TI15 contest constants: the single source of truth.
+"""Frozen TI15 contest constants: the single source of truth.
 
-Every value here is an OFFICIAL rule or a frozen production decision, not a tunable parameter. Sourced
-from the in-client TI15 activity and cross-checked against public coverage; see
+Every value here is one of: an OFFICIAL contest rule, a frozen production decision, or a verified
+operational reference (the graded lock-time estimate GROUP_LOCK_UTC and the official league feed
+LEAGUE_FEED_URL) - never a tunable parameter. Sourced from the in-client TI15 activity and
+cross-checked against public coverage; each entry's evidence grading is in its own comment; see
 docs/contest-official-ti15.md and docs/validation-plan-v2.md. Import these instead of hard-coding.
 """
 
