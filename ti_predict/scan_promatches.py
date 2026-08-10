@@ -33,20 +33,43 @@ def _get(path):
 
 def main():
     os.makedirs(RAW, exist_ok=True)
-    out, less_than, pages = [], None, 0
+    out, less_than, pages, empties = [], None, 0, 0
     while pages < MAX_PAGES:
         page = _get("/proMatches" + (f"?less_than_match_id={less_than}" if less_than else ""))
         if not page:
-            break
+            # An empty page is usually a transient API hiccup, not the end of history; breaking
+            # immediately silently truncates the universe (observed 2026-08-09: scan stopped at
+            # 2026-05-17 after 30 pages, shrinking the training window by 2.5 months).
+            empties += 1
+            if empties > 3:
+                break
+            time.sleep(3.0)
+            continue
+        empties = 0
         out.extend(page)
         pages += 1
         less_than = min(m["match_id"] for m in page)
         if min(m.get("start_time", 9e18) for m in page) < TARGET:
             break
         time.sleep(1.1)
-    # de-dup by match_id
-    uniq = {m["match_id"]: m for m in out}
+    # merge with any existing scan (incremental, coverage never shrinks), de-dup by match_id
+    scan_path = os.path.join(RAW, "promatches_scan.json")
+    uniq = {}
+    if os.path.exists(scan_path):
+        with open(scan_path, encoding="utf-8") as fh:
+            for m in json.load(fh):
+                uniq[m["match_id"]] = m
+    prior = len(uniq)
+    for m in out:
+        uniq[m["match_id"]] = m
     matches = list(uniq.values())
+    earliest = min(m["start_time"] for m in matches)
+    if earliest > TARGET:
+        raise SystemExit(
+            f"scan coverage starts {datetime.fromtimestamp(earliest, timezone.utc).date()} but the "
+            f"target is {datetime.fromtimestamp(TARGET, timezone.utc).date()}; refusing to write a "
+            f"truncated universe (transient API failures? re-run, or restore the prior scan).")
+    print(f"merged: {prior} existing + {len(out)} fetched -> {len(matches)} unique")
     payload = json.dumps(matches).encode()
     with open(os.path.join(RAW, "promatches_scan.json"), "wb") as fh:
         fh.write(payload)
