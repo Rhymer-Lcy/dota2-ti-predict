@@ -5,8 +5,13 @@ exactly replicate the organizer's UNPUBLISHED pairing decisions (see the C5 / D4
 assumptions below). Implements (docs/contest-official-ti15.md sec 9):
   - 16 teams, every series Bo3 (simulated map-by-map so game-level tiebreakers exist).
   - Up to 5 Swiss rounds; a team STOPS at its 4th series win (advances) or 4th series loss (out).
-  - Two 8-team initial pods: rounds 1-3 pair only within a team's pod; round 4 pairs across pods;
-    round 5 pairs the remaining record groups.
+  - Pod structure (`pods`): either TWO 8-team initial pods -- rounds 1-3 pair only within a team's
+    pod, round 4 pairs across pods, round 5 pairs the remaining record groups -- or a single OPEN
+    16-team pool in which every round pairs by record with no pod constraint. Both structures force
+    the same final record distribution; they differ only in WHICH opponent a team meets in rounds
+    2-4. The in-client rules text describes two pods; Valve's league feed exposes one undivided
+    16-team Swiss node group, so the structure is carried as an explicit hypothesis (see
+    docs/contest-official-ti15.md sec 9).
   - Pairing principles: same record first (hard); avoid rematch (soft); minimize rank gap (soft).
     Round-5 EXCEPTION: only matches whose loser is eliminated (the 1-3 group) maximize the rank gap.
   - After Swiss the record distribution is structurally exact: 4-0 x1, 4-1 x2, 3-2 x5, 2-3 x5,
@@ -166,37 +171,55 @@ def _series_winner(a, b, strength, c, rng, best_of=3):
     return (a, b) if aw > bw else (b, a)
 
 
+def teams_of(pods):
+    """Flatten a pod structure to its team list. Works for two-pod and open-16 structures."""
+    return [t for pod in pods for t in pod]
+
+
+def is_two_pod(pods):
+    """True for the two-8-team-pod structure, False for the open 16-team pool `(teams,)`."""
+    return len(pods) == 2
+
+
 def _swiss(pods, strength, rng, r1_pairings, c):
     """Run the Swiss stage (up to 5 rounds). Returns (st, bucket_partial, threes, twos).
+
+    `pods` is either (podA, podB) with 8 teams each, or a 1-tuple (teams,) of all 16 for the open
+    structure with no pod constraint on any round.
 
     bucket_partial holds only the record-decided buckets (4-0/4-1/1-4/0-4); the decider round is run
     separately (see _deciders) so D4 scenarios can share one Swiss outcome under common random numbers.
     """
-    podA, podB = pods
-    teams = list(podA) + list(podB)
-    assert len(podA) == 8 and len(podB) == 8, "each pod must have 8 teams"
-    pod_of = {t: "A" for t in podA}; pod_of.update({t: "B" for t in podB})
+    teams = teams_of(pods)
+    assert len(teams) == 16 and len(set(teams)) == 16, "pods must hold 16 distinct teams"
+    two_pod = is_two_pod(pods)
+    if two_pod:
+        podA, podB = pods
+        assert len(podA) == 8 and len(podB) == 8, "each pod must have 8 teams"
+        pod_of = {t: "A" for t in podA}; pod_of.update({t: "B" for t in podB})
+    else:
+        pod_of = None
     st = _new_state(teams, c)
 
-    # Round 1: within pod, preset draw or random
+    # Round 1: preset draw, or random within each pod (two-pod) / across the pool (open)
     if r1_pairings is not None:
         for a, b in r1_pairings:
-            assert pod_of[a] == pod_of[b], "round-1 pairing crosses pods"
+            assert not two_pod or pod_of[a] == pod_of[b], "round-1 pairing crosses pods"
             _play(a, b, strength, st, rng)
     else:
-        for pod in (list(podA), list(podB)):
+        for pod in ([list(podA), list(podB)] if two_pod else [list(teams)]):
             rng.shuffle(pod)
-            for i in range(0, 8, 2):
+            for i in range(0, len(pod), 2):
                 _play(pod[i], pod[i + 1], strength, st, rng)
 
-    # Rounds 2-3: within pod, same record, min gap
+    # Rounds 2-3: same record, min gap -- within pod when the pod structure applies
     for _ in range(2):
-        for pod in (podA, podB):
-            for rec, grp in _by_record(pod, st).items():
+        for pool in ((podA, podB) if two_pod else (teams,)):
+            for rec, grp in _by_record(pool, st).items():
                 for a, b in pair_group(grp, st, rng, gap="min"):
                     _play(a, b, strength, st, rng)
 
-    # Round 4: cross pod, same record
+    # Round 4: same record; forced across pods when the pod structure applies
     for rec, grp in _by_record(teams, st).items():
         for a, b in pair_group(grp, st, rng, gap="min", cross_pod=pod_of):
             _play(a, b, strength, st, rng)
@@ -257,7 +280,10 @@ def _deciders(pick_order, twos, strength, c, rng_choice, rng_match, elim_choice)
 
 
 def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic", diag=False, c=0.0):
-    """Run one full group stage (Swiss + decider). `pods` = (podA_list, podB_list), 8 teams each.
+    """Run one full group stage (Swiss + decider).
+
+    `pods` = (podA_list, podB_list) with 8 teams each, or (teams_list,) with all 16 for the open
+    structure (no pod constraint on any round).
 
     c: production radiant coefficient for the side-neutral map prob (0 = raw sigmoid).
     r1_pairings: optional list of (a, b) for the actual posted round-1 draw (must respect pods);
@@ -270,7 +296,7 @@ def simulate_one(pods, strength, rng, r1_pairings=None, elim_choice="strategic",
     for choice and match here, preserving the single-stream behaviour.
     """
     st, bucket, threes, twos = _swiss(pods, strength, rng, r1_pairings, c)
-    teams = list(pods[0]) + list(pods[1])
+    teams = teams_of(pods)
 
     # tiebreak-depth diagnostic on the Swiss standings BEFORE the decider adds games. A tie means the
     # first five tiebreakers were equal, so the result falls to the UNMODELED avg-duration/coin-toss
@@ -293,7 +319,7 @@ def d4_sensitivity_crn(pods, strength, n=20000, seed=20260813, r1_pairings=None,
     order + decider-match RNG across all choices; only the opponent-choice rule varies. This isolates
     the opponent-choice effect from Monte-Carlo path noise. Returns {choice: P[team][bucket]}.
     """
-    teams = list(pods[0]) + list(pods[1])
+    teams = teams_of(pods)
     tally = {ch: {t: {b: 0 for b in BUCKETS} for t in teams} for ch in choices}
     for k in range(n):
         base = seed * 1_000_003 + k
@@ -321,7 +347,7 @@ def monte_carlo(pods, strength, n=20000, seed=20260813, r1_pairings=None, elim_c
     Return shape: P, then diag if requested, then archive if requested.
     """
     rng = random.Random(seed)
-    teams = list(pods[0]) + list(pods[1])
+    teams = teams_of(pods)
     tally = {t: {b: 0 for b in BUCKETS} for t in teams}
     bidx = {b: i for i, b in enumerate(BUCKETS)}
     arch = {t: [] for t in teams} if return_archive else None

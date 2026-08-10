@@ -4,7 +4,8 @@ from collections import Counter
 import pytest
 
 from ti_predict.contest_rules import BUCKETS, CAPACITY
-from ti_predict.swiss import (d4_sensitivity_crn, map_p, map_pn, monte_carlo, simulate_one)
+from ti_predict.swiss import (d4_sensitivity_crn, is_two_pod, map_p, map_pn, monte_carlo,
+                              simulate_one, teams_of)
 
 TEAMS = [f"T{i:02d}" for i in range(16)]
 STRENGTH = {t: 0.22 * i for i, t in enumerate(TEAMS)}
@@ -55,3 +56,37 @@ def test_crn_sensitivity_capacities_and_reproducible():
     for choice in ("strategic", "noisy", "random"):
         for b in BUCKETS:
             assert sum(P1[choice][t][b] for t in TEAMS) == pytest.approx(CAPACITY[b])
+
+
+# ---- open (no-pod) structure: added when the posted draw published round 1 but no pod split ----
+def test_open_structure_holds_the_same_record_distribution():
+    """A single 16-team Swiss forces the same 1/2/5/5/2/1 outcome as the two-pod structure."""
+    teams = [f"T{i:02d}" for i in range(16)]
+    s = {t: 0.2 * i for i, t in enumerate(teams)}
+    P = monte_carlo((teams,), s, n=2000, seed=11)
+    for b in BUCKETS:
+        assert abs(sum(P[t][b] for t in teams) - CAPACITY[b]) < 1e-9
+
+
+def test_open_structure_accepts_a_round_one_that_would_cross_pods():
+    """With no pod split there is no cross-pod constraint, so any perfect pairing is legal."""
+    teams = [f"T{i:02d}" for i in range(16)]
+    s = {t: 0.2 * i for i, t in enumerate(teams)}
+    r1 = [(teams[i], teams[i + 8]) for i in range(8)]        # illegal under any 8/8 pod split
+    P = monte_carlo((teams,), s, n=800, seed=12, r1_pairings=r1)
+    assert abs(sum(P[t]["4-0"] for t in teams) - 1.0) < 1e-9
+
+
+def test_structure_helpers():
+    teams = [f"T{i:02d}" for i in range(16)]
+    assert is_two_pod((teams[:8], teams[8:])) and not is_two_pod((teams,))
+    assert teams_of((teams[:8], teams[8:])) == teams and teams_of((teams,)) == teams
+
+
+def test_open_structure_is_reproducible_under_a_fixed_seed():
+    teams = [f"T{i:02d}" for i in range(16)]
+    s = {t: 0.2 * i for i, t in enumerate(teams)}
+    r1 = [(teams[2 * i], teams[2 * i + 1]) for i in range(8)]
+    a = monte_carlo((teams,), s, n=500, seed=99, r1_pairings=r1)
+    b = monte_carlo((teams,), s, n=500, seed=99, r1_pairings=r1)
+    assert a == b
