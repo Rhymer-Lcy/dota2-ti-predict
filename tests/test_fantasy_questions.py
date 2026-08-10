@@ -106,11 +106,14 @@ def test_each_fantasy_period_has_the_same_five_fixed_selection_slots(doc):
                    and q["number_of_slots"] is None for q in period_questions)
 
 
-def test_missing_screenshot_is_a_specific_phase_one_blocker(doc):
-    reconciliation = doc["screenshot_reconciliation"]
-    assert not reconciliation["evidence_available_in_this_run"]
-    assert len(reconciliation["still_requires_live_client"]) >= 5
-    assert doc["phase_1_status"] == "BLOCKED"
+def test_the_screenshot_was_reconciled_without_being_promoted_to_tier_one(doc):
+    """It resolved the coefficients; it did not turn a guide article into a Valve source."""
+    r = doc["screenshot_reconciliation"]
+    assert r["evidence_available_in_this_run"] and r["status"] == "PARTIAL"
+    assert r["resolved_by_this_image"] and r["still_requires_live_client"]
+    assert doc["sources"]["user_screenshot"]["tier"] == 2
+    assert doc["phase_1_status"] == "BLOCKED"          # reduced, not closed
+    assert doc["phase_1_resolved_since_last_round"]
 
 
 def test_every_lock_time_is_an_instant_not_a_local_wall_clock(doc):
@@ -126,10 +129,65 @@ def test_the_stat_table_is_complete_and_partitioned_by_colour(rules):
         assert len(rules["stats"]["by_color"][colour]) == 6
 
 
-def test_no_scoring_coefficient_has_been_filled_in(rules):
+def test_every_stat_carries_a_coefficient_with_a_stated_origin(rules):
+    for s in rules["stats"]["list"]:
+        numeric = [f for f in fq.POINT_FIELDS if isinstance(s.get(f), (int, float))]
+        assert numeric, f"{s['stat_id']} has no coefficient at all"
+        assert s["points_source_type"] in fq.POINTS_SOURCES
+        assert s["points_evidence"] == "S6"
     assert rules["stats"]["status"] != "CONFIRMED"
-    assert all(s["points_per_unit"] is None for s in rules["stats"]["list"])
     assert rules["blocking_unknowns"]
+
+
+def test_no_coefficient_is_confirmed_on_second_hand_evidence(rules):
+    """A guide article reproducing a client panel corroborates; only the client confirms."""
+    for s in rules["stats"]["list"]:
+        if s["points_source_type"] != fq.TIER1_POINTS_SOURCE:
+            assert s["points_status"] == "PARTIAL"
+    assert rules["stats"]["points_provenance"]["promotion_rule"]
+
+
+def test_the_helpstat_indices_form_a_complete_bijection(rules):
+    """The strongest available check that the transcription is complete: 18 values, 18 slots."""
+    assert sorted(s["helpstat_index"] for s in rules["stats"]["list"]) == list(range(18))
+
+
+def test_the_two_specially_shaped_stats_keep_their_own_fields(rules):
+    by_id = {s["stat_id"]: s for s in rules["stats"]["list"]}
+    assert by_id["deaths"]["starting_points"] == 1950.00
+    assert by_id["deaths"]["points_per_unit"] == 195.00
+    # ten deaths exactly cancel the credit; this relationship is the transcription's own check digit
+    assert by_id["deaths"]["starting_points"] == 10 * by_id["deaths"]["points_per_unit"]
+    tfp = by_id["teamfight_participation"]
+    assert tfp["maximum_points"] == 2124.00 and tfp["points_per_unit"] is None
+
+
+def test_the_unresolved_semantics_are_enumerated_and_prioritised(rules):
+    sem = rules["scoring_pipeline"]["unresolved_semantics"]
+    ids = {s["id"] for s in sem}
+    assert {"top_two_aggregation", "deaths_floor", "teamfight_formula",
+            "best_series_eligibility"} <= ids
+    assert all(s["priority"] in ("P0", "P1") and s["status"] == "UNRESOLVED" for s in sem)
+    assert all(b.startswith(("P0 ", "P1 ")) for b in rules["blocking_unknowns"])
+
+
+def test_the_extreme_value_conclusion_is_held_directionally_not_frozen(rules):
+    """Knowing the period keeps the best series is not yet knowing the estimator."""
+    mc = rules["scoring_pipeline"]["modelling_consequence"]
+    assert "DIRECTIONALLY" in mc and "not frozen" in mc
+
+
+def test_evidence_grades_place_the_coefficients_below_tier_one(rules):
+    g = rules["evidence_grades"]["assignments"]
+    assert "the 18 base coefficients" in g["user_screenshot_corroborated"]
+    assert not any("coefficient" in a for a in g["tier_1_confirmed"])
+
+
+def test_the_roll_token_reading_is_marked_unconfirmed(rules):
+    """The assistant read these off a 178px-wide image; that is a lead, not a budget."""
+    cr = rules["roll_tokens"]["candidate_reading"]
+    assert cr["status"] == "UNCONFIRMED"
+    assert rules["roll_tokens"]["status"] == "PARTIAL"
 
 
 def test_the_period_structure_is_two_stages_not_daily(rules):
@@ -216,11 +274,33 @@ def test_an_answerable_question_without_a_lock_time_is_refused(tmp_path, doc):
         fq.load_questions(_write(tmp_path, bad))
 
 
-def test_a_back_filled_scoring_coefficient_is_refused(tmp_path, rules):
+def test_an_unattributed_scoring_coefficient_is_refused(tmp_path, rules):
     """The failure this guards against: pasting last year's points table into this year's schema."""
     bad = copy.deepcopy(rules)
-    bad["stats"]["list"][0]["points_per_unit"] = 40
-    with pytest.raises(SystemExit, match="may not be filled in"):
+    bad["stats"]["list"][0].pop("points_source_type")
+    with pytest.raises(SystemExit, match="must say where"):
+        fq.load_rules(_write(tmp_path, bad, "fantasy_rules.json"))
+
+
+def test_a_second_hand_coefficient_may_not_be_marked_confirmed(tmp_path, rules):
+    bad = copy.deepcopy(rules)
+    bad["stats"]["list"][0]["points_status"] = "CONFIRMED"
+    with pytest.raises(SystemExit, match="only a direct client read"):
+        fq.load_rules(_write(tmp_path, bad, "fantasy_rules.json"))
+
+
+def test_a_coefficient_read_from_the_client_may_be_confirmed(tmp_path, rules):
+    """The gate has to admit the real thing, otherwise it is not a gate but a wall."""
+    ok = copy.deepcopy(rules)
+    ok["stats"]["list"][0]["points_source_type"] = fq.TIER1_POINTS_SOURCE
+    ok["stats"]["list"][0]["points_status"] = "CONFIRMED"
+    assert fq.load_rules(_write(tmp_path, ok, "fantasy_rules.json"))
+
+
+def test_an_invented_points_status_is_refused(tmp_path, rules):
+    bad = copy.deepcopy(rules)
+    bad["stats"]["list"][0]["points_status"] = "PROBABLY"
+    with pytest.raises(SystemExit, match="points_status"):
         fq.load_rules(_write(tmp_path, bad, "fantasy_rules.json"))
 
 
@@ -245,10 +325,11 @@ def test_an_incomplete_discovery_checklist_is_refused(tmp_path, doc):
         fq.load_questions(_write(tmp_path, bad))
 
 
-def test_missing_screenshot_requests_are_refused(tmp_path, doc):
+def test_an_unfinished_reconciliation_must_still_name_what_it_needs(tmp_path, doc):
+    """Receiving an image does not license going quiet about what the image did not answer."""
     bad = copy.deepcopy(doc)
     bad["screenshot_reconciliation"]["still_requires_live_client"] = []
-    with pytest.raises(SystemExit, match="no precise live-client requests"):
+    with pytest.raises(SystemExit, match="precise live-client requests"):
         fq.load_questions(_write(tmp_path, bad))
 
 

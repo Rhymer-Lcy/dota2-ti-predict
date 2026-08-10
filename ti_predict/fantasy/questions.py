@@ -33,6 +33,12 @@ REQUIRED_FIELDS = ("question_id", "category", "official_en_label", "exact_questi
 # Questions the frozen group-stage track already answers. Listed so the fantasy track can prove it
 # is not re-deriving them rather than merely happening not to.
 FROZEN_TRACK_CATEGORY = "group_stage_team_prediction"
+# A scoring coefficient may exist in the ruleset only with an attribution. Reading a number off a
+# panel the operator supplied is legitimate evidence and is recorded as such; what is forbidden is a
+# number with no stated origin, and promoting a second-hand reading to CONFIRMED.
+POINT_FIELDS = ("points_per_unit", "starting_points", "maximum_points")
+TIER1_POINTS_SOURCE = "client_ui"
+POINTS_SOURCES = (TIER1_POINTS_SOURCE, "user_screenshot")
 DISCOVERY_KEYS = (
     "A_group_stage_team_predictions",
     "B_fantasy_player_selection",
@@ -100,11 +106,12 @@ def load_questions(path=None):
     if missing_discovery:
         raise SystemExit(f"{_relpath(path)}: discovery checklist is missing "
                          + ", ".join(missing_discovery))
+    # Whether or not an image arrived, an unfinished reconciliation must name what it still needs.
+    # Silence here would read as "nothing left to ask for", which is the one thing it never means.
     screenshot = doc.get("screenshot_reconciliation", {})
-    if not screenshot.get("evidence_available_in_this_run") \
-            and not screenshot.get("still_requires_live_client"):
-        raise SystemExit(f"{_relpath(path)}: screenshot evidence is unavailable but no precise "
-                         "live-client requests are listed")
+    if screenshot.get("status") != "CONFIRMED" and not screenshot.get("still_requires_live_client"):
+        raise SystemExit(f"{_relpath(path)}: the screenshot reconciliation is not CONFIRMED but no "
+                         "precise live-client requests are listed")
     if doc.get("phase_1_status") != "CONFIRMED" and not doc.get("phase_1_blockers"):
         raise SystemExit(f"{_relpath(path)}: PHASE 1 is not confirmed but no blockers are listed")
     return doc
@@ -132,10 +139,20 @@ def load_rules(path=None):
     if sorted(grouped) != sorted(ids):
         raise SystemExit(f"{_relpath(path)}: by_color does not partition the stat table")
     for s in listed:
-        if s.get("points_per_unit") is not None and stats.get("status") != "CONFIRMED":
-            raise SystemExit(f"{_relpath(path)}: {s['stat_id']} carries a points_per_unit while "
-                             "stats.status is not CONFIRMED; a scoring coefficient may not be "
-                             "filled in from anywhere but the client")
+        numeric = [f for f in POINT_FIELDS if isinstance(s.get(f), (int, float))]
+        if not numeric:
+            continue
+        src, st = s.get("points_source_type"), s.get("points_status")
+        if src not in POINTS_SOURCES:
+            raise SystemExit(f"{_relpath(path)}: {s['stat_id']} carries {', '.join(numeric)} but "
+                             f"points_source_type is {src!r}; a scoring coefficient must say where "
+                             f"it came from (one of {', '.join(POINTS_SOURCES)})")
+        if st not in STATUSES:
+            raise SystemExit(f"{_relpath(path)}: {s['stat_id']} carries {', '.join(numeric)} but "
+                             f"points_status is {st!r}")
+        if src != TIER1_POINTS_SOURCE and st == "CONFIRMED":
+            raise SystemExit(f"{_relpath(path)}: {s['stat_id']} is CONFIRMED on a {src} reading; "
+                             "only a direct client read may confirm a scoring coefficient")
     if not doc.get("blocking_unknowns") and stats.get("status") != "CONFIRMED":
         raise SystemExit(f"{_relpath(path)}: status is not CONFIRMED but no blocking_unknowns "
                          "are listed; say what is missing")

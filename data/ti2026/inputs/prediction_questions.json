@@ -7,12 +7,15 @@
   "note": "Structurally complete inventory of every TI2026 in-client item that requires the player to answer, select or configure something. Compiled from Valve's own shipped compendium definition for league 19719, the shipped client localization, and the official announcement. Fantasy rule closure is not complete: runtime values absent from shipped files remain UNRESOLVED and block PHASE 2. Nothing is inferred from previous years.",
   "phase_1_status": "BLOCKED",
   "phase_1_blockers": [
-    "Fantasy runtime scoring coefficients and Deaths starting credit",
-    "War Banner emblem counts and role-specific colour layouts",
-    "coach title bonus percentages, roll-token budget, and exact top-two-game aggregation",
-    "Fantasy candidate dropdowns, distinct-team enforcement, and per-period lock countdowns",
-    "the nine Fantasy percentile reward point values",
-    "pixel-level reconciliation of the user-referenced screenshot, which is not available as an image payload or repository file in this run"
+    "P0 scoring semantics: top-two-game aggregation, Deaths floor, Teamfight Participation curve, best-series eligibility",
+    "P0 War Banner state: emblem slot counts, colour composition, and the stat/tier/trait/order actually on the Core, Mid and Support banners",
+    "P0 coach titles: the offered prefix and suffix lists and the percentage each carries",
+    "P0 legality and lock: whether the three roles may share a team, whether all 16 teams are candidates, and the exact period-0 lock countdown",
+    "P1 roll-token economy and the nine Fantasy percentile reward values"
+  ],
+  "phase_1_resolved_since_last_round": [
+    "The 18 scoring coefficients, the Deaths starting credit and the Teamfight Participation maximum are now populated from S6 at grade user_screenshot_corroborated (points_status PARTIAL, promotable only by a direct client read).",
+    "The user-supplied image was received and reconciled; the 'no screenshot evidence' blocker is withdrawn."
   ],
   "source_tiers": {
     "1": "Dota 2 client (shipped game files and in-client UI), Valve/Steam official announcements, official TI pages, Valve league feed",
@@ -73,6 +76,16 @@
       "steam_posts_url": "https://store.steampowered.com/news/posts/?appids=570",
       "released_utc_date": "2026-07-30",
       "retrieved_at": "2026-08-10T16:44:23Z"
+    },
+    "user_screenshot": {
+      "id": "S6",
+      "tier": 2,
+      "source_type": "user_screenshot",
+      "what": "A long Chinese guide article supplied by the operator, containing reproductions of in-client Fantasy panels: the roster/War Banner area, reward-unlock rows, the scoring-stat list with its coefficients, and a percentile table.",
+      "delivered_resolution": "178 x 2048 pixels",
+      "how_it_was_used": "Two different ways, graded differently. (a) The operator transcribed the 18 scoring coefficients from it; those are recorded as user_screenshot_corroborated with points_status PARTIAL. (b) The assistant identified page modules structurally; individual digits are NOT legible to the assistant at the delivered width, so no number was read from the image by the assistant except one explicitly-flagged candidate reading of the roll-token grants.",
+      "grading_rule": "A guide article that reproduces a client panel does not inherit Tier-1 status by transitivity. It corroborates; it does not confirm.",
+      "retrieved_at": "2026-08-10T17:20:00Z"
     }
   },
   "patch_context": {
@@ -151,25 +164,42 @@
     "H_other_compendium_predictions_or_challenges": "NOT PRESENT - the Compendium has exactly five tabs: Rewards, Fantasy, Predictions, Team Bundles, Talent Bundles."
   },
   "screenshot_reconciliation": {
-    "status": "UNRESOLVED",
-    "evidence_available_in_this_run": false,
-    "reason": "The user references a long screenshot, but no image payload or repository path is available to the tools in this run. The user's prose is a discovery lead, not pixel-level evidence, and no OCR result is promoted to fact.",
-    "modules_discovered_from_user_description": [
-      "Fantasy team or player-card selection area",
-      "Fantasy scoring-stat or emblem list",
-      "another Predictions or selection page"
+    "status": "PARTIAL",
+    "evidence_available_in_this_run": true,
+    "source": "S6",
+    "supersedes": "The previous round recorded evidence_available_in_this_run = false. That was correct for that run and is wrong now: the image was delivered in the following round and has been reconciled.",
+    "delivered_resolution": "178 x 2048 pixels",
+    "assistant_legibility": "Module layout is identifiable; individual digits are not. The assistant therefore reads STRUCTURE from the image and takes NUMBERS from the operator's transcription, which is graded user_screenshot_corroborated rather than Tier-1.",
+    "modules_identified": [
+      {"module": "article header and in-game screenshots", "value": "none; a Chinese guide article framing, not client evidence"},
+      {"module": "Fantasy roster area with three player cards",
+       "reconciles_to": "the three War Banners (Core, Mid, Support)",
+       "tier_1_cross_check": "consistent with DOTA_FantasyCraft_CraftPlayer_Core/_Mid/_Support; note the cards depict players while the Tier-1 strings establish the choice unit is a TEAM, so the card art must not be read as a per-player selection"},
+      {"module": "two reward-unlock rows",
+       "reconciles_to": "roll-token grants for period 0 and period 1",
+       "status": "UNCONFIRMED assistant reading; see fantasy_rules.roll_tokens.candidate_reading"},
+      {"module": "dark scoring panel listing stats with values",
+       "reconciles_to": "Fantasy -> How to Play -> Scoring, the 18 emblem stats",
+       "status": "operator-transcribed; all 18 values populated at grade user_screenshot_corroborated"},
+      {"module": "small percentile table near the foot of the article",
+       "reconciles_to": "the nine Fantasy reward percentile tiers",
+       "status": "UNRESOLVED; values not legible and not transcribed"},
+      {"module": "wide UI screenshot at the foot of the article",
+       "reconciles_to": "unidentified; possibly a leaderboard or the Predictions page",
+       "status": "UNRESOLVED"}
     ],
-    "tier_1_reconciliation": [
-      "The apparent player-card area is the TI2026 Fantasy War Banner interface; Tier-1 strings establish that the actual choice unit is a team for each role.",
-      "The apparent stat list is the 18-stat Emblem Stats table, partitioned into six red, six blue, and six green stats.",
-      "The other prediction area can only be the 16-slot Group Stage page or the 14-slot main-event bracket: the league-19719 definition exhaustively enumerates those 30 out-of-game slots, and explicitly sets in-game prediction count to zero."
+    "resolved_by_this_image": [
+      "the 18 base scoring coefficients",
+      "the Deaths starting credit and per-death debit",
+      "the Teamfight Participation maximum"
     ],
     "still_requires_live_client": [
-      "Fantasy -> How to Play -> Scoring and Emblem Stats: all runtime numbers and the complete scoring wording",
-      "Fantasy -> each Core, Mid and Support War Banner: every emblem slot plus the team chooser and countdown",
+      "Fantasy -> How to Play -> Scoring: the complete wording around 'the top two scoring games', the Deaths floor, and the Teamfight Participation curve",
+      "Fantasy -> each of the Core, Mid and Support War Banners: emblem count, colour composition, and every emblem's stat, tier, trait and position",
       "Fantasy -> Coaching Titles: the offered prefix and suffix lists with their percentages",
-      "Rewards -> Fantasy table: all nine percentile rows and point values",
-      "Fantasy period 2 after it unlocks: its countdown and any new roll-token grant"
+      "Fantasy -> Choose Team: the candidate list and whether two roles may share a team",
+      "Fantasy main view: the roster lock countdown and the current roll-token balance with operation costs",
+      "Rewards -> Fantasy table: all nine percentile rows and their point values"
     ]
   },
   "questions": [
