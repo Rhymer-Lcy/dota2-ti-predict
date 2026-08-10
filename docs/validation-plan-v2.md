@@ -186,9 +186,13 @@ results: backtest2/results-prelock-research.md):
   half-life, calibration, map probability, solver and refinement are all untouched, and no challenger
   was run. What changed is the state of the world and the plumbing around it. Round 1 is official and
   ingested from Valve's league feed; the lock time gains a second Tier-1 confirmation from the feed's
-  own scheduled_time. The pod split remains unpublished, so the structure is now MARGINALIZED (open
-  16-team Swiss vs the 35 admissible two-pod partitions) instead of assumed, and the official gate
-  fails closed on pods_status="unresolved". The LGD position-2 change (TaiLung banned -> Topson) is
+  own scheduled_time. The two-pod STRUCTURE is an official rule (rules page) while the pod
+  MEMBERSHIP is unpublished, so the membership - and only the membership - is MARGINALIZED over the
+  35 round-1-compatible partitions; the official gate requires a confirmed structure and blocks only
+  if the membership would materially change the slate. (Corrected 2026-08-10 within the same round:
+  an earlier reading treated the league feed's missing pod field as evidence for an undivided
+  16-team Swiss and briefly allowed that as an official structure. Absence in a feed is not evidence
+  about the format; open-16 is now a sensitivity comparator, refused in official mode.) The LGD position-2 change (TaiLung banned -> Topson) is
   recorded as external evidence in a tracked roster audit and is NOT converted into a strength
   adjustment: the model is organization-level, the previous lineup played the history, and a
   player-aware production adjustment stays inadmissible before TI2026. Its decision impact is

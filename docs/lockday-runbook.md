@@ -11,8 +11,9 @@ submit >= 1 h early - a published schedule can move.
 ## State entering lock day (2026-08-10)
 - **Round 1 is posted and ingested.** `data/ti2026/inputs/draw.json` is generated from the league
   feed; `r1_status = official`.
-- **The pod split is not published anywhere** and may not exist (the feed shows one undivided
-  16-team Swiss). `pods_status = unresolved`, and the official run FAILS CLOSED on it by design.
+- **The two-pod structure is an official rule; only the pod MEMBERSHIP is unpublished.**
+  `structure = two_pod` / `structure_status = confirmed` / `pod_membership_status = unresolved`. An
+  official run marginalizes over the 35 memberships compatible with round 1 rather than assuming one.
 - **One roster change:** LGD position 2, TaiLung (banned) -> Topson, recorded in
   `data/ti2026/inputs/roster_events.csv`. The other 15 lineups are confirmed unchanged.
 - Latest professional map in the universe: 2026-08-09T19:02Z. No pro match is scheduled between then
@@ -36,27 +37,26 @@ submit >= 1 h early - a published schedule can move.
    A CHANGED row needs the full provenance (role, both nicknames, both numeric account ids, reason,
    eligibility, announcement time, evidence tier, source). Never infer an account id from a nickname.
    `python -m ti_predict.rosters` prints the summary.
-3. **Re-pull the draw and check whether pods appeared.**
+3. **Re-pull the draw and check whether the pod membership appeared.**
    `python -m ti_predict.league_feed --fetch --write-draw`
-   - If a pod split is published (in-client, feed, or an official post): add `podA`/`podB` (8 teams
-     each, names exactly as in teams.csv) to `draw.json` and set `"pods_status": "confirmed"`.
-   - If no pod split is published anywhere by lock time, decide EXPLICITLY between two paths, and
-     record which one you took:
-     (a) accept Valve's league feed - a single undivided 16-team Swiss node group - as the published
-         format, and declare it: `"pods_status": "confirmed", "structure": "open-16"`. That is a
-         positive, evidenced claim, it is recorded in the manifest, and it unblocks the official run.
-     (b) leave it `unresolved`; the official run stays blocked and the decision rests on
-         `python -m backtest2.post_r1` (R1-fixed, pod structure marginalized), whose slate is then
-         submitted by hand.
-     Both currently give the SAME 16 slots - the open and two-pod families agree - so this choice is
-     about what the artifact claims, not about the picks. What is NOT allowed is inventing a pod
-     split, or leaving the file saying "confirmed two-pod" when nothing published one.
+   - If the membership is published (in-client, feed, or an official post): add `podA`/`podB`
+     (8 teams each, names exactly as in teams.csv) and set `"pod_membership_status": "confirmed"`.
+     Round 1 must not cross the pods; the gate checks it.
+   - If it is still unpublished: leave `"pod_membership_status": "unresolved"`. The official run then
+     marginalizes over all 35 round-1-compatible memberships and records that in the manifest.
+     **Never** invent a membership, and never downgrade the structure: `open-16` is a sensitivity
+     comparator, not the official format, and official mode refuses it.
 4. **Confirm the exact lock time** from the in-client countdown (hour:minute, timezone). Expected
    2026-08-13T02:00:00Z.
 5. **Run the official slate** (only once every gate is satisfied):
-   `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 120000`
-   120000 simulations: the points-refinement gate has about 94% power there vs about 80% at the 40000
-   default (backtest2/results-adversarial.md).
+   `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 140000`
+   `--sims` is the TOTAL simulation count, split evenly across the admissible memberships. 120000 is
+   the floor set by points-refinement gate power (about 94% there vs about 80% at the 40000 default,
+   backtest2/results-adversarial.md). With the membership unresolved use **at least 140000** (4000
+   per membership): the membership gate compares 35 held-out regret estimates, and below roughly
+   4000 each it blocks on Monte-Carlo noise rather than on a real effect (measured 2026-08-10:
+   0.206 at 500/membership, 0.064 at 1000, 0.032 at 4000, against a 0.05 limit). Once the membership
+   is published there is only one structure and 120000 is enough.
    **Freshness override.** If no professional match is played between the universe's latest map and
    the lock, the 3-day freshness gate will block a genuinely up-to-date universe. Only then append
    `--allow-stale`, and only after re-running step 1 and confirming the scan found nothing newer.
@@ -74,10 +74,12 @@ submit >= 1 h early - a published schedule can move.
 
 ## Safety gates enforced by --official (not just runbook discipline)
 - cutoff must be a timezone-aware ISO timestamp with a time (date-only is rejected);
-- the draw file must carry complete round-1 pairings AND a confirmed pod structure; `pods_status`
-  other than `confirmed` blocks the run;
-- when pods are published they must be a valid two-pod partition of the 16 and round 1 must not
-  cross them;
+- the draw file must carry complete round-1 pairings AND `structure_status = confirmed`; an assumed
+  structure, or the `open-16` comparator, is refused;
+- a published membership must be a valid two-pod partition of the 16 that round 1 does not cross;
+- an unresolved membership is marginalized, and the run is blocked if the worst admissible
+  membership would beat the marginalized slate by more than
+  `contest_rules.POD_MEMBERSHIP_REGRET_MAX` expected correct (held-out);
 - the roster audit must have no CONFLICT / UNRESOLVED team;
 - the local universe must be fresh: latest map within 3 days of the cutoff, else blocked (override
   with `--allow-stale`, which is recorded in the manifest);

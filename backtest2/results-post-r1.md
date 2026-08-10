@@ -5,7 +5,7 @@ frozen and NOT re-tuned in this round: identity side-neutral B-bt, half-life 90,
 map probability `0.5*(sigmoid(d+c)+sigmoid(d-c))` with train-only `c`, Hungarian assignment plus the
 verified points refinement, official run at 120000 simulations, market diagnostic only.
 
-## 1. Round 1 is official; the pod split is not
+## 1. Round 1 is official; the pod membership is not
 
 Valve's league feed (league_id 19719) published the round-1 nodes. `ti_predict/league_feed.py`
 parses the stored snapshot, resolves every feed team id through `canonical_identity.csv`
@@ -30,11 +30,19 @@ feed also restates the format at Tier 1: `team_count=16, max_rounds=5, win_loss_
 the value the blog wording implied, so `GROUP_LOCK_UTC` is confirmed and the circulating 15:00 UTC
 figure is definitively a timezone-conversion error. The in-client countdown remains the last check.
 
-**No pod split exists in any machine-readable source.** The feed exposes ONE undivided 16-team Swiss
-node group. The ".A"/".B" suffixes are broadcast blocks separated by start time (02:00Z vs 05:00Z) --
-as are the stream A/B/C/D labels in the event's social posts, whose later slots are follow-up Swiss
-rounds for 1-0 and 0-1 teams. Reading a pod partition off either would be a fabrication, so
-`parse_draw` reports `pods_status="unresolved"` and the official pipeline **fails closed** on it.
+**The two-pod structure is confirmed; only the pod MEMBERSHIP is unpublished** (corrected within
+this round -- see sec 10). The official TI15 rules page states the rule directly: round 1 splits the
+16 into two initial groups and pairs within them, rounds 2 and 3 pair only inside a team's initial
+group, and round 4 pairs only against the other group. The league feed exposes no pod field, which
+means the MEMBERSHIP is absent there -- it is not evidence that the format is an undivided 16-team
+Swiss. The ".A"/".B" suffixes are broadcast blocks separated by start time (02:00Z vs 05:00Z), as are
+the stream A/B/C/D labels in the event's social posts, whose later slots are follow-up Swiss rounds
+for 1-0 and 0-1 teams; reading a membership off either would be a fabrication.
+
+The draw therefore records three separate facts -- `structure = two_pod`,
+`structure_status = confirmed`, `pod_membership_status = unresolved` -- and an official run with an
+unresolved membership marginalizes over the 35 memberships compatible with round 1 rather than
+assuming one or refusing to run.
 
 ## 2. LGD roster event (already-established fact; verified, not re-investigated)
 
@@ -205,18 +213,20 @@ uncertainty about LGD", not a signed adjustment: a two-year layoff argues one wa
 the other, and neither is measurable from data that exists today. Since the decision is nearly
 value-neutral across the whole plausible range, no adjustment is warranted in either direction.
 
-## 6. Post-round-1 provisional slate (R1 fixed, pods marginalized)
+## 6. Post-round-1 provisional slate (R1 fixed, pod membership marginalized)
 
-`backtest2/post_r1.py`, 36 structures x 3000 simulations each -- the open family receives the same
-TOTAL, so the 50/50 family mixture is a plain concatenation: **210000 mixture simulations**, MC se
-about 0.001 per cell. Frozen production configuration throughout.
+`backtest2/post_r1.py`, 35 admissible memberships x 3000 simulations = **105000 headline
+simulations** under the official two-pod structure (MC se about 0.0015 per cell), plus a same-sized
+open-16 comparator run. Frozen production configuration throughout.
 
-**The pod question is closed by measurement.** The open and two-pod families produce the **same 16
-slots**, and the largest per-cell probability difference between the two structures across all 96
-cells is **0.0056** (Nigma; every other team is below 0.005). The unpublished pod split does not
-change the answer -- while the official gate still refuses to *claim* a structure nobody published.
+**The membership question is closed by measurement.** Marginalizing over the 35 admissible
+memberships gives the slate below; running the no-pod comparator instead gives the **same 16 slots**,
+with a largest per-cell probability difference of **0.0056** (Nigma; every other team below 0.005).
+So even the extreme case -- removing the pod constraint entirely -- does not move a single slot, and
+the unpublished membership therefore cannot. The official run still refuses to *claim* a membership
+nobody published: it marginalizes and says so in the manifest.
 
-| bucket | picks (mixture probability) |
+| bucket | picks (marginalized probability) |
 |---|---|
 | 4-0 x1 | PARIVISION (0.23) |
 | 4-1 x2 | Team Yandex (0.25), BetBoom Team (0.24) |
@@ -245,9 +255,9 @@ Only one round-1 match is near a coin flip: Iron Wing vs Nigma at 0.478.
 
 ### Stable slots, boundary slots, and where the uncertainty lives
 Uncertainty ordering, unchanged from the pre-draw decomposition and now measured with round 1 fixed:
-**strength estimation (bootstrap sigma 0.13-0.39 per team) >> pod structure (<= 0.0056 per cell) >
-D4 policy (0 slot changes) > Monte-Carlo (0.001)**. The binding uncertainty is still the strength
-estimate; for round 1 the draw is no longer uncertain at all.
+**strength estimation (bootstrap sigma 0.13-0.39 per team) >> pod membership (<= 0.0056 per cell,
+0 slot changes) > D4 policy (0 slot changes) > Monte-Carlo (0.0015)**. The binding uncertainty is
+still the strength estimate; for round 1 the draw is no longer uncertain at all.
 
 - **Stable** (assigned-vs-second gap >= 0.10, structural delta <= 0.005): Xtreme decider_loss
   (+0.165), Falcons decider_win (+0.157), Aurora decider_win (+0.144), Spirit decider_win (+0.113).
@@ -258,7 +268,7 @@ estimate; for round 1 the draw is no longer uncertain at all.
 - **Boundary set B -- the bottom three slots.** OG 0.273 / HULIGANI 0.253 / GamerLegion 0.245 for
   1-4, and OG 0.188 / HULIGANI 0.155 / GamerLegion 0.144 for 0-4, with Xtreme just behind. Same
   situation: three teams, three slots, no separation.
-- **Boundary set C -- the middle.** Nigma decider_win at a NEGATIVE gap (-0.032) is the thinnest
+- **Boundary set C -- the middle.** Nigma decider_win at a NEGATIVE gap (about -0.03) is the thinnest
   assignment in the slate, and it is the same boundary LGD would cross if its strength rose by a
   quarter of a standard error (section 5).
 - **Roster uncertainty** applies to LGD alone, and section 5 bounds its whole plausible range at
@@ -286,27 +296,33 @@ No market number enters the model.
 
 ## 8. Official readiness
 
-**Cannot run OFFICIAL yet, by design.**
+**The remaining blockers are operational, not structural.**
 
 | requirement | state |
 |---|---|
 | Round 1 confirmed | **PASS** - official, from the league feed, all 16 ids resolved |
-| Pod structure confirmed | **BLOCKS** - `pods_status="unresolved"`; no source published one |
+| Pairing structure confirmed | **PASS** - two-pod, from the official rules page |
+| Pod membership | **UNRESOLVED -> marginalized** over 35 admissible memberships, recorded in the manifest; worst-case held-out regret 0.032 expected correct, inside the 0.05 limit |
 | Roster audit clean | **PASS** - 15 CONFIRMED, 1 CHANGED, 0 CONFLICT/UNRESOLVED |
 | Universe refreshed | **PASS** - current through 2026-08-09T19:02Z, genuinely the latest professional map |
 | Freshness gate | needs `--allow-stale` at the lock cutoff (3.29 d lag); no pro match exists in between, and the override is recorded in the manifest |
-| Client-confirmed cutoff | pending - confirm the in-client countdown on the day (expected 2026-08-13T02:00:00Z) |
+| Client-confirmed cutoff | **pending** - confirm the in-client countdown on the day (expected 2026-08-13T02:00:00Z) |
 
-Rehearsed end to end on the real data at reduced simulation count: the gate accepts, and the manifest
-carries the draw publication status, the declared structure, the roster audit, the freshness-gate
-override and every input hash. The rehearsal artifact was written outside the repository.
+Rehearsed end to end on the real data (140000 simulations, 4000 per membership, written outside the
+repository): the gate **accepts**, and the marginalized slate is exactly the section-6 slate. The
+manifest carries the three structure fields, the marginalization, the membership-agreement
+measurement, the roster audit, the freshness-gate override and every input hash.
 
-**The pod blocker has an explicit resolution** rather than an indefinite deadlock: if no pod split is
-published by lock time, declare the structure Valve's feed actually shows --
-`"pods_status": "confirmed", "structure": "open-16"` -- a positive, recorded claim backed by Tier-1
-data rather than an assumption filling a gap. Section 6 shows the slate is identical either way, so
-this changes what the artifact asserts, not what is submitted. Inventing a pod partition remains
-forbidden, and so does leaving the file claiming a confirmed two-pod split that nobody published.
+**Sizing the membership gate.** It compares 35 held-out regret estimates, so it needs enough
+simulations per membership or it blocks on Monte-Carlo noise instead of a real effect. Measured
+worst-case regret against the 0.05 limit: **0.206 at 500 per membership, 0.064 at 1000, 0.032 at
+4000**. The runbook therefore requires at least 140000 total simulations while the membership is
+unresolved. (The first implementation of this metric scored each alternative slate on the same
+archive that selected it and reported 0.21 - the same in-sample winner's curse the points refinement
+was corrected for; it is now measured on the independent verification archive.)
+
+No official slate is emitted yet: the lock-day sequence still calls for one final data refresh and
+the in-client cutoff confirmation before the real run.
 
 ## 9. Verdicts
 
@@ -316,8 +332,35 @@ forbidden, and so does leaving the file claiming a confirmed two-pod split that 
 | Solver Hungarian + verified points refinement | **KEEP** - the refinement proposed no move on the post-R1 archive |
 | Round-1 ingest | **ADOPT** - official, machine-readable, hash-recorded |
 | Lock time 2026-08-13T02:00:00Z | **CONFIRMED** at Tier 1 by a second independent Valve channel |
-| Pod structure | **MARGINALIZED**, not assumed; measured effect <= 0.0056 per cell, zero slot changes |
+| Pod structure | **CONFIRMED two-pod** (official rules page); the league feed's silence concerns membership only |
+| Pod membership | **MARGINALIZED** over 35 admissible partitions; measured effect <= 0.0056 per cell, zero slot changes, held-out regret 0.032 |
 | LGD roster event | **RECORDED, NOT PRICED** - no strength edit; decision impact bounded at about 0.2 expected correct across the full plausible range |
 | Player-aware production adjustment | **INADMISSIBLE** before TI2026 (no as-of data) |
 | Market | **DIAGNOSTIC ONLY** - rho 0.865; OG and Nigma flagged for human sanity-check |
 | Pipeline defects (scan truncation, identity clobber, stale folds) | **FIXED**, with tests; production strengths verified bit-identical |
+
+
+## 10. Correction log (within this round)
+
+- **Pod semantics, corrected 2026-08-10.** The first pass of this round read the league feed's
+  missing pod field as evidence that TI15 runs one undivided 16-team Swiss, recorded a single
+  `pods_status` flag, and offered an `open-16` structure as an official-mode fallback. That was
+  wrong. The official TI15 rules page states the two-initial-groups rule directly: round 1 splits
+  the field and pairs within the groups, rounds 2-3 pair inside a team's group, round 4 pairs
+  across. Absence of a field in a feed is evidence about the feed. Corrected everywhere:
+  - the draw now carries three separate facts -- `structure`, `structure_status`,
+    `pod_membership_status` -- instead of one conflated flag;
+  - `structure = two_pod`, `structure_status = confirmed`, `pod_membership_status = unresolved`;
+  - an official run marginalizes over the 35 round-1-compatible memberships and records it, rather
+    than refusing to run or asserting a structure;
+  - `open-16` is demoted to a sensitivity comparator and is **refused** in official mode;
+  - the 35-partition study from the first pass is retained unchanged -- its result (identical slate,
+    <= 0.0056 per-cell difference) is exactly the evidence that membership uncertainty barely
+    affects the submission, and it never depended on the structural claim that was wrong.
+- **Topson recent-match check, no change to the conclusion.** Liquipedia's Topson page lists the
+  2026-06-29 Finland-Switzerland and 2026-06-30 Finland-Norway matches under Recent Matches, but he
+  was a listed substitute for that national roster and did not play: the actual lineup was
+  mumu / topita / MTD / Nukkumatti / Wazza, neither 06-30 map shows him, and account 94054712 has no
+  match record on those dates. Last confirmed competitive appearance therefore remains 2026-06-11,
+  and the inactivity / high-roster-uncertainty grading in section 2 stands unchanged. A team-roster
+  association on a wiki is not an appearance.

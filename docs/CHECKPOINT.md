@@ -10,9 +10,14 @@ Pipeline built, validated, hard-gated, adversarially re-validated (backtest2/res
   parsed by ti_predict/league_feed.py into data/ti2026/inputs/draw.json and every team id resolves
   through canonical_identity.csv. The same feed's scheduled_time upgrades the lock time to a second
   independent Tier-1 confirmation of 2026-08-13T02:00:00Z.
-- **The pod split is still unpublished** and may not exist (the feed shows one undivided 16-team
-  Swiss). The official run FAILS CLOSED on pods_status="unresolved"; the structure is marginalized in
-  research instead, and both structural families give the same slate.
+- **The two-pod STRUCTURE is an official rule; only the pod MEMBERSHIP is unpublished.** The rules
+  page states that round 1 splits the field into two initial groups, rounds 2-3 pair inside a team's
+  group and round 4 pairs across. The league feed carries no pod field, which means the MEMBERSHIP is
+  absent there - not that the format is an undivided Swiss. The draw therefore records three separate
+  facts (structure / structure_status / pod_membership_status), and an official run with an
+  unresolved membership MARGINALIZES over the 35 round-1-compatible memberships, records that in the
+  manifest, and is blocked only if the membership would materially change the slate. The open-16 pool
+  is demoted to a sensitivity comparator and is refused in official mode.
 - **One lock-period roster change** (LGD position 2, TaiLung banned -> Topson), recorded with full
   provenance in data/ti2026/inputs/roster_events.csv; the other 15 lineups are confirmed unchanged
   and the Team Liquid source conflict is resolved from match data (Nisha).
@@ -55,11 +60,13 @@ and no crowd percentages (the client exposes none). Verified rules: docs/contest
   common-random-numbers D4 sensitivity.
 - ti_predict/assign.py: Hungarian max-expected-correct 16-slot solver.
 - ti_predict/predict_ti15.py: hard-gated entry (dry-run vs official) with provenance manifest; the
-  gate now also blocks an unresolved pod structure and an unresolved roster audit, and records the
-  freshness-gate override in the manifest instead of allowing a silent one.
+  gate now also blocks an unconfirmed pairing structure, the open-16 comparator, an unresolved roster
+  audit, and a pod membership whose resolution would materially change the slate; it marginalizes an
+  unresolved membership and records the freshness-gate override instead of allowing a silent one.
 - ti_predict/league_feed.py: parses the official league feed into the posted draw; never infers pods.
 - ti_predict/rosters.py + inputs/roster_events.csv: the tracked 16-team roster audit.
-- ti_predict/swiss.py: also simulates the OPEN 16-team structure (pods=(teams,)).
+- ti_predict/swiss.py: enumerates the admissible two-pod memberships for a posted round 1, and can
+  also simulate the open 16-team pool (pods=(teams,)) as a sensitivity comparator only.
 - backtest2/post_r1.py: R1-fixed / pods-latent provisional prediction (research).
 - backtest2/roster_sensitivity.py: bootstrap-calibrated roster-uncertainty study.
 - backtest2/market_check.py: market anomaly check, diagnostic only.

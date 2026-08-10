@@ -167,26 +167,40 @@ eight matches cover each team exactly once.
 **The ".A" / ".B" suffixes are broadcast blocks, not pods.** They split on scheduled time (four
 matches at 02:00Z, four at 05:00Z); the same applies to the stream A/B/C/D labels in the event's
 social posts, whose later slots are follow-up Swiss rounds for 1-0 and 0-1 teams. Deriving a pod
-partition from either would be a fabrication, and `league_feed.parse_draw` reports
-`pods_status="unresolved"` rather than inventing one.
+partition from either would be a fabrication.
 
-Consequence for the model: the structure is carried as a hypothesis and marginalized, not assumed.
-Two families are admissible -- the OPEN 16-team Swiss (what the feed's single node group and
-Liquipedia's format section describe) and the TWO-POD structure (what the in-client rules text
-describes), the latter restricted to the 35 partitions in which each pod is a union of four posted
-round-1 matches. `backtest2/post_r1.py` runs both; the official pipeline refuses to run at all while
-`pods_status` is unresolved (an OFFICIAL slate must not rest on an unpublished split).
+### Structure is confirmed; only the membership is unpublished
+Three facts must be kept apart, and the pipeline keeps them in three separate fields:
 
-### Tier-1 confirmation and one residual format uncertainty (2026-08-09)
+| field | value | basis |
+|---|---|---|
+| `structure` | `two_pod` | **official TI15 rules page**: round 1 splits the 16 into two initial groups and pairs within them; rounds 2 and 3 pair only inside a team's initial group; round 4 pairs only against the other group |
+| `structure_status` | `confirmed` | it is a published rule, not an inference |
+| `pod_membership_status` | `unresolved` | which eight teams form each group is not published anywhere |
+
+The league feed carries no pod field. That is evidence about the FEED -- it tells us the membership
+is absent there -- and is **not** evidence for an undivided 16-team Swiss. An earlier note in this
+repository drew that inference and briefly allowed an `open-16` structure to be declared official;
+that was wrong and has been withdrawn (sec 11).
+
+Consequence for the model: the structure is used as given, and only the MEMBERSHIP is marginalized.
+Round 1 never crosses pods, so a pod is exactly a union of four of the eight posted matches, leaving
+C(8,4)/2 = **35 admissible memberships**. An official run with `pod_membership_status="unresolved"`
+simulates all 35, pools them, and records the marginalization in the manifest; it is blocked if any
+single admissible membership would have produced a materially better slate (held-out regret above
+`contest_rules.POD_MEMBERSHIP_REGRET_MAX`). The open-16 pool remains implemented, but only as a
+sensitivity comparator that bounds how much the pod constraint moves anything -- it is refused in
+official mode.
+
+### Tier-1 confirmation (2026-08-09, extended 2026-08-10)
 Valve's league data feed (league_id 19719) CONFIRMS the core format at Tier 1: a 16-team Swiss node
 group with max_rounds=5 and win_loss_limit=4, advancing 3 to the playoff plus 10 into a 5-match
-elimination round - exactly the structure implemented in the simulator. However, NO machine-readable
-or database source mentions the "two initial pods"; that detail rests solely on the in-client rules
-transcription (the official rulebook page is a script-rendered shell that cannot be read
-programmatically). Residual risk is bounded: the pre-draw study found 14/16 slots invariant across
-three different pod mechanisms, the record distribution 1/2/5/5/2/1 is forced regardless of pods,
-and once the real round-1 pairings post, round 1 is exact. If the published draw shows no pod
-structure, treat the pod constraint as a pairing-preference assumption and note it on the output.
+elimination round - exactly the structure implemented in the simulator. The two-initial-groups rule
+is confirmed separately by the official TI15 rules page (sec 9a); the feed simply does not expose
+pod membership, which is a gap in the feed and not a statement about the format. Residual risk is
+bounded and now measured: with round 1 posted, the pre-draw study's finding is superseded by a
+direct measurement -- across all 35 admissible memberships the largest per-cell probability
+difference is 0.0056 and the slate does not change (backtest2/results-post-r1.md sec 6).
 
 ### Two points the official rules do NOT resolve (modeling assumptions, not lookups)
 - C5 -- pairing tie-break: when several legal pairings satisfy the principles equally, the official
@@ -227,6 +241,12 @@ the unrelated Astana "Future Games" event). No B0 reopening is required.
   match is 3-2 vs 2-3 and either can win (corrects the earlier bucket mapping).
 - The R5 "maximize rank gap" rule applies ONLY to matches whose loser is directly eliminated (the
   1-3 matches), not to all round-5 matches (corrects the earlier over-broad phrasing).
+- 2026-08-10: **withdrawn** - the note that no pod split exists and that an `open-16` structure could
+  be declared the official format. The official TI15 rules page states the two-initial-groups rule
+  directly, so the league feed's missing pod field means only that MEMBERSHIP is unpublished there.
+  Structure (confirmed) and membership (unresolved) are now separate fields, `open-16` is demoted to
+  a sensitivity comparator and refused in official mode, and an unresolved membership is handled by
+  marginalization instead of by a structural claim.
 - 2026-08-09: the lock-time estimate is revised from 15:00 UTC to 02:00 UTC (10:00 UTC+8). The
   earlier note read the source's "10am CST" as US Central; the China Standard Time reading matches
   the host timezone and the in-client countdown arithmetic. Neither is first-hand Valve wording -
@@ -237,8 +257,9 @@ Rule-level verification is DONE (2026-08-03, cross-checked vs dota2.com/esports/
 Liquipedia, CyberScore, Strafe). What remains:
 
 Runtime inputs (status 2026-08-10):
-1. C1 -- the pod split: **still unpublished**, and possibly nonexistent (the feed shows one undivided
-   16-team Swiss). Marginalized over both structural families; blocks the OFFICIAL run by design.
+1. C1 -- the pod MEMBERSHIP: **still unpublished**. The two-pod structure itself is an official rule
+   (sec 9a), so the membership is marginalized over the 35 round-1-compatible partitions rather than
+   assumed; an official run records that and is blocked only if the membership would matter.
 2. C2 -- the round-1 pairings: **RESOLVED 2026-08-10** from the league feed (sec 9a).
 3. G1 -- the exact in-client lock timestamp: **Tier-1 confirmed** as 2026-08-13T02:00:00Z by the
    feed's scheduled_time (sec 5); reconfirm the in-client countdown on the day.

@@ -7,7 +7,7 @@ at risk). Goal: place in the top reward tier of the global leaderboard.
 Method reuses the calibrated-probability approach from the archived soccer `odds-pipeline`
 (market de-vig via Shin, cross-checked by an independent model), adapted to esports series.
 
-## Status (2026-08-10) — round 1 posted and ingested; official run still gated on the pod split
+## Status (2026-08-10) — round 1 posted and ingested; pod membership marginalized
 - **Contest rules: verified** (official Valve in-client TI15 activity, not a third-party game). The
   group prediction is a full **16-slot classification** — 4-0 x1, 4-1 x2, decider-win x5,
   decider-loss x5, 1-4 x2, 0-4 x1 — scored by number correct (convex `f(K)`, no penalty, no underdog
@@ -31,15 +31,16 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
   organizer's unpublished pairing decisions.
 - **End-to-end entry: [`ti_predict/predict_ti15.py`](ti_predict/predict_ti15.py), hard-gated.**
   `--dry-run` rehearses on synthetic/historical inputs (writes `.dryrun/`, labeled NOT OFFICIAL);
-  `--official` refuses unless the posted draw (round-1 pairings **and** a confirmed pod structure),
-  a frozen `--cutoff`, B-bt strengths and a clean roster audit are all present. Emits JSON (fact
+  `--official` refuses unless the posted round-1 pairings, a **confirmed** pairing structure, a
+  frozen `--cutoff`, B-bt strengths and a clean roster audit are all present. Emits JSON (fact
   source) + Markdown + a full run manifest.
 - **Round 1 is posted** (Valve league feed, ingested by
-  [`ti_predict/league_feed.py`](ti_predict/league_feed.py) into `data/ti2026/inputs/draw.json`); the
-  **pod split is not**, and may not exist. The official run fails closed on that rather than assume
-  one; the pod structure is instead marginalized in
-  [`backtest2/post_r1.py`](backtest2/post_r1.py) (research), which finds both structural families
-  give the same slate.
+  [`ti_predict/league_feed.py`](ti_predict/league_feed.py) into `data/ti2026/inputs/draw.json`). The
+  **two-pod structure is an official rule**; what is unpublished is the pod **membership**, so an
+  official run marginalizes over all 35 memberships compatible with round 1 and records that in the
+  manifest. Measured effect of that uncertainty:
+  [`backtest2/post_r1.py`](backtest2/post_r1.py) finds the same 16 slots across every membership,
+  with at most 0.0056 per-cell probability difference against the no-pod comparator.
 - **One lock-period roster change:** LGD position 2 (TaiLung banned -> Topson), recorded with full
   provenance in `data/ti2026/inputs/roster_events.csv`; the other 15 lineups are confirmed unchanged.
 - **No OFFICIAL TI2026 slate emitted yet.** It is produced at the cutoff — follow
