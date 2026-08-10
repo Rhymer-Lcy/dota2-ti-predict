@@ -5,13 +5,12 @@ exactly replicate the organizer's UNPUBLISHED pairing decisions (see the C5 / D4
 assumptions below). Implements (docs/contest-official-ti15.md sec 9):
   - 16 teams, every series Bo3 (simulated map-by-map so game-level tiebreakers exist).
   - Up to 5 Swiss rounds; a team STOPS at its 4th series win (advances) or 4th series loss (out).
-  - Pod structure (`pods`): either TWO 8-team initial pods -- rounds 1-3 pair only within a team's
-    pod, round 4 pairs across pods, round 5 pairs the remaining record groups -- or a single OPEN
-    16-team pool in which every round pairs by record with no pod constraint. Both structures force
-    the same final record distribution; they differ only in WHICH opponent a team meets in rounds
-    2-4. The in-client rules text describes two pods; Valve's league feed exposes one undivided
-    16-team Swiss node group, so the structure is carried as an explicit hypothesis (see
-    docs/contest-official-ti15.md sec 9).
+  - TWO 8-team initial pods (the OFFICIAL structure): rounds 1-3 pair only within a team's pod,
+    round 4 pairs across pods, round 5 pairs the remaining record groups. `pods` = (podA, podB).
+    The simulator also accepts an OPEN 16-team pool, `pods` = (teams,), in which every round pairs
+    by record with no pod constraint. That is NOT the official format -- it exists only as a
+    sensitivity comparator, to measure how much the pod constraint moves anything. Both force the
+    same final record distribution and differ only in WHICH opponent a team meets in rounds 2-4.
   - Pairing principles: same record first (hard); avoid rematch (soft); minimize rank gap (soft).
     Round-5 EXCEPTION: only matches whose loser is eliminated (the 1-3 group) maximize the rank gap.
   - After Swiss the record distribution is structurally exact: 4-0 x1, 4-1 x2, 3-2 x5, 2-3 x5,
@@ -35,6 +34,7 @@ Modeling assumptions where the official text is silent (docs sec 9):
 The six prediction buckets. No TI2026 numbers are emitted here; __main__ is a structure/mechanics
 self-test on synthetic strengths.
 """
+import itertools
 import math
 import os
 import random
@@ -179,6 +179,23 @@ def teams_of(pods):
 def is_two_pod(pods):
     """True for the two-8-team-pod structure, False for the open 16-team pool `(teams,)`."""
     return len(pods) == 2
+
+
+def admissible_two_pod_partitions(r1):
+    """Every pod membership compatible with a posted round 1, under the official two-pod rules.
+
+    Round 1 pairs only within a pod, so a pod is exactly a union of four of the eight posted matches.
+    That leaves C(8,4)/2 = 35 partitions, each equally admissible while the real membership is
+    unpublished. Returns [(podA, podB), ...]; match 0 is pinned to pod A so no partition is listed
+    twice under its two labellings.
+    """
+    out = []
+    for combo in itertools.combinations(range(8), 4):
+        if 0 not in combo:
+            continue
+        out.append(([t for i in combo for t in r1[i]],
+                    [t for i in range(8) if i not in combo for t in r1[i]]))
+    return out
 
 
 def _swiss(pods, strength, rng, r1_pairings, c):

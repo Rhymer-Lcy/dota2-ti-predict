@@ -5,9 +5,12 @@ carries the Swiss node group (max_rounds, win_loss_limit, advancing teams) and, 
 published, the round-1 nodes with both team ids and their scheduled start times.
 
 Two things this module deliberately does NOT do:
-  - it never invents a pod partition. The feed exposes ONE undivided 16-team Swiss node group; if no
-    pod split is present the parsed draw is marked pods_status="unresolved" and the consumer decides
-    how to handle it (the official pipeline fails closed).
+  - it never invents a pod membership. The official TI15 rules page states the two-pod STRUCTURE as
+    a rule (round 1 splits the field into two initial groups; rounds 2-3 pair inside a team's group;
+    round 4 pairs against the other group), so the structure is confirmed independently of this feed.
+    What the feed does not carry is which eight teams are in each group. Absence of a pod field here
+    is evidence about the FEED, not about the format, so the parsed draw records
+    structure="two_pod" / structure_status="confirmed" / pod_membership_status="unresolved".
   - it never maps a team by name similarity. Feed team ids are resolved through
     inputs/canonical_identity.csv source_team_ids, which is the tracked id->organization table.
 
@@ -24,7 +27,7 @@ import urllib.request
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from ti_predict.contest_rules import LEAGUE_FEED_URL
+from ti_predict.contest_rules import LEAGUE_FEED_URL, POD_STRUCTURE
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TI = os.path.join(REPO, "data", "ti2026")
@@ -78,9 +81,10 @@ def _groups(feed):
 def parse_draw(feed=None, canon_csv=None):
     """Parse the feed into the posted draw.
 
-    Returns a dict with r1_pairings (organization names), r1_status, pods_status, the Swiss format
-    parameters the feed asserts, and the round-1 scheduled times. Raises SystemExit on any id that
-    cannot be resolved to a tracked organization -- a silent drop would corrupt the draw.
+    Returns a dict with r1_pairings (organization names), r1_status, the structure fields described
+    above, the Swiss format parameters the feed asserts, and the round-1 scheduled times. Raises
+    SystemExit on any id that cannot be resolved to a tracked organization -- a silent drop would
+    corrupt the draw.
     """
     if feed is None:
         if not os.path.exists(FEED_JSON):
@@ -115,14 +119,18 @@ def parse_draw(feed=None, canon_csv=None):
 
     flat = [t for p in pairs for t in p]
     r1_status = "official" if len(pairs) == 8 and len(set(flat)) == 16 else "incomplete"
-    # The feed has no pod field. A pod split, if one exists, is not machine-readable anywhere.
-    pods_status = "unresolved"
     return {"league_id": 19719, "source": LEAGUE_FEED_URL, "feed_sha256": _sha256(FEED_JSON)
             if os.path.exists(FEED_JSON) else None,
             "swiss_format": fmt, "r1_status": r1_status, "r1_pairings": [list(p) for p in pairs],
-            "r1_schedule": sched, "pods_status": pods_status,
-            "pods_evidence": "Valve league feed exposes a single undivided 16-team Swiss node group; "
-                             "no pod partition is published in any machine-readable source",
+            "r1_schedule": sched,
+            "structure": POD_STRUCTURE, "structure_status": "confirmed",
+            "structure_evidence": "official TI15 rules page: round 1 splits the 16 into two initial "
+                                  "groups and pairs within them; rounds 2-3 pair inside a team's "
+                                  "initial group; round 4 pairs against the other group",
+            "pod_membership_status": "unresolved",
+            "pod_membership_evidence": "the league feed carries no pod field, so the membership is "
+                                       "absent HERE; that is not evidence against the two-pod "
+                                       "structure, which the official rules state",
             "first_match_utc": min((s["scheduled_utc"] for s in sched if s["scheduled_utc"]),
                                    default=None)}
 
@@ -135,8 +143,11 @@ def write_draw(d, path=None, retrieved_at=None):
     out["retrieved_at"] = retrieved_at or datetime.now(timezone.utc).isoformat(timespec="seconds")
     out["_comment"] = ("Generated from the official Valve league feed by "
                        "`python -m ti_predict.league_feed --write-draw`. Team names are canonical "
-                       "organizations (teams.csv 'team'). pods_status='unresolved' means no pod "
-                       "partition is published; the official pipeline fails closed on it.")
+                       "organizations (teams.csv 'team'). The two-pod structure is an official rule "
+                       "(structure_status=confirmed); pod_membership_status='unresolved' means the "
+                       "eight-team split itself is unpublished, so the official run marginalizes "
+                       "over every partition compatible with the posted round 1. Fill podA/podB and "
+                       "set pod_membership_status='confirmed' once the real split is posted.")
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(out, fh, ensure_ascii=False, indent=2)
         fh.write("\n")
@@ -157,7 +168,8 @@ def main():
     if a.write_draw:
         print("wrote " + os.path.relpath(write_draw(d, retrieved_at=at), REPO))
     print(f"swiss format: {d['swiss_format']}")
-    print(f"r1_status={d['r1_status']}  pods_status={d['pods_status']}")
+    print(f"r1_status={d['r1_status']}  structure={d['structure']} "
+          f"({d['structure_status']})  pod_membership={d['pod_membership_status']}")
     print(f"first scheduled match (UTC): {d['first_match_utc']}")
     for (a_, b_), s in zip(d["r1_pairings"], d["r1_schedule"]):
         print(f"  {s['node']:<10} {a_:<18} vs {b_:<18} {s['scheduled_utc']}")

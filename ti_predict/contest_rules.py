@@ -49,5 +49,21 @@ GROUP_LOCK_UTC = "2026-08-13T02:00:00Z"
 # UTC; TI2025's round-1 pairings were published about 47 hours before its first match.
 LEAGUE_FEED_URL = ("https://www.dota2.com/webapi/IDOTA2League/GetLeagueData/v001/?league_id=19719")
 
+# Group-stage pairing structure. The OFFICIAL TI15 rules page states it directly: round 1 splits the
+# 16 into two initial groups and pairs within them; rounds 2 and 3 pair only inside a team's initial
+# group; round 4 pairs only against the other group. So the two-pod STRUCTURE is a confirmed official
+# rule. Which eight teams are in each group (the MEMBERSHIP) is a separate fact and is not published
+# in the league feed - the feed's lack of a pod field says only that membership is absent there, and
+# is NOT evidence for an undivided 16-team Swiss.
+POD_STRUCTURE = "two_pod"
+
+# Official run with UNRESOLVED pod membership: the slate is marginalized over every partition
+# compatible with the posted round 1, and the run is blocked if any single admissible partition would
+# beat the marginalized slate by more than this many expected-correct slots. Label-level unanimity is
+# not usable as the gate here: three teams sit within 0.01 of each other in the extreme buckets, so
+# per-partition slates differ by Monte-Carlo noise at any affordable simulation count. This threshold
+# tests whether such a difference could MATTER (docs/contest-official-ti15.md sec 9a).
+POD_MEMBERSHIP_REGRET_MAX = 0.05
+
 # Total base prize pool (USD).
 PRIZE_POOL_USD = 1_600_000
