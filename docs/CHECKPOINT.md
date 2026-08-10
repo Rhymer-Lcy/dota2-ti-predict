@@ -4,11 +4,14 @@ Single source of truth for the frozen state. Do not reinterpret, reopen, or sile
 decision. Git history and committed documents govern.
 
 ## Status
-Pipeline built, validated, hard-gated, audited, and stress-tested by a final pre-lock research round
-(backtest2/results-prelock-research.md): ensemble challengers falsified, decision layer upgraded with
-held-out evidence, lock time re-verified. No OFFICIAL prediction emitted; a clearly-labeled pre-draw
-research study (data through 2026-08-01) exists under backtest2/. Awaiting the official group draw
-(~2026-08-13); on the draw, follow docs/lockday-runbook.md.
+Pipeline built, validated, hard-gated, audited, and now ADVERSARIALLY re-validated
+(backtest2/results-adversarial.md, 2026-08-09): the promoted points refinement survived refutation
+testing with its effect size corrected (+6.5 +/- 1.0, not +18.3); all model challengers remain
+falsified; the lock time is upgraded to Tier-1 Valve evidence; the data-refresh rehearsal fixed two
+real pipeline defects and confirmed all 16 rosters unchanged through 2026-08-09. No OFFICIAL
+prediction emitted; clearly-labeled pre-draw research exists under backtest2/. Awaiting the official
+group draw (expected ~2026-08-11; league feed nodes still empty); on the draw, follow
+docs/lockday-runbook.md.
 
 ## Frozen model and parameters
 - Production model: identity side-neutral Bradley-Terry (B-bt).
@@ -25,10 +28,13 @@ research study (data through 2026-08-01) exists under backtest2/. Awaiting the o
   prequential weights) are ALL out-of-sample WORSE than pure B-bt (blocked CIs exclude 0); the
   no-lookahead adaptive selector chose pure B-bt in 23/23 folds. No challenger reached the promotion
   gate; the model freeze stands on evidence, not inertia.
-- Decision layer (2026-08-09): the Hungarian max-expected-correct slate plus a VERIFIED
-  expected-points refinement - a swap search proposes a slate, adopted only if an independent
-  verification archive shows a paired points gain > 2 bootstrap se (evidence: +18.3 +/- 5.5 held-out
-  on a boundary-pair draw; zero effect otherwise). Fail-safe default is the Hungarian slate.
+- Decision layer (2026-08-09, adversarially audited): the Hungarian max-expected-correct slate plus
+  a VERIFIED expected-points refinement - a swap search proposes a slate, adopted only if an
+  independent verification archive shows a paired points gain > 2 bootstrap se. Corrected evidence:
+  true effect about +6.5 +/- 1.0 points on fresh archives (the originally reported +18.3 was a
+  winner's-curse-typical high draw); 0 harmful adoptions in 30 end-to-end replications; the
+  manifest's recorded gain is adoption-conditioned (about 1.7x optimistic). Official run uses
+  --sims 120000 for ~94% gate power. Fail-safe default is the Hungarian slate.
 - Official constants are centralized in ti_predict/contest_rules.py.
 
 ## Prediction target (group stage)
@@ -45,12 +51,14 @@ and no crowd percentages (the client exposes none). Verified rules: docs/contest
 - Current code: the audit-freeze commit on main (this file's commit); prior baseline 98f2079.
 
 ## Tests (pytest) - all passing
-tests/ holds 37 tests: official constants; map_pn side-neutral symmetry; structural 1/2/5/5/2/1
+tests/ holds 43 tests: official constants; map_pn side-neutral symmetry; structural 1/2/5/5/2/1
 invariant; probability row and column sums; fixed-seed reproducibility; CRN D4 sensitivity capacities;
 assignment capacity and expected-correct accounting; cutoff format and timezone gate; draw-file valid
 and invalid boundaries; manifest required fields (incl. points_refinement); JSON/Markdown consistency;
 pre-draw pod-sampling validity; simulation-archive/P consistency; ensemble mixing endpoints; the
-refinement adopt/reject/no-move rules; B-bt 16-team mapping (auto-skipped without the local universe).
+refinement adopt/reject/no-move rules; failure modes (corrupt/non-object draw JSON, repeated team in
+round 1, missing pods, missing universe, CLI-level official block); B-bt 16-team mapping
+(auto-skipped without the local universe).
 Run: python -m pytest -q
 Also: python -m ti_predict.swiss ; python -m ti_predict.assign ; python -m ti_predict.predict_ti15 --dry-run
 
@@ -65,15 +73,19 @@ Also: python -m ti_predict.swiss ; python -m ti_predict.assign ; python -m ti_pr
 
 ## Lock-day single command
 After refreshing data through the cutoff and entering the posted draw (docs/lockday-runbook.md):
-python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z
+python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 120000
 
 ## External inputs still required
-1. The official two-pod split and round-1 pairings (draw.json), posted around 2026-08-13 (not yet
-   published as of 2026-08-09).
-2. The exact in-client lock timestamp (a timezone-aware ISO value; best-supported estimate
-   2026-08-13T02:00:00Z = 10:00 UTC+8, graded in docs/contest-official-ti15.md sec 5).
-3. A universe refreshed through the cutoff (the official freshness gate blocks a stale run; the
-   Aug 1-13 gap is known to matter - e.g. 1w Team's current event form).
+1. The official pods and round-1 pairings (draw.json), expected ~2026-08-11 (TI2025 lead ~47 h; not
+   yet published as of 2026-08-09). Machine-readable source: the league feed (league_id 19719, see
+   ti_predict/contest_rules.LEAGUE_FEED_URL) - poll until round-1 nodes carry team ids.
+2. The exact in-client lock timestamp (a timezone-aware ISO value; Tier-1-supported estimate
+   2026-08-13T02:00:00Z = 10:00 UTC+8, graded in docs/contest-official-ti15.md sec 5; the in-client
+   countdown is the final authority).
+3. A universe refreshed through the cutoff (rehearsed 2026-08-09: takes ~25 min; the freshness gate
+   blocks a stale run, and scan truncation now fails closed). The final Aug 10-13 matches still need
+   one incremental scan on lock day. Boundary slots that the refit will decide: Falcons/BetBoom vs
+   Yandex (top), OG vs GamerLegion (bottom), Nigma (middle).
 
 ## Residual assumptions (documented and sensitivity-checked)
 - C5 pairing tie-break: sample among rule-legal pairings (fewest rematches, then the gap objective,

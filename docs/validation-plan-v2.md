@@ -172,6 +172,15 @@ results: backtest2/results-prelock-research.md):
   production model REMAINS identity side-neutral B-bt hl=90. One decision-layer change promoted with
   held-out evidence: the verified expected-points refinement (fail-safe; Hungarian stands unless an
   independent archive confirms > 2 se paired gain). Lock estimate corrected to 02:00 UTC.
+- **2026-08-09 (second pass) - adversarial validation round closed**
+  (backtest2/results-adversarial.md). points_refinement KEPT after refutation testing, with its
+  effect size CORRECTED from +18.3 to about +6.5 +/- 1.0 (winner's curse quantified; 0/30 harmful
+  adoptions; 120k sims recommended at lock for gate power). Ridge-shrinkage challenger (lam grid)
+  FAILED the gate (11/23 fold wins, CI spans zero) - keep lam=1. Ensemble audit found no defect.
+  Solver: no gap beyond pairwise swaps (annealing/multi-start/3-cycle identical). Lock time upgraded
+  to Tier-1 Valve evidence (02:00 UTC reading). Refresh rehearsal fixed two real pipeline defects
+  (console-encoding crash; silent scan truncation - now fail-closed). Rosters: all 16 unchanged
+  through 2026-08-09.
 
 ## 8. Anti-leakage checklist (every run asserts/records)
 cutoff timestamp; training set ends < cutoff; rosters as-of-lock; params chosen from earlier events
