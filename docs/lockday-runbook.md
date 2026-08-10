@@ -21,7 +21,8 @@ submit >= 1 h early - a published schedule can move.
 
 ## Steps
 1. **Refresh the pro-match universe.**
-   `python -m ti_predict.scan_promatches` (deep scan, merges, fails closed on coverage regression)
+   `python -m ti_predict.scan_promatches` (deep scan, merges, fails closed on coverage regression;
+   also writes `processed/scan_provenance.json`, which the freshness override in step 5 requires)
    -> `python -m ti_predict.resolve_identity` (re-resolves ids/rosters; merges the scan, writes only
    `processed/identity_resolved.csv`, exits non-zero unless all 16 five-player rosters resolve)
    -> `roster_coverage` -> `build_canonical` -> `universe` -> `build_dataset` -> `universe` again.
@@ -49,22 +50,34 @@ submit >= 1 h early - a published schedule can move.
 4. **Confirm the exact lock time** from the in-client countdown (hour:minute, timezone). Expected
    2026-08-13T02:00:00Z.
 5. **Run the official slate** (only once every gate is satisfied):
-   `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 140000`
-   `--sims` is the TOTAL simulation count, split evenly across the admissible memberships. 120000 is
-   the floor set by points-refinement gate power (about 94% there vs about 80% at the 40000 default,
-   backtest2/results-adversarial.md). With the membership unresolved use **at least 140000** (4000
-   per membership): the membership gate compares 35 held-out regret estimates, and below roughly
-   4000 each it blocks on Monte-Carlo noise rather than on a real effect (measured 2026-08-10:
-   0.206 at 500/membership, 0.064 at 1000, 0.032 at 4000, against a 0.05 limit). Once the membership
-   is published there is only one structure and 120000 is enough.
-   **Freshness override.** If no professional match is played between the universe's latest map and
-   the lock, the 3-day freshness gate will block a genuinely up-to-date universe. Only then append
-   `--allow-stale`, and only after re-running step 1 and confirming the scan found nothing newer.
-   The manifest records `provenance.freshness_gate.overridden = true`, so the override is never
-   silent.
-   **On `git_dirty`.** The run stamps `provenance.git_dirty` from `git status --porcelain`, which
-   counts the run's own not-yet-committed output file. A `true` there is expected; check the actual
-   `git status` and confirm that the ONLY dirty entry is the new artifact.
+   - pod membership **CONFIRMED** -> `--sims 120000`
+     `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 120000`
+   - pod membership **UNRESOLVED** -> `--sims 280000` (the recommended lock-day value)
+     `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 280000`
+
+   `--sims` is the TOTAL simulation count, split evenly across the admissible memberships.
+   **120000** is the floor set by points-refinement gate power (about 94% there vs about 80% at the
+   40000 default, backtest2/results-adversarial.md) and is sufficient once there is a single
+   structure. With the membership unresolved, **140000 (4000 per membership) is the calibrated
+   MINIMUM** - the membership gate compares 35 held-out regret estimates and below roughly 4000 each
+   it blocks on Monte-Carlo noise rather than on a real effect (measured 2026-08-10: 0.206 at
+   500/membership, 0.064 at 1000, 0.032 at 4000, against the 0.05 limit) - and **280000 (8000 per
+   membership) is the RECOMMENDED lock-day value**, which took the same measurement to 0.020 and cuts
+   per-cell Monte-Carlo error on the thin top and bottom boundaries. Neither number is a model
+   constant or a gate: `POD_MEMBERSHIP_REGRET_MAX` and the refinement threshold are unchanged.
+   **Freshness override.** If no professional match is played between the newest eligible match and
+   the lock, the 3-day recency gate will block a genuinely up-to-date universe. Only then append
+   `--allow-stale`. It is not an assertion the operator makes: the run reads
+   `processed/scan_provenance.json` (written by step 1) and refuses the override unless that file is
+   present, well-formed, `coverage_complete = true`, no older than 3 days, and describing at least
+   the data the universe holds. The manifest then records `stale_override_used` together with a
+   reason built from those recorded facts, and keeps data-coverage freshness and latest-match
+   recency as separate fields.
+   **On the git fields.** `provenance.git_commit_at_start` / `git_dirty_at_start` are sampled
+   BEFORE any work, so they describe the tree the run started from and nothing the run writes can
+   change them. Start the final official run from a clean tree: `git_dirty_at_start` must be
+   `false` in the emitted manifest. A `true` there means real uncommitted code or inputs - commit or
+   stash them and re-run rather than explaining it away.
 6. **Read + submit.** Outputs at `predictions/ti2026/group-stage/ti15_group_prediction.{json,md}`.
    Fill the client's 16 slots from the slate: 4-0 x1, 4-1 x2, decider_win x5, decider_loss x5,
    1-4 x2, 0-4 x1. Buckets flagged [selection-sensitive] are the least certain (mid-table). Submit
@@ -84,8 +97,9 @@ submit >= 1 h early - a published schedule can move.
   membership would beat the marginalized slate by more than
   `contest_rules.POD_MEMBERSHIP_REGRET_MAX` expected correct (held-out);
 - the roster audit must have no CONFLICT / UNRESOLVED team;
-- the local universe must be fresh: latest map within 3 days of the cutoff, else blocked (override
-  with `--allow-stale`, which is recorded in the manifest);
+- the newest eligible professional match must be within 3 days of the cutoff, else blocked;
+  `--allow-stale` is accepted only when `processed/scan_provenance.json` records a complete, current
+  scan, and the manifest then carries `stale_override_used` plus a reason built from that record;
 - the run records provenance in the manifest: universe rows + latest-map time, SHA-256 of
   teams.csv / canonical_identity.csv / universe_maps.csv / draw.json, git commit + dirty flag,
   draw publication status, and the roster audit.

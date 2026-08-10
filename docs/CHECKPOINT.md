@@ -1,142 +1,111 @@
-# AUTHORITATIVE PROJECT CHECKPOINT (updated 2026-08-10, post-round-1)
+# AUTHORITATIVE PROJECT CHECKPOINT (frozen 2026-08-10, pre-lock-day)
 
 Single source of truth for the frozen state. Do not reinterpret, reopen, or silently modify a frozen
 decision. Git history and committed documents govern.
 
 ## Status
-Pipeline built, validated, hard-gated, adversarially re-validated (backtest2/results-adversarial.md,
-2026-08-09) and now advanced to the POST-ROUND-1 state (backtest2/results-post-r1.md, 2026-08-10):
-- **Round 1 is official and ingested.** Valve's league feed published all eight pairings; they are
-  parsed by ti_predict/league_feed.py into data/ti2026/inputs/draw.json and every team id resolves
-  through canonical_identity.csv. The same feed's scheduled_time upgrades the lock time to a second
-  independent Tier-1 confirmation of 2026-08-13T02:00:00Z.
-- **The two-pod STRUCTURE is an official rule; only the pod MEMBERSHIP is unpublished.** The rules
-  page states that round 1 splits the field into two initial groups, rounds 2-3 pair inside a team's
-  group and round 4 pairs across. The league feed carries no pod field, which means the MEMBERSHIP is
-  absent there - not that the format is an undivided Swiss. The draw therefore records three separate
-  facts (structure / structure_status / pod_membership_status), and an official run with an
-  unresolved membership MARGINALIZES over the 35 round-1-compatible memberships, records that in the
-  manifest, and is blocked only if the membership would materially change the slate. The open-16 pool
-  is demoted to a sensitivity comparator and is refused in official mode.
-- **One lock-period roster change** (LGD position 2, TaiLung banned -> Topson), recorded with full
-  provenance in data/ti2026/inputs/roster_events.csv; the other 15 lineups are confirmed unchanged
-  and the Team Liquid source conflict is resolved from match data (Nisha).
-- **Two more real pipeline defects found and fixed** during the refresh (see Code state).
-- The model, half-life, calibration, solver and refinement are UNCHANGED; nothing was re-tuned.
-No OFFICIAL prediction emitted; the provisional slate under backtest2/post_r1.py is research. On the
-day, follow docs/lockday-runbook.md.
+The repository is FROZEN until the lock-day final run. A submission-grade candidate has passed every
+production gate, and the only work left is the lock-day re-verification listed at the bottom.
 
-## Frozen model and parameters
-- Production model: identity side-neutral Bradley-Terry (B-bt).
-- Time-decay half-life: 90 days (ti_predict/contest_rules.PRODUCTION_HALF_LIFE_DAYS), applied
-  explicitly in the production path (not an implicit default).
-- Map probability: side-neutral 0.5*(sigmoid(d+c) + sigmoid(d-c)), d = strength_a - strength_b,
-  c = train-only radiant coefficient at the cutoff (about +0.09).
-- No Platt or temperature calibration layer.
-- Selection basis: event-frozen rolling backtest (B-bt beats plain Elo in 17/23 folds). The D2 nested
-  half-life sweep found no significant out-of-sample gain over 90 (pooled -0.0014, event-blocked 95%
-  CI includes 0, 12/23 fold-wins); D3 (TI2024/TI2025 outer validation) was deferred on cost. hl=90 is
-  locked as production.
-- 2026-08-09 challenger round: logit ensembles with A-elo / B-eloTD / C-glicko2 (fixed and
-  prequential weights) are ALL out-of-sample WORSE than pure B-bt (blocked CIs exclude 0); the
-  no-lookahead adaptive selector chose pure B-bt in 23/23 folds. No challenger reached the promotion
-  gate; the model freeze stands on evidence, not inertia.
-- Decision layer (2026-08-09, adversarially audited): the Hungarian max-expected-correct slate plus
-  a VERIFIED expected-points refinement - a swap search proposes a slate, adopted only if an
-  independent verification archive shows a paired points gain > 2 bootstrap se. Corrected evidence:
-  true effect about +6.5 +/- 1.0 points on fresh archives (the originally reported +18.3 was a
-  winner's-curse-typical high draw); 0 harmful adoptions in 30 end-to-end replications; the
-  manifest's recorded gain is adoption-conditioned (about 1.7x optimistic). Official run uses
-  --sims 120000 for ~94% gate power. Fail-safe default is the Hungarian slate.
-- Official constants are centralized in ti_predict/contest_rules.py.
+## Frozen production specification
+- Model: identity side-neutral Bradley-Terry (B-bt); ridge lambda = 1.
+- Time-decay half-life: 90 days (`contest_rules.PRODUCTION_HALF_LIFE_DAYS`), applied explicitly.
+- Map probability: side-neutral `0.5*(sigmoid(d+c) + sigmoid(d-c))`, `d = strength_a - strength_b`,
+  `c` = train-only radiant coefficient at the cutoff (currently +0.0932).
+- Calibration: none (no Platt, no temperature).
+- Solver: Hungarian max-expected-correct, then the independently verified `points_refinement`
+  (adopted only if a separate verification archive shows a paired gain > 2 bootstrap se).
+- D4 opponent choice: strategic primary; noisy / random reported as common-random-numbers sensitivity.
+- Market odds: diagnostic only, never fused, never a promotion input.
+- LGD / Topson: no manual signed strength adjustment; a player-aware production adjustment remains
+  inadmissible before TI2026.
+- Selection evidence and the closed challenger rounds: `docs/validation-plan-v2.md`,
+  `backtest2/results-adversarial.md`, `backtest2/results-post-r1.md`.
 
-## Prediction target (group stage)
-Full 16-slot classification: 4-0 x1, 4-1 x2, decider_win x5, decider_loss x5, 1-4 x2, 0-4 x1. Scored
-by number correct; the points curve is convex, with no wrong-answer penalty, no underdog weighting,
-and no crowd percentages (the client exposes none). Verified rules: docs/contest-official-ti15.md.
+## Event facts as of the freeze
+- **Round 1: OFFICIAL.** All eight pairings from Valve's league feed (league_id 19719), every team id
+  resolved through `canonical_identity.csv` `source_team_ids`; parsed into
+  `data/ti2026/inputs/draw.json` by `ti_predict/league_feed.py`.
+- **Lock time: 2026-08-13T02:00:00Z** (10:00 UTC+8), Tier-1 from two independent Valve channels
+  (blog wording and the feed's `scheduled_time` on every round-1 node). The in-client countdown is
+  still the final check on the day.
+- **Two-pod structure: CONFIRMED** by the official TI15 rules page (round 1 splits the field into two
+  initial groups and pairs within them; rounds 2-3 pair inside a team's group; round 4 pairs across).
+- **Pod membership: UNRESOLVED.** No source publishes the eight-team split; the feed's lack of a pod
+  field is a gap in the feed, not evidence about the format. The official run marginalizes over the
+  35 memberships compatible with round 1. `open-16` is a sensitivity comparator and is refused in
+  official mode.
+- **LGD Gaming position 2: TaiLung (banned for tournament integrity) -> Topson**, recorded with full
+  provenance in `data/ti2026/inputs/roster_events.csv` (account ids 1026694469 -> 94054712). The
+  other 15 lineups are CONFIRMED unchanged; the Team Liquid Nisha / Miracle! source conflict is
+  resolved (Nisha, from match data). Note `canonical_identity.csv` is the OBSERVED five from match
+  data, so it still lists TaiLung by construction - `roster_events.csv` is the roster of record.
+
+## Current submission-grade candidate
+- Artifact: `predictions/ti2026/group-stage/candidates/ti15_group_candidate_20260810T095746Z.{json,md}`
+  (JSON is the fact source; the Markdown is rendered from it).
+- Generated at commit `7a767c7`, cutoff 2026-08-13T02:00:00Z, seed 20260813, **280000 simulations**
+  over 35 admissible pod memberships, E[correct] 5.249.
+- Gates: all passed. Membership agreement 14/35 identical slates, max held-out regret 0.0199 against
+  the 0.05 limit; `points_refinement` proposed no move (Hungarian stands); D4 zero slot changes.
+- **Slate (0 slot changes from the post-round-1 provisional):** 4-0 PARIVISION; 4-1 Team Yandex,
+  BetBoom Team; decider_win Team Falcons, Aurora Gaming, Team Spirit, Team Liquid, Nigma Galaxy;
+  decider_loss Xtreme Gaming, Vici Gaming, Tundra Esports, LGD Gaming, Team Resilience; 1-4 HULIGANI,
+  GamerLegion; 0-4 OG.
+- The candidate is NOT the final run and never occupies the official path or label.
+
+## Simulation count doctrine (not a model constant, not a gate)
+- Pod membership CONFIRMED: `--sims 120000` (the floor set by points-refinement gate power).
+- Pod membership UNRESOLVED: **140000 is the calibrated minimum** (4000 per membership; below that
+  the membership gate blocks on Monte-Carlo noise) and **280000 is the recommended lock-day value**
+  (8000 per membership). `POD_MEMBERSHIP_REGRET_MAX` and the refinement threshold are unchanged.
+
+## Freshness override: strict conditions
+`--allow-stale` is a request to check, not a claim. In gated modes the run reads
+`processed/scan_provenance.json` (written by `scan_promatches`) and refuses the override unless it is
+present, well-formed, `coverage_complete = true`, no older than `STALE_MAX_DAYS`, and describing at
+least the data the universe holds. The manifest then records `stale_override_used` plus a reason
+built from those facts, and keeps **data-coverage freshness** and **latest-eligible-match recency**
+as separate fields.
+
+## Provenance semantics
+`provenance.git_commit_at_start` / `git_dirty_at_start` are sampled BEFORE any work: they describe
+the tree the run started from, and nothing the run writes can change them. Start the final official
+run from a clean tree so the emitted manifest carries `git_dirty_at_start = false`. A dirty start is
+a warning, not a hard block - that policy is unchanged.
 
 ## Code state
-- ti_predict/swiss.py: rules-based Swiss + decider simulator; structural invariant asserted per run;
-  common-random-numbers D4 sensitivity.
-- ti_predict/assign.py: Hungarian max-expected-correct 16-slot solver.
-- ti_predict/predict_ti15.py: hard-gated entry (dry-run vs official) with provenance manifest; the
-  gate now also blocks an unconfirmed pairing structure, the open-16 comparator, an unresolved roster
-  audit, and a pod membership whose resolution would materially change the slate; it marginalizes an
-  unresolved membership and records the freshness-gate override instead of allowing a silent one.
-- ti_predict/league_feed.py: parses the official league feed into the posted draw; never infers pods.
-- ti_predict/rosters.py + inputs/roster_events.csv: the tracked 16-team roster audit.
-- ti_predict/swiss.py: enumerates the admissible two-pod memberships for a posted round 1, and can
-  also simulate the open 16-team pool (pods=(teams,)) as a sensitivity comparator only.
-- backtest2/post_r1.py: R1-fixed / pods-latent provisional prediction (research).
-- backtest2/roster_sensitivity.py: bootstrap-calibrated roster-uncertainty study.
-- backtest2/market_check.py: market anomaly check, diagnostic only.
-- backtest2/compare_policies.py: model-conditional policy study (max-correct equals max-points here).
-- Pipeline defects fixed 2026-08-10 (both would have corrupted a lock-day run):
-  (1) resolve_identity.py overwrote raw/promatches_scan.json with its own 30-page scan, truncating
-      the rating universe from 9146 maps (2026-02-27..) to 3000 (2026-05-17..) -- the same silent
-      truncation seen on 2026-08-09, whose real cause was this module, not scan_promatches.py. It now
-      MERGES and refuses to write on any coverage regression.
-  (2) resolve_identity.py also wrote the tracked inputs/canonical_identity.csv in its intermediate
-      schema, so a partial run (an OpenDota 5xx burst emptied 14 of 16 rosters) erased every
-      source_team_ids mapping -- the column through which the rating universe resolves TI
-      organizations. It now writes only processed/identity_resolved.csv and exits non-zero on an
-      incomplete resolution; build_canonical.py is the single writer of the tracked table.
-  Also corrected: inputs/folds.csv and universe_maps.csv is_target had been generated against a stale
-  dataset_maps.csv (11 folds instead of 23). Rebuilt to a verified fixed point. Production strengths
-  are provably unaffected -- is_target is used only to build the fold table, and refitting from the
-  pre-refresh universe reproduces all 16 strengths bit-identically.
-- Current code: the post-round-1 commit on main (this file's commit); prior freeze 825c68c.
+- `ti_predict/`: `swiss.py` (rules-based Swiss + decider; admissible-membership enumeration; the
+  open-16 comparator), `assign.py` (Hungarian), `predict_ti15.py` (three gated modes: dry-run /
+  candidate / official), `league_feed.py` (official draw ingest), `rosters.py` (roster audit),
+  `contest_rules.py` (all official constants), plus the data layer.
+- `backtest2/`: `post_r1.py` (membership-marginalized research), `roster_sensitivity.py`,
+  `market_check.py`, and the closed study modules.
+- Pipeline defects found and fixed during the lock-period rounds, all of the same class (a partial
+  result being written silently): `resolve_identity` overwriting the deep pro-match scan;
+  `resolve_identity` overwriting the tracked canonical identity table on a partial run;
+  `roster_coverage` dropping organizations on transient API errors; a stale fold table; and a
+  cross-drive `relpath` crash after a successful `--out` run. Each now fails closed, with tests.
 
-## Tests (pytest) - all passing
-tests/ holds 43 tests: official constants; map_pn side-neutral symmetry; structural 1/2/5/5/2/1
-invariant; probability row and column sums; fixed-seed reproducibility; CRN D4 sensitivity capacities;
-assignment capacity and expected-correct accounting; cutoff format and timezone gate; draw-file valid
-and invalid boundaries; manifest required fields (incl. points_refinement); JSON/Markdown consistency;
-pre-draw pod-sampling validity; simulation-archive/P consistency; ensemble mixing endpoints; the
-refinement adopt/reject/no-move rules; failure modes (corrupt/non-object draw JSON, repeated team in
-round 1, missing pods, missing universe, CLI-level official block); B-bt 16-team mapping
-(auto-skipped without the local universe).
-Run: python -m pytest -q
-Also: python -m ti_predict.swiss ; python -m ti_predict.assign ; python -m ti_predict.predict_ti15 --dry-run
+## Tests
+`python -m pytest -q` -> **85 passed** (data-dependent tests auto-skip on a clean clone). Coverage
+includes: official constants; simulator structure and both pod structures; assignment; the three
+gated modes; draw structure / membership semantics; roster audit; scan provenance and the freshness
+override (missing, malformed, incomplete-coverage, stale); git provenance field naming; membership
+marginalization and its regret measurement; failure modes.
+Also: `python -m ti_predict.swiss`, `... .assign`, `... .league_feed`, `... .rosters`,
+`... .predict_ti15 --dry-run`.
 
-## Public-repo reproducibility boundary
-- A clean clone reproduces: install (requirements.txt), imports, simulator/solver self-tests, the
-  synthetic dry-run, and the full pytest suite (data-dependent tests auto-skip).
-- The real B-bt path needs the gitignored processed universe
-  (data/ti2026/processed/universe_maps.csv), regenerated per docs/lockday-runbook.md
-  (fetch_opendota -> resolve_identity / roster_coverage -> build_canonical -> universe ->
-  build_dataset). Without it the bt path raises a clear error; the public repo alone cannot
-  reconstruct unpublished match data.
-
-## Lock-day single command
-After refreshing data through the cutoff and entering the posted draw (docs/lockday-runbook.md):
-python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 120000
-
-## External inputs still required
-1. The official pods and round-1 pairings (draw.json), expected ~2026-08-11 (TI2025 lead ~47 h; not
-   yet published as of 2026-08-09). Machine-readable source: the league feed (league_id 19719, see
-   ti_predict/contest_rules.LEAGUE_FEED_URL) - poll until round-1 nodes carry team ids.
-2. The exact in-client lock timestamp (a timezone-aware ISO value; Tier-1-supported estimate
-   2026-08-13T02:00:00Z = 10:00 UTC+8, graded in docs/contest-official-ti15.md sec 5; the in-client
-   countdown is the final authority).
-3. A universe refreshed through the cutoff (rehearsed 2026-08-09: takes ~25 min; the freshness gate
-   blocks a stale run, and scan truncation now fails closed). The final Aug 10-13 matches still need
-   one incremental scan on lock day. Boundary slots that the refit will decide: Falcons/BetBoom vs
-   Yandex (top), OG vs GamerLegion (bottom), Nigma (middle).
-
-## Residual assumptions (documented and sensitivity-checked)
-- C5 pairing tie-break: sample among rule-legal pairings (fewest rematches, then the gap objective,
-  then random) - the organizer's exact tie-break is unpublished.
-- D4 decider opponent choice: strategic (strongest available opponent) is primary; noisy and random
-  are reported as common-random-numbers sensitivity.
-- Ranking tiebreaker 6 (average game duration) is unmodeled and folded into the coin toss; the
-  measured rate at which it would decide anything is negligible.
-- The simulator is structural/property-tested; it does not claim to replicate the organizer's
-  unpublished pairing decisions.
-- The main-event (14-series) track is deferred until the group draw is set.
-- Historical D3 (TI2024/TI2025) is archived: manifests, framework, and the pre-registered switch rule
-  are retained for a possible future run.
+## Lock-day final run - the only remaining work
+1. Confirm the exact in-client lock countdown (expected 2026-08-13T02:00:00Z).
+2. Re-check whether the pod membership has been published; if so fill `podA`/`podB` and set
+   `pod_membership_status = confirmed`.
+3. Run the full fail-closed data refresh (`docs/lockday-runbook.md` step 1) so any 2026-08-10..13
+   matches are included and the scan provenance is current.
+4. Re-verify all 16 rosters and update `roster_events.csv`.
+5. Run `--official` from a clean tree with the sims count for the membership state, then submit the
+   slate exactly as printed, at least an hour before the lock.
 
 ## Discipline
-Conventional Commits, subject <=72 characters and ASCII (hook-enforced). Production is never updated
+Conventional Commits, subject <= 72 characters and ASCII (hook-enforced). Production is never updated
 from crowd percentages, odds, or results, and is not re-tuned on TI2024/TI2025 outcomes.

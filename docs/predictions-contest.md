@@ -44,7 +44,7 @@ paywall this year).
 - **[TBD] The full tier ladder** (what ranks/percentiles below top-100 receive) and **per-question
   points** are **in-client only** — need a screenshot of the in-game Rewards section.
 
-## ⚠️ Reality check on "top 5% / get everything" — corrected
+## Reality check on "top 5% / get everything" - corrected
 - **The official text has NO "top 5%" tier.** The "get everything" threshold is **top 100 of the
   global rank** — an absolute count, not a percentile.
 - TI Predictions draws **millions** of players, so **top 100 is a near-lottery at the extreme tail**:

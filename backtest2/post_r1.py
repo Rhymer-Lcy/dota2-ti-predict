@@ -1,9 +1,9 @@
 """R1-fixed / pods-latent provisional group-stage prediction (RESEARCH, never OFFICIAL).
 
-State it models: Valve's league feed publishes the eight round-1 pairings (r1_status=official) but no
-pod partition (pods_status=unresolved). The official pipeline fails closed on that, and rightly so.
-This runner answers the question the frozen pipeline cannot yet answer -- what the slate looks like
-with the REAL round 1 fixed and the pod structure marginalized out.
+State it models: Valve's league feed publishes the eight round-1 pairings
+(r1_status=official) but not the pod membership (pod_membership_status=unresolved).
+This runner shows what the slate looks like with the REAL round 1 fixed and the pod
+membership marginalized out, alongside the no-pod comparator.
 
 What is uncertain is the pod MEMBERSHIP, not the structure. The official TI15 rules state the
 two-pod format: round 1 splits the 16 into two initial groups and pairs within them, rounds 2-3 pair

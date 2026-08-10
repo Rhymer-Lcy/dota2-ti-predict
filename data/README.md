@@ -5,7 +5,18 @@ Beijing-time / TI-year namespaced so a future edition drops in cleanly as `data/
 ```
 ti2026/
   inputs/      # TRACKED (small, hand-entered, irreplaceable)
-    teams.csv          # the 16-team field + qualification + (to fill) OpenDota team_id
+    teams.csv          # the 16-team field + qualification + OpenDota team_id
+    canonical_identity.csv  # OBSERVED identity: the five account_ids actually seen on each org's
+                       # side in recent professional matches, plus every source_team_id that roster
+                       # used. It is DERIVED FROM MATCH DATA, so a player who joins days before the
+                       # event is absent from it by construction (LGD still shows TaiLung there).
+                       # The event roster of record is roster_events.csv.
+    roster_events.csv  # the lock-period roster audit: one row per organization with its status
+                       # (CONFIRMED / CHANGED / CONFLICT / UNRESOLVED) and, for a change, the full
+                       # provenance. This is where LGD's TaiLung -> Topson change lives, and the
+                       # official run is blocked by a CONFLICT or UNRESOLVED row.
+    draw.json          # the posted draw parsed from the official league feed: round-1 pairings,
+                       # structure / structure_status / pod_membership_status, and their evidence.
     odds-*.csv         # transcribed bookmaker / in-client odds per series (add as screenshots arrive)
     questions-*.csv    # the contest's prediction questions + point values (from the client)
   raw/         # GITIGNORED (large, regenerable): raw OpenDota / STRATZ API pulls (json)
