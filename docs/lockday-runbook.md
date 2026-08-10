@@ -62,6 +62,9 @@ submit >= 1 h early - a published schedule can move.
    `--allow-stale`, and only after re-running step 1 and confirming the scan found nothing newer.
    The manifest records `provenance.freshness_gate.overridden = true`, so the override is never
    silent.
+   **On `git_dirty`.** The run stamps `provenance.git_dirty` from `git status --porcelain`, which
+   counts the run's own not-yet-committed output file. A `true` there is expected; check the actual
+   `git status` and confirm that the ONLY dirty entry is the new artifact.
 6. **Read + submit.** Outputs at `predictions/ti2026/group-stage/ti15_group_prediction.{json,md}`.
    Fill the client's 16 slots from the slate: 4-0 x1, 4-1 x2, decider_win x5, decider_loss x5,
    1-4 x2, 0-4 x1. Buckets flagged [selection-sensitive] are the least certain (mid-table). Submit
