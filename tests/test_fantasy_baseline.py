@@ -133,21 +133,25 @@ def test_the_slot_count_is_known_to_grow_with_tablet_level():
     assert g["status"] == "CONFIRMED" and g["period_1_slot_count"] is None
 
 
-def _full_rows(sid, n_maps, acct=1):
+def _full_rows(sid, n_maps, acct=1, league="L"):
     rows = []
     for i in range(n_maps):
-        rows.append(_row(match_id=f"{sid}{i}", _series=sid, account_id=acct,
-                         last_hits=300 + i, denies=0, kills=5 + i, towers_killed=2, deaths=2,
-                         gold_per_min=600, madstone=0, roshans_killed=1,
-                         teamfight_participation=0.7, stuns=10, firstblood_claimed=0,
-                         courier_kills=0, obs_placed=3, camps_stacked=4, rune_pickups=5,
-                         smokes_used=1))
+        r = _row(match_id=f"{league}{sid}{i}", _series=f"{league}{sid}", account_id=acct,
+                 last_hits=300 + i, denies=0, kills=5 + i, towers_killed=2, deaths=2,
+                 gold_per_min=600, madstone=0, roshans_killed=1,
+                 teamfight_participation=0.7, stuns=10, firstblood_claimed=0,
+                 courier_kills=0, obs_placed=3, camps_stacked=4, rune_pickups=5,
+                 smokes_used=1)
+        r["_league"] = league
+        rows.append(r)
     return rows
 
 
 def test_a_banner_never_carries_the_same_stat_twice():
     """Core is red/green/red, so the two red slots need two DISTINCT red stats."""
-    env = bl.envelope(_full_rows("s", 3), {"Org": {"core": [1]}}, R, "sum", False)
+    # two leagues, because a role is not ranked on a single event's worth of games
+    rows = _full_rows("s", 3, league="L1") + _full_rows("s", 3, league="L2")
+    env, _excluded = bl.envelope(rows, {"Org": {"core": [1]}}, R, "sum", False)
     assert len(env) == 1
     stats = env[0]["stats"]
     assert len(stats) == 3 and len(set(stats)) == 3
@@ -167,7 +171,7 @@ def test_the_banner_is_scored_on_one_series_not_a_sum_of_each_stats_best_series(
               towers_killed=0, deaths=0, gold_per_min=0, madstone=0, roshans_killed=0,
               teamfight_participation=0, stuns=0, firstblood_claimed=0, courier_kills=0)
          for i in range(2)]
-    table = bl.series_table(a + b, {1}, R, "sum", False)
+    table, _sample = bl.series_table(a + b, {1}, R, "sum", False)
     both = bl.banner_period_scores(table, ("creep_score", "kills"))["L"]
     cs = bl.banner_period_scores(table, ("creep_score",))["L"]
     kills = bl.banner_period_scores(table, ("kills",))["L"]

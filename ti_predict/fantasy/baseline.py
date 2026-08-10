@@ -30,6 +30,7 @@ import random
 import statistics
 from collections import defaultdict
 
+from ti_predict.fantasy import build_roster_positions as brp
 from ti_predict.fantasy import questions as fq
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -42,6 +43,9 @@ ROSTER_EVENTS = os.path.join(INPUTS, "roster_events.csv")
 
 SEED = 20260813
 BOOTSTRAP = 400
+# A role needs qualifying series from at least this many distinct events before it is
+# ranked. One event is a single field on a single patch, which is not a sample.
+MIN_EVENTS = 2
 # The stat a fantasy emblem tracks, expressed over the columns this project actually fetches.
 # Watchers and Lotuses are absent by construction: no public source carries them per player.
 STAT_COLUMNS = {
@@ -74,18 +78,14 @@ def load_rules(path=None):
             "deaths_credit": coef["deaths"]["starting_points"]}
 
 
-def roster_override(path=None):
-    """outgoing account id -> incoming account id, from the tracked lock-period roster audit.
+def excluded_accounts(path=None):
+    """Account ids that may never enter a fantasy roster, from the tracked position table.
 
-    Without this the baseline would rank a player who is not eligible to play: canonical_identity
-    is derived from match data, so a replacement signed days before the event is simply absent
-    from it while the departed player is still present.
+    A player replaced before the event is marked inactive there. His history must not be scored for
+    the organisation and must not be inherited by his replacement: the replacement is a different
+    player, and pretending otherwise would put a number on someone who has not played.
     """
-    from ti_predict import rosters
-    audit = rosters.roster_audit(path)
-    return {int(c["outgoing"]["account_id"]): (int(c["incoming"]["account_id"]),
-                                               c["incoming"]["player"], c["organization"])
-            for c in audit["changed"]}
+    return brp.inactive_accounts(path)
 
 
 def load_stats(stats_path=None, universe_path=None):
@@ -99,7 +99,7 @@ def load_stats(stats_path=None, universe_path=None):
     with open(universe_path, encoding="utf-8") as fh:
         for r in csv.DictReader(fh):
             series[int(r["match_id"])] = (r["leagueid"], r["series_id"] or f"m{r['match_id']}")
-    swap = roster_override()
+    inactive = excluded_accounts()
     rows, dropped = [], 0
     with open(stats_path, encoding="utf-8") as fh:
         for r in csv.DictReader(fh):
@@ -110,26 +110,35 @@ def load_stats(stats_path=None, universe_path=None):
             if mid not in series:
                 dropped += 1
                 continue
-            acct = int(r["account_id"])
-            if acct in swap:
-                # The departed player's history must not be inherited by the replacement, and must
-                # not be scored for the organisation either. Drop it and let the sample speak.
+            if int(r["account_id"]) in inactive:
                 dropped += 1
                 continue
             r["_league"], r["_series"] = series[mid]
             rows.append(r)
     if not rows:
         raise SystemExit("no parsed player-map rows survived filtering")
-    return rows, dropped, swap
+    return rows, dropped, inactive
 
 
-def assign_roles(rows):
-    """Split each organisation's players into the fantasy roles: 2 core, 1 mid, 2 support.
+def roles_from_roster(path=None):
+    """The authoritative role mapping: Core = positions 1 and 3, Mid = 2, Support = 4 and 5.
+
+    Read from the tracked position table, which is built from the roster of record. Positions are a
+    fact about the roster; they are never recovered from statistics here.
+    """
+    return brp.load_positions(path)
+
+
+def assign_roles_from_statistics(rows):
+    """EXPLORATORY ONLY -- guesses roles from play patterns. NOT an input to any ranking.
+
+    Kept for one purpose: checking that the authoritative table's roles are consistent with how the
+    players actually play, so a transcription error in the position table would show up rather than
+    propagate. If this disagrees with the roster of record, the roster of record wins and the
+    disagreement is a signal to re-check the table, never a reason to override it.
 
     Rule, in order: rank by median last hits per map; the two highest are the cores, the two lowest
-    are the supports, and of the remaining pair the mid is whichever bottles more runes. Reported
-    with the margin that separated the mid from the offlaner so a thin call is visible rather than
-    silent.
+    are the supports, and of the remaining pair the mid is whichever bottles more runes.
     """
     by_org = defaultdict(lambda: defaultdict(list))
     names = {}
@@ -223,36 +232,68 @@ def role_period_scores(rows, accounts, stat, rules, top_two, deaths_floor,
 
 def series_table(rows, accounts, rules, top_two="sum", deaths_floor=False, min_series_maps=2,
                  tfp_curve="linear"):
-    """{league: {series: {stat: role score for that series}}} -- the per-series layer, kept whole.
+    """{league: {series: {stat: role score}}} plus a sample accounting -- the per-series layer.
 
-    Kept whole because a War Banner is scored as ONE thing. Taking the best series separately for
-    each emblem and adding those up is a sum of maxima, which is not reachable: the period keeps a
-    single series and every emblem on the banner scores from that same series. Only after the
-    banner's stats are chosen can the maximum be taken.
+    Two rules are enforced here and both change the numbers materially.
+
+    Kept whole: a War Banner is scored as ONE thing. Taking the best series separately for each
+    emblem and adding those up is a sum of maxima, which is not reachable, because the period keeps
+    a single series and every emblem scores from that same series.
+
+    Complete pair only: a Core or Support role scores the MEAN OF ITS TWO PLAYERS. A map on which
+    only one of the current pair appears is not an observation of that pair -- averaging over
+    whoever happened to be there silently substitutes a one-player score for a two-player one, which
+    inflates nothing and deflates nothing predictably, it just measures a different quantity. Such
+    maps are excluded and counted, not quietly averaged. Using history where the two never played
+    together requires a synthetic-pair model, which is a separate estimator and is labelled as one.
     """
     stats = [s for s in STAT_COLUMNS if s not in UNAVAILABLE]
+    need = len(accounts)
+    # league -> series -> match -> account -> {stat: score}
     per = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
     for r in rows:
-        if int(r["account_id"]) not in accounts:
+        acct = int(r["account_id"])
+        if acct not in accounts:
             continue
+        scored = {}
         for stat in stats:
             s = map_score(r, stat, rules, deaths_floor, tfp_curve)
             if s is not None:
-                per[r["_league"]][r["_series"]][stat].setdefault(r["match_id"], []).append(s)
+                scored[stat] = s
+        if scored:
+            per[r["_league"]][r["_series"]][r["match_id"]][acct] = scored
+    acct_sample = {"maps_seen": 0, "maps_complete_pair": 0, "maps_incomplete_pair": 0,
+                   "series_seen": 0, "series_eligible": 0, "events_eligible": 0}
     out = defaultdict(dict)
     for league, ser in per.items():
-        for sid, by_stat in ser.items():
-            maps = max((len(v) for v in by_stat.values()), default=0)
-            if maps < min_series_maps:
+        league_used = False
+        for sid, by_match in ser.items():
+            acct_sample["series_seen"] += 1
+            complete = []
+            for by_acct in by_match.values():
+                acct_sample["maps_seen"] += 1
+                if len(by_acct) == need:
+                    acct_sample["maps_complete_pair"] += 1
+                    complete.append(by_acct)
+                else:
+                    acct_sample["maps_incomplete_pair"] += 1
+            if len(complete) < min_series_maps:
                 continue
             row = {}
-            for stat, by_map in by_stat.items():
-                per_map = sorted((sum(v) / len(v) for v in by_map.values()), reverse=True)[:2]
-                if per_map:
-                    row[stat] = sum(per_map) if top_two == "sum" else sum(per_map) / len(per_map)
+            for stat in stats:
+                per_map = [sum(a[stat] for a in by_acct.values()) / need
+                           for by_acct in complete if all(stat in a for a in by_acct.values())]
+                if not per_map:
+                    continue
+                top = sorted(per_map, reverse=True)[:2]
+                row[stat] = sum(top) if top_two == "sum" else sum(top) / len(top)
             if row:
                 out[league][sid] = row
-    return {k: dict(v) for k, v in out.items()}
+                acct_sample["series_eligible"] += 1
+                league_used = True
+        if league_used:
+            acct_sample["events_eligible"] += 1
+    return {k: dict(v) for k, v in out.items()}, acct_sample
 
 
 def _combinations(colours, pools):
@@ -303,25 +344,37 @@ def envelope(rows, roles, rules, top_two="sum", deaths_floor=False, min_series_m
     combination is enumerated and scored as a unit; the counts are small (75 for core, 120 for mid,
     30 for support once the unobtainable stats are removed).
     """
-    res = []
+    names = brp.player_names()
+    res, excluded = [], []
     for org, assign in sorted(roles.items()):
-        for role, accounts in assign.items():
+        for role, accounts in sorted(assign.items()):
             colours = rules["layout"][role]
             acct = set(accounts)
-            table = series_table(rows, acct, rules, top_two, deaths_floor, min_series_maps,
-                                 tfp_curve)
+            table, sample = series_table(rows, acct, rules, top_two, deaths_floor,
+                                         min_series_maps, tfp_curve)
+            entry = {"organization": org, "role": role, "players": sorted(acct),
+                     "player_names": [names.get(a, str(a)) for a in sorted(acct)],
+                     "sample": sample}
             best = best_banner(table, colours, rules["pools"])
             if not best:
+                reason = ("the current pair never played a qualifying series together"
+                          if sample["maps_complete_pair"] == 0 else
+                          f"only {sample['series_eligible']} qualifying series")
+                excluded.append({**entry, "exclusion_reason": reason})
+                continue
+            if sample["events_eligible"] < MIN_EVENTS:
+                excluded.append({**entry, "exclusion_reason":
+                                 f"{sample['events_eligible']} eligible event(s), "
+                                 f"threshold is {MIN_EVENTS}"})
                 continue
             mean, combo, by_league = best
-            res.append({"organization": org, "role": role, "players": sorted(acct),
-                        "stats": list(combo), "colours": list(colours),
+            res.append({**entry, "stats": list(combo), "colours": list(colours),
                         "slots": [{"stat": s} for s in combo],
                         "leagues": len(by_league),
                         "by_league": {k: round(v, 1) for k, v in by_league.items()},
                         "series_scores": series_totals(table, combo),
                         "envelope_total": round(mean, 1)})
-    return res
+    return res, excluded
 
 
 def rank_probabilities(entries, seed=SEED, draws=BOOTSTRAP):
@@ -396,9 +449,9 @@ def coverage(stats_path=None, ledger=None):
 
 def build(top_two="sum", deaths_floor=False, min_series_maps=2, tfp_curve="linear"):
     rules = load_rules()
-    rows, dropped, swap = load_stats()
-    roles, notes = assign_roles(rows)
-    env = envelope(rows, roles, rules, top_two, deaths_floor, min_series_maps, tfp_curve)
+    rows, dropped, excluded_accounts = load_stats()
+    roles = roles_from_roster()
+    env, excluded = envelope(rows, roles, rules, top_two, deaths_floor, min_series_maps, tfp_curve)
     for e in env:
         e["uncertainty"] = uncertainty(e)
     for role in ("core", "mid", "support"):
@@ -408,18 +461,91 @@ def build(top_two="sum", deaths_floor=False, min_series_maps=2, tfp_curve="linea
             e["rank_probability"] = rp[e["organization"]]
     env.sort(key=lambda e: -e["envelope_total"])
     return {"hypothesis": {"top_two": top_two, "deaths_floor": deaths_floor,
-                           "min_series_maps": min_series_maps,
-                           "tfp_curve": tfp_curve},
+                           "min_series_maps": min_series_maps, "tfp_curve": tfp_curve,
+                           "role_source": "roster of record (positions 1-5)",
+                           "pair_rule": "complete current pair only",
+                           "min_events": MIN_EVENTS},
             "input_coverage": coverage(),
+            "sample_coverage": roster_sample_coverage(rows, roles, env, excluded),
             "rows_used": len(rows), "rows_dropped": dropped,
-            "roster_overrides": {str(k): v[1] for k, v in swap.items()},
-            "organizations": len(roles), "role_notes": notes, "ranking": env,
-            "unavailable_stats": list(UNAVAILABLE),
+            "inactive_accounts_excluded": sorted(excluded_accounts),
+            "organizations": len(roles), "ranking": env, "excluded": excluded,
+            "stat_availability": stat_availability(),
             "status": "PRELIMINARY",
-            "why_preliminary": "Four scoring semantics are unresolved, the period-1 slot count is "
-                               "unknown, traits and coach titles are not modelled, and the emblem "
-                               "stats are random draws rather than choices. This ranks teams by an "
-                               "upper envelope over ideal rolls, which is a comparison, not a pick."}
+            "why_preliminary": "The period-1 slot count is unknown, traits and coach titles are not "
+                               "modelled, and the emblem stats are random draws rather than "
+                               "choices. This ranks teams by an upper envelope over ideal rolls, "
+                               "which is a comparison, not a pick."}
+
+
+MIN_PLAYER_MAPS = 3
+
+
+def roster_sample_coverage(rows=None, roles=None, env=None, excluded=None):
+    """Five different questions that were previously answered with one number.
+
+    "80 players, coverage 74" conflated: who is on the roster, who has any history at all, whose
+    history is usable, whose sample is big enough, and which ROLE PAIRS have a joint sample. They
+    are different quantities and they have different consequences -- a replacement signed last week
+    is identity-covered and history-empty, which is not the same failure as a player whose matches
+    exist but are unparsed.
+    """
+    if rows is None:
+        rows, _dropped, _inactive = load_stats()
+    roles = roles or roles_from_roster()
+    active = {a for org in roles.values() for accts in org.values() for a in accts}
+    inactive = brp.inactive_accounts()
+    seen = defaultdict(int)
+    for r in rows:
+        seen[int(r["account_id"])] += 1
+    threshold_ok = {a for a in active if seen[a] >= MIN_PLAYER_MAPS}
+    if env is None or excluded is None:
+        env, excluded = envelope(rows, roles, load_rules())
+    pairs_total = sum(len(v) for v in roles.values())
+    return {
+        "roster_identity_coverage": {
+            "active_slots": len(active), "expected": 80,
+            "complete": len(active) == 80,
+            "inactive_recorded": sorted(inactive),
+            "meaning": "every position 1-5 on all sixteen teams resolves to a unique account id"},
+        "players_with_any_historical_match": {
+            "n": sum(1 for a in active if seen[a] > 0), "of": len(active),
+            "without": sorted(a for a in active if seen[a] == 0),
+            "meaning": "appears at least once in the five-event window, on the current roster"},
+        "players_with_usable_parsed_map": {
+            "n": sum(1 for a in active if seen[a] > 0), "of": len(active),
+            "meaning": "every match in this window is parsed, so this equals the previous count; "
+                       "they are kept apart because that is a property of the window, not a rule"},
+        "players_passing_sample_threshold": {
+            "n": len(threshold_ok), "of": len(active), "threshold_maps": MIN_PLAYER_MAPS,
+            "below": sorted(a for a in active if 0 < seen[a] < MIN_PLAYER_MAPS),
+            "meaning": "has at least the minimum number of parsed maps of his own"},
+        "role_pairs_with_complete_sample": {
+            "n": len(env), "of": pairs_total,
+            "excluded": [{"organization": e["organization"], "role": e["role"],
+                          "players": e["player_names"], "reason": e["exclusion_reason"],
+                          "maps_complete_pair": e["sample"]["maps_complete_pair"],
+                          "series_eligible": e["sample"]["series_eligible"],
+                          "events_eligible": e["sample"]["events_eligible"]}
+                         for e in excluded],
+            "meaning": "the role's CURRENT players actually played qualifying series together; a "
+                       "single-player observation is not an observation of a pair"},
+    }
+
+
+def stat_availability():
+    """The four counts that 'stat coverage' has to be split into, so none of them can be misread."""
+    defined = {s["stat_id"] for s in fq.load_rules()["stats"]["list"]}
+    usable = set(STAT_COLUMNS) - set(UNAVAILABLE)
+    return {"scoring_stats_defined_by_the_rules": len(defined),
+            "fetched_columns_complete_for_supported_stats": True,
+            "directly_usable_public_player_level": len(usable),
+            "unavailable_or_unsupported": len(defined - usable),
+            "unavailable_list": sorted(defined - usable),
+            "note": "Column completeness on the stats this pipeline supports is not the same thing "
+                    "as stat coverage. Three of the eighteen scoring stats have no usable public "
+                    "player-level source at all, so they can never appear on a modelled banner and "
+                    "the envelope is computed over the remaining fifteen."}
 
 
 def main(argv=None):
@@ -436,8 +562,11 @@ def main(argv=None):
     if a.out:
         with open(a.out, "w", encoding="utf-8") as fh:
             json.dump(r, fh, indent=2)
-    print(f"PRELIMINARY envelope, top_two={a.top_two}, deaths_floor={a.deaths_floor}: "
-          f"{r['rows_used']} parsed player-maps, {r['organizations']} organisations")
+    cov = r["input_coverage"]
+    print(f"PRELIMINARY envelope ({r['hypothesis']['role_source']}, "
+          f"{r['hypothesis']['pair_rule']}): {r['rows_used']} parsed player-maps, "
+          f"{len(r['ranking'])} ranked, {len(r['excluded'])} excluded, "
+          f"match coverage {cov['coverage']:.1%}")
     for e in r["ranking"][:a.top]:
         u = e["uncertainty"]
         stats = " + ".join(e["stats"])
