@@ -75,6 +75,44 @@ def test_in_game_predictions_are_recorded_as_disabled(doc):
     assert a["total_slots"] == 0 and a["status"] == "CONFIRMED"
 
 
+def test_discovery_checklist_covers_all_eight_requested_categories(doc):
+    assert all(key in doc["discovery_checklist_result"] for key in fq.DISCOVERY_KEYS)
+    assert "NOT PRESENT" in doc["discovery_checklist_result"][
+        "D_tournament_wide_player_predictions"]
+    assert "NOT PRESENT" in doc["discovery_checklist_result"]["E_hero_predictions"]
+
+
+def test_official_chinese_tab_labels_match_the_shipped_client(doc):
+    labels = {a["activity_id"]: a["official_zh_label"] for a in doc["activities"]}
+    assert labels["TI2026-PREDICTIONS"] == "赛事预测"
+    assert labels["TI2026-FANTASY"] == "梦幻挑战"
+    assert labels["TI2026-REWARDS"] == "奖赏"
+
+
+def test_current_patch_is_not_overclaimed_as_the_ti_match_patch(doc):
+    patch = doc["patch_context"]
+    assert patch["current_public_patch"] == "7.41e"
+    assert patch["ti2026_match_patch"] is None
+    assert patch["ti2026_match_patch_status"] == "UNRESOLVED"
+
+
+def test_each_fantasy_period_has_the_same_five_fixed_selection_slots(doc):
+    fantasy = [q for q in doc["questions"] if q["category"].startswith("fantasy")]
+    for period in (0, 1):
+        period_questions = [q for q in fantasy if q["period"] == period]
+        assert len(period_questions) == 5
+        assert sum(q["number_of_slots"] or 0 for q in period_questions) == 5
+        assert any(q["category"] == "fantasy_emblem_crafting"
+                   and q["number_of_slots"] is None for q in period_questions)
+
+
+def test_missing_screenshot_is_a_specific_phase_one_blocker(doc):
+    reconciliation = doc["screenshot_reconciliation"]
+    assert not reconciliation["evidence_available_in_this_run"]
+    assert len(reconciliation["still_requires_live_client"]) >= 5
+    assert doc["phase_1_status"] == "BLOCKED"
+
+
 def test_every_lock_time_is_an_instant_not_a_local_wall_clock(doc):
     for q in doc["questions"]:
         if q.get("lock_time_utc"):
@@ -105,6 +143,17 @@ def test_the_selection_unit_is_a_team(rules):
     assert rules["structure"]["players_scoring_per_role"] == {"core": 2, "mid": 1, "support": 2}
 
 
+def test_the_shipped_coach_title_candidate_counts_are_exact(rules):
+    assert len(rules["coach_titles"]["prefixes"]) == 19
+    assert len(rules["coach_titles"]["suffixes"]) == 20
+
+
+def test_scoring_formula_names_every_unresolved_operator(rules):
+    formula = rules["scoring_pipeline"]["symbolic_formula"]
+    assert formula["status"] == "PARTIAL"
+    assert len(formula["unknown_operators"]) == 4
+
+
 # ---- the readiness gate -------------------------------------------------------------------------
 def test_no_fantasy_question_is_candidate_ready_while_the_rules_are_unresolved():
     rd = fq.readiness()
@@ -112,6 +161,10 @@ def test_no_fantasy_question_is_candidate_ready_while_the_rules_are_unresolved()
         if r["category"].startswith("fantasy"):
             assert not r["candidate_ready"]
             assert any("unresolved" in b for b in r["blocked_by"])
+
+
+def test_no_question_in_the_new_track_is_candidate_ready():
+    assert fq.readiness()["candidate_ready_new_track"] == []
 
 
 def test_the_frozen_group_stage_questions_are_marked_as_handled_elsewhere(doc):
@@ -183,6 +236,20 @@ def test_an_unconfirmed_ruleset_must_say_what_is_missing(tmp_path, rules):
     bad["blocking_unknowns"] = []
     with pytest.raises(SystemExit, match="no blocking_unknowns"):
         fq.load_rules(_write(tmp_path, bad, "fantasy_rules.json"))
+
+
+def test_an_incomplete_discovery_checklist_is_refused(tmp_path, doc):
+    bad = copy.deepcopy(doc)
+    bad["discovery_checklist_result"].pop("E_hero_predictions")
+    with pytest.raises(SystemExit, match="discovery checklist is missing"):
+        fq.load_questions(_write(tmp_path, bad))
+
+
+def test_missing_screenshot_requests_are_refused(tmp_path, doc):
+    bad = copy.deepcopy(doc)
+    bad["screenshot_reconciliation"]["still_requires_live_client"] = []
+    with pytest.raises(SystemExit, match="no precise live-client requests"):
+        fq.load_questions(_write(tmp_path, bad))
 
 
 def test_a_missing_inventory_file_is_refused():

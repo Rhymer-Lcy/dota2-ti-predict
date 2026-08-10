@@ -45,6 +45,11 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
   provenance in `data/ti2026/inputs/roster_events.csv`; the other 15 lineups are confirmed unchanged.
 - **No OFFICIAL TI2026 slate emitted yet.** It is produced at the cutoff — follow
   [`docs/lockday-runbook.md`](docs/lockday-runbook.md).
+- **Independent Fantasy / Compendium track: PHASE 1 BLOCKED.** The shipped client exhaustively
+  enumerates 30 Predictions slots and two Fantasy periods, but Fantasy runtime coefficients,
+  configurable emblem counts, dropdown restrictions and countdowns still require live-client
+  captures. No Fantasy candidate is emitted while that gate is open. See
+  [`docs/fantasy-runbook.md`](docs/fantasy-runbook.md).
 
 ## Strategy note
 Scoring is by **number correct** with a **convex** points curve, **no underdog weighting, no penalty,
@@ -55,19 +60,21 @@ pair, adopted only when an independent verification archive confirms the paired 
 (evidence: [`backtest2/results-prelock-research.md`](backtest2/results-prelock-research.md)). A
 challenger round (ensembles with Elo / EloTD / Glicko-2) was **falsified out-of-sample**, so the
 frozen B-bt stands on evidence. There is **no anti-crowd / contrarian layer** because the client
-exposes no pick-share to differentiate against. The higher reward tiers (top-100 / top-1500 /
-percentile) also depend on the separate main-event and Fantasy sub-games, which are out of scope for
-now.
+exposes no pick-share to differentiate against. The separate main-event and Fantasy sub-games now
+live behind their own independent readiness gate; they do not re-open or re-tune this frozen
+group-stage model.
 
 ## Layout
 ```
 docs/            write-ups: official contest rules, validation plan, lock-day runbook, research log
 ti_predict/      package: swiss.py (group-stage sim), assign.py (16-slot solver),
-                 predict_ti15.py (gated entry), series.py / devig.py (reused), backtest/calibrate
+                 predict_ti15.py (gated entry), fantasy/questions.py (inventory readiness gate),
+                 series.py / devig.py (reused), backtest/calibrate
 backtest2/       historical rolling-origin validation framework (plan, manifests, Phase-3 compare)
 data/            gitignored except inputs/ — see data/README.md
   ti2026/
-    inputs/      hand-entered, small, TRACKED: teams.csv (+ odds/questions screenshots→csv)
+    inputs/      hand-entered, small, TRACKED: teams.csv, prediction_questions.json,
+                 fantasy/fantasy_rules.json (+ odds/questions screenshots→csv)
     raw/         OpenDota pulls etc. (gitignored, regenerable)
     processed/   cleaned tables / rating snapshots (gitignored)
 predictions/     our published picks, TRACKED — see predictions/README.md

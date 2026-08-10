@@ -17,6 +17,10 @@ ti2026/
                        # official run is blocked by a CONFLICT or UNRESOLVED row.
     draw.json          # the posted draw parsed from the official league feed: round-1 pairings,
                        # structure / structure_status / pod_membership_status, and their evidence.
+    prediction_questions.json  # machine fact source for every TI2026 Predictions/Fantasy item,
+                       # including status, slots, rules, lock evidence and discovery exclusions.
+    fantasy/fantasy_rules.json # TI2026 Fantasy rule schema and all 18 emblem stats. Runtime
+                       # values absent from shipped files stay null and block candidate generation.
     odds-*.csv         # transcribed bookmaker / in-client odds per series (add as screenshots arrive)
     questions-*.csv    # the contest's prediction questions + point values (from the client)
   raw/         # GITIGNORED (large, regenerable): raw OpenDota / STRATZ API pulls (json)

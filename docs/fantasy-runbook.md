@@ -21,16 +21,17 @@ failing to find them.
 | --- | --- | --- | --- | --- |
 | Predictions - Group Stage | 16 | 2026-07-15T07:00:00Z | 2026-08-13T02:00:00Z | frozen group-stage track |
 | Predictions - The International (bracket) | 14 | 2026-08-17T01:00:00Z | 2026-08-20T02:00:00Z | this track, after the group stage |
-| Fantasy - period 0 (Group Stage) | 3 team choices + 2 coach titles + banner crafting | open now | 2026-08-13T02:00:00Z (to confirm) | this track |
-| Fantasy - period 1 (The International) | same | 2026-08-13 (when period 0 begins) | unresolved | this track |
+| Fantasy - period 0 (Group Stage) | 5 fixed choices + unresolved emblem slots | open now | 2026-08-13T02:00:00Z (to confirm) | this track |
+| Fantasy - period 1 (The International) | same | 2026-08-13T02:00:00Z (when period 0 begins) | unresolved | this track |
 | In-game predictions | 0 | - | - | disabled for TI2026 |
 
 ## 2. What is blocking, and exactly what is needed
 
-The Fantasy **structure** is fully established. The Fantasy **numbers** are not: the client fills
-them in at runtime from values that appear in no shipped file. Eight of them block optimisation and
-are listed in `fantasy_rules.json` under `blocking_unknowns`. Nothing may be back-filled from a
-previous year's scoring table; `ti_predict/fantasy/questions.py` refuses a ruleset that tries.
+The Fantasy **question structure** is established. Fantasy **rule closure** is not: the client fills
+key values in at runtime from values that appear in no shipped file. Ten groups of facts block
+optimisation and are listed in `fantasy_rules.json` under `blocking_unknowns`. Nothing may be
+back-filled from a previous year's scoring table; `ti_predict/fantasy/questions.py` refuses a
+ruleset that tries.
 
 Until they are resolved, `readiness()` reports every Fantasy question as not candidate-ready, and no
 submission-grade Fantasy candidate may be produced. That is the intended behaviour, not a defect.
@@ -67,24 +68,28 @@ These are consequences of the ruleset, recorded now so the modelling phase does 
 
 ## 4. Phase plan
 
-1. **PHASE 1 - inventory.** Done. Every question, slot, rule and lock time is in the JSON.
-2. **PHASE 2 - data feasibility.** Partly done: the OpenDota field mapping for all 18 stats is
-   recorded, with three stats flagged BLOCKED or PARTIAL. Remaining: parse-coverage rate over TI-tier
-   matches, and whether STRATZ supplies watchers and lotuses.
-3. **PHASE 3 - baselines.** Role-level and team-level per-map stat means with event-blocked
-   bootstrap intervals. Cannot be scored into fantasy points until the coefficients are known.
-4. **PHASE 4 - modelling.** Hierarchical shrinkage per stat class (rate-like, opportunity-count,
-   rare event, team-controlled, role-structural), joined to the frozen Swiss simulator for series
-   exposure, then a maximum-over-series aggregation.
-5. **PHASE 5 - validation.** As-of validation on prior LANs using strictly pre-event features.
-6. **PHASE 6 - candidate.** Only when `readiness()` reports the question candidate-ready.
-7. **PHASE 7 - freeze.** Lock-day procedure below.
+1. **PHASE 1 - inventory: BLOCKED.** The 30 prediction slots and the two-period Fantasy structure
+   are exhaustively enumerated, but the runtime Fantasy numbers, configurable emblem slot count,
+   candidate dropdown restrictions and lock countdowns still require the live client.
+2. **PHASE 2 - data feasibility: NOT STARTED.** The OpenDota field mapping is a preliminary schema,
+   not a coverage result. Do not pull or bless a player-stat dataset until PHASE 1 closes.
+3. **PHASE 3 - baselines: NOT STARTED.** Planned: role-level and team-level per-map distributions
+   with event-blocked bootstrap intervals.
+4. **PHASE 4 - modelling: NOT STARTED.** Planned: hierarchical shrinkage per stat class, joined to
+   the frozen Swiss simulator only for series exposure, then a maximum-over-series aggregation.
+5. **PHASE 5 - validation: NOT STARTED.** Planned: as-of validation on prior LANs using strictly
+   pre-event features.
+6. **PHASE 6 - candidate: BLOCKED.** It may begin only when `readiness()` reports the Fantasy
+   questions candidate-ready. Current fill instruction is `NO RELIABLE EDGE / INSUFFICIENT EVIDENCE`.
+7. **PHASE 7 - freeze: NOT STARTED.** The operational checkpoints below are provisional until the
+   two Fantasy countdowns are captured.
 
 ## 5. Lock-day procedure
 
-**Fantasy period 0 - by 2026-08-13T02:00:00Z.** Confirm the in-client countdown; confirm the roster
-of record for the three chosen teams against `roster_events.csv`; set the three team choices and the
-two coach titles; spend the period's roll tokens; screenshot the final banner state.
+**Fantasy period 0 - provisional deadline 2026-08-13T02:00:00Z.** First capture the in-client
+countdown and all blocking runtime values. Only after the gate closes: refresh the data, confirm the
+roster of record for the three chosen teams against `roster_events.csv`, generate the three team
+choices and two coach titles, allocate the known token budget, and screenshot the final banner state.
 
 **Bracket - between 2026-08-17T01:00:00Z and 2026-08-20T02:00:00Z.** The candidate set only exists
 once the group stage seeds the bracket. Re-run the frozen team-strength model as an input, map the
@@ -100,3 +105,30 @@ Nothing in this track re-runs, re-tunes, or re-reports the frozen group-stage sl
 python -m ti_predict.fantasy.questions      # validate the inventory and print the readiness gate
 python -m pytest tests/test_fantasy_questions.py -q
 ```
+
+When the default system temp folder is not writable, use a workspace-local temporary base:
+
+```
+python -m pytest tests/test_fantasy_questions.py -q -p no:cacheprovider --basetemp=.pytest-tmp
+```
+
+## 7. Exact live-client captures still required
+
+1. **Compendium -> Fantasy -> How to Play -> Scoring / Emblem Stats.** Capture the entire rules
+   pane from its heading through all 18 stat rows. It must show every numeric coefficient, the
+   Deaths starting credit, and the wording immediately around “top two scoring games.”
+2. **Compendium -> Fantasy -> Core, Mid, Support War Banners.** One full-resolution capture per
+   banner. Include every emblem slot in left-to-right order, colour, stat, quality, trait, the roll
+   token count, all three current roll options, and the lock countdown.
+3. **Open “Choose Team” on each of the three War Banners.** Capture the complete dropdown including
+   disabled entries or restriction text. The images must establish the candidate universe and
+   whether the same team may be selected for more than one role.
+4. **Compendium -> Fantasy -> Coaching Titles.** Capture the complete prefix and suffix choices,
+   each displayed percentage, and the same lock countdown.
+5. **Compendium -> Rewards -> Fantasy.** Capture all nine percentile rows and their point values.
+6. **After Fantasy period 1 unlocks.** Capture its period label, countdown, candidate dropdown and
+   any newly granted roll tokens or upgrade choices.
+
+The previously referenced long screenshot is not available as an image payload or repository file
+in this run. Its prose description was used only to discover modules; no OCR-derived number has been
+accepted as fact.

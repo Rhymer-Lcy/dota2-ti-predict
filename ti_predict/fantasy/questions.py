@@ -33,6 +33,16 @@ REQUIRED_FIELDS = ("question_id", "category", "official_en_label", "exact_questi
 # Questions the frozen group-stage track already answers. Listed so the fantasy track can prove it
 # is not re-deriving them rather than merely happening not to.
 FROZEN_TRACK_CATEGORY = "group_stage_team_prediction"
+DISCOVERY_KEYS = (
+    "A_group_stage_team_predictions",
+    "B_fantasy_player_selection",
+    "C_fantasy_stat_categories",
+    "D_tournament_wide_player_predictions",
+    "E_hero_predictions",
+    "F_other_team_match_tournament_statistics",
+    "G_item_gameplay_event_predictions",
+    "H_other_compendium_predictions_or_challenges",
+)
 
 
 def _relpath(p):
@@ -85,6 +95,18 @@ def load_questions(path=None):
             raise SystemExit(f"{_relpath(path)}: {qid} is answerable now but states no lock time")
     if not seen:
         raise SystemExit(f"{_relpath(path)}: the inventory is empty")
+    discovery = doc.get("discovery_checklist_result", {})
+    missing_discovery = [key for key in DISCOVERY_KEYS if key not in discovery]
+    if missing_discovery:
+        raise SystemExit(f"{_relpath(path)}: discovery checklist is missing "
+                         + ", ".join(missing_discovery))
+    screenshot = doc.get("screenshot_reconciliation", {})
+    if not screenshot.get("evidence_available_in_this_run") \
+            and not screenshot.get("still_requires_live_client"):
+        raise SystemExit(f"{_relpath(path)}: screenshot evidence is unavailable but no precise "
+                         "live-client requests are listed")
+    if doc.get("phase_1_status") != "CONFIRMED" and not doc.get("phase_1_blockers"):
+        raise SystemExit(f"{_relpath(path)}: PHASE 1 is not confirmed but no blockers are listed")
     return doc
 
 
@@ -144,6 +166,9 @@ def readiness(questions_path=None, rules_path=None):
                     "candidate_ready": not reasons, "blocked_by": reasons})
     return {"questions": out, "blocking_unknowns": blocking,
             "candidate_ready": [r["question_id"] for r in out if r["candidate_ready"]],
+            "candidate_ready_new_track": [r["question_id"] for r in out
+                                          if r["candidate_ready"]
+                                          and r["category"] != FROZEN_TRACK_CATEGORY],
             "blocked": [r["question_id"] for r in out if not r["candidate_ready"]]}
 
 
@@ -156,6 +181,8 @@ def inventory(questions_path=None):
     return {"event": doc["event"], "league_id": doc["league_id"],
             "compiled_at": doc["compiled_at"], "source_file": _relpath(questions_path
                                                                       or QUESTIONS_JSON),
+            "phase_1_status": doc["phase_1_status"],
+            "screenshot_status": doc["screenshot_reconciliation"]["status"],
             "activities": [{"activity_id": a["activity_id"], "label": a["official_en_label"],
                             "slots": a.get("total_slots"), "status": a["status"]}
                            for a in doc["activities"]],
@@ -173,7 +200,10 @@ def to_markdown(questions_path=None, rules_path=None):
     ready = {r["question_id"]: r for r in rd["questions"]}
     lines = [f"# TI2026 prediction inventory ({inv['event']})", "",
              f"Compiled {inv['compiled_at']} from league {inv['league_id']}. "
-             f"{inv['questions']} questions, {inv['slots']} answer slots.", "",
+             f"{inv['questions']} questions, {inv['slots']} fixed-count answer slots, plus "
+             "the unresolved Fantasy emblem configuration slots.", "",
+             f"PHASE 1 status: **{inv['phase_1_status']}**. "
+             f"Screenshot reconciliation: **{inv['screenshot_status']}**.", "",
              "## Activities", "",
              "| Activity | Slots | Status |", "| --- | --- | --- |"]
     lines += [f"| {a['label']} | {a['slots']} | {a['status']} |" for a in inv["activities"]]
@@ -182,9 +212,15 @@ def to_markdown(questions_path=None, rules_path=None):
               "| --- | --- | --- | --- | --- |"]
     for q in doc["questions"]:
         r = ready[q["question_id"]]
-        verdict = "yes" if r["candidate_ready"] else "no - " + "; ".join(r["blocked_by"])
+        if q.get("handled_by"):
+            verdict = "handled by frozen track"
+        else:
+            verdict = "yes" if r["candidate_ready"] else "no - " + "; ".join(r["blocked_by"])
         lines.append(f"| {q['question_id']} | {q['number_of_slots']} | "
                      f"{q.get('lock_time_utc') or 'unresolved'} | {q['status']} | {verdict} |")
+    lines += ["", "## Discovery checklist", ""]
+    for key in DISCOVERY_KEYS:
+        lines.append(f"- {key[0]}: {doc['discovery_checklist_result'][key]}")
     if rd["blocking_unknowns"]:
         lines += ["", "## Blocking unknowns in the Fantasy ruleset", ""]
         lines += [f"- {b}" for b in rd["blocking_unknowns"]]
@@ -194,12 +230,14 @@ def to_markdown(questions_path=None, rules_path=None):
 if __name__ == "__main__":
     inv = inventory()
     rd = readiness()
-    print(f"{inv['event']}: {inv['questions']} questions, {inv['slots']} slots, "
+    print(f"{inv['event']}: {inv['questions']} questions, {inv['slots']} fixed-count slots, "
           + ", ".join(f"{n} {s.lower()}" for s, n in inv["by_status"].items() if n))
+    print(f"  PHASE 1: {inv['phase_1_status']}; screenshot: {inv['screenshot_status']}")
     for a in inv["activities"]:
         print(f"  {a['label']:<28} slots={a['slots']!s:<4} {a['status']}")
     print(f"  lock times (UTC): {', '.join(inv['lock_times_utc'])}")
-    print(f"  candidate-ready questions: {len(rd['candidate_ready'])} of {len(rd['questions'])}")
+    print(f"  new-track candidate-ready questions: {len(rd['candidate_ready_new_track'])} "
+          f"of {len(rd['questions'])} (the 6 frozen group-stage questions are excluded)")
     for r in rd["questions"]:
         if not r["candidate_ready"]:
             print(f"    BLOCKED {r['question_id']}: {'; '.join(r['blocked_by'])}")
