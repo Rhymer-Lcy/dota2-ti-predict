@@ -3,9 +3,14 @@
 Chains: team identity -> B-bt strengths -> Swiss Monte-Carlo (swiss.py) -> 16x6 bucket matrix ->
 assignment solver (assign.py) -> D4 sensitivity -> JSON (fact source) + Markdown + run manifest.
 
-Two modes, by design:
+Three modes, by design:
   --dry-run   pipeline rehearsal on synthetic or historical inputs. Writes to <repo>/.dryrun/.
               Every artifact is stamped "DRY RUN - NOT OFFICIAL". Never emits an official slate.
+  --candidate the production answer as of NOW: identical inputs, identical gates and identical
+              computation to --official, but stamped "SUBMISSION-GRADE CANDIDATE - NOT FINAL
+              LOCK-DAY RUN" and written to predictions/.../candidates/ under a UTC-stamped file
+              name. It answers "what would we submit if the client demanded it right now" without
+              ever occupying the final artifact's path or label.
   --official  the real slate. HARD-GATED: refuses to run unless ALL are present -- the posted
               round-1 pairings, a CONFIRMED structure (the official two-pod format; the open-16 pool
               is a sensitivity comparator and is refused here), an explicit timezone-aware --cutoff,
@@ -25,6 +30,8 @@ organizer's unpublished pairing decisions.
 Usage:
   python -m ti_predict.predict_ti15 --dry-run
   python -m ti_predict.predict_ti15 --dry-run --strengths bt --cutoff 2026-06-01
+  python -m ti_predict.predict_ti15 --candidate --draw data/ti2026/inputs/draw.json \
+      --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 280000
   python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json \
       --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 120000
   (official mode REQUIRES a timezone-aware ISO timestamp; replace 02:00:00Z with the lock time
@@ -505,7 +512,9 @@ def build(teams, strength, pods_list, r1, draw_source, n, seed, mode, cutoff, st
 
     manifest = {
         "mode": mode,
-        "status": "OFFICIAL" if mode == "official" else "DRY RUN - NOT OFFICIAL",
+        "status": {"official": "OFFICIAL",
+                   "candidate": "SUBMISSION-GRADE CANDIDATE - NOT FINAL LOCK-DAY RUN"}.get(
+                       mode, "DRY RUN - NOT OFFICIAL"),
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "code_commit": _commit(),
         "data_cutoff": cutoff,
@@ -551,7 +560,12 @@ def to_markdown(out):
          f"sims: {m['n_sims']} | seed: {m['seed']}",
          f"- draw: {m['draw_source']}",
          f"- expected correct: **{m['expected_correct']} / 16**", ""]
-    if m["mode"] != "official":
+    if m["mode"] == "candidate":
+        L += ["> SUBMISSION-GRADE CANDIDATE - the production answer as of the snapshot above, under "
+              "the full official gates. NOT the final lock-day run: the exact in-client lock time, "
+              "any published pod membership, any newer match data and any late roster change must "
+              "still be re-checked on the day.", ""]
+    elif m["mode"] != "official":
         L += ["> DRY RUN - synthetic/historical inputs; NOT the official prediction.", ""]
     L += ["## Slate (assignment maximizing expected correct)", ""]
     for b in BUCKETS:
@@ -580,6 +594,8 @@ def main():
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--dry-run", action="store_true")
     g.add_argument("--official", action="store_true")
+    g.add_argument("--candidate", action="store_true",
+                   help="production run under the official gates, stamped and filed as a candidate")
     ap.add_argument("--strengths", choices=("synthetic", "bt"), default="synthetic")
     ap.add_argument("--cutoff", help="date (YYYY-MM-DD) for dry-run; official needs a full ISO "
                                      "timestamp with timezone, e.g. 2026-08-13T02:00:00Z")
@@ -591,11 +607,12 @@ def main():
                     help="official: skip the data-freshness gate (use only if there genuinely are no "
                          "pre-lock matches near the cutoff)")
     a = ap.parse_args()
-    mode = "official" if a.official else "dry-run"
+    mode = "official" if a.official else ("candidate" if a.candidate else "dry-run")
+    gated = a.official or a.candidate      # the candidate run answers to every official gate
     teams = load_teams()
 
     # ---- hard gate for the official slate ----
-    if a.official:
+    if gated:
         problems = []
         if not a.draw or not os.path.exists(a.draw or ""):
             problems.append("--draw must point to the posted official draw file (pods + round 1)")
@@ -630,17 +647,17 @@ def main():
             "note": ("override accepted: no professional match exists between the universe's latest "
                      "map and the cutoff; re-run scan_promatches to re-verify before trusting this"
                      if stale and a.allow_stale else None)}
-        if a.official and not a.allow_stale and stale:
+        if gated and not a.allow_stale and stale:
             sys.exit(f"OFFICIAL RUN BLOCKED: universe latest map {_iso(uni_max)} is "
                      f"{provenance['universe_lag_days_before_cutoff']}d before cutoff {cut_iso}; "
                      f"refresh the data (or pass --allow-stale if there truly are no pre-lock games).")
-        if a.official and provenance["git_dirty"]:
+        if gated and provenance["git_dirty"]:
             print("WARNING: repo is dirty (uncommitted changes) for an official run.", file=sys.stderr)
     else:
         strength = synthetic_strengths(teams)
         ssrc = "synthetic (non-predictive)"
 
-    pods, r1, draw_source = resolve_draw(teams, a.draw, require_r1=a.official)
+    pods, r1, draw_source = resolve_draw(teams, a.draw, require_r1=gated)
     state = draw_status(a.draw)
     if pods is None:                                     # membership unresolved -> marginalize
         if r1 is None:
@@ -654,7 +671,7 @@ def main():
     if provenance is not None:
         provenance["draw_sha256"] = _sha256(a.draw)      # recompute now the draw path is validated
     rosters = roster_audit(orgs=[t["team"] for t in teams])
-    if a.official and rosters["blocking"]:
+    if gated and rosters["blocking"]:
         sys.exit("OFFICIAL RUN BLOCKED: unresolved roster audit for "
                  + ", ".join(rosters["blocking"])
                  + "\nresolve the lineup in data/ti2026/inputs/roster_events.csv (a CONFLICT must "
@@ -665,16 +682,20 @@ def main():
     # An unresolved membership may be marginalized, never asserted: the slate is only allowed to go
     # out OFFICIAL if no single admissible membership would have made a materially better one.
     agree = out["manifest"]["pods"].get("membership_agreement")
-    if a.official and agree and agree["max_regret_expected_correct"] > POD_MEMBERSHIP_REGRET_MAX:
+    if gated and agree and agree["max_regret_expected_correct"] > POD_MEMBERSHIP_REGRET_MAX:
         sys.exit("OFFICIAL RUN BLOCKED: the pod membership is unresolved and it matters -- the worst "
                  f"admissible membership beats the marginalized slate by "
                  f"{agree['max_regret_expected_correct']:.3f} expected correct (limit "
                  f"{POD_MEMBERSHIP_REGRET_MAX}). Wait for the published membership.")
 
-    outdir = a.out or (os.path.join(REPO, "predictions", "ti2026", "group-stage")
-                       if a.official else os.path.join(REPO, ".dryrun"))
+    stamp = out["manifest"]["generated_at"].replace("-", "").replace(":", "").replace("+0000", "Z")
+    outdir = a.out or {
+        "official": os.path.join(REPO, "predictions", "ti2026", "group-stage"),
+        "candidate": os.path.join(REPO, "predictions", "ti2026", "group-stage", "candidates"),
+    }.get(mode, os.path.join(REPO, ".dryrun"))
     os.makedirs(outdir, exist_ok=True)
-    stem = "ti15_group_prediction" if a.official else "ti15_group_dryrun"
+    stem = {"official": "ti15_group_prediction",
+            "candidate": f"ti15_group_candidate_{stamp}"}.get(mode, "ti15_group_dryrun")
     with open(os.path.join(outdir, stem + ".json"), "w", encoding="utf-8") as fh:
         json.dump(out, fh, ensure_ascii=False, indent=2)
     with open(os.path.join(outdir, stem + ".md"), "w", encoding="utf-8") as fh:

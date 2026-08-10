@@ -81,3 +81,28 @@ def test_unknown_team_rejected(tmp_path):
     d = _valid_draw(); d["podA"][0] = "Not A Real Team"
     with pytest.raises(SystemExit):
         resolve_draw(TEAMS, _write(tmp_path, d))
+
+
+# ---- candidate mode: the production answer as of now, under the SAME gates as --official ----
+def test_candidate_mode_answers_to_the_official_gates():
+    """A candidate run must not be a soft path around the gate; only its label and path differ."""
+    import subprocess
+    import sys
+    r = subprocess.run([sys.executable, "-m", "ti_predict.predict_ti15", "--candidate",
+                        "--cutoff", "2026-08-13"], capture_output=True, text=True, timeout=180)
+    assert r.returncode != 0
+    out = r.stdout + r.stderr
+    assert "OFFICIAL RUN BLOCKED" in out
+    assert "timezone-aware" in out and "--draw" in out and "--strengths" in out
+
+
+def test_candidate_status_and_filename_cannot_be_confused_with_the_final_run():
+    from ti_predict.predict_ti15 import build, load_teams, resolve_draw, synthetic_strengths
+    from ti_predict.rosters import roster_audit
+    teams = load_teams()
+    pods, r1, src = resolve_draw(teams, None)
+    out = build(teams, synthetic_strengths(teams), [pods], r1, src, 400, 1, "candidate", None,
+                "synthetic (non-predictive)", None, c=0.0, provenance=None, draw_state=None,
+                rosters=roster_audit(orgs=[t["team"] for t in teams]))
+    assert out["manifest"]["status"] == "SUBMISSION-GRADE CANDIDATE - NOT FINAL LOCK-DAY RUN"
+    assert out["manifest"]["status"] != "OFFICIAL"
