@@ -22,7 +22,6 @@ it is the right quantity for comparing teams before any rolling has happened.
 import argparse
 import csv
 import json
-import math
 import os
 import random
 import statistics
@@ -201,30 +200,35 @@ def role_period_scores(rows, accounts, stat, rules, top_two, deaths_floor):
 
 
 def envelope(rows, roles, rules, top_two="sum", deaths_floor=False):
-    """For each organisation and role, the best stat in each of that banner's colour slots."""
+    """For each organisation and role, the best legal set of stats for that banner's colour slots.
+
+    A War Banner may not carry the same stat twice, so a role whose layout has two slots of one
+    colour needs the best TWO DISTINCT stats from that colour's pool, not the best one twice. Since
+    the slots within a colour are interchangeable and no trait is modelled here, taking the top k
+    distinct stats per colour is exactly optimal.
+    """
     res = []
     for org, assign in sorted(roles.items()):
         for role, accounts in assign.items():
             colours = rules["layout"][role]
             acct = set(accounts)
+            wanted = {c: colours.count(c) for c in set(colours)}
             slots, total = [], 0.0
-            for colour in colours:
+            for colour, k in sorted(wanted.items()):
                 pool = [s for s in rules["pools"][colour]
                         if s in STAT_COLUMNS and s not in UNAVAILABLE]
-                best, best_stat, best_by_league = -math.inf, None, {}
+                scored = []
                 for stat in pool:
                     by_league = role_period_scores(rows, acct, stat, rules, top_two, deaths_floor)
-                    if not by_league:
-                        continue
-                    m = sum(by_league.values()) / len(by_league)
-                    if m > best:
-                        best, best_stat, best_by_league = m, stat, by_league
-                if best_stat is None:
-                    continue
-                slots.append({"colour": colour, "stat": best_stat, "mean_best_series": round(best, 1),
-                              "leagues": len(best_by_league),
-                              "by_league": {k: round(v, 1) for k, v in best_by_league.items()}})
-                total += best
+                    if by_league:
+                        scored.append((sum(by_league.values()) / len(by_league), stat, by_league))
+                scored.sort(key=lambda t: -t[0])
+                for mean, stat, by_league in scored[:k]:
+                    slots.append({"colour": colour, "stat": stat,
+                                  "mean_best_series": round(mean, 1),
+                                  "leagues": len(by_league),
+                                  "by_league": {kk: round(v, 1) for kk, v in by_league.items()}})
+                    total += mean
             if len(slots) == len(colours):
                 res.append({"organization": org, "role": role, "players": sorted(acct),
                             "slots": slots, "envelope_total": round(total, 1)})
@@ -257,7 +261,17 @@ def build(top_two="sum", deaths_floor=False):
     for e in env:
         e["uncertainty"] = uncertainty(e)
     env.sort(key=lambda e: -e["envelope_total"])
+    prov_path = os.path.join(PROC, "fantasy", "player_stats_provenance.json")
+    prov = {}
+    if os.path.exists(prov_path):
+        with open(prov_path, encoding="utf-8") as fh:
+            prov = json.load(fh)
     return {"hypothesis": {"top_two": top_two, "deaths_floor": deaths_floor},
+            "input_coverage": {"matches_covered": prov.get("matches_covered"),
+                               "matches_targeted": prov.get("matches_targeted"),
+                               "coverage": prov.get("coverage"),
+                               "complete": bool(prov.get("coverage", 0)
+                                                >= prov.get("min_coverage", 1))},
             "rows_used": len(rows), "rows_dropped": dropped,
             "roster_overrides": {str(k): v[1] for k, v in swap.items()},
             "organizations": len(roles), "role_notes": notes, "ranking": env,

@@ -121,6 +121,22 @@ def test_the_slot_count_is_known_to_grow_with_tablet_level():
     assert g["status"] == "CONFIRMED" and g["period_1_slot_count"] is None
 
 
+def test_a_banner_never_carries_the_same_stat_twice():
+    """Core is red/green/red, so the two red slots need the best two DISTINCT red stats."""
+    rows = []
+    for i, (lh, k, tw) in enumerate([(300, 5, 2), (280, 6, 1), (310, 4, 3)]):
+        rows.append(_row(match_id=f"m{i}", _series=f"s{i}", account_id=1,
+                         last_hits=lh, denies=0, kills=k, towers_killed=tw, deaths=2,
+                         gold_per_min=600, madstone=0, roshans_killed=1,
+                         teamfight_participation=0.7, stuns=10, firstblood_claimed=0,
+                         courier_kills=0))
+    env = bl.envelope(rows, {"Org": {"core": [1]}}, R, "sum", False)
+    slots = env[0]["slots"]
+    assert len(slots) == 3
+    assert len({s["stat"] for s in slots}) == 3
+    assert sorted(s["colour"] for s in slots) == ["green", "red", "red"]
+
+
 def test_the_valve_stat_enum_ordering_matches_every_helpstat_index():
     """Tier-1 cross-check: Valve's enum order is the localization's helpstat order."""
     alias = {"CS": "creep_score", "WARDS_PLANTED": "wards_placed",
