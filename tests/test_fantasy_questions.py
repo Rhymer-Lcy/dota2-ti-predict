@@ -136,7 +136,7 @@ def test_every_stat_carries_a_coefficient_with_a_stated_origin(rules):
         assert s["points_source_type"] in fq.POINTS_SOURCES
         assert s["points_evidence"] == "S6"
     assert rules["stats"]["status"] != "CONFIRMED"
-    assert rules["blocking_unknowns"]
+    assert rules["unknowns"]
 
 
 def test_no_coefficient_is_confirmed_on_second_hand_evidence(rules):
@@ -175,7 +175,8 @@ def test_every_unresolved_semantic_carries_both_a_fact_and_a_decision_status(rul
     for s in sem:
         assert s["fact_status"] in FACT, s["id"]
         assert s["decision_status"] in DECISION, s["id"]
-    assert all(b.startswith(("P0 ", "P1 ")) for b in rules["blocking_unknowns"])
+    for u in rules["unknowns"]:
+        assert u["fact_status"] in FACT and u["decision_status"] in fq.DECISION_STATUSES
 
 
 def test_the_top_two_choice_is_recorded_as_a_scale_factor_with_its_proof(rules):
@@ -236,7 +237,7 @@ def test_no_fantasy_question_is_candidate_ready_while_the_rules_are_unresolved()
     for r in rd["questions"]:
         if r["category"].startswith("fantasy"):
             assert not r["candidate_ready"]
-            assert any("unresolved" in b for b in r["blocked_by"])
+            assert any("blocked by" in b for b in r["blocked_by"])
 
 
 def test_no_question_in_the_new_track_is_candidate_ready():
@@ -329,10 +330,11 @@ def test_a_stat_table_that_does_not_partition_by_colour_is_refused(tmp_path, rul
         fq.load_rules(_write(tmp_path, bad, "fantasy_rules.json"))
 
 
-def test_an_unconfirmed_ruleset_must_say_what_is_missing(tmp_path, rules):
+def test_a_ruleset_without_an_unknowns_register_is_refused(tmp_path, rules):
+    """Readiness must have something structured to derive from, or it is just an opinion."""
     bad = copy.deepcopy(rules)
-    bad["blocking_unknowns"] = []
-    with pytest.raises(SystemExit, match="no blocking_unknowns"):
+    bad.pop("unknowns")
+    with pytest.raises(SystemExit, match="no `unknowns` register"):
         fq.load_rules(_write(tmp_path, bad, "fantasy_rules.json"))
 
 

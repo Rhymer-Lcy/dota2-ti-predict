@@ -12,6 +12,7 @@ Nothing here promotes a fact. A rule measured as decision-irrelevant is still an
 """
 import argparse
 import json
+import random
 
 from ti_predict.fantasy import baseline as bl
 
@@ -103,9 +104,96 @@ def deaths_exposure(rows, roles):
     return out
 
 
+# Legal per-emblem multiplier envelope. Quality runs 0.10 to 1.50; traits can add up to +50 percent
+# on the emblem itself (Vampiric), +20 percent from a neighbour (Benevolent), +30/+50/+60 percent
+# from the banner-level traits, or subtract 10 percent (a Vampiric neighbour). The envelope is
+# deliberately wider than any single reachable banner, because the point is to bound the effect.
+SLOT_MULTIPLIER_RANGE = (0.10 * 0.90, 1.50 * 2.10)
+# The largest known coach title bonus is 11 percent. Unknown titles are stressed at twice that, so
+# the bound does not quietly assume the unpriced ones resemble the priced ones.
+MAX_KNOWN_TITLE_BONUS = 0.11
+TITLE_STRESS_BONUS = 0.22
+
+
+def banner_weight_sensitivity(base, rules, draws=2000, seed=bl.SEED):
+    """Can trait and quality weights change WHICH TEAM belongs on a banner?
+
+    The banner is a property of the account, not of the team: the same emblems, qualities and traits
+    multiply every candidate team's stats. So the level moves with the weights and only the RELATIVE
+    weighting of one stat against another can reorder teams. This samples that relative weighting
+    across the full legal envelope and asks how often the top pick changes.
+    """
+    rng = random.Random(seed)
+    lo, hi = SLOT_MULTIPLIER_RANGE
+    out = {}
+    for role in ROLES:
+        entries = [e for e in base["ranking"] if e["role"] == role]
+        if len(entries) < 2:
+            continue
+        combo = entries[0]["stats"]                       # score every team on one fixed banner
+        tables = {}
+        for e in entries:
+            table, _s = bl.series_table(bl._ROWS_CACHE, set(e["players"]), rules)
+            tables[e["organization"]] = table
+        def argmax(weights):
+            scores = []
+            for org, table in tables.items():
+                best = None
+                for ser in table.values():
+                    for row in ser.values():
+                        if all(s in row for s in combo):
+                            tot = sum(row[s] * weights[s] for s in combo)
+                            best = tot if best is None else max(best, tot)
+                if best is not None:
+                    scores.append((best, org))
+            return max(scores)[1] if scores else None
+
+        # The control has to hold the STAT SET fixed too. Comparing a weighted result against the
+        # envelope's top would mix two changes -- the weights and the stat set that team happened to
+        # choose -- and blame the weights for both.
+        reference = argmax({s: 1.0 for s in combo})
+        flips = sum(argmax({s: rng.uniform(lo, hi) for s in combo}) != reference
+                    for _ in range(draws))
+        out[role] = {"banner_stats": combo, "draws": draws,
+                     "top_1_changed_fraction": round(flips / draws, 4),
+                     "reference_top_1": reference,
+                     "control": "equal weights on the same stat set"}
+    return out
+
+
+def coach_title_bound(base):
+    """Bound the effect of the unpriced coach titles by comparing it to the gap it would have to close.
+
+    A title multiplies the whole in-game score by (1 + b) when its condition holds, and the SAME two
+    titles apply to all three banners. It can therefore only reorder teams through a difference in
+    how often the condition triggers for them. The worst case is a title that triggers on every one
+    of one team's games and none of another's, which is a relative swing of exactly b.
+    """
+    out = {}
+    for role in ROLES:
+        entries = sorted((e for e in base["ranking"] if e["role"] == role),
+                         key=lambda e: -e["envelope_total"])
+        if len(entries) < 2:
+            continue
+        first, second = entries[0]["envelope_total"], entries[1]["envelope_total"]
+        gap = (first - second) / first if first else 0.0
+        # additive (1+p+s) versus multiplicative (1+p)(1+s) differ by exactly p*s
+        stacking_gap = TITLE_STRESS_BONUS ** 2
+        out[role] = {
+            "top_1": entries[0]["organization"], "top_2": entries[1]["organization"],
+            "relative_gap": round(gap, 4),
+            "worst_case_single_title_swing": TITLE_STRESS_BONUS,
+            "stacking_difference": round(stacking_gap, 4),
+            "gap_survives_worst_case_title": gap > TITLE_STRESS_BONUS,
+            "gap_survives_stacking_choice": gap > stacking_gap}
+    return out
+
+
 def run(min_series_maps=2):
-    rows, _dropped, _swap = bl.load_stats()
-    roles, _notes = bl.assign_roles(rows)
+    rows, _dropped, _inactive = bl.load_stats()
+    roles = bl.roles_from_roster()
+    bl._ROWS_CACHE = rows
+    rules = bl.load_rules()
 
     base = bl.build("sum", False, min_series_maps, "linear")
     report = {"coverage": base["input_coverage"],
@@ -160,6 +248,29 @@ def run(min_series_maps=2):
         "No stress shape moves the top pick in any role, so the curve cannot change which team goes "
         "on a banner." if not blocking else
         f"The top pick moves for {', '.join(blocking)}, so the curve stays blocking there.")
+
+    # 4. coach titles: bound the swing against the gap it would have to close
+    ct = coach_title_bound(base)
+    report["findings"]["coach_titles"] = {
+        "fact_status": "PARTIAL",
+        "decision_status": ("ROBUST" if all(v["gap_survives_worst_case_title"] for v in ct.values())
+                            else "BLOCKING"),
+        "by_role": ct,
+        "reading": "A title can only reorder teams through a difference in how often its condition "
+                   "triggers, and the worst case is a swing of the bonus itself. Stressed at twice "
+                   "the largest known bonus. Additive versus multiplicative stacking differs by the "
+                   "product of the two bonuses, which is smaller still."}
+
+    # 5. trait and quality composition: relative stat weights, sampled over the legal envelope
+    bw = banner_weight_sensitivity(base, rules)
+    report["findings"]["trait_composition"] = {
+        "fact_status": "UNRESOLVED",
+        "decision_status": ("ROBUST" if all(v["top_1_changed_fraction"] == 0.0
+                                            for v in bw.values()) else "BLOCKING"),
+        "by_role": bw,
+        "reading": "The banner belongs to the account, so its multipliers apply to every candidate "
+                   "team alike; only the RELATIVE weight of one stat against another can reorder "
+                   "them. Sampled across the full legal quality and trait envelope."}
     return report
 
 

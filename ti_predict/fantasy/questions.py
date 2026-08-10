@@ -26,6 +26,9 @@ RULES_JSON = os.path.join(INPUTS, "fantasy", "fantasy_rules.json")
 GENERIC_EVIDENCE_JSON = os.path.join(INPUTS, "fantasy", "generic_evidence.json")
 
 STATUSES = ("CONFIRMED", "PARTIAL", "UNRESOLVED")
+# What an unknown does to the ANSWER, which is a different question from what the
+# evidence supports. CONDITIONAL means it blocks only in a state that can be checked.
+DECISION_STATUSES = ("BLOCKING", "ROBUST", "SCALE_ONLY", "IRRELEVANT", "CONDITIONAL")
 ANSWERABLE_STATUS = ("CONFIRMED",)
 REQUIRED_FIELDS = ("question_id", "category", "official_en_label", "exact_question", "answer_type",
                    "number_of_slots", "allowed_candidates", "restrictions", "scoring_rule",
@@ -154,10 +157,57 @@ def load_rules(path=None):
         if src != TIER1_POINTS_SOURCE and st == "CONFIRMED":
             raise SystemExit(f"{_relpath(path)}: {s['stat_id']} is CONFIRMED on a {src} reading; "
                              "only a direct client read may confirm a scoring coefficient")
-    if not doc.get("blocking_unknowns") and stats.get("status") != "CONFIRMED":
-        raise SystemExit(f"{_relpath(path)}: status is not CONFIRMED but no blocking_unknowns "
-                         "are listed; say what is missing")
+    if "blocking_unknowns" in doc:
+        raise SystemExit(f"{_relpath(path)}: blocking_unknowns is a second, hand-written copy of "
+                         "readiness. Readiness is derived from `unknowns`; delete the list.")
+    unknowns = doc.get("unknowns")
+    if not unknowns:
+        raise SystemExit(f"{_relpath(path)}: no `unknowns` register; readiness has nothing to "
+                         "derive from")
+    seen = set()
+    for u in unknowns:
+        uid = u.get("id", "<unnamed>")
+        for f in ("id", "scope", "question", "fact_status", "decision_status", "blocking_for"):
+            if f not in u:
+                raise SystemExit(f"{_relpath(path)}: unknown {uid} is missing {f}")
+        if uid in seen:
+            raise SystemExit(f"{_relpath(path)}: duplicate unknown id {uid}")
+        seen.add(uid)
+        if u["scope"] not in ("generic", "account"):
+            raise SystemExit(f"{_relpath(path)}: unknown {uid} has scope {u['scope']!r}")
+        if u["fact_status"] not in STATUSES:
+            raise SystemExit(f"{_relpath(path)}: unknown {uid} has fact_status "
+                             f"{u['fact_status']!r}")
+        if u["decision_status"] not in DECISION_STATUSES:
+            raise SystemExit(f"{_relpath(path)}: unknown {uid} has decision_status "
+                             f"{u['decision_status']!r}; every unknown must be MEASURED against "
+                             f"the decision, not left unscored (one of {', '.join(DECISION_STATUSES)})")
+        if u["decision_status"] == "CONDITIONAL" and not u.get("condition"):
+            raise SystemExit(f"{_relpath(path)}: unknown {uid} is CONDITIONAL but states no "
+                             "condition, so nobody can tell when it applies")
+        if u["decision_status"] in ("BLOCKING", "CONDITIONAL") and not u["blocking_for"]:
+            raise SystemExit(f"{_relpath(path)}: unknown {uid} blocks but names nothing in "
+                             "blocking_for")
     return doc
+
+
+def blockers(rules=None, account_state_known=False):
+    """The unknowns that actually stop a decision, derived from the register and nothing else.
+
+    A CONDITIONAL unknown blocks only once the account state that triggers it is known to hold.
+    Before that it is reported separately: declaring a decision permanently blocked on a condition
+    nobody has evaluated is how a track stays frozen for no reason.
+    """
+    rules = rules or load_rules()
+    hard, conditional = [], []
+    for u in rules["unknowns"]:
+        if u["decision_status"] == "BLOCKING":
+            hard.append(u)
+        elif u["decision_status"] == "CONDITIONAL":
+            (hard if account_state_known else conditional).append(u)
+    return {"blocking": hard, "conditional_pending_account_state": conditional,
+            "blocking_ids": [u["id"] for u in hard],
+            "conditional_ids": [u["id"] for u in conditional]}
 
 
 def load_generic_evidence(path=None):
@@ -203,7 +253,8 @@ def readiness(questions_path=None, rules_path=None):
     """
     doc = load_questions(questions_path)
     rules = load_rules(rules_path)
-    blocking = list(rules.get("blocking_unknowns", []))
+    blk = blockers(rules)
+    blocking = blk["blocking_ids"]
     out = []
     for q in doc["questions"]:
         reasons = []
@@ -212,12 +263,13 @@ def readiness(questions_path=None, rules_path=None):
         if not q.get("answerable_now"):
             reasons.append(q.get("answerable_reason") or "the client has not opened this question")
         if q["category"].startswith("fantasy") and blocking:
-            reasons.append(f"the Fantasy ruleset has {len(blocking)} unresolved scoring values")
+            reasons.append("blocked by " + ", ".join(blocking))
         out.append({"question_id": q["question_id"], "category": q["category"],
                     "number_of_slots": q["number_of_slots"], "status": q["status"],
                     "handled_by": q.get("handled_by"),
                     "candidate_ready": not reasons, "blocked_by": reasons})
     return {"questions": out, "blocking_unknowns": blocking,
+            "conditional_unknowns": blk["conditional_ids"],
             "candidate_ready": [r["question_id"] for r in out if r["candidate_ready"]],
             "candidate_ready_new_track": [r["question_id"] for r in out
                                           if r["candidate_ready"]
