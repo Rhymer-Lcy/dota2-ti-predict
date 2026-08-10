@@ -1,0 +1,615 @@
+{
+  "manifest": {
+    "mode": "candidate",
+    "status": "SUBMISSION-GRADE CANDIDATE - NOT FINAL LOCK-DAY RUN",
+    "generated_at": "2026-08-10T09:57:46+00:00",
+    "code_commit": "7a767c7",
+    "data_cutoff": "2026-08-13T02:00:00+00:00",
+    "strengths_source": "B-bt @ 2026-08-13T02:00:00+00:00 (radiant c=+0.093)",
+    "radiant_c": 0.0932,
+    "half_life_days": 90,
+    "map_prob": "side-neutral 0.5*(sigmoid(d+c)+sigmoid(d-c))",
+    "training_maps": 8690,
+    "provenance": {
+      "requested_cutoff": "2026-08-13T02:00:00+00:00",
+      "universe_rows": 8690,
+      "universe_max_start_time": "2026-08-09T19:02:27+00:00",
+      "universe_lag_days_before_cutoff": 3.29,
+      "teams_sha256": "6fa7689f954f39e9147281ab6e21c265436f10a668694a701c780b8e623016df",
+      "canonical_identity_sha256": "0c3e30f15c4c69aef9b8f36208659617613c36bb20e6c8611164c3a42a8782b9",
+      "universe_sha256": "8a61f7196ea432264dc215e0427659f911ea755ee49a2a116c8fae6e60b0d45a",
+      "draw_sha256": "da1a54ff4ff14d0104930bf895dac7f13bd0dd420252500c8c15e341b5fd9469",
+      "git_commit": "7a767c7",
+      "git_dirty": true,
+      "freshness_gate": {
+        "stale_max_days": 3,
+        "stale": true,
+        "overridden": true,
+        "note": "override accepted: no professional match exists between the universe's latest map and the cutoff; re-run scan_promatches to re-verify before trusting this"
+      }
+    },
+    "n_sims": 280000,
+    "seed": 20260813,
+    "c5_pairing_policy": "enumerate legal perfect pairings; minimize rematches, then optimize the rank-gap objective (min, or max for round-5 elimination matches), then break ties at random with a fixed seed",
+    "points_refinement": {
+      "proposed_moves": [],
+      "adopted": false,
+      "paired_gain": 0.0,
+      "paired_gain_se": 0.0,
+      "rule": "no move proposed; Hungarian slate stands",
+      "hungarian_expected_correct": 5.249
+    },
+    "d4_primary": "strategic",
+    "d4_scenarios": [
+      "strategic",
+      "noisy",
+      "random"
+    ],
+    "d4_selection_sensitive_buckets": {},
+    "tiebreak_diagnostic": {
+      "tie_16_rate": 0.0023,
+      "tie_32_rate": 0.0008,
+      "note": "fraction of sims where the first five tiebreakers all tie, so the result falls to the unmodeled avg-duration/coin-toss tail: overall (tie_16) / bucket-relevant 3-2 pick order (tie_32)"
+    },
+    "draw_source": "data\\ti2026\\inputs\\draw.json",
+    "draw_status": {
+      "r1_status": "official",
+      "structure": "two_pod",
+      "structure_status": "confirmed",
+      "pod_membership_status": "unresolved",
+      "structure_evidence": "official TI15 rules page: round 1 splits the 16 into two initial groups and pairs within them; rounds 2-3 pair inside a team's initial group; round 4 pairs against the other group",
+      "pod_membership_evidence": "the league feed carries no pod field, so the membership is absent HERE; that is not evidence against the two-pod structure, which the official rules state",
+      "feed_sha256": "41b53f0e8a7c84551be0e569e0bc5d5a6998769ed211f2d365c5a634c012845b",
+      "retrieved_at": "2026-08-10T09:00:05+00:00"
+    },
+    "roster_audit": {
+      "teams_audited": 16,
+      "audit_source": "data/ti2026/inputs/roster_events.csv",
+      "confirmed": 15,
+      "changed": [
+        {
+          "organization": "LGD Gaming",
+          "role": "2",
+          "outgoing": {
+            "player": "TaiLung",
+            "account_id": "1026694469"
+          },
+          "incoming": {
+            "player": "Topson",
+            "account_id": "94054712"
+          },
+          "reason_category": "tournament-integrity-ban",
+          "eligibility": "outgoing-banned-incoming-eligible",
+          "announced_utc": "2026-08-09T05:20:00Z",
+          "effective_status": "active",
+          "evidence_tier": "1",
+          "source": "lgd-official-weibo+lgd-official-x+liquipedia-ti2026-participants"
+        }
+      ],
+      "blocking": [],
+      "retrieved_at": "2026-08-10"
+    },
+    "pods": {
+      "structure": "two_pod",
+      "structure_status": "confirmed (official rule)",
+      "pod_membership_status": "unresolved",
+      "handling": "marginalized over every pod membership compatible with the posted round 1",
+      "membership_agreement": {
+        "n_admissible_memberships": 35,
+        "memberships_with_identical_slate": 14,
+        "max_regret_expected_correct": 0.0199,
+        "mean_regret_expected_correct": -0.0041,
+        "regret_basis": "held-out: alternative slate chosen on the optimize archive, scored on the independent verification archive"
+      }
+    },
+    "r1_pairings": [
+      [
+        "Team Falcons",
+        "LGD Gaming"
+      ],
+      [
+        "Tundra Esports",
+        "Nigma Galaxy"
+      ],
+      [
+        "BetBoom Team",
+        "OG"
+      ],
+      [
+        "PARIVISION",
+        "Team Resilience"
+      ],
+      [
+        "Team Spirit",
+        "Xtreme Gaming"
+      ],
+      [
+        "Team Liquid",
+        "Vici Gaming"
+      ],
+      [
+        "Aurora Gaming",
+        "GamerLegion"
+      ],
+      [
+        "Team Yandex",
+        "HULIGANI"
+      ]
+    ],
+    "teams": [
+      {
+        "team": "Aurora Gaming",
+        "alias": "",
+        "region": "EEU",
+        "opendota_team_id": "9467224",
+        "note": "61 recent maps"
+      },
+      {
+        "team": "BetBoom Team",
+        "alias": "BoomBoys",
+        "region": "EEU",
+        "opendota_team_id": "8255888",
+        "note": "RE-RESOLVED from 9131584; 59 maps"
+      },
+      {
+        "team": "Team Falcons",
+        "alias": "",
+        "region": "WEU",
+        "opendota_team_id": "9247354",
+        "note": "TI2025 champion; 51 maps"
+      },
+      {
+        "team": "Team Liquid",
+        "alias": "",
+        "region": "WEU",
+        "opendota_team_id": "2163",
+        "note": "51 maps (id has 14y history; use recent window)"
+      },
+      {
+        "team": "Tundra Esports",
+        "alias": "1w Team",
+        "region": "WEU",
+        "opendota_team_id": "10182357",
+        "note": "roster acquired by 1win 2026-06-01; plays as 1w Team at TI; 96 maps across 3 ids"
+      },
+      {
+        "team": "Xtreme Gaming",
+        "alias": "",
+        "region": "CN",
+        "opendota_team_id": "10208071",
+        "note": "RE-RESOLVED from 8261500; new superteam id only 3 maps"
+      },
+      {
+        "team": "Team Yandex",
+        "alias": "",
+        "region": "EEU",
+        "opendota_team_id": "9823272",
+        "note": "42 maps"
+      },
+      {
+        "team": "Team Resilience",
+        "alias": "",
+        "region": "CN",
+        "opendota_team_id": "10207984",
+        "note": "RE-RESOLVED from 5017210; only 2 maps (new)"
+      },
+      {
+        "team": "Vici Gaming",
+        "alias": "",
+        "region": "CN",
+        "opendota_team_id": "726228",
+        "note": "51 maps (id has long history; recent window)"
+      },
+      {
+        "team": "LGD Gaming",
+        "alias": "",
+        "region": "SA",
+        "opendota_team_id": "10150538",
+        "note": "RE-RESOLVED from 15 (ancient id); SA roster; 58 maps"
+      },
+      {
+        "team": "OG",
+        "alias": "",
+        "region": "SEA",
+        "opendota_team_id": "2586976",
+        "note": "34 maps"
+      },
+      {
+        "team": "GamerLegion",
+        "alias": "",
+        "region": "NA",
+        "opendota_team_id": "9964962",
+        "note": "31 maps"
+      },
+      {
+        "team": "Team Spirit",
+        "alias": "",
+        "region": "EU",
+        "opendota_team_id": "7119388",
+        "note": "54 maps"
+      },
+      {
+        "team": "PARIVISION",
+        "alias": "Team Vision",
+        "region": "EU",
+        "opendota_team_id": "9824702",
+        "note": "30 maps (borderline thin)"
+      },
+      {
+        "team": "HULIGANI",
+        "alias": "",
+        "region": "EU",
+        "opendota_team_id": "10149530",
+        "note": "21 maps (new org; thin)"
+      },
+      {
+        "team": "Nigma Galaxy",
+        "alias": "",
+        "region": "EU",
+        "opendota_team_id": "10136357",
+        "note": "RE-RESOLVED from 7554697; 41 maps"
+      }
+    ],
+    "expected_correct": 5.249,
+    "caveats": [
+      "model-only; NOT validated against historical market increment",
+      "structural/property tested, not a replica of unpublished pairing decisions",
+      "C5 pairing and D4 opponent-choice are modeling assumptions (see docs)"
+    ]
+  },
+  "probabilities": {
+    "Team Falcons": {
+      "4-0": 0.1266,
+      "4-1": 0.238,
+      "decider_win": 0.3988,
+      "decider_loss": 0.1993,
+      "1-4": 0.0295,
+      "0-4": 0.0077
+    },
+    "LGD Gaming": {
+      "4-0": 0.0184,
+      "4-1": 0.0676,
+      "decider_win": 0.3099,
+      "decider_loss": 0.3817,
+      "1-4": 0.1531,
+      "0-4": 0.0693
+    },
+    "Tundra Esports": {
+      "4-0": 0.0249,
+      "4-1": 0.0771,
+      "decider_win": 0.3195,
+      "decider_loss": 0.3889,
+      "1-4": 0.1362,
+      "0-4": 0.0534
+    },
+    "Nigma Galaxy": {
+      "4-0": 0.0324,
+      "4-1": 0.0923,
+      "decider_win": 0.342,
+      "decider_loss": 0.3732,
+      "1-4": 0.1176,
+      "0-4": 0.0425
+    },
+    "BetBoom Team": {
+      "4-0": 0.1357,
+      "4-1": 0.2361,
+      "decider_win": 0.3857,
+      "decider_loss": 0.2055,
+      "1-4": 0.03,
+      "0-4": 0.007
+    },
+    "OG": {
+      "4-0": 0.0042,
+      "4-1": 0.0189,
+      "decider_win": 0.1577,
+      "decider_loss": 0.3608,
+      "1-4": 0.2728,
+      "0-4": 0.1856
+    },
+    "PARIVISION": {
+      "4-0": 0.2235,
+      "4-1": 0.3048,
+      "decider_win": 0.3397,
+      "decider_loss": 0.1171,
+      "1-4": 0.0121,
+      "0-4": 0.0027
+    },
+    "Team Resilience": {
+      "4-0": 0.0152,
+      "4-1": 0.0622,
+      "decider_win": 0.2995,
+      "decider_loss": 0.3788,
+      "1-4": 0.1648,
+      "0-4": 0.0795
+    },
+    "Team Spirit": {
+      "4-0": 0.0797,
+      "4-1": 0.1714,
+      "decider_win": 0.394,
+      "decider_loss": 0.2839,
+      "1-4": 0.0555,
+      "0-4": 0.0155
+    },
+    "Xtreme Gaming": {
+      "4-0": 0.008,
+      "4-1": 0.0321,
+      "decider_win": 0.2121,
+      "decider_loss": 0.3948,
+      "1-4": 0.228,
+      "0-4": 0.125
+    },
+    "Team Liquid": {
+      "4-0": 0.0558,
+      "4-1": 0.1381,
+      "decider_win": 0.3874,
+      "decider_loss": 0.3194,
+      "1-4": 0.0754,
+      "0-4": 0.024
+    },
+    "Vici Gaming": {
+      "4-0": 0.0191,
+      "4-1": 0.0639,
+      "decider_win": 0.2977,
+      "decider_loss": 0.3946,
+      "1-4": 0.157,
+      "0-4": 0.0677
+    },
+    "Aurora Gaming": {
+      "4-0": 0.0975,
+      "4-1": 0.1958,
+      "decider_win": 0.3951,
+      "decider_loss": 0.2552,
+      "1-4": 0.0449,
+      "0-4": 0.0115
+    },
+    "GamerLegion": {
+      "4-0": 0.006,
+      "4-1": 0.0271,
+      "decider_win": 0.1928,
+      "decider_loss": 0.383,
+      "1-4": 0.2462,
+      "0-4": 0.1449
+    },
+    "Team Yandex": {
+      "4-0": 0.1476,
+      "4-1": 0.2498,
+      "decider_win": 0.382,
+      "decider_loss": 0.1893,
+      "1-4": 0.0256,
+      "0-4": 0.0058
+    },
+    "HULIGANI": {
+      "4-0": 0.0055,
+      "4-1": 0.025,
+      "decider_win": 0.186,
+      "decider_loss": 0.3744,
+      "1-4": 0.2512,
+      "0-4": 0.1579
+    }
+  },
+  "slate": {
+    "4-0": [
+      {
+        "team": "PARIVISION",
+        "p": 0.2235,
+        "se": 0.0008
+      }
+    ],
+    "4-1": [
+      {
+        "team": "Team Yandex",
+        "p": 0.2498,
+        "se": 0.0008
+      },
+      {
+        "team": "BetBoom Team",
+        "p": 0.2361,
+        "se": 0.0008
+      }
+    ],
+    "decider_win": [
+      {
+        "team": "Team Falcons",
+        "p": 0.3988,
+        "se": 0.0009
+      },
+      {
+        "team": "Aurora Gaming",
+        "p": 0.3951,
+        "se": 0.0009
+      },
+      {
+        "team": "Team Spirit",
+        "p": 0.394,
+        "se": 0.0009
+      },
+      {
+        "team": "Team Liquid",
+        "p": 0.3874,
+        "se": 0.0009
+      },
+      {
+        "team": "Nigma Galaxy",
+        "p": 0.342,
+        "se": 0.0009
+      }
+    ],
+    "decider_loss": [
+      {
+        "team": "Xtreme Gaming",
+        "p": 0.3948,
+        "se": 0.0009
+      },
+      {
+        "team": "Vici Gaming",
+        "p": 0.3946,
+        "se": 0.0009
+      },
+      {
+        "team": "Tundra Esports",
+        "p": 0.3889,
+        "se": 0.0009
+      },
+      {
+        "team": "LGD Gaming",
+        "p": 0.3817,
+        "se": 0.0009
+      },
+      {
+        "team": "Team Resilience",
+        "p": 0.3788,
+        "se": 0.0009
+      }
+    ],
+    "1-4": [
+      {
+        "team": "HULIGANI",
+        "p": 0.2512,
+        "se": 0.0008
+      },
+      {
+        "team": "GamerLegion",
+        "p": 0.2462,
+        "se": 0.0008
+      }
+    ],
+    "0-4": [
+      {
+        "team": "OG",
+        "p": 0.1856,
+        "se": 0.0007
+      }
+    ]
+  },
+  "per_team": {
+    "Team Falcons": {
+      "assigned": "decider_win",
+      "p": 0.3988,
+      "se": 0.0009,
+      "second_best": "4-1",
+      "second_p": 0.238,
+      "gap": 0.1608
+    },
+    "LGD Gaming": {
+      "assigned": "decider_loss",
+      "p": 0.3817,
+      "se": 0.0009,
+      "second_best": "decider_win",
+      "second_p": 0.3099,
+      "gap": 0.0717
+    },
+    "Tundra Esports": {
+      "assigned": "decider_loss",
+      "p": 0.3889,
+      "se": 0.0009,
+      "second_best": "decider_win",
+      "second_p": 0.3195,
+      "gap": 0.0695
+    },
+    "Nigma Galaxy": {
+      "assigned": "decider_win",
+      "p": 0.342,
+      "se": 0.0009,
+      "second_best": "decider_loss",
+      "second_p": 0.3732,
+      "gap": -0.0312
+    },
+    "BetBoom Team": {
+      "assigned": "4-1",
+      "p": 0.2361,
+      "se": 0.0008,
+      "second_best": "decider_win",
+      "second_p": 0.3857,
+      "gap": -0.1496
+    },
+    "OG": {
+      "assigned": "0-4",
+      "p": 0.1856,
+      "se": 0.0007,
+      "second_best": "decider_loss",
+      "second_p": 0.3608,
+      "gap": -0.1752
+    },
+    "PARIVISION": {
+      "assigned": "4-0",
+      "p": 0.2235,
+      "se": 0.0008,
+      "second_best": "decider_win",
+      "second_p": 0.3397,
+      "gap": -0.1162
+    },
+    "Team Resilience": {
+      "assigned": "decider_loss",
+      "p": 0.3788,
+      "se": 0.0009,
+      "second_best": "decider_win",
+      "second_p": 0.2995,
+      "gap": 0.0793
+    },
+    "Team Spirit": {
+      "assigned": "decider_win",
+      "p": 0.394,
+      "se": 0.0009,
+      "second_best": "decider_loss",
+      "second_p": 0.2839,
+      "gap": 0.11
+    },
+    "Xtreme Gaming": {
+      "assigned": "decider_loss",
+      "p": 0.3948,
+      "se": 0.0009,
+      "second_best": "1-4",
+      "second_p": 0.228,
+      "gap": 0.1668
+    },
+    "Team Liquid": {
+      "assigned": "decider_win",
+      "p": 0.3874,
+      "se": 0.0009,
+      "second_best": "decider_loss",
+      "second_p": 0.3194,
+      "gap": 0.068
+    },
+    "Vici Gaming": {
+      "assigned": "decider_loss",
+      "p": 0.3946,
+      "se": 0.0009,
+      "second_best": "decider_win",
+      "second_p": 0.2977,
+      "gap": 0.0969
+    },
+    "Aurora Gaming": {
+      "assigned": "decider_win",
+      "p": 0.3951,
+      "se": 0.0009,
+      "second_best": "decider_loss",
+      "second_p": 0.2552,
+      "gap": 0.1399
+    },
+    "GamerLegion": {
+      "assigned": "1-4",
+      "p": 0.2462,
+      "se": 0.0008,
+      "second_best": "decider_loss",
+      "second_p": 0.383,
+      "gap": -0.1368
+    },
+    "Team Yandex": {
+      "assigned": "4-1",
+      "p": 0.2498,
+      "se": 0.0008,
+      "second_best": "decider_win",
+      "second_p": 0.382,
+      "gap": -0.1323
+    },
+    "HULIGANI": {
+      "assigned": "1-4",
+      "p": 0.2512,
+      "se": 0.0008,
+      "second_best": "decider_loss",
+      "second_p": 0.3744,
+      "gap": -0.1231
+    }
+  },
+  "expected_correct": 5.249
+}
