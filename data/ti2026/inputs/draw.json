@@ -1,7 +1,7 @@
 {
   "league_id": 19719,
   "source": "https://www.dota2.com/webapi/IDOTA2League/GetLeagueData/v001/?league_id=19719",
-  "feed_sha256": "39e92ef8d1ff04842ad48b2042e08cf071080f00890ebbb75da85dee3481196c",
+  "feed_sha256": "41b53f0e8a7c84551be0e569e0bc5d5a6998769ed211f2d365c5a634c012845b",
   "swiss_format": {
     "team_count": 16,
     "max_rounds": 5,
@@ -49,6 +49,6 @@
   "pod_membership_status": "unresolved",
   "pod_membership_evidence": "the league feed carries no pod field, so the membership is absent HERE; that is not evidence against the two-pod structure, which the official rules state",
   "first_match_utc": "2026-08-13T02:00:00+00:00",
-  "retrieved_at": "2026-08-10T08:18:51+00:00",
+  "retrieved_at": "2026-08-10T09:00:05+00:00",
   "_comment": "Generated from the official Valve league feed by `python -m ti_predict.league_feed --write-draw`. Team names are canonical organizations (teams.csv 'team'). The two-pod structure is an official rule (structure_status=confirmed); pod_membership_status='unresolved' means the eight-team split itself is unpublished, so the official run marginalizes over every partition compatible with the posted round 1. Fill podA/podB and set pod_membership_status='confirmed' once the real split is posted."
 }
