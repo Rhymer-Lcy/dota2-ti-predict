@@ -56,10 +56,42 @@ The 18 base coefficients, the Deaths credit and the Teamfight Participation maxi
 CONFIRMED only by a direct read of the live client, and `ti_predict/fantasy/questions.py` enforces
 that: a coefficient must name its `points_source_type`, and only `client_ui` may be CONFIRMED.
 
-Twelve facts still block optimisation, listed in `fantasy_rules.json` under `blocking_unknowns` and
-prioritised P0/P1. Until the P0 group is closed, `readiness()` reports every Fantasy question as not
-candidate-ready and no Fantasy team, banner or coach recommendation may be produced. That is the
-intended behaviour, not a defect.
+Blockers are split by whether they are **generic** (identical for every entrant, so public research
+is the right tool) or **account-specific** (a function of this account's random rolls, so no amount
+of research reaches them). The split is recorded in `fantasy/generic_evidence.json`.
+
+The 2026-08-10 deep-research round closed most of the generic set from Valve's own protobuf and
+Source 2 schema, the shipped package listing, and independent public tooling. What survives is in
+`fantasy_rules.json` under `blocking_unknowns`, and `closed_this_round` records what was withdrawn
+and at what grade.
+
+**Why the rest cannot be closed publicly.** The remaining generic numbers live in
+`FantasyCraftSetupData_t`, and the shipped package listing contains no fantasy crafting data
+resource - only textures match. Those values are compiled into the client or delivered by the game
+coordinator, so further public research does not reach them. That is a negative result, and it is
+the useful kind: it bounds the search rather than inviting more of it.
+
+Until the P0 group is closed, `readiness()` reports every Fantasy question as not candidate-ready
+and no Fantasy team, banner or coach recommendation may be produced. That is the intended behaviour,
+not a defect.
+
+### What Valve's own definitions settle
+
+Read-only: only definitions were consulted. No GC request was issued, and no state-mutating message
+(`PerformOperation`, `RerollOptions`, `SelectPlayer`, `SelectTeam`, `GenerateTablets`,
+`UpgradeTablets`) was sent or will be.
+
+| Finding | Source | Consequence |
+| --- | --- | --- |
+| `Fantasy_Scoring` values 0-17 are exactly the helpstat ordering | `dota_shared_enums.proto` | the stat-to-index mapping is Tier-1, independently of where the coefficients came from |
+| a gem is `(type, slot, shape, quality, stat)` | `dota_gcmessages_client_fantasy.proto` | emblem **order** is real state, so adjacency traits are a genuine ordering decision |
+| a tablet carries `tablet_level` and `best_series` | same | Valve's own model names the best-series selection this project inferred from help text |
+| gem slots carry `m_nRequiredTabletLevel`; a period carries `m_nTabletLevel` | `FantasyCraftingGemSlotData_t`, `FantasyPeriodData_t` | the three-slot banner is the **period-0** layout; period 1 raises the level and unlocks more slots |
+| `EFantasyShapeBehavior` has exactly six behaviours | schema dump | the trait taxonomy is closed; there is no hidden seventh |
+| a title is a thresholded predicate over a stat vector at player/team/game scope, paying one integer bonus | `FantasyCraftingTitleData_t`, `FantasyCraftingTrackedStat_t` | every suffix condition in the list is explained by scope plus threshold direction |
+| `FantasyCraftOperation_t` has no cost field | schema dump | corroborates the flat one-token cost: the budget problem is about the *number* of operations, not their mix |
+| operations come from weighted buckets | `FantasyCraftOperationBucket_t` | the roll board is a random draw, so crafting is sequential decision-making under randomness |
+| `FantasyPlayerData_t.m_bIsValid` | schema dump | Valve carries a per-player league-validity flag; an ineligible player leaves the pool at source |
 
 ### The 18 base coefficients
 
@@ -118,7 +150,16 @@ These are consequences of the ruleset, recorded now so the modelling phase does 
   The decision is a sequential one under randomness with a budget constraint, and its value depends
   on the token budget, which is currently unknown.
 - **Adjacency is part of the decision.** Benevolent and Vampiric act on neighbouring emblems, so the
-  ordering of emblems on a banner matters, not just the set.
+  ordering of emblems on a banner matters, not just the set. Valve's gem message carries an explicit
+  `slot`, which is what makes that ordering well defined rather than cosmetic.
+- **The banner grows between periods, so period 0 is not a rehearsal for period 1.** Gem slots are
+  gated by `m_nRequiredTabletLevel` and the tablet level is set per period. A three-emblem banner in
+  the group stage becomes a larger one at the main event, on the *same* carried-over roster. Tokens
+  do not roll over, so the period-0 budget must be spent against the period-0 layout and cannot be
+  saved for the bigger banner.
+- **Two-thirds of the coach title pool is unpriced.** Eight prefix bonuses are known and they range
+  from 6 to 11 percent, so the choice is worth real points and is not uniform. The other eleven
+  prefixes and all twenty suffixes have no published value.
 - **Rewards are percentile-banded.** Nine tiers, from 100th to 10th percentile. Clearing a threshold
   is what pays, which is not the same objective as maximising expected score. Which to optimise
   cannot be settled until the tier values are known.
@@ -132,18 +173,18 @@ These are consequences of the ruleset, recorded now so the modelling phase does 
 
 ## 4. Phase plan
 
-1. **PHASE 1 - inventory: BLOCKED, reduced.** The 30 prediction slots and the two-period Fantasy
-   structure are exhaustively enumerated, and as of 2026-08-10 the 18 base coefficients are
-   populated at user-screenshot grade. What still requires the live client: the four P0 scoring
-   semantics, the current banner state, the coach title percentages, the selection legality, and the
-   period-0 lock countdown.
-2. **PHASE 2 - data feasibility: IN PROGRESS.** The OpenDota field mapping for all 18 stats is
-   recorded and probed: 15 retrievable, 2 blocked (Watchers, Lotuses), 1 partial (Tormentor). Still
-   to do: parse-coverage rate over TI-tier matches and whether STRATZ supplies the two blocked
-   stats. Permitted to continue while PHASE 1 is blocked, since none of it depends on the
-   coefficients.
-3. **PHASE 3 - baselines: NOT STARTED.** Planned: role-level and team-level per-map distributions
-   with event-blocked bootstrap intervals.
+1. **PHASE 1 - inventory: BLOCKED, much reduced.** The 30 prediction slots and the two-period
+   Fantasy structure are exhaustively enumerated. After the 2026-08-10 deep-research round the
+   generic set is nearly closed; what remains is three generic scoring semantics that live in
+   client-side data, plus the account's own banner state.
+2. **PHASE 2 - data feasibility: DONE for the public window.** All 18 stats are mapped to columns
+   and probed: 15 retrievable, 2 unobtainable (Watchers, Lotuses), 1 partial (Tormentor, no
+   per-player attribution). Everything except six base columns requires a *parsed* match, so
+   `parsed` is carried on every row and the baseline filters on it.
+3. **PHASE 3 - baselines: STARTED.** `fetch_player_stats` pulls per-player per-map rows for the 16
+   TI rosters over the five-event window already present in the frozen track's universe;
+   `baseline.py` applies the real four-level aggregation and reports under both unresolved
+   hypotheses. Output is explicitly PRELIMINARY.
 4. **PHASE 4 - modelling: NOT STARTED.** Planned: hierarchical shrinkage per stat class, joined to
    the frozen Swiss simulator only for series exposure, then a maximum-over-series aggregation.
 5. **PHASE 5 - validation: NOT STARTED.** Planned: as-of validation on prior LANs using strictly
@@ -171,9 +212,15 @@ Nothing in this track re-runs, re-tunes, or re-reports the frozen group-stage sl
 ## 6. Commands
 
 ```
-python -m ti_predict.fantasy.questions      # validate the inventory and print the readiness gate
-python -m pytest tests/test_fantasy_questions.py -q
+python -m ti_predict.fantasy.questions          # validate the inventory, print the readiness gate
+python -m ti_predict.fantasy.fetch_player_stats # per-player per-map rows; resumable, fail-closed
+python -m ti_predict.fantasy.baseline --top-two sum
+python -m ti_predict.fantasy.baseline --top-two mean --deaths-floor
+python -m pytest tests/test_fantasy_questions.py tests/test_fantasy_baseline.py -q
 ```
+
+The two baseline invocations are the two unresolved hypotheses. Run both; the spread between them is
+the honest error bar on the aggregation rule, and neither is the official one.
 
 When the default system temp folder is not writable, use a workspace-local temporary base:
 
@@ -181,23 +228,32 @@ When the default system temp folder is not writable, use a workspace-local tempo
 python -m pytest tests/test_fantasy_questions.py -q -p no:cacheprovider --basetemp=.pytest-tmp
 ```
 
-## 7. Exact live-client captures still required
+## 7. What still has to come from the live client
 
-1. **Compendium -> Fantasy -> How to Play -> Scoring / Emblem Stats.** Capture the entire rules
-   pane from its heading through all 18 stat rows. It must show every numeric coefficient, the
-   Deaths starting credit, and the wording immediately around “top two scoring games.”
-2. **Compendium -> Fantasy -> Core, Mid, Support War Banners.** One full-resolution capture per
-   banner. Include every emblem slot in left-to-right order, colour, stat, quality, trait, the roll
-   token count, all three current roll options, and the lock countdown.
-3. **Open “Choose Team” on each of the three War Banners.** Capture the complete dropdown including
-   disabled entries or restriction text. The images must establish the candidate universe and
-   whether the same team may be selected for more than one role.
-4. **Compendium -> Fantasy -> Coaching Titles.** Capture the complete prefix and suffix choices,
-   each displayed percentage, and the same lock countdown.
-5. **Compendium -> Rewards -> Fantasy.** Capture all nine percentile rows and their point values.
-6. **After Fantasy period 1 unlocks.** Capture its period label, countdown, candidate dropdown and
-   any newly granted roll tokens or upgrade choices.
+The generic ruleset has been pushed as far as public material goes. Requests for generic panels are
+**withdrawn**; see `prediction_questions.screenshot_reconciliation.withdrawn_requests`. Asking again
+for something the shipped schema already answers wastes the operator's time and is the failure this
+section exists to prevent.
 
-The previously referenced long screenshot is not available as an image payload or repository file
-in this run. Its prose description was used only to discover modules; no OCR-derived number has been
-accepted as fact.
+**Account-specific, and unreachable by any other means.** `CMsgDotaFantasyCraftingUserData` and
+`CMsgDotaFantasyCraftingTabletPeriodData` are per-account messages; their contents exist nowhere
+public by construction.
+
+1. **The three War Banners in one capture** - Core, Mid and Support. For each emblem: colour, stat,
+   quality tier, trait, and its left-to-right position, because adjacency traits make order part of
+   the state. The same capture should show the roll-token balance and the lock countdown.
+2. **One capture of the roll board** - the three operations currently offered.
+
+**Generic, still open, and worth a capture only because it is cheap while the operator is already
+in the panel.** Not a blocker for PHASE 3: the Scoring pane's exact wording around "the top two
+scoring games", and the Rewards table's nine percentile point values.
+
+### Can this be read automatically instead?
+
+Not safely. The data arrives in the GC response to `k_EMsgClientToGCFantasyCraftingGetData`, which
+requires an authenticated Steam session speaking the GC protocol. Doing that means running a
+third-party client against the account during a live event, and the same session carries the
+state-mutating operations. The client keeps a `CMsgDotaFantasyCraftingDataCache`, but it is not an
+exposed file with a documented location, and reading it would still mean parsing an undocumented
+private cache. A screenshot of two panels costs the operator a minute and carries none of that risk,
+so it is the right trade here - not a fallback.
