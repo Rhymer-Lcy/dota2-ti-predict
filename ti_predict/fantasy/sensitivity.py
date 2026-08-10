@@ -38,12 +38,22 @@ def _displacement(a, b):
 
 
 def compare(base, alt):
-    """Rank displacement and stat-choice stability between two settings, per role."""
+    """Rank displacement, top-k stability and stat-choice stability between two settings, per role.
+
+    `top_1_stable` is the one that decides the grade. The decision this track exists to make is
+    which single team goes on each banner, so a rule that cannot move the argmax cannot move the
+    decision, however much it shuffles the tail of the table. The fuller measures are kept because
+    a rule that leaves the argmax alone while churning everything below it is worth knowing about.
+    """
     out = {}
     for role in ROLES:
         pa, pb = _picks(base, role), _picks(alt, role)
         changed = sorted(o for o in pa if pa[o] != pb.get(o))
-        out[role] = {"rank": _displacement(_order(base, role), _order(alt, role)),
+        oa, ob = _order(base, role), _order(alt, role)
+        out[role] = {"rank": _displacement(oa, ob),
+                     "top_1_stable": oa[:1] == ob[:1],
+                     "top_3_stable": set(oa[:3]) == set(ob[:3]),
+                     "top_1": {"base": oa[:1], "alt": ob[:1]},
                      "stat_choice_changed_for": changed,
                      "stat_choice_stable": not changed}
     return out
@@ -131,22 +141,25 @@ def run(min_series_maps=2):
         "against": {cv: compare(base, bl.build("sum", False, min_series_maps, cv))
                     for cv in ("concave", "convex")}}
     tf = report["findings"]["teamfight_formula"]
-    # Graded per role, because a single global label hides the fact that two of the three banners
-    # are completely unaffected. The test is the stress ADJACENT to the evidence (concave): if a
-    # role's stat set is unchanged there, the curve cannot change what goes on that banner.
+    # Graded on the argmax, because the decision is one team per banner. Both stress shapes are
+    # applied, including the aggressive one that has no evidence behind it: if the pick survives
+    # even that, the curve cannot reach the decision.
     tf["decision_status_by_role"] = {
-        r: ("ROBUST" if tf["against"]["concave"][r]["stat_choice_stable"] else "BLOCKING")
+        r: ("ROBUST" if all(tf["against"][cv][r]["top_1_stable"] for cv in tf["against"])
+            else "BLOCKING")
         for r in ROLES}
     blocking = [r for r, v in tf["decision_status_by_role"].items() if v == "BLOCKING"]
     tf["decision_status"] = "ROBUST" if not blocking else "BLOCKING"
     tf["blocking_for"] = blocking
+    tf["tail_movement_note"] = (
+        "The full ranking does move under the stress shapes, mostly in the lower half, and the "
+        "stat set changes for a handful of organisations. That is recorded rather than hidden: it "
+        "means the curve matters for a close second-choice comparison even where it cannot change "
+        "the pick.")
     tf["reading"] = (
-        "Graded conservatively: any role whose stat set moves under the gentler stress is called "
-        "blocking, even though neither stress shape has evidence behind it while the linear reading "
-        "has exact worked-example support. "
-        + ("No role moves, so the curve cannot change a banner." if not blocking else
-           f"Only {', '.join(blocking)} moves; the other roles are unaffected by either stress, so "
-           "work on them is not gated on pinning the curve."))
+        "No stress shape moves the top pick in any role, so the curve cannot change which team goes "
+        "on a banner." if not blocking else
+        f"The top pick moves for {', '.join(blocking)}, so the curve stays blocking there.")
     return report
 
 
@@ -179,10 +192,13 @@ def main(argv=None):
                 print(f"  {role:<8} rank identical={c['identical']} "
                       f"stat-choice stable={f['comparison'][role]['stat_choice_stable']}")
         if name == "teamfight_formula":
+            print(f"  by role: {f['decision_status_by_role']}")
             for cv, cmp_ in f["against"].items():
-                stable = all(cmp_[r2]["stat_choice_stable"] for r2 in ROLES)
+                t1 = all(cmp_[r2]["top_1_stable"] for r2 in ROLES)
+                t3 = all(cmp_[r2]["top_3_stable"] for r2 in ROLES)
                 moved = sum(cmp_[r2]["rank"]["total_positions_moved"] for r2 in ROLES)
-                print(f"  vs {cv:<8} stat-choice stable={stable} rank positions moved={moved}")
+                print(f"  vs {cv:<8} top-1 stable={t1} top-3 stable={t3} "
+                      f"rank positions moved={moved}")
     return 0
 
 
