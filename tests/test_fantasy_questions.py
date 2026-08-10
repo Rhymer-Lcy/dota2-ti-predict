@@ -162,19 +162,35 @@ def test_the_two_specially_shaped_stats_keep_their_own_fields(rules):
     assert tfp["maximum_points"] == 2124.00 and tfp["points_per_unit"] is None
 
 
-def test_the_unresolved_semantics_are_enumerated_and_prioritised(rules):
+FACT = ("CONFIRMED", "PARTIAL", "UNRESOLVED")
+DECISION = ("BLOCKING", "ROBUST", "SCALE_ONLY", "IRRELEVANT")
+
+
+def test_every_unresolved_semantic_carries_both_a_fact_and_a_decision_status(rules):
+    """A rule can be unknown and still be irrelevant to the choice; the two must not be conflated."""
     sem = rules["scoring_pipeline"]["unresolved_semantics"]
     ids = {s["id"] for s in sem}
     assert {"top_two_aggregation", "deaths_floor", "teamfight_formula",
             "best_series_eligibility"} <= ids
-    assert all(s["priority"] in ("P0", "P1") and s["status"] == "UNRESOLVED" for s in sem)
+    for s in sem:
+        assert s["fact_status"] in FACT, s["id"]
+        assert s["decision_status"] in DECISION, s["id"]
     assert all(b.startswith(("P0 ", "P1 ")) for b in rules["blocking_unknowns"])
 
 
-def test_the_extreme_value_conclusion_is_held_directionally_not_frozen(rules):
-    """Knowing the period keeps the best series is not yet knowing the estimator."""
-    mc = rules["scoring_pipeline"]["modelling_consequence"]
-    assert "DIRECTIONALLY" in mc and "not frozen" in mc
+def test_the_top_two_choice_is_recorded_as_a_scale_factor_with_its_proof(rules):
+    """The correction: it cannot reorder anything, and the withdrawal is recorded, not quietly done."""
+    s = next(x for x in rules["scoring_pipeline"]["unresolved_semantics"]
+             if x["id"] == "top_two_aggregation")
+    assert s["fact_status"] == "UNRESOLVED"       # the rule is still not established
+    assert s["decision_status"] == "SCALE_ONLY"   # but it cannot change an answer
+    assert "0.5" in s["proof"] and s["sole_exception"] and s["nonlinearity_audit"]
+    assert "withdrawn" in s["correction"]
+
+
+def test_the_training_window_caveat_names_the_best_of_one_problem(rules):
+    cav = rules["scoring_pipeline"]["training_window_caveat"]
+    assert "best-of-one" in cav and "two maps or more" in cav
 
 
 def test_evidence_grades_place_the_coefficients_below_tier_one(rules):
