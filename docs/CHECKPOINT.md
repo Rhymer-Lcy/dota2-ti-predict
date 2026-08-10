@@ -1,19 +1,25 @@
-# AUTHORITATIVE PROJECT CHECKPOINT (final freeze, updated 2026-08-09)
+# AUTHORITATIVE PROJECT CHECKPOINT (updated 2026-08-10, post-round-1)
 
 Single source of truth for the frozen state. Do not reinterpret, reopen, or silently modify a frozen
 decision. Git history and committed documents govern.
 
 ## Status
-Pipeline built, validated, hard-gated, audited, and now ADVERSARIALLY re-validated
-(backtest2/results-adversarial.md, 2026-08-09): the promoted points refinement survived refutation
-testing with its effect size corrected (+6.5 +/- 1.0, not +18.3); no model challenger passed the
-promotion gate (fixed ensembles were materially worse; the ridge lambda=0.5 variant showed a pooled
-improvement but failed on event consistency, 11/23 fold wins, with an event-blocked CI crossing
-zero); the lock time is upgraded to Tier-1 Valve evidence; the data-refresh rehearsal fixed two
-real pipeline defects and confirmed all 16 rosters unchanged through 2026-08-09. No OFFICIAL
-prediction emitted; clearly-labeled pre-draw research exists under backtest2/. Awaiting the official
-group draw (expected ~2026-08-11; league feed nodes still empty); on the draw, follow
-docs/lockday-runbook.md.
+Pipeline built, validated, hard-gated, adversarially re-validated (backtest2/results-adversarial.md,
+2026-08-09) and now advanced to the POST-ROUND-1 state (backtest2/results-post-r1.md, 2026-08-10):
+- **Round 1 is official and ingested.** Valve's league feed published all eight pairings; they are
+  parsed by ti_predict/league_feed.py into data/ti2026/inputs/draw.json and every team id resolves
+  through canonical_identity.csv. The same feed's scheduled_time upgrades the lock time to a second
+  independent Tier-1 confirmation of 2026-08-13T02:00:00Z.
+- **The pod split is still unpublished** and may not exist (the feed shows one undivided 16-team
+  Swiss). The official run FAILS CLOSED on pods_status="unresolved"; the structure is marginalized in
+  research instead, and both structural families give the same slate.
+- **One lock-period roster change** (LGD position 2, TaiLung banned -> Topson), recorded with full
+  provenance in data/ti2026/inputs/roster_events.csv; the other 15 lineups are confirmed unchanged
+  and the Team Liquid source conflict is resolved from match data (Nisha).
+- **Two more real pipeline defects found and fixed** during the refresh (see Code state).
+- The model, half-life, calibration, solver and refinement are UNCHANGED; nothing was re-tuned.
+No OFFICIAL prediction emitted; the provisional slate under backtest2/post_r1.py is research. On the
+day, follow docs/lockday-runbook.md.
 
 ## Frozen model and parameters
 - Production model: identity side-neutral Bradley-Terry (B-bt).
@@ -48,9 +54,31 @@ and no crowd percentages (the client exposes none). Verified rules: docs/contest
 - ti_predict/swiss.py: rules-based Swiss + decider simulator; structural invariant asserted per run;
   common-random-numbers D4 sensitivity.
 - ti_predict/assign.py: Hungarian max-expected-correct 16-slot solver.
-- ti_predict/predict_ti15.py: hard-gated entry (dry-run vs official) with provenance manifest.
+- ti_predict/predict_ti15.py: hard-gated entry (dry-run vs official) with provenance manifest; the
+  gate now also blocks an unresolved pod structure and an unresolved roster audit, and records the
+  freshness-gate override in the manifest instead of allowing a silent one.
+- ti_predict/league_feed.py: parses the official league feed into the posted draw; never infers pods.
+- ti_predict/rosters.py + inputs/roster_events.csv: the tracked 16-team roster audit.
+- ti_predict/swiss.py: also simulates the OPEN 16-team structure (pods=(teams,)).
+- backtest2/post_r1.py: R1-fixed / pods-latent provisional prediction (research).
+- backtest2/roster_sensitivity.py: bootstrap-calibrated roster-uncertainty study.
+- backtest2/market_check.py: market anomaly check, diagnostic only.
 - backtest2/compare_policies.py: model-conditional policy study (max-correct equals max-points here).
-- Current code: the audit-freeze commit on main (this file's commit); prior baseline 98f2079.
+- Pipeline defects fixed 2026-08-10 (both would have corrupted a lock-day run):
+  (1) resolve_identity.py overwrote raw/promatches_scan.json with its own 30-page scan, truncating
+      the rating universe from 9146 maps (2026-02-27..) to 3000 (2026-05-17..) -- the same silent
+      truncation seen on 2026-08-09, whose real cause was this module, not scan_promatches.py. It now
+      MERGES and refuses to write on any coverage regression.
+  (2) resolve_identity.py also wrote the tracked inputs/canonical_identity.csv in its intermediate
+      schema, so a partial run (an OpenDota 5xx burst emptied 14 of 16 rosters) erased every
+      source_team_ids mapping -- the column through which the rating universe resolves TI
+      organizations. It now writes only processed/identity_resolved.csv and exits non-zero on an
+      incomplete resolution; build_canonical.py is the single writer of the tracked table.
+  Also corrected: inputs/folds.csv and universe_maps.csv is_target had been generated against a stale
+  dataset_maps.csv (11 folds instead of 23). Rebuilt to a verified fixed point. Production strengths
+  are provably unaffected -- is_target is used only to build the fold table, and refitting from the
+  pre-refresh universe reproduces all 16 strengths bit-identically.
+- Current code: the post-round-1 commit on main (this file's commit); prior freeze 825c68c.
 
 ## Tests (pytest) - all passing
 tests/ holds 43 tests: official constants; map_pn side-neutral symmetry; structural 1/2/5/5/2/1

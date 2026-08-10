@@ -73,17 +73,23 @@ displayed. There is no crowd% input available for this contest.
   specific sentence; the official Chinese localization omits the deadline sentence entirely; the
   league feed carries no per-match times yet. **The in-client countdown is the final authority -
   reconfirm hour:minute before submitting.**
+- **2026-08-10 UPGRADE - the estimate is now confirmed by Valve's own schedule data.** The league
+  feed (league_id 19719) has published the round-1 nodes, and every first-block match carries
+  `scheduled_time = 1786586400` = **2026-08-13T02:00:00Z** (the second block is 05:00Z). That is the
+  same value the blog wording implied, produced independently by the client's own data source, so
+  the CST-as-China reading is confirmed and the 15:00 UTC figure is definitively wrong. The lock is
+  the start of the first match, so GROUP_LOCK_UTC = 2026-08-13T02:00:00Z stands on Tier-1 evidence
+  from two independent Valve channels. The in-client countdown remains the last check before
+  submitting (a schedule can still be moved).
 - Machine-readable official schedule source (the data behind the game client):
-  `https://www.dota2.com/webapi/IDOTA2League/GetLeagueData/v001/?league_id=19719`. As of 2026-08-09
-  its Swiss round-1 nodes have no teams and no scheduled_time. The league window opens 2026-08-12
-  00:00 UTC; TI2025's round-1 pairings were published about 47 hours before its first match, so
-  expect the TI2026 draw around 2026-08-11.
+  `https://www.dota2.com/webapi/IDOTA2League/GetLeagueData/v001/?league_id=19719`, parsed by
+  `ti_predict/league_feed.py` into `data/ti2026/inputs/draw.json`.
 - Main-event prediction opens ~13 days after 2026-08-03 -> approximately 2026-08-16.
 - Winner rewards finalized 2026-08-28.
 - Because submission is irreversible, target completion at least one hour before the lock, and
   reconfirm the exact in-client countdown (hour:minute, server timezone) on the day.
-- Group draw status 2026-08-09: pods and round-1 pairings NOT published (Valve feed nodes empty;
-  Liquipedia under construction; DLTV/BLAST empty).
+- Group draw status 2026-08-10: **round 1 IS published** (see sec 9a); the pod split is not, and no
+  machine-readable source contains one.
 
 ## 6. Rewards
 Participation rewards (claimable): Aegis chat emote, TI wallpaper, TI chat wheel (four voice lines).
@@ -137,6 +143,39 @@ the final activity-points ranking.
   (strength of schedule -- NOT head-to-head); (4) game_win_percentage (per map/game, not per series);
   (5) opponents_average_game_win_percentage; (6) average_game_duration (shorter is better);
   (7) coin_toss. No head-to-head tiebreaker is used.
+
+## 9a. The posted round 1 and the pod question (2026-08-10)
+Valve's league feed now carries all eight round-1 nodes with both team ids and start times. Resolved
+through `inputs/canonical_identity.csv` source_team_ids (never by name similarity), they are:
+
+| block | match | scheduled (UTC) |
+|---|---|---|
+| 1.A | Team Falcons vs LGD Gaming | 2026-08-13T02:00Z |
+| 2.A | Tundra Esports (1w Team / Iron Wing) vs Nigma Galaxy | 2026-08-13T02:00Z |
+| 3.A | BetBoom Team (BoomBoys) vs OG | 2026-08-13T02:00Z |
+| 4.A | PARIVISION (TEAM VISION) vs Team Resilience | 2026-08-13T02:00Z |
+| 1.B | Team Spirit vs Xtreme Gaming | 2026-08-13T05:00Z |
+| 2.B | Team Liquid vs Vici Gaming | 2026-08-13T05:00Z |
+| 3.B | Aurora Gaming vs GamerLegion | 2026-08-13T05:00Z |
+| 4.B | Team Yandex vs HULIGANI | 2026-08-13T05:00Z |
+
+Three TI entities are branded differently from their tracked organization: Iron Wing (feed id
+10150413) is the ex-Tundra roster now at 1w Team; TEAM VISION (9572001) is PARIVISION; BoomBoys
+(8255888) is BetBoom Team. All sixteen feed ids resolve to exactly one tracked organization and the
+eight matches cover each team exactly once.
+
+**The ".A" / ".B" suffixes are broadcast blocks, not pods.** They split on scheduled time (four
+matches at 02:00Z, four at 05:00Z); the same applies to the stream A/B/C/D labels in the event's
+social posts, whose later slots are follow-up Swiss rounds for 1-0 and 0-1 teams. Deriving a pod
+partition from either would be a fabrication, and `league_feed.parse_draw` reports
+`pods_status="unresolved"` rather than inventing one.
+
+Consequence for the model: the structure is carried as a hypothesis and marginalized, not assumed.
+Two families are admissible -- the OPEN 16-team Swiss (what the feed's single node group and
+Liquipedia's format section describe) and the TWO-POD structure (what the in-client rules text
+describes), the latter restricted to the 35 partitions in which each pod is a union of four posted
+round-1 matches. `backtest2/post_r1.py` runs both; the official pipeline refuses to run at all while
+`pods_status` is unresolved (an OFFICIAL slate must not rest on an unpublished split).
 
 ### Tier-1 confirmation and one residual format uncertainty (2026-08-09)
 Valve's league data feed (league_id 19719) CONFIRMS the core format at Tier 1: a 16-team Swiss node
@@ -197,12 +236,12 @@ the unrelated Astana "Future Games" event). No B0 reopening is required.
 Rule-level verification is DONE (2026-08-03, cross-checked vs dota2.com/esports/ti15/tirules,
 Liquipedia, CyberScore, Strafe). What remains:
 
-Runtime inputs, published with the official draw around Aug 13 (feed into the simulator, not blockers
-to building it):
-1. C1 -- the actual two-pod split (which 8 teams in each initial group).
-2. C2 -- the actual round-1 pairings within each pod (organizer-preset; seeding algorithm unknown).
-3. G1 -- the exact in-client lock timestamp (best external estimate: Aug 13 02:00 UTC = 10:00 UTC+8; see sec 5, older 23:00
-   Beijing); confirm on the client.
+Runtime inputs (status 2026-08-10):
+1. C1 -- the pod split: **still unpublished**, and possibly nonexistent (the feed shows one undivided
+   16-team Swiss). Marginalized over both structural families; blocks the OFFICIAL run by design.
+2. C2 -- the round-1 pairings: **RESOLVED 2026-08-10** from the league feed (sec 9a).
+3. G1 -- the exact in-client lock timestamp: **Tier-1 confirmed** as 2026-08-13T02:00:00Z by the
+   feed's scheduled_time (sec 5); reconfirm the in-client countdown on the day.
 
 Low priority / non-blocking:
 4. G2 -- whether reward tiers stack (structure implies they do not; affects only how hard to chase a

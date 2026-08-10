@@ -1,40 +1,71 @@
-# Lock-day runbook - TI15 group-stage prediction (~2026-08-13)
+# Lock-day runbook - TI15 group-stage prediction (2026-08-13)
 
 Production model is FROZEN: B-bt, half-life 90 (applied explicitly in the production path), identity
 side-neutral, no calibration layer, no crowd% fusion (docs/CHECKPOINT.md, validation-plan-v2.md).
-Lock = first group-stage match, best-supported estimate **2026-08-13 10:00 UTC+8 = 02:00 UTC**
-(docs/contest-official-ti15.md sec 5; the older 15:00 UTC figure is graded a timezone-conversion
-error). CONFIRM the exact in-client countdown and submit >= 1h early.
+
+**Lock = the first group-stage match = 2026-08-13T02:00:00Z (10:00 UTC+8).** Tier-1 confirmed twice
+over: Valve's blog wording and, since 2026-08-10, the league feed's own `scheduled_time` on every
+round-1 node (docs/contest-official-ti15.md sec 5). Still reconfirm the in-client countdown and
+submit >= 1 h early - a published schedule can move.
+
+## State entering lock day (2026-08-10)
+- **Round 1 is posted and ingested.** `data/ti2026/inputs/draw.json` is generated from the league
+  feed; `r1_status = official`.
+- **The pod split is not published anywhere** and may not exist (the feed shows one undivided
+  16-team Swiss). `pods_status = unresolved`, and the official run FAILS CLOSED on it by design.
+- **One roster change:** LGD position 2, TaiLung (banned) -> Topson, recorded in
+  `data/ti2026/inputs/roster_events.csv`. The other 15 lineups are confirmed unchanged.
+- Latest professional map in the universe: 2026-08-09T19:02Z. No pro match is scheduled between then
+  and the lock, so the freshness gate will need an explicit, verified override (step 4).
 
 ## Steps
-1. **Refresh data through the cutoff.** Current universe ends 2026-08-01; re-pull and rebuild so the
-   Aug 2-13 matches (ongoing events + any warmups) are included:
-   `python -m ti_predict.fetch_opendota` -> `resolve_identity` / `roster_coverage` ->
-   `build_canonical` -> `universe` -> `build_dataset` (same order B0 used).
-2. **Re-check the 16 rosters for last-minute stand-ins / swaps.** Compare each org's as-of-lock lineup
-   to data/ti2026/inputs/teams.csv + canonical_identity.csv; update source ids only if a roster
-   actually changed. Do NOT inherit strength across a roster change.
-3. **Watch for the draw** (expected around 2026-08-11; TI2025's round-1 pairings came ~47 h before
-   its first match). Machine-readable source - poll until round-1 nodes carry team ids:
-   `https://www.dota2.com/webapi/IDOTA2League/GetLeagueData/v001/?league_id=19719`
-   Then copy data/ti2026/inputs/draw.example.json to draw.json; fill podA/podB (8 each) and
-   r1_pairings from the POSTED draw (team names must match teams.csv 'team' exactly). If the
-   published structure shows NO pod split, construct pods as an 8/8 partition consistent with the
-   posted round-1 pairings and note it in the output (pods are a pairing-preference assumption; the
-   pre-draw study measured the slate impact of pod mechanisms as at most the boundary pair).
-4. **Confirm the exact lock time** from the client countdown (hour:minute, timezone). Best-supported
-   estimate: 2026-08-13 10:00 UTC+8 = 02:00 UTC (Tier-1 wording; see contest doc sec 5).
-5. **Run the official slate** (use the exact confirmed lock time as a timezone-aware ISO timestamp so
-   pre-lock same-day matches are included; 02:00:00Z below is the best-supported estimate - replace
-   it with the confirmed in-client time). Use 120000 simulations: the points-refinement gate has
-   about 94% power at 120k vs about 80% at the 40k default (backtest2/results-adversarial.md):
+1. **Refresh the pro-match universe.**
+   `python -m ti_predict.scan_promatches` (deep scan, merges, fails closed on coverage regression)
+   -> `python -m ti_predict.resolve_identity` (re-resolves ids/rosters; merges the scan, writes only
+   `processed/identity_resolved.csv`, exits non-zero unless all 16 five-player rosters resolve)
+   -> `roster_coverage` -> `build_canonical` -> `universe` -> `build_dataset` -> `universe` again.
+   The final `universe` re-run is required: it stamps `is_target` and the fold table from the JUST
+   rebuilt dataset, and skipping it leaves both stale (found 2026-08-10).
+   Verify: universe row count and window printed by `universe`, and the merged scan window printed
+   by `scan_promatches`. Coverage must never shrink.
+   Do NOT stop the chain half-way: `build_canonical` is the only writer of the tracked
+   `inputs/canonical_identity.csv`, and the rating universe resolves organizations through its
+   `source_team_ids` column.
+2. **Re-check the 16 rosters** and update `data/ti2026/inputs/roster_events.csv`. Status must be
+   CONFIRMED or CHANGED for all 16; a CONFLICT or UNRESOLVED row blocks the official run on purpose.
+   A CHANGED row needs the full provenance (role, both nicknames, both numeric account ids, reason,
+   eligibility, announcement time, evidence tier, source). Never infer an account id from a nickname.
+   `python -m ti_predict.rosters` prints the summary.
+3. **Re-pull the draw and check whether pods appeared.**
+   `python -m ti_predict.league_feed --fetch --write-draw`
+   - If a pod split is published (in-client, feed, or an official post): add `podA`/`podB` (8 teams
+     each, names exactly as in teams.csv) to `draw.json` and set `"pods_status": "confirmed"`.
+   - If no pod split is published anywhere by lock time, decide EXPLICITLY between two paths, and
+     record which one you took:
+     (a) accept Valve's league feed - a single undivided 16-team Swiss node group - as the published
+         format, and declare it: `"pods_status": "confirmed", "structure": "open-16"`. That is a
+         positive, evidenced claim, it is recorded in the manifest, and it unblocks the official run.
+     (b) leave it `unresolved`; the official run stays blocked and the decision rests on
+         `python -m backtest2.post_r1` (R1-fixed, pod structure marginalized), whose slate is then
+         submitted by hand.
+     Both currently give the SAME 16 slots - the open and two-pod families agree - so this choice is
+     about what the artifact claims, not about the picks. What is NOT allowed is inventing a pod
+     split, or leaving the file saying "confirmed two-pod" when nothing published one.
+4. **Confirm the exact lock time** from the in-client countdown (hour:minute, timezone). Expected
+   2026-08-13T02:00:00Z.
+5. **Run the official slate** (only once every gate is satisfied):
    `python -m ti_predict.predict_ti15 --official --draw data/ti2026/inputs/draw.json --strengths bt --cutoff 2026-08-13T02:00:00Z --sims 120000`
-   The gate refuses unless the draw file (validated two-pod partition AND round-1 pairings), bt
-   strengths, and cutoff are all present.
-6. **Read + submit.** Outputs at predictions/ti2026/group-stage/ti15_group_prediction.{json,md}. Fill
-   the client's 16 slots from the slate: 4-0 x1, 4-1 x2, decider_win x5, decider_loss x5, 1-4 x2,
-   0-4 x1. Buckets flagged [selection-sensitive] are the least certain (mid-table). Submit in-client
-   before lock.
+   120000 simulations: the points-refinement gate has about 94% power there vs about 80% at the 40000
+   default (backtest2/results-adversarial.md).
+   **Freshness override.** If no professional match is played between the universe's latest map and
+   the lock, the 3-day freshness gate will block a genuinely up-to-date universe. Only then append
+   `--allow-stale`, and only after re-running step 1 and confirming the scan found nothing newer.
+   The manifest records `provenance.freshness_gate.overridden = true`, so the override is never
+   silent.
+6. **Read + submit.** Outputs at `predictions/ti2026/group-stage/ti15_group_prediction.{json,md}`.
+   Fill the client's 16 slots from the slate: 4-0 x1, 4-1 x2, decider_win x5, decider_loss x5,
+   1-4 x2, 0-4 x1. Buckets flagged [selection-sensitive] are the least certain (mid-table). Submit
+   in-client before the lock.
 
 ## After the group stage (deferred)
 - Main-event (14-series) prediction opens ~2026-08-16: build the bracket track (reuse
@@ -43,18 +74,24 @@ error). CONFIRM the exact in-client countdown and submit >= 1h early.
 
 ## Safety gates enforced by --official (not just runbook discipline)
 - cutoff must be a timezone-aware ISO timestamp with a time (date-only is rejected);
-- the local universe must be fresh: its latest map within 3 days of the cutoff, else the run is
-  blocked (override with `--allow-stale` only if there truly are no pre-lock games);
-- the draw file must be a valid two-pod partition of the 16 with complete round-1 pairings;
+- the draw file must carry complete round-1 pairings AND a confirmed pod structure; `pods_status`
+  other than `confirmed` blocks the run;
+- when pods are published they must be a valid two-pod partition of the 16 and round 1 must not
+  cross them;
+- the roster audit must have no CONFLICT / UNRESOLVED team;
+- the local universe must be fresh: latest map within 3 days of the cutoff, else blocked (override
+  with `--allow-stale`, which is recorded in the manifest);
 - the run records provenance in the manifest: universe rows + latest-map time, SHA-256 of
-  teams.csv / canonical_identity.csv / universe_maps.csv / draw.json, git commit + dirty flag.
+  teams.csv / canonical_identity.csv / universe_maps.csv / draw.json, git commit + dirty flag,
+  draw publication status, and the roster audit.
 
 ## Notes
 - The official pipeline maximizes expected number correct (Hungarian) and then applies a VERIFIED
   expected-points refinement automatically: a swap search may propose a boundary-pair change, adopted
   only if an independent verification archive confirms a paired points gain > 2 se (evidence:
-  backtest2/results-prelock-research.md sec 4). The manifest records proposed moves, the paired
-  gain/se, and whether the refinement was adopted - submit the slate exactly as printed.
+  backtest2/results-prelock-research.md sec 4, corrected in results-adversarial.md). The manifest
+  records proposed moves, the paired gain/se, and whether the refinement was adopted - submit the
+  slate exactly as printed.
 - No crowd pick-share exists in the client, so there is no anti-crowd / fusion step.
-- Boundary watch from the pre-draw study: (BetBoom Team, Team Falcons) trade 4-1 / decider_win
-  depending on the draw; expect the real draw + refreshed data to resolve it.
+- Boundary watch after the posted round 1 (backtest2/results-post-r1.md): the 4-1 pair
+  (Yandex / BetBoom / Falcons), OG vs GamerLegion vs HULIGANI at the bottom, and Nigma in the middle.

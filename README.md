@@ -7,13 +7,14 @@ at risk). Goal: place in the top reward tier of the global leaderboard.
 Method reuses the calibrated-probability approach from the archived soccer `odds-pipeline`
 (market de-vig via Shin, cross-checked by an independent model), adapted to esports series.
 
-## Status (2026-08-09) — pipeline built, validated, gated; awaiting the group draw
+## Status (2026-08-10) — round 1 posted and ingested; official run still gated on the pod split
 - **Contest rules: verified** (official Valve in-client TI15 activity, not a third-party game). The
   group prediction is a full **16-slot classification** — 4-0 x1, 4-1 x2, decider-win x5,
   decider-loss x5, 1-4 x2, 0-4 x1 — scored by number correct (convex `f(K)`, no penalty, no underdog
   weighting, **no crowd% shown**). Group predictions lock at the **first group-stage match,
-  ~2026-08-13 10:00 UTC+8 = 02:00 UTC** (best-supported estimate; the in-client countdown is the
-  final authority). Full write-up: [`docs/contest-official-ti15.md`](docs/contest-official-ti15.md).
+  2026-08-13 02:00 UTC = 10:00 UTC+8** — now Tier-1 confirmed by the league feed's own
+  `scheduled_time` on every round-1 node, not just by the blog wording (the in-client countdown stays
+  the final check). Full write-up: [`docs/contest-official-ti15.md`](docs/contest-official-ti15.md).
 - **Field: confirmed 16** in [`data/ti2026/inputs/teams.csv`](data/ti2026/inputs/teams.csv), matching
   the official field (BetBoom/BoomBoys, PARIVISION/Team Vision, Tundra roster → 1w Team, etc.).
 - **Model: FROZEN.** Production = identity **side-neutral B-bt**, half-life **90**, map prob
@@ -30,11 +31,19 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
   organizer's unpublished pairing decisions.
 - **End-to-end entry: [`ti_predict/predict_ti15.py`](ti_predict/predict_ti15.py), hard-gated.**
   `--dry-run` rehearses on synthetic/historical inputs (writes `.dryrun/`, labeled NOT OFFICIAL);
-  `--official` refuses unless the posted draw (validated two-pod partition **and** round-1 pairings),
-  a frozen `--cutoff`, and B-bt strengths are all present. Emits JSON (fact source) + Markdown + a
-  full run manifest.
-- **No TI2026 probabilities emitted yet.** The official slate is produced at the cutoff from the
-  posted draw — follow [`docs/lockday-runbook.md`](docs/lockday-runbook.md).
+  `--official` refuses unless the posted draw (round-1 pairings **and** a confirmed pod structure),
+  a frozen `--cutoff`, B-bt strengths and a clean roster audit are all present. Emits JSON (fact
+  source) + Markdown + a full run manifest.
+- **Round 1 is posted** (Valve league feed, ingested by
+  [`ti_predict/league_feed.py`](ti_predict/league_feed.py) into `data/ti2026/inputs/draw.json`); the
+  **pod split is not**, and may not exist. The official run fails closed on that rather than assume
+  one; the pod structure is instead marginalized in
+  [`backtest2/post_r1.py`](backtest2/post_r1.py) (research), which finds both structural families
+  give the same slate.
+- **One lock-period roster change:** LGD position 2 (TaiLung banned -> Topson), recorded with full
+  provenance in `data/ti2026/inputs/roster_events.csv`; the other 15 lineups are confirmed unchanged.
+- **No OFFICIAL TI2026 slate emitted yet.** It is produced at the cutoff — follow
+  [`docs/lockday-runbook.md`](docs/lockday-runbook.md).
 
 ## Strategy note
 Scoring is by **number correct** with a **convex** points curve, **no underdog weighting, no penalty,

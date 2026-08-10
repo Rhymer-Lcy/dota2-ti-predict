@@ -182,6 +182,21 @@ results: backtest2/results-prelock-research.md):
   (console-encoding crash; silent scan truncation - now fail-closed). Rosters: all 16 unchanged
   through 2026-08-09.
 
+- **2026-08-10 - post-round-1 round closed** (backtest2/results-post-r1.md). NO modelling change:
+  half-life, calibration, map probability, solver and refinement are all untouched, and no challenger
+  was run. What changed is the state of the world and the plumbing around it. Round 1 is official and
+  ingested from Valve's league feed; the lock time gains a second Tier-1 confirmation from the feed's
+  own scheduled_time. The pod split remains unpublished, so the structure is now MARGINALIZED (open
+  16-team Swiss vs the 35 admissible two-pod partitions) instead of assumed, and the official gate
+  fails closed on pods_status="unresolved". The LGD position-2 change (TaiLung banned -> Topson) is
+  recorded as external evidence in a tracked roster audit and is NOT converted into a strength
+  adjustment: the model is organization-level, the previous lineup played the history, and a
+  player-aware production adjustment stays inadmissible before TI2026. Its decision impact is
+  answered quantitatively by backtest2/roster_sensitivity.py rather than by judgement. Two further
+  pipeline defects were found and fixed (resolve_identity overwriting the deep pro-match scan; the
+  same module overwriting the tracked canonical identity table on a partial run), plus a stale
+  fold-table artifact; production strengths were verified bit-identical across the fix.
+
 ## 8. Anti-leakage checklist (every run asserts/records)
 cutoff timestamp; training set ends < cutoff; rosters as-of-lock; params chosen from earlier events
 only; results source; model + data commit; whether the run is a real-format backtest or a synthetic
