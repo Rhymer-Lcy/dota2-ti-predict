@@ -1,0 +1,367 @@
+{
+  "schema_version": 1,
+  "event": "The International 2026 (TI15)",
+  "league_id": 19719,
+  "compiled_at": "2026-08-10T15:01:41Z",
+  "note": "The TI2026 fantasy ruleset as established by the shipped client. Every entry cites the localization key it came from. Numeric values the client fills in at runtime ({f:helpstat_N}, {d:prefix_bonus}, {d:suffix_bonus}) are recorded as null with status UNRESOLVED; they are NOT filled in from previous years.",
+  "source": "See prediction_questions.json sources S2 (dota_english.txt) and S3 (dota_schinese.txt), both from dotabuff/d2vpkr commit aeb21e7065a4528934d64d8c0d33ab91d2a2a826.",
+
+  "structure": {
+    "status": "CONFIRMED",
+    "roles": ["core", "mid", "support"],
+    "selection_unit": "team",
+    "selection_note": "For each role the entrant chooses a TEAM, not an individual player. Confirmed by DOTA_FantasyCraft_Tutorial2026_ViewTablet_Body: 'For each role, you choose a team instead of individual players. For core and support roles, you score points for both players on the team.' The announcement states the same: 'both supports from one team, the safelaner and offlaner from one team, and then your favorite midlaner.'",
+    "players_scoring_per_role": {"core": 2, "mid": 1, "support": 2},
+    "war_banners": 3,
+    "team_change": "free, via the 'Choose Team' button on the War Banner, until the period locks",
+    "distinct_teams_required": null,
+    "distinct_teams_status": "UNRESOLVED"
+  },
+
+  "periods": {
+    "status": "CONFIRMED",
+    "count": 2,
+    "list": [
+      {"index": 0, "official_en_label": "Group Stage", "dates_local": "Aug 13 - 16",
+       "key": "DOTA_Fantasy26_PeriodName0"},
+      {"index": 1, "official_en_label": "The International", "dates_local": "Aug 20 - 23",
+       "key": "DOTA_Fantasy26_PeriodName1"}
+    ],
+    "not_daily": "Fantasy is NOT a daily game in TI2026. There are exactly two periods, each covering a whole stage.",
+    "carryover": "The roster carries over from period to period; crafting improvements persist (DOTA_FantasyCraft_Tutorial_Locked_Body).",
+    "unlock": "A period unlocks once matches begin for the preceding period.",
+    "upgrade": "The roster is eligible for an upgrade at the beginning of every period."
+  },
+
+  "scoring_pipeline": {
+    "status": "CONFIRMED",
+    "source_key": "DOTA_FantasyCraftHelp_ScoringDetails2026",
+    "verbatim": "Once matches for a period begin, a snapshot of your roster is saved and used for scoring. For each role, each player's score is calculated individually in every game they participate in. Players receive points only for the stats present on their War Banner, amplified if any of the conditions of your coach Titles are met. We then average the score of all players for a role and use that to decide the final score for a game. The top two scoring games within a series are used to get the role's final score for the match. If a role participates in more than one series in a period, the best scoring series will be used.",
+    "steps": [
+      {"level": "player-game", "rule": "sum over the emblems on the role's War Banner of (base stat points x quality multiplier x trait multipliers), then amplified by the coach Titles whose conditions the game satisfies"},
+      {"level": "role-game", "rule": "arithmetic mean of the scores of the role's players (2 for core, 1 for mid, 2 for support)"},
+      {"level": "role-series", "rule": "the top two scoring games within the series", "aggregation": null,
+       "aggregation_status": "UNRESOLVED", "aggregation_note": "The string says the top two games 'are used'; it does not say whether they are summed or averaged. This changes the level, not the ranking, when every series has at least two games, but it changes the ranking when a series ends 2-0 versus 2-1. Confirm in client."},
+      {"level": "role-period", "rule": "the BEST scoring series, not the sum over series"}
+    ],
+    "modelling_consequence": "Because the period score keeps only the best series, a role's expected period score is an EXTREME-VALUE statistic (a maximum over the series a team plays), not a sum over maps. More series still helps, but through additional draws from the distribution rather than through accumulation. Any model that multiplies expected maps by expected points per map is the wrong estimator for this ruleset."
+  },
+
+  "emblems": {
+    "status": "PARTIAL",
+    "confirmed": {
+      "colors": ["red", "green", "blue"],
+      "color_determines_stat_pool": true,
+      "color_distribution_fixed_by_role": true,
+      "no_duplicate_stats_per_banner": true,
+      "attributes_per_emblem": ["color", "stat", "quality", "trait"],
+      "adjacency_matters": true,
+      "adjacency_note": "Some traits act on adjacent emblems, so the ORDER of emblems on a War Banner is part of the decision."
+    },
+    "unresolved": {
+      "emblems_per_banner": null,
+      "color_counts_by_role": null,
+      "note": "Neither the emblem count nor the per-role red/green/blue split appears in any shipped file. Both are required before any optimisation is meaningful."
+    },
+    "quality_tiers": {
+      "status": "CONFIRMED",
+      "source_key": "DOTA_FantasyCraft_Quality_Explainer0..4",
+      "multiplier_on_base_stat_score": {"Tier I": 0.10, "Tier II": 0.30, "Tier III": 0.60, "Tier IV": 1.00, "Tier V": 1.50},
+      "note": "Higher tiers are rarer when crafting."
+    },
+    "traits": {
+      "status": "CONFIRMED",
+      "list": [
+        {"id": "Base", "name": "Base", "effect": "no modifier"},
+        {"id": "Min", "name": "Incorruptible", "effect": "Emblems with quality lower than Tier III are treated as having Tier III quality."},
+        {"id": "AdjBonus", "name": "Benevolent", "effect": "Provides a 20% bonus to the stat value of adjacent emblems."},
+        {"id": "Steal", "name": "Vampiric", "effect": "Increases the stat value of this emblem by 50%, but lowers the stat value of adjacent emblems by 10%."},
+        {"id": "Unique", "name": "Unique", "effect": "+30% to the stat bonus if this is the only Unique emblem on the War Banner."},
+        {"id": "Multiples", "name": "Friendly", "effect": "+50% to the stat bonus if there are at least 3 Friendly emblems on the War Banner."},
+        {"id": "UniqueQualities", "name": "Fractal", "effect": "+60% to the stat bonus if all emblem qualities on the War Banner are different."}
+      ]
+    }
+  },
+
+  "roll_tokens": {
+    "status": "PARTIAL",
+    "confirmed": "Three unique roll options are available at any time, identical across War Banners. Each roll costs one token, applies only to the currently selected War Banner, and replaces all available roll options. Operations include: reroll stat, reroll quality, increase quality, reroll trait, reroll prefix/suffix, choose prefix/suffix, change team, and randomly increase one or two qualities.",
+    "unresolved": "The token budget (initial grant, per-period grant, any purchase route) is not in any shipped file. Without it the crafting problem has no budget constraint and cannot be optimised."
+  },
+
+  "coach_titles": {
+    "status": "PARTIAL",
+    "source_key": "DOTA_FantasyCraftHelp_CoachDetails",
+    "confirmed": "The coach chooses one prefix and one suffix. Each gives a percentage increase to the FINAL score in a game when its condition is met, applied to all players. Titles may be changed freely without spending roll tokens.",
+    "unresolved": "The percentage each title carries, and whether the entire pool below is offered to the coach or only a subset.",
+    "prefixes": [
+      {"id": "RedHero", "name": "Crimson", "condition": "playing a red hero"},
+      {"id": "Sad", "name": "Cerulean", "condition": "playing a blue hero"},
+      {"id": "GreenHero", "name": "Emerald", "condition": "playing a green hero"},
+      {"id": "PurpleHero", "name": "Royal", "condition": "playing a purple hero"},
+      {"id": "Golden", "name": "Golden", "condition": "playing a yellow or brown hero"},
+      {"id": "IntHero", "name": "Canny", "condition": "playing an Intelligence hero"},
+      {"id": "StrHero", "name": "Brawny", "condition": "playing a Strength hero"},
+      {"id": "AgiHero", "name": "Dashing", "condition": "playing an Agility hero"},
+      {"id": "UniHero", "name": "Balanced", "condition": "playing a Universal hero"},
+      {"id": "EleHero", "name": "Elemental", "condition": "playing an Aquatic, Fiery or Icy hero"},
+      {"id": "Otherworldly", "name": "Otherworldly", "condition": "playing an Undead, Demon or Spirit hero"},
+      {"id": "Hairy", "name": "Hirsute", "condition": "playing a Bearded or Fuzzy hero"},
+      {"id": "Beastial", "name": "Bestial", "condition": "playing a hero with horns or wings"},
+      {"id": "Heroic", "name": "Heroic", "condition": "playing a Caped or Masked hero"},
+      {"id": "Dedicated", "name": "Virtuoso", "condition": "playing a hero they are Master or Grandmaster with"},
+      {"id": "Clutch", "name": "Clutch", "condition": "playing the last possible match of a series"},
+      {"id": "LastPick", "name": "Coveted", "condition": "that player's hero is chosen last"},
+      {"id": "Sacrificial", "name": "Sacrificial", "condition": "that player's hero is chosen first"},
+      {"id": "Arcana", "name": "Glamorous", "condition": "the player has an Arcana equipped"}
+    ],
+    "suffixes": [
+      {"id": "Assists", "name": "the Accomplice", "condition": "the player has the most assists"},
+      {"id": "MostDeaths", "name": "the Nothl Pilgrim", "condition": "the player has the most deaths in the game"},
+      {"id": "NoKills", "name": "the Pacifist", "condition": "the player ends the game with no kills"},
+      {"id": "LowNetworth", "name": "of the Ant", "condition": "the player has the lowest networth"},
+      {"id": "Loser", "name": "the Underdog", "condition": "the player loses the game"},
+      {"id": "Quick", "name": "the Decisive", "condition": "the game lasts less than 25 minutes"},
+      {"id": "Lucky", "name": "the Lucky", "condition": "the match time ends with an 8"},
+      {"id": "Comeback", "name": "the Gritty", "condition": "a team wins after being down over 10,000 gold in networth"},
+      {"id": "FirstBlood", "name": "the Flayed Twins Acolyte", "condition": "any player gets first blood before the starting horn"},
+      {"id": "LateFirstBlood", "name": "the Patient", "condition": "first blood does not happen until after 10 minutes"},
+      {"id": "Rampage", "name": "of the Raven", "condition": "any player gets a rampage"},
+      {"id": "Tormented", "name": "the Tormented", "condition": "any player dies to a Tormentor"},
+      {"id": "StealDivine", "name": "the Divine Thief", "condition": "any player steals a Divine Rapier"},
+      {"id": "FountainKills", "name": "the Cruel", "condition": "a player is killed while in their own fountain"},
+      {"id": "FullInventory", "name": "of the Mule", "condition": "the player ends with items in every main inventory and backpack slot"},
+      {"id": "ActiveItems", "name": "of the Octopus", "condition": "the player ends with 4 or more items that have an active ability"},
+      {"id": "EarlyBuyback", "name": "of the Bull", "condition": "the player buys back before 30 minutes"},
+      {"id": "Tipped", "name": "the Even-Keeled", "condition": "the player is tipped 5 or more times"},
+      {"id": "Voicelines", "name": "the Loquacious", "condition": "the player uses the most voice lines"},
+      {"id": "Clutch", "name": "the Clutch", "condition": "playing the last possible match of a series"}
+    ]
+  },
+
+  "stats": {
+    "status": "PARTIAL",
+    "count": 18,
+    "unresolved": "Every base points_per_unit is a runtime value ({f:helpstat_N}) and is recorded as null. Nothing below is filled in from a previous year's table.",
+    "list": [
+      {"stat_id": "kills", "helpstat_index": 0, "color": "red",
+       "official_en": "Kills", "official_zh": "击杀",
+       "scoring_text": "+{f:helpstat_0} per kill", "transformation": "linear count",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": false,
+       "class": "opportunity_count", "role_dependence": "high (cores and mids)",
+       "team_dependence": "medium", "game_length_sensitive": true, "patch_sensitivity": "medium",
+       "opendota_field": "players[].kills", "requires_parsed_replay": false,
+       "data_availability": "AVAILABLE", "validation_status": "UNVALIDATED"},
+
+      {"stat_id": "deaths", "helpstat_index": 1, "color": "red",
+       "official_en": "Deaths", "official_zh": "死亡",
+       "scoring_text": "{f:max_death} starting points, -{f:helpstat_1} per death",
+       "transformation": "starting credit minus linear count, floor unknown",
+       "points_per_unit": null, "starting_points": null, "sign": "negative", "zero_inflated": false,
+       "class": "opportunity_count", "role_dependence": "high (supports die more)",
+       "team_dependence": "high", "game_length_sensitive": true, "patch_sensitivity": "low",
+       "opendota_field": "players[].deaths", "requires_parsed_replay": false,
+       "data_availability": "AVAILABLE", "validation_status": "UNVALIDATED",
+       "note": "Whether the stat can go negative when deaths exceed the starting credit is UNRESOLVED."},
+
+      {"stat_id": "creep_score", "helpstat_index": 2, "color": "red",
+       "official_en": "Creep Score", "official_zh": "正反补",
+       "scoring_text": "+{f:helpstat_2} per last hit or deny", "transformation": "linear count of last_hits + denies",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": false,
+       "class": "opportunity_count", "role_dependence": "very high (cores)",
+       "team_dependence": "low", "game_length_sensitive": true, "patch_sensitivity": "medium",
+       "opendota_field": "players[].last_hits + players[].denies", "requires_parsed_replay": false,
+       "data_availability": "AVAILABLE", "validation_status": "UNVALIDATED"},
+
+      {"stat_id": "gpm", "helpstat_index": 3, "color": "red",
+       "official_en": "GPM", "official_zh": "GPM",
+       "scoring_text": "Scores player's GPM multiplied by {f:helpstat_3}", "transformation": "rate x coefficient",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": false,
+       "class": "rate_like", "role_dependence": "very high (cores)",
+       "team_dependence": "medium", "game_length_sensitive": false, "patch_sensitivity": "high",
+       "opendota_field": "players[].gold_per_min", "requires_parsed_replay": false,
+       "data_availability": "AVAILABLE", "validation_status": "UNVALIDATED",
+       "note": "The only rate-like stat in the table: it does not grow with game length, which makes it behave very differently from every other red stat."},
+
+      {"stat_id": "madstone", "helpstat_index": 13, "color": "red",
+       "official_en": "Madstone Collected", "official_zh": "狂石收集数量",
+       "scoring_text": "+{f:helpstat_13} per Madstone collected", "transformation": "linear count",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": false,
+       "class": "opportunity_count", "role_dependence": "medium",
+       "team_dependence": "medium", "game_length_sensitive": true, "patch_sensitivity": "very high",
+       "opendota_field": "players[].neutral_tokens_log (length)", "requires_parsed_replay": true,
+       "data_availability": "AVAILABLE_IF_PARSED", "validation_status": "UNVALIDATED",
+       "note": "neutral_tokens_found is absent; a log array is present on parsed matches. The mapping from log entries to Valve's 'collected' count must be validated, not assumed."},
+
+      {"stat_id": "tower_kills", "helpstat_index": 4, "color": "red",
+       "official_en": "Tower Kills", "official_zh": "摧毁防御塔",
+       "scoring_text": "+{f:helpstat_4} per Tower last hit", "transformation": "linear count of last hits on towers",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": true,
+       "class": "team_controlled", "role_dependence": "high (whoever takes the last hit)",
+       "team_dependence": "very high", "game_length_sensitive": true, "patch_sensitivity": "medium",
+       "opendota_field": "players[].towers_killed", "requires_parsed_replay": false,
+       "data_availability": "AVAILABLE", "validation_status": "UNVALIDATED",
+       "note": "Attribution is to the last hitter, so it is a within-team allocation problem, not a team-strength problem."},
+
+      {"stat_id": "wards_placed", "helpstat_index": 7, "color": "blue",
+       "official_en": "Wards Placed", "official_zh": "放置守卫",
+       "scoring_text": "+{f:helpstat_7} per observer ward placed", "transformation": "linear count, observers only",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": true,
+       "class": "role_structural", "role_dependence": "very high (supports)",
+       "team_dependence": "medium", "game_length_sensitive": true, "patch_sensitivity": "medium",
+       "opendota_field": "players[].obs_placed", "requires_parsed_replay": true,
+       "data_availability": "AVAILABLE_IF_PARSED", "validation_status": "UNVALIDATED",
+       "note": "Sentries do NOT count; the official text says observer ward."},
+
+      {"stat_id": "camps_stacked", "helpstat_index": 8, "color": "blue",
+       "official_en": "Camps Stacked", "official_zh": "堆叠野怪",
+       "scoring_text": "+{f:helpstat_8} per camp stacked", "transformation": "linear count",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": true,
+       "class": "role_structural", "role_dependence": "very high (supports)",
+       "team_dependence": "medium", "game_length_sensitive": true, "patch_sensitivity": "medium",
+       "opendota_field": "players[].camps_stacked", "requires_parsed_replay": true,
+       "data_availability": "AVAILABLE_IF_PARSED", "validation_status": "UNVALIDATED"},
+
+      {"stat_id": "runes_grabbed", "helpstat_index": 9, "color": "blue",
+       "official_en": "Runes Grabbed", "official_zh": "拾取神符",
+       "scoring_text": "+{f:helpstat_9} per rune bottled or taken", "transformation": "linear count",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": false,
+       "class": "opportunity_count", "role_dependence": "high (mids)",
+       "team_dependence": "low", "game_length_sensitive": true, "patch_sensitivity": "high",
+       "opendota_field": "players[].rune_pickups", "requires_parsed_replay": true,
+       "data_availability": "AVAILABLE_IF_PARSED", "validation_status": "UNVALIDATED",
+       "note": "'bottled or taken' may not be the same set OpenDota counts in rune_pickups. Validate before use."},
+
+      {"stat_id": "watchers_taken", "helpstat_index": 14, "color": "blue",
+       "official_en": "Watchers Taken", "official_zh": "占领观察者",
+       "scoring_text": "+{f:helpstat_14} per captured watcher", "transformation": "linear count",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": true,
+       "class": "opportunity_count", "role_dependence": "medium (supports)",
+       "team_dependence": "high", "game_length_sensitive": true, "patch_sensitivity": "very high",
+       "opendota_field": null, "requires_parsed_replay": true,
+       "data_availability": "NOT_AVAILABLE_OPENDOTA", "validation_status": "BLOCKED",
+       "note": "No player field and no objective type on a parsed OpenDota match. Needs STRATZ or a replay parse."},
+
+      {"stat_id": "smokes_used", "helpstat_index": 12, "color": "blue",
+       "official_en": "Smokes Used", "official_zh": "开雾次数",
+       "scoring_text": "+{f:helpstat_12} per Smoke of Deceit used", "transformation": "linear count",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": true,
+       "class": "role_structural", "role_dependence": "very high (supports)",
+       "team_dependence": "high", "game_length_sensitive": true, "patch_sensitivity": "medium",
+       "opendota_field": "players[].item_uses.smoke_of_deceit (key absent means zero)",
+       "requires_parsed_replay": true,
+       "data_availability": "AVAILABLE_IF_PARSED", "validation_status": "UNVALIDATED"},
+
+      {"stat_id": "lotuses_grabbed", "helpstat_index": 15, "color": "blue",
+       "official_en": "Lotuses Grabbed", "official_zh": "采集莲花",
+       "scoring_text": "+{f:helpstat_15} per lotus taken", "transformation": "linear count",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": true,
+       "class": "opportunity_count", "role_dependence": "high (supports)",
+       "team_dependence": "medium", "game_length_sensitive": true, "patch_sensitivity": "very high",
+       "opendota_field": null, "requires_parsed_replay": true,
+       "data_availability": "NOT_AVAILABLE_OPENDOTA", "validation_status": "BLOCKED",
+       "note": "No player field on a parsed OpenDota match. Needs STRATZ or a replay parse."},
+
+      {"stat_id": "roshan_kills", "helpstat_index": 5, "color": "green",
+       "official_en": "Roshan Kills", "official_zh": "击杀肉山",
+       "scoring_text": "+{f:helpstat_5} per Roshan kill", "transformation": "linear count",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": true,
+       "class": "rare_event", "role_dependence": "high (the last hitter, usually a core)",
+       "team_dependence": "very high", "game_length_sensitive": true, "patch_sensitivity": "high",
+       "opendota_field": "players[].roshans_killed", "requires_parsed_replay": true,
+       "data_availability": "AVAILABLE_IF_PARSED", "validation_status": "UNVALIDATED",
+       "note": "Classic low-count high-variance stat: shrinkage to a role/team prior is mandatory, a raw player mean over a handful of maps is not an estimate."},
+
+      {"stat_id": "teamfight_participation", "helpstat_index": 6, "color": "green",
+       "official_en": "Teamfight Participation", "official_zh": "参与团战",
+       "scoring_text": "Max {f:helpstat_6} points for participating in team fights",
+       "transformation": "capped: participation fraction x maximum",
+       "points_per_unit": null, "maximum_points": null, "sign": "positive", "zero_inflated": false,
+       "class": "rate_like", "role_dependence": "medium",
+       "team_dependence": "high", "game_length_sensitive": false, "patch_sensitivity": "low",
+       "opendota_field": "players[].teamfight_participation", "requires_parsed_replay": true,
+       "data_availability": "AVAILABLE_IF_PARSED", "validation_status": "UNVALIDATED",
+       "note": "Bounded in [0, max], so it has the lowest ceiling and the lowest variance of the green stats. OpenDota's definition of participation may not be Valve's."},
+
+      {"stat_id": "stuns", "helpstat_index": 11, "color": "green",
+       "official_en": "Stuns", "official_zh": "眩晕时间",
+       "scoring_text": "+{f:helpstat_11} per second of stun", "transformation": "linear in seconds",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": false,
+       "class": "role_structural", "role_dependence": "very high (hero dependent, not role dependent)",
+       "team_dependence": "low", "game_length_sensitive": true, "patch_sensitivity": "high",
+       "opendota_field": "players[].stuns", "requires_parsed_replay": true,
+       "data_availability": "AVAILABLE_IF_PARSED", "validation_status": "UNVALIDATED",
+       "note": "Driven by the hero drafted far more than by the player. Any player-level estimate must condition on the hero pool."},
+
+      {"stat_id": "tormentor_kills", "helpstat_index": 16, "color": "green",
+       "official_en": "Tormentor Kills", "official_zh": "消灭痛苦魔方",
+       "scoring_text": "+{f:helpstat_16} per Tormentor kill", "transformation": "linear count",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": true,
+       "class": "rare_event", "role_dependence": "medium",
+       "team_dependence": "very high", "game_length_sensitive": true, "patch_sensitivity": "very high",
+       "opendota_field": "objectives[] CHAT_MESSAGE_MINIBOSS_KILL (per-player attribution unverified)",
+       "requires_parsed_replay": true,
+       "data_availability": "PARTIAL", "validation_status": "BLOCKED",
+       "note": "The event exists in the objectives log but whether it carries a player attribution has not been verified."},
+
+      {"stat_id": "first_blood", "helpstat_index": 10, "color": "green",
+       "official_en": "First Blood", "official_zh": "第一滴血",
+       "scoring_text": "{f:helpstat_10} points if the player gets first blood",
+       "transformation": "indicator, at most once per game",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": true,
+       "class": "rare_event", "role_dependence": "medium",
+       "team_dependence": "medium", "game_length_sensitive": false, "patch_sensitivity": "low",
+       "opendota_field": "players[].firstblood_claimed", "requires_parsed_replay": false,
+       "data_availability": "AVAILABLE", "validation_status": "UNVALIDATED",
+       "note": "A Bernoulli variable with base rate at most 1/10 per game per player. The single most over-fitted stat if a raw sample mean is used."},
+
+      {"stat_id": "courier_kills", "helpstat_index": 17, "color": "green",
+       "official_en": "Courier Kills", "official_zh": "杀害信使",
+       "scoring_text": "+{f:helpstat_17} per Courier kill", "transformation": "linear count",
+       "points_per_unit": null, "sign": "positive", "zero_inflated": true,
+       "class": "rare_event", "role_dependence": "low",
+       "team_dependence": "medium", "game_length_sensitive": true, "patch_sensitivity": "medium",
+       "opendota_field": "players[].courier_kills", "requires_parsed_replay": true,
+       "data_availability": "AVAILABLE_IF_PARSED", "validation_status": "UNVALIDATED"}
+    ],
+    "by_color": {
+      "red": ["kills", "deaths", "creep_score", "gpm", "madstone", "tower_kills"],
+      "blue": ["wards_placed", "camps_stacked", "runes_grabbed", "watchers_taken", "smokes_used", "lotuses_grabbed"],
+      "green": ["roshan_kills", "teamfight_participation", "stuns", "tormentor_kills", "first_blood", "courier_kills"],
+      "source_keys": ["DOTA_FantasyCraftHelp_RedStats", "DOTA_FantasyCraftHelp_BlueStats", "DOTA_FantasyCraftHelp_GreenStats"]
+    }
+  },
+
+  "rewards": {
+    "status": "PARTIAL",
+    "fantasy_period_tiers_percentile": ["100th", "99th", "95th", "90th", "80th", "60th", "40th", "20th", "10th"],
+    "fantasy_period_tier_points": null,
+    "fantasy_period_tier_points_status": "UNRESOLVED",
+    "note": "DOTA_Fantasy26_RewardTierName0..8 give nine percentile tiers with a Points column filled at runtime. An older non-2026 string block (DOTA_FantasyCraftHelp_RewardsBottom25 .. RewardsTop1) lists 1,000 / 2,500 / 6,000 / 10,000 / 18,000 / 25,000 Compendium Points for six coarser bands; it is NOT assumed to apply to 2026 because 2026 ships its own nine-tier table.",
+    "overall_rank_rewards": {
+      "status": "CONFIRMED",
+      "determined": "after The International, on August 27th",
+      "tiers": ["Top 100 Players", "Top 1500 Players", "95th Percentile", "90th Percentile", "85th Percentile"],
+      "items": ["Dota Plus months", "Terrain Tokens", "Aegis Discount", "Tyrian Regalias"],
+      "input": "Predictions Score plus Fantasy Score (DOTA_Score2026_Predictions / DOTA_Score2026_Fantasy)"
+    },
+    "objective_consequence": "Rewards are percentile-banded, not proportional to score. The decision-relevant objective is therefore the probability of clearing a percentile threshold, which is not the same as maximising expected score. Which of the two to optimise cannot be settled until the tier point values are known."
+  },
+
+  "eligibility": {
+    "status": "CONFIRMED",
+    "rule": "Only accounts active when the event began are eligible to play this year's Fantasy and Predictions.",
+    "source_keys": ["DOTA_Fantasy2026_NoCompendium", "DOTA_Predictions26_NoCompendium"]
+  },
+
+  "blocking_unknowns": [
+    "base points for all 18 stats ({f:helpstat_0..17}) and the Deaths starting credit ({f:max_death})",
+    "number of emblems per War Banner and the red/green/blue split for each of core / mid / support",
+    "prefix and suffix bonus percentages ({d:prefix_bonus}, {d:suffix_bonus}) and whether they scale with anything",
+    "roll token budget per period",
+    "whether the top two games in a series are summed or averaged",
+    "whether the three roles must come from three DISTINCT teams",
+    "the exact fantasy lock time for each period",
+    "the Compendium Point value of each of the nine fantasy percentile tiers"
+  ]
+}
