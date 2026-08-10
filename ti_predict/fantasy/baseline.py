@@ -10,17 +10,20 @@ the ruleset actually uses:
     role score per period ->  the BEST series, not the sum
     exposure              ->  the number of eligible series, i.e. extreme-value draws
 
-Two rules are still unresolved and are therefore carried as hypotheses rather than choices:
-the top-two maps may be summed or averaged, and Deaths may or may not floor at zero. Every output
-is produced under both and the spread between them is reported. Nothing here picks one.
+Unresolved rules are carried as switches rather than choices, and every one of them is measured
+rather than argued about (see sensitivity.py). One of them turned out not to matter: with every
+series contributing at least two maps, which is the TI best-of-three condition, summing the top two
+maps and averaging them differ by exactly a factor of two, so no comparison anywhere in the decision
+can see the difference.
 
 The emblem stats are random draws in the real game, so a team cannot be scored against a known
-banner. What is computed instead is the ENVELOPE: for each colour slot on a role's banner, the
-best stat available in that colour's pool. That is an upper bound on what crafting could reach, and
-it is the right quantity for comparing teams before any rolling has happened.
+banner. What is computed instead is the ENVELOPE: the best legal stat set for the banner's colour
+layout, scored as a unit. That is an upper bound on what crafting could reach, and it is the right
+quantity for comparing teams before any rolling has happened.
 """
 import argparse
 import csv
+import itertools
 import json
 import os
 import random
@@ -156,7 +159,15 @@ def assign_roles(rows):
     return out, notes
 
 
-def map_score(row, stat, rules, deaths_floor):
+# Candidate shapes for the Teamfight Participation curve. `linear` is the working hypothesis: the
+# public 2026 calculator applies the plain product, and its stored inputs were shown to be OpenDota's
+# teamfight_participation field exactly. The other two are deliberate stress shapes -- one that pays
+# low participation more generously, one that pays it much less -- kept so the choice of curve can be
+# shown not to matter rather than assumed not to.
+TFP_CURVES = {"linear": lambda p: p, "concave": lambda p: p ** 0.5, "convex": lambda p: p ** 2}
+
+
+def map_score(row, stat, rules, deaths_floor, tfp_curve="linear"):
     """Points a single emblem of `stat` would earn this player on this map, before multipliers."""
     cols = STAT_COLUMNS.get(stat)
     if not cols:
@@ -170,17 +181,26 @@ def map_score(row, stat, rules, deaths_floor):
         s = rules["deaths_credit"] - raw * c["points_per_unit"]
         return max(0.0, s) if deaths_floor else s
     if stat == "teamfight_participation":
-        return min(1.0, raw) * c["maximum_points"]
+        return TFP_CURVES[tfp_curve](min(1.0, max(0.0, raw))) * c["maximum_points"]
     return raw * c["points_per_unit"]
 
 
-def role_period_scores(rows, accounts, stat, rules, top_two, deaths_floor):
-    """Per-league best-series score for one role and one stat: the four levels, in order."""
+def role_period_scores(rows, accounts, stat, rules, top_two, deaths_floor,
+                       min_series_maps=2, tfp_curve="linear"):
+    """Per-league best-series score for one role and one stat: the four levels, in order.
+
+    `min_series_maps` exists because the training window is not the target format. Every TI2026
+    Swiss and elimination series is a best-of-three, so every series there contributes at least two
+    maps; a quarter of the series in the recent-form window are best-of-ones. Counting those would
+    let a format that cannot occur at TI drive the estimate, and -- see the note in
+    scoring_pipeline -- it is the only mechanism by which summing and averaging the top two maps can
+    differ at all. The default of 2 is the TI condition, not a filter chosen for convenience.
+    """
     per_series = defaultdict(lambda: defaultdict(dict))     # league -> series -> match -> [scores]
     for r in rows:
         if int(r["account_id"]) not in accounts:
             continue
-        s = map_score(r, stat, rules, deaths_floor)
+        s = map_score(r, stat, rules, deaths_floor, tfp_curve)
         if s is None:
             continue
         per_series[r["_league"]][r["_series"]].setdefault(r["match_id"], []).append(s)
@@ -188,6 +208,8 @@ def role_period_scores(rows, accounts, stat, rules, top_two, deaths_floor):
     for league, ser in per_series.items():
         best = None
         for maps in ser.values():
+            if len(maps) < min_series_maps:
+                continue
             # role score for a map is the mean over the role's players who played it
             per_map = sorted((sum(v) / len(v) for v in maps.values()), reverse=True)[:2]
             if not per_map:
@@ -199,54 +221,157 @@ def role_period_scores(rows, accounts, stat, rules, top_two, deaths_floor):
     return out
 
 
-def envelope(rows, roles, rules, top_two="sum", deaths_floor=False):
-    """For each organisation and role, the best legal set of stats for that banner's colour slots.
+def series_table(rows, accounts, rules, top_two="sum", deaths_floor=False, min_series_maps=2,
+                 tfp_curve="linear"):
+    """{league: {series: {stat: role score for that series}}} -- the per-series layer, kept whole.
 
-    A War Banner may not carry the same stat twice, so a role whose layout has two slots of one
-    colour needs the best TWO DISTINCT stats from that colour's pool, not the best one twice. Since
-    the slots within a colour are interchangeable and no trait is modelled here, taking the top k
-    distinct stats per colour is exactly optimal.
+    Kept whole because a War Banner is scored as ONE thing. Taking the best series separately for
+    each emblem and adding those up is a sum of maxima, which is not reachable: the period keeps a
+    single series and every emblem on the banner scores from that same series. Only after the
+    banner's stats are chosen can the maximum be taken.
+    """
+    stats = [s for s in STAT_COLUMNS if s not in UNAVAILABLE]
+    per = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
+    for r in rows:
+        if int(r["account_id"]) not in accounts:
+            continue
+        for stat in stats:
+            s = map_score(r, stat, rules, deaths_floor, tfp_curve)
+            if s is not None:
+                per[r["_league"]][r["_series"]][stat].setdefault(r["match_id"], []).append(s)
+    out = defaultdict(dict)
+    for league, ser in per.items():
+        for sid, by_stat in ser.items():
+            maps = max((len(v) for v in by_stat.values()), default=0)
+            if maps < min_series_maps:
+                continue
+            row = {}
+            for stat, by_map in by_stat.items():
+                per_map = sorted((sum(v) / len(v) for v in by_map.values()), reverse=True)[:2]
+                if per_map:
+                    row[stat] = sum(per_map) if top_two == "sum" else sum(per_map) / len(per_map)
+            if row:
+                out[league][sid] = row
+    return {k: dict(v) for k, v in out.items()}
+
+
+def _combinations(colours, pools):
+    """Every legal stat assignment for a banner: distinct stats, honouring the colour layout."""
+    wanted = {c: colours.count(c) for c in set(colours)}
+    per_colour = []
+    for colour, k in sorted(wanted.items()):
+        pool = [s for s in pools[colour] if s in STAT_COLUMNS and s not in UNAVAILABLE]
+        per_colour.append([tuple(sorted(c)) for c in itertools.combinations(pool, k)])
+    return [tuple(sorted(s for grp in combo for s in grp))
+            for combo in itertools.product(*per_colour)]
+
+
+def banner_period_scores(table, combo):
+    """Per-league period score for one banner: the best SERIES total, not the sum of best series."""
+    out = {}
+    for league, ser in table.items():
+        best = None
+        for row in ser.values():
+            if not all(s in row for s in combo):
+                continue
+            tot = sum(row[s] for s in combo)
+            best = tot if best is None else max(best, tot)
+        if best is not None:
+            out[league] = best
+    return out
+
+
+def best_banner(table, colours, pools):
+    """The legal stat set with the highest mean period score, and that set's per-league scores."""
+    best = None
+    for combo in _combinations(colours, pools):
+        by_league = banner_period_scores(table, combo)
+        if not by_league:
+            continue
+        mean = sum(by_league.values()) / len(by_league)
+        if best is None or mean > best[0]:
+            best = (mean, combo, by_league)
+    return best
+
+
+def envelope(rows, roles, rules, top_two="sum", deaths_floor=False, min_series_maps=2,
+             tfp_curve="linear"):
+    """For each organisation and role, the best legal stat set for that banner.
+
+    A banner may not carry the same stat twice, and -- more importantly -- the whole banner scores
+    from ONE series, so the stat set and the winning series have to be chosen together. Every legal
+    combination is enumerated and scored as a unit; the counts are small (75 for core, 120 for mid,
+    30 for support once the unobtainable stats are removed).
     """
     res = []
     for org, assign in sorted(roles.items()):
         for role, accounts in assign.items():
             colours = rules["layout"][role]
             acct = set(accounts)
-            wanted = {c: colours.count(c) for c in set(colours)}
-            slots, total = [], 0.0
-            for colour, k in sorted(wanted.items()):
-                pool = [s for s in rules["pools"][colour]
-                        if s in STAT_COLUMNS and s not in UNAVAILABLE]
-                scored = []
-                for stat in pool:
-                    by_league = role_period_scores(rows, acct, stat, rules, top_two, deaths_floor)
-                    if by_league:
-                        scored.append((sum(by_league.values()) / len(by_league), stat, by_league))
-                scored.sort(key=lambda t: -t[0])
-                for mean, stat, by_league in scored[:k]:
-                    slots.append({"colour": colour, "stat": stat,
-                                  "mean_best_series": round(mean, 1),
-                                  "leagues": len(by_league),
-                                  "by_league": {kk: round(v, 1) for kk, v in by_league.items()}})
-                    total += mean
-            if len(slots) == len(colours):
-                res.append({"organization": org, "role": role, "players": sorted(acct),
-                            "slots": slots, "envelope_total": round(total, 1)})
+            table = series_table(rows, acct, rules, top_two, deaths_floor, min_series_maps,
+                                 tfp_curve)
+            best = best_banner(table, colours, rules["pools"])
+            if not best:
+                continue
+            mean, combo, by_league = best
+            res.append({"organization": org, "role": role, "players": sorted(acct),
+                        "stats": list(combo), "colours": list(colours),
+                        "slots": [{"stat": s} for s in combo],
+                        "leagues": len(by_league),
+                        "by_league": {k: round(v, 1) for k, v in by_league.items()},
+                        "series_scores": series_totals(table, combo),
+                        "envelope_total": round(mean, 1)})
     return res
+
+
+def rank_probabilities(entries, seed=SEED, draws=BOOTSTRAP):
+    """P(rank 1) and P(top 3) per organisation within a role, by a paired event bootstrap.
+
+    Paired: the same resampled set of events is applied to every organisation in the draw. Resampling
+    each team independently would break the comparison, because the events are a shared source of
+    variation -- a patch or a field is common to everyone who played that event.
+    """
+    rng = random.Random(seed)
+    leagues = sorted({lg for e in entries for lg in e["by_league"]})
+    if len(leagues) < 2 or len(entries) < 2:
+        return {e["organization"]: {"p_rank1": None, "p_top3": None} for e in entries}
+    counts = {e["organization"]: [0, 0] for e in entries}
+    for _ in range(draws):
+        pick = [leagues[rng.randrange(len(leagues))] for _ in leagues]
+        tot = []
+        for e in entries:
+            vals = [e["by_league"][lg] for lg in pick if lg in e["by_league"]]
+            tot.append((sum(vals) / len(vals) if vals else float("-inf"), e["organization"]))
+        tot.sort(key=lambda t: -t[0])
+        for i, (_v, org) in enumerate(tot):
+            if i == 0:
+                counts[org][0] += 1
+            if i < 3:
+                counts[org][1] += 1
+    return {org: {"p_rank1": round(c[0] / draws, 4), "p_top3": round(c[1] / draws, 4)}
+            for org, c in counts.items()}
+
+
+def series_totals(table, combo):
+    """Every series' banner total, kept for the extreme-value work; the period keeps only the max."""
+    out = []
+    for ser in table.values():
+        for row in ser.values():
+            if all(s in row for s in combo):
+                out.append(round(sum(row[s] for s in combo), 1))
+    return sorted(out, reverse=True)
 
 
 def uncertainty(entry, seed=SEED, draws=BOOTSTRAP):
     """Bootstrap the envelope total over the events, which is the unit of independent exposure."""
     rng = random.Random(seed)
-    leagues = sorted({k for s in entry["slots"] for k in s["by_league"]})
+    leagues = sorted(entry["by_league"])
     if len(leagues) < 2:
         return {"se": None, "p10": None, "p90": None, "events": len(leagues)}
     tot = []
     for _ in range(draws):
         pick = [leagues[rng.randrange(len(leagues))] for _ in leagues]
-        vals = []
-        for lg in pick:
-            vals.append(sum(s["by_league"].get(lg, 0.0) for s in entry["slots"]))
+        vals = [entry["by_league"].get(lg, 0.0) for lg in pick]
         tot.append(sum(vals) / len(vals))
     tot.sort()
     return {"se": round(statistics.pstdev(tot), 1), "p10": round(tot[int(.10 * len(tot))], 1),
@@ -269,15 +394,22 @@ def coverage(stats_path=None):
             "coverage": round(frac, 4), "complete": frac >= fp.MIN_COVERAGE}
 
 
-def build(top_two="sum", deaths_floor=False):
+def build(top_two="sum", deaths_floor=False, min_series_maps=2, tfp_curve="linear"):
     rules = load_rules()
     rows, dropped, swap = load_stats()
     roles, notes = assign_roles(rows)
-    env = envelope(rows, roles, rules, top_two, deaths_floor)
+    env = envelope(rows, roles, rules, top_two, deaths_floor, min_series_maps, tfp_curve)
     for e in env:
         e["uncertainty"] = uncertainty(e)
+    for role in ("core", "mid", "support"):
+        grp = [e for e in env if e["role"] == role]
+        rp = rank_probabilities(grp)
+        for e in grp:
+            e["rank_probability"] = rp[e["organization"]]
     env.sort(key=lambda e: -e["envelope_total"])
-    return {"hypothesis": {"top_two": top_two, "deaths_floor": deaths_floor},
+    return {"hypothesis": {"top_two": top_two, "deaths_floor": deaths_floor,
+                           "min_series_maps": min_series_maps,
+                           "tfp_curve": tfp_curve},
             "input_coverage": coverage(),
             "rows_used": len(rows), "rows_dropped": dropped,
             "roster_overrides": {str(k): v[1] for k, v in swap.items()},
@@ -294,10 +426,13 @@ def main(argv=None):
     a = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     a.add_argument("--top-two", choices=("sum", "mean"), default="sum")
     a.add_argument("--deaths-floor", action="store_true")
+    a.add_argument("--tfp-curve", choices=tuple(TFP_CURVES), default="linear")
+    a.add_argument("--min-series-maps", type=int, default=2,
+                   help="skip series shorter than this; 2 is the TI best-of-three condition")
     a.add_argument("--out", default="")
     a.add_argument("--top", type=int, default=10)
     a = a.parse_args(argv)
-    r = build(a.top_two, a.deaths_floor)
+    r = build(a.top_two, a.deaths_floor, a.min_series_maps, a.tfp_curve)
     if a.out:
         with open(a.out, "w", encoding="utf-8") as fh:
             json.dump(r, fh, indent=2)
@@ -305,7 +440,7 @@ def main(argv=None):
           f"{r['rows_used']} parsed player-maps, {r['organizations']} organisations")
     for e in r["ranking"][:a.top]:
         u = e["uncertainty"]
-        stats = " + ".join(f"{s['colour'][0].upper()}:{s['stat']}" for s in e["slots"])
+        stats = " + ".join(e["stats"])
         print(f"  {e['envelope_total']:>9.1f}  se {str(u['se']):>7}  "
               f"{e['organization']:<18} {e['role']:<8} {stats}")
     return 0

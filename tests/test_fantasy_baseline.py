@@ -65,45 +65,57 @@ def test_the_two_unobtainable_stats_are_excluded_by_construction():
 
 
 # ---- the four levels ---------------------------------------------------------------------------
-def _series_rows(b_kills=10):
-    """Two players, two series. Series A: maps of 1/2/3 kills each. Series B: one map of b_kills."""
-    rows = []
-    for series, maps in (("A", [(1, 1), (2, 2), (3, 3)]), ("B", [(b_kills, b_kills)])):
-        for i, (k1, k2) in enumerate(maps):
-            for acct, k in ((1, k1), (2, k2)):
-                rows.append(_row(match_id=f"{series}{i}", _series=series, account_id=acct, kills=k))
-    return rows
+def _series(sid, maps, accts=(1,)):
+    """maps: list of per-map kill counts, applied to every account in `accts`."""
+    return [_row(match_id=f"{sid}{i}", _series=sid, account_id=a, kills=k)
+            for i, k in enumerate(maps) for a in accts]
 
 
 def test_a_series_keeps_its_top_two_maps_and_a_period_keeps_its_best_series():
-    rows = _series_rows()
-    got = bl.role_period_scores(rows, {1, 2}, "kills", R, "sum", False)
-    # series A top two maps are 3 and 2 kills -> (3+2)*107; series B is a single 10-kill map -> 10*107
-    assert got["L"] == pytest.approx(10 * 107.0)          # B wins the period, and it is a max
-
-
-def test_the_unresolved_hypothesis_can_change_which_series_wins_the_period():
-    """Not a level shift: with a long series and a short one, sum and mean pick different series."""
-    rows = _series_rows(b_kills=4)
-    s = bl.role_period_scores(rows, {1, 2}, "kills", R, "sum", False)["L"]
-    m = bl.role_period_scores(rows, {1, 2}, "kills", R, "mean", False)["L"]
-    assert s == pytest.approx((3 + 2) * 107.0)     # sum keeps the three-map series A
-    assert m == pytest.approx(4 * 107.0)           # mean keeps the single strong map of series B
-    assert s != m
-
-
-def test_a_role_score_for_a_map_is_the_mean_over_that_roles_players():
-    rows = [_row(match_id="m1", _series="s", account_id=1, kills=4),
-            _row(match_id="m1", _series="s", account_id=2, kills=8)]
-    got = bl.role_period_scores(rows, {1, 2}, "kills", R, "sum", False)
-    assert got["L"] == pytest.approx(6 * 107.0)
+    rows = _series("A", [1, 2, 3]) + _series("B", [10, 10])
+    got = bl.role_period_scores(rows, {1}, "kills", R, "sum", False)
+    # A's top two are 3 and 2; B's are 10 and 10. The period keeps B, and it keeps a maximum.
+    assert got["L"] == pytest.approx(20 * 107.0)
 
 
 def test_the_best_series_is_a_maximum_not_an_average_over_series():
-    rows = [_row(match_id="a", _series="A", account_id=1, kills=1),
-            _row(match_id="b", _series="B", account_id=1, kills=9)]
-    got = bl.role_period_scores(rows, {1}, "kills", R, "sum", False)
-    assert got["L"] == pytest.approx(9 * 107.0)
+    rows = _series("A", [1, 1]) + _series("B", [9, 9])
+    assert bl.role_period_scores(rows, {1}, "kills", R, "sum", False)["L"] \
+        == pytest.approx(18 * 107.0)
+
+
+def test_summing_and_averaging_the_top_two_differ_by_exactly_one_half():
+    """The correction: under the TI best-of-three condition this choice is a scale factor.
+
+    Every TI2026 Swiss and elimination series is a best-of-three, so every series contributes at
+    least two maps. Then mean = sum/2 identically, which cannot reorder anything. An earlier round
+    of this project claimed otherwise; that claim came from best-of-one series in the training
+    window and is withdrawn.
+    """
+    rows = _series("A", [1, 2, 3]) + _series("B", [4, 9])
+    s = bl.role_period_scores(rows, {1}, "kills", R, "sum", False)["L"]
+    m = bl.role_period_scores(rows, {1}, "kills", R, "mean", False)["L"]
+    assert m == pytest.approx(s / 2)
+
+
+def test_a_one_map_series_is_the_sole_mechanism_that_breaks_the_scaling():
+    """And it is excluded by default, because it cannot occur at TI."""
+    rows = _series("A", [1, 2, 3]) + _series("B", [9])          # B is a best-of-one
+    kw = dict(rules=R, top_two="sum", deaths_floor=False)
+    with_bo1_sum = bl.role_period_scores(rows, {1}, "kills", min_series_maps=1, **kw)["L"]
+    kw["top_two"] = "mean"
+    with_bo1_mean = bl.role_period_scores(rows, {1}, "kills", min_series_maps=1, **kw)["L"]
+    assert with_bo1_mean != pytest.approx(with_bo1_sum / 2)     # the scaling breaks
+    # and the default excludes it, restoring the exact factor of two
+    default_sum = bl.role_period_scores(rows, {1}, "kills", R, "sum", False)["L"]
+    default_mean = bl.role_period_scores(rows, {1}, "kills", R, "mean", False)["L"]
+    assert default_mean == pytest.approx(default_sum / 2)
+
+
+def test_a_role_score_for_a_map_is_the_mean_over_that_roles_players():
+    rows = _series("s", [4, 4], accts=(1,)) + _series("s", [8, 8], accts=(2,))
+    got = bl.role_period_scores(rows, {1, 2}, "kills", R, "sum", False)
+    assert got["L"] == pytest.approx(12 * 107.0)                # (4+8)/2 per map, top two maps
 
 
 # ---- the ruleset the baseline reads --------------------------------------------------------------
@@ -121,20 +133,46 @@ def test_the_slot_count_is_known_to_grow_with_tablet_level():
     assert g["status"] == "CONFIRMED" and g["period_1_slot_count"] is None
 
 
-def test_a_banner_never_carries_the_same_stat_twice():
-    """Core is red/green/red, so the two red slots need the best two DISTINCT red stats."""
+def _full_rows(sid, n_maps, acct=1):
     rows = []
-    for i, (lh, k, tw) in enumerate([(300, 5, 2), (280, 6, 1), (310, 4, 3)]):
-        rows.append(_row(match_id=f"m{i}", _series=f"s{i}", account_id=1,
-                         last_hits=lh, denies=0, kills=k, towers_killed=tw, deaths=2,
+    for i in range(n_maps):
+        rows.append(_row(match_id=f"{sid}{i}", _series=sid, account_id=acct,
+                         last_hits=300 + i, denies=0, kills=5 + i, towers_killed=2, deaths=2,
                          gold_per_min=600, madstone=0, roshans_killed=1,
                          teamfight_participation=0.7, stuns=10, firstblood_claimed=0,
-                         courier_kills=0))
-    env = bl.envelope(rows, {"Org": {"core": [1]}}, R, "sum", False)
-    slots = env[0]["slots"]
-    assert len(slots) == 3
-    assert len({s["stat"] for s in slots}) == 3
-    assert sorted(s["colour"] for s in slots) == ["green", "red", "red"]
+                         courier_kills=0, obs_placed=3, camps_stacked=4, rune_pickups=5,
+                         smokes_used=1))
+    return rows
+
+
+def test_a_banner_never_carries_the_same_stat_twice():
+    """Core is red/green/red, so the two red slots need two DISTINCT red stats."""
+    env = bl.envelope(_full_rows("s", 3), {"Org": {"core": [1]}}, R, "sum", False)
+    assert len(env) == 1
+    stats = env[0]["stats"]
+    assert len(stats) == 3 and len(set(stats)) == 3
+    reds = [s for s in stats if s in R["pools"]["red"]]
+    greens = [s for s in stats if s in R["pools"]["green"]]
+    assert len(reds) == 2 and len(greens) == 1
+
+
+def test_the_banner_is_scored_on_one_series_not_a_sum_of_each_stats_best_series():
+    """A sum of maxima is unreachable: every emblem scores from the SAME winning series."""
+    # series A is strong on creep score, series B is strong on kills; a banner cannot have both
+    a = [_row(match_id=f"a{i}", _series="A", account_id=1, last_hits=900, denies=0, kills=0,
+              towers_killed=0, deaths=0, gold_per_min=0, madstone=0, roshans_killed=0,
+              teamfight_participation=0, stuns=0, firstblood_claimed=0, courier_kills=0)
+         for i in range(2)]
+    b = [_row(match_id=f"b{i}", _series="B", account_id=1, last_hits=0, denies=0, kills=90,
+              towers_killed=0, deaths=0, gold_per_min=0, madstone=0, roshans_killed=0,
+              teamfight_participation=0, stuns=0, firstblood_claimed=0, courier_kills=0)
+         for i in range(2)]
+    table = bl.series_table(a + b, {1}, R, "sum", False)
+    both = bl.banner_period_scores(table, ("creep_score", "kills"))["L"]
+    cs = bl.banner_period_scores(table, ("creep_score",))["L"]
+    kills = bl.banner_period_scores(table, ("kills",))["L"]
+    assert both < cs + kills          # strictly less: the two peaks are in different series
+    assert both == pytest.approx(max(cs, kills))
 
 
 def test_the_valve_stat_enum_ordering_matches_every_helpstat_index():
