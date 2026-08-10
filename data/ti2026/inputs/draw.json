@@ -1,0 +1,51 @@
+{
+  "league_id": 19719,
+  "source": "https://www.dota2.com/webapi/IDOTA2League/GetLeagueData/v001/?league_id=19719",
+  "feed_sha256": "39e92ef8d1ff04842ad48b2042e08cf071080f00890ebbb75da85dee3481196c",
+  "swiss_format": {
+    "team_count": 16,
+    "max_rounds": 5,
+    "win_loss_limit": 4,
+    "advancing": 3
+  },
+  "r1_status": "official",
+  "r1_pairings": [
+    [
+      "Team Falcons",
+      "LGD Gaming"
+    ],
+    [
+      "Tundra Esports",
+      "Nigma Galaxy"
+    ],
+    [
+      "BetBoom Team",
+      "OG"
+    ],
+    [
+      "PARIVISION",
+      "Team Resilience"
+    ],
+    [
+      "Team Spirit",
+      "Xtreme Gaming"
+    ],
+    [
+      "Team Liquid",
+      "Vici Gaming"
+    ],
+    [
+      "Aurora Gaming",
+      "GamerLegion"
+    ],
+    [
+      "Team Yandex",
+      "HULIGANI"
+    ]
+  ],
+  "pods_status": "unresolved",
+  "pods_evidence": "Valve league feed exposes a single undivided 16-team Swiss node group; no pod partition is published in any machine-readable source",
+  "first_match_utc": "2026-08-13T02:00:00+00:00",
+  "retrieved_at": "2026-08-10T07:05:16+00:00",
+  "_comment": "Generated from the official Valve league feed by `python -m ti_predict.league_feed --write-draw`. Team names are canonical organizations (teams.csv 'team'). pods_status='unresolved' means no pod partition is published; the official pipeline fails closed on it."
+}
