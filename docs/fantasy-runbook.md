@@ -11,11 +11,22 @@ disagree, the JSON wins. Validate both with `python -m ti_predict.fantasy.questi
 
 ## 1. What exists
 
-The Compendium has five tabs: Rewards, Fantasy, Predictions, Team Bundles, Talent Bundles. Only two
-of them score: **Predictions** and **Fantasy**. Valve's shipped compendium definition for league
-19719 enumerates every out-of-game prediction slot, so the absence of hero predictions, player-stat
-predictions, or "most kills at the event" questions is established by enumeration rather than by
-failing to find them.
+The Compendium has five tabs: Rewards, Fantasy, Predictions, Team Bundles, Talent Bundles.
+
+Two of them carry scoring, and they are **separate tracks, not two halves of one**:
+
+- **Predictions** holds exactly **two out-of-game prediction sets** - the 16-slot Group Stage and the
+  14-slot main-event bracket - scored on a correct-count curve in Compendium Points.
+- **Fantasy** is an **independent scoring track** with its own two periods, its own fantasy-point
+  scale and its own percentile-banded reward table. It is not a third prediction set.
+
+The overall Compendium rank is a function of both scores (`DOTA_Score2026_Predictions` and
+`DOTA_Score2026_Fantasy`), which is why they must be modelled separately and summed at the end
+rather than treated as one activity.
+
+Valve's shipped compendium definition for league 19719 enumerates every out-of-game prediction slot,
+so the absence of hero predictions, player-stat predictions, or "most kills at the event" questions
+is established by enumeration rather than by failing to find them.
 
 | Item | Slots | Opens (UTC) | Locks (UTC) | Where it is handled |
 | --- | --- | --- | --- | --- |
@@ -27,23 +38,76 @@ failing to find them.
 
 ## 2. What is blocking, and exactly what is needed
 
-The Fantasy **question structure** is established. Fantasy **rule closure** is not: the client fills
-key values in at runtime from values that appear in no shipped file. Ten groups of facts block
-optimisation and are listed in `fantasy_rules.json` under `blocking_unknowns`. Nothing may be
-back-filled from a previous year's scoring table; `ti_predict/fantasy/questions.py` refuses a
-ruleset that tries.
+The Fantasy **question structure** is established, and as of the 2026-08-10 reconciliation the **base
+scoring coefficients are populated** from an operator reading of the in-client scoring panel. What is
+still missing is the *semantics* around those numbers and the *current state* of the banners.
 
-Until they are resolved, `readiness()` reports every Fantasy question as not candidate-ready, and no
-submission-grade Fantasy candidate may be produced. That is the intended behaviour, not a defect.
+Evidence grades used throughout (`fantasy_rules.evidence_grades`):
+
+| Grade | Meaning |
+| --- | --- |
+| tier-1 confirmed | from a Valve-shipped file or an official Valve publication |
+| user-screenshot corroborated | read by the operator from an in-client panel in a user-supplied image; consistent with the Tier-1 templates, but a guide article does not inherit Tier-1 by transitivity |
+| partial | structure established, at least one semantic or numeric component is not |
+| unresolved | not established by any source available |
+
+The 18 base coefficients, the Deaths credit and the Teamfight Participation maximum sit at
+**user-screenshot corroborated**, carried as `points_status: PARTIAL`. They are promotable to
+CONFIRMED only by a direct read of the live client, and `ti_predict/fantasy/questions.py` enforces
+that: a coefficient must name its `points_source_type`, and only `client_ui` may be CONFIRMED.
+
+Twelve facts still block optimisation, listed in `fantasy_rules.json` under `blocking_unknowns` and
+prioritised P0/P1. Until the P0 group is closed, `readiness()` reports every Fantasy question as not
+candidate-ready and no Fantasy team, banner or coach recommendation may be produced. That is the
+intended behaviour, not a defect.
+
+### The 18 base coefficients
+
+Grade: user-screenshot corroborated. Each value fills exactly one `{f:helpstat_N}` placeholder in the
+shipped localization, with none left unfilled and none left over, and each value's *form* matches its
+template (a per-second rate for Stuns, a cap for Teamfight Participation, a credit-and-debit for
+Deaths, a bare multiplier for GPM). The Deaths credit is exactly ten times the per-death debit.
+
+| helpstat | colour | stat | client label (zh) | coefficient | OpenDota field |
+| --- | --- | --- | --- | --- | --- |
+| 0 | red | Kills | 击杀 | +107.00 per kill | `kills` |
+| 1 | red | Deaths | 死亡 | 1950.00 start, -195.00 per death | `deaths` |
+| 2 | red | Creep Score | 正反补 | +3.00 per last hit or deny | `last_hits + denies` |
+| 3 | red | GPM | GPM | GPM x 2.00 | `gold_per_min` |
+| 4 | red | Tower Kills | 摧毁防御塔 | +352.00 | `towers_killed` |
+| 13 | red | Madstone Collected | 狂石收集数量 | +13.00 | `neutral_tokens_log` |
+| 7 | blue | Wards Placed | 放置守卫 | +117.00 | `obs_placed` |
+| 8 | blue | Camps Stacked | 堆叠野怪 | +234.00 | `camps_stacked` |
+| 9 | blue | Runes Grabbed | 拾取神符 | +141.00 | `rune_pickups` |
+| 12 | blue | Smokes Used | 开雾次数 | +293.00 | `item_uses.smoke_of_deceit` |
+| 14 | blue | Watchers Taken | 占领观察者 | +147.00 | none - blocked |
+| 15 | blue | Lotuses Grabbed | 采集莲花 | +176.00 | none - blocked |
+| 5 | green | Roshan Kills | 击杀肉山 | +1172.00 | `roshans_killed` |
+| 6 | green | Teamfight Participation | 参与团战 | maximum 2124.00 | `teamfight_participation` |
+| 10 | green | First Blood | 第一滴血 | +1934.00 | `firstblood_claimed` |
+| 11 | green | Stuns | 眩晕时间 | +10.00 per second | `stuns` |
+| 16 | green | Tormentor Kills | 消灭痛苦魔方 | +879.00 | objective event, attribution unverified |
+| 17 | green | Courier Kills | 杀害信使 | +703.00 | `courier_kills` |
+
+Reading the scale, not the strategy: the coefficients span three orders of magnitude, from 3.00 per
+creep to 2124.00 for a single capped stat. Green stats are large and rare, blue stats are mid-sized
+and role-structural, and red stats are mostly small and accumulative except for the Deaths credit and
+Tower Kills. That shape is why the emblem choice cannot be made by picking whichever stat a player
+happens to lead: a banner slot spent on Creep Score and one spent on First Blood are not comparable
+without the underlying rate distributions, which is the work of PHASE 3.
 
 ## 3. Modelling notes that follow from the confirmed rules
 
 These are consequences of the ruleset, recorded now so the modelling phase does not re-derive them.
 
-- **The period score is a maximum, not a sum.** A role's period score is the score of its *best
-  series*, not the total over the period. Expected maps played times expected points per map is
-  therefore the wrong estimator. More series still helps, but as additional draws from a
-  distribution whose maximum is taken - an extreme-value problem, not an accumulation problem.
+- **The period score is a maximum, not a sum - held directionally, not frozen.** A role's period
+  score is the score of its *best series*, not the total over the period, so expected maps played
+  times expected points per map is the wrong estimator. This follows from the shipped wording and is
+  not in doubt in direction; the exact estimator stays open until `top_two_aggregation` and
+  `best_series_eligibility` are closed. The final model must keep four levels distinct: the per-game
+  score distribution, the top-two-within-series aggregation, the best-series-within-period maximum,
+  and the number of eligible series as the count of extreme-value draws. More series helps as extra
+  draws from a distribution whose maximum is taken, not as accumulation.
 - **The unit of choice is a team, not a player.** Core and support banners score the *average* of
   the team's two players in that role. Averaging halves the idiosyncratic variance of a single
   player and makes team style, not individual reputation, the dominant signal.
@@ -68,11 +132,16 @@ These are consequences of the ruleset, recorded now so the modelling phase does 
 
 ## 4. Phase plan
 
-1. **PHASE 1 - inventory: BLOCKED.** The 30 prediction slots and the two-period Fantasy structure
-   are exhaustively enumerated, but the runtime Fantasy numbers, configurable emblem slot count,
-   candidate dropdown restrictions and lock countdowns still require the live client.
-2. **PHASE 2 - data feasibility: NOT STARTED.** The OpenDota field mapping is a preliminary schema,
-   not a coverage result. Do not pull or bless a player-stat dataset until PHASE 1 closes.
+1. **PHASE 1 - inventory: BLOCKED, reduced.** The 30 prediction slots and the two-period Fantasy
+   structure are exhaustively enumerated, and as of 2026-08-10 the 18 base coefficients are
+   populated at user-screenshot grade. What still requires the live client: the four P0 scoring
+   semantics, the current banner state, the coach title percentages, the selection legality, and the
+   period-0 lock countdown.
+2. **PHASE 2 - data feasibility: IN PROGRESS.** The OpenDota field mapping for all 18 stats is
+   recorded and probed: 15 retrievable, 2 blocked (Watchers, Lotuses), 1 partial (Tormentor). Still
+   to do: parse-coverage rate over TI-tier matches and whether STRATZ supplies the two blocked
+   stats. Permitted to continue while PHASE 1 is blocked, since none of it depends on the
+   coefficients.
 3. **PHASE 3 - baselines: NOT STARTED.** Planned: role-level and team-level per-map distributions
    with event-blocked bootstrap intervals.
 4. **PHASE 4 - modelling: NOT STARTED.** Planned: hierarchical shrinkage per stat class, joined to
