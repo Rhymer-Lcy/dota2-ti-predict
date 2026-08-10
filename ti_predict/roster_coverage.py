@@ -35,11 +35,21 @@ NOW = datetime.now(timezone.utc)
 LOOKBACK_DAYS = 400
 
 
-def _get(path):
-    req = urllib.request.Request(BASE + path, headers=UA)
-    with urllib.request.urlopen(req, timeout=45) as r:
-        raw = r.read()
-    return raw, json.loads(raw)
+def _get(path, tries=4):
+    """GET with retries. OpenDota fronts a CDN that returns 5xx in bursts (521/522 observed
+    2026-08-10); without retries a transient outage silently costs a whole team its coverage."""
+    last = None
+    for i in range(tries):
+        try:
+            req = urllib.request.Request(BASE + path, headers=UA)
+            with urllib.request.urlopen(req, timeout=45) as r:
+                raw = r.read()
+            return raw, json.loads(raw)
+        except Exception as ex:                       # transient HTTP/network/JSON failure
+            last = ex
+            if i < tries - 1:
+                time.sleep(2.0 * (i + 1))
+    raise last
 
 
 def _manifest(endpoint, key, raw, n):
@@ -81,16 +91,23 @@ def main():
     if not os.path.exists(ident):
         raise SystemExit(f"{ident} not found; run python -m ti_predict.resolve_identity first")
     teams = list(csv.DictReader(open(ident, encoding="utf-8")))
-    summary, match_rows = [], []
+    summary, match_rows, failed = [], [], []
     for t in teams:
         org = t["organization"]
         pids = [int(x) for x in (t.get("player_ids") or "").split("|") if x.strip().lstrip("-").isdigit()]
         if len(pids) < 4:
-            print(f"[skip] {org}: <4 account_ids"); continue
+            failed.append(f"{org}: only {len(pids)} account_ids in identity_resolved.csv")
+            continue
         try:
             agg = collect_agg(pids, pro)
         except Exception as e:
-            print(f"[err] {org}: {e!r}"); continue
+            # Never drop a team quietly. build_canonical writes the TRACKED identity table from
+            # this output, so a skipped org disappears from it together with its source_team_ids --
+            # and the rating universe resolves organizations through exactly that column. On
+            # 2026-08-10 an API error burst dropped Aurora Gaming and BetBoom Team this way, taking
+            # 79 target maps with them.
+            failed.append(f"{org}: {e!r}")
+            continue
 
         rows, src_ids, series = [], set(), {5: set(), 4: set()}
         for mid, e in agg.items():
@@ -126,13 +143,21 @@ def main():
               f"| {s['earliest_ge4']}..{s['latest_ge4']} | 90d {d90:>3} 365d {d365:>4} "
               f"| ids {s['source_team_ids'] or '-'}")
 
+    if failed or len(summary) != len(teams):
+        missing = [t["organization"] for t in teams
+                   if t["organization"] not in {r["organization"] for r in summary}]
+        raise SystemExit(
+            "roster coverage INCOMPLETE - refusing to hand a partial table to build_canonical.\n"
+            + "\n".join("  " + f for f in failed)
+            + (f"\n  missing from the output: {', '.join(missing)}" if missing else "")
+            + f"\n({len(summary)}/{len(teams)} organizations collected; processed/*.csv left "
+              "unchanged). Re-run when the match API is healthy.")
+
     _manifest("players/matches", f"{len(teams)}x5 vs pro-universe", json.dumps(summary).encode(), len(summary))
-    if summary:
-        with open(os.path.join(PROC, "roster_coverage.csv"), "w", newline="", encoding="utf-8") as fh:
-            w = csv.DictWriter(fh, fieldnames=list(summary[0])); w.writeheader(); w.writerows(summary)
-    if match_rows:
-        with open(os.path.join(PROC, "roster_matches.csv"), "w", newline="", encoding="utf-8") as fh:
-            w = csv.DictWriter(fh, fieldnames=list(match_rows[0])); w.writeheader(); w.writerows(match_rows)
+    with open(os.path.join(PROC, "roster_coverage.csv"), "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(summary[0])); w.writeheader(); w.writerows(summary)
+    with open(os.path.join(PROC, "roster_matches.csv"), "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(match_rows[0])); w.writeheader(); w.writerows(match_rows)
     print(f"\nwrote roster_coverage.csv ({len(summary)}) + roster_matches.csv ({len(match_rows)})")
 
 
