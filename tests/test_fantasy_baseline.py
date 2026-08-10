@@ -218,6 +218,15 @@ def test_only_ti_players_are_kept_and_the_win_flag_follows_the_slot():
     assert {r["account_id"]: r["win"] for r in rows} == {9: 1, 8: 0}
 
 
+def test_coverage_is_measured_from_the_table_not_from_a_stale_provenance_file(tmp_path):
+    """A provenance file is written when a run ends, so mid-pull it describes an earlier run."""
+    empty = tmp_path / "player_map_stats.csv"
+    empty.write_text("match_id\n", encoding="utf-8")
+    c = bl.coverage(str(empty))
+    assert c["matches_covered"] == 0 and c["complete"] is False
+    assert c["matches_targeted"] > 0
+
+
 def test_the_fetcher_covers_every_stat_the_baseline_can_score():
     from ti_predict.fantasy import fetch_player_stats as fp
     needed = {c for cols in bl.STAT_COLUMNS.values() for c in cols}

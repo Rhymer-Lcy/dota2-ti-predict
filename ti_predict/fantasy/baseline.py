@@ -253,6 +253,22 @@ def uncertainty(entry, seed=SEED, draws=BOOTSTRAP):
             "p90": round(tot[int(.90 * len(tot))], 1), "events": len(leagues)}
 
 
+def coverage(stats_path=None):
+    """How much of the target window the stat table actually holds, measured from the table itself.
+
+    Deliberately not read from the fetcher's provenance file: that file is written when a run ends,
+    so during a long or interrupted pull it describes an earlier run. Counting the match ids present
+    cannot go stale.
+    """
+    from ti_predict.fantasy import fetch_player_stats as fp
+    targets = {t[0] for t in fp.target_matches(fp.DEFAULT_LEAGUES)}
+    have = fp.done_matches(stats_path)
+    covered = len(targets & have)
+    frac = covered / len(targets) if targets else 0.0
+    return {"matches_covered": covered, "matches_targeted": len(targets),
+            "coverage": round(frac, 4), "complete": frac >= fp.MIN_COVERAGE}
+
+
 def build(top_two="sum", deaths_floor=False):
     rules = load_rules()
     rows, dropped, swap = load_stats()
@@ -261,17 +277,8 @@ def build(top_two="sum", deaths_floor=False):
     for e in env:
         e["uncertainty"] = uncertainty(e)
     env.sort(key=lambda e: -e["envelope_total"])
-    prov_path = os.path.join(PROC, "fantasy", "player_stats_provenance.json")
-    prov = {}
-    if os.path.exists(prov_path):
-        with open(prov_path, encoding="utf-8") as fh:
-            prov = json.load(fh)
     return {"hypothesis": {"top_two": top_two, "deaths_floor": deaths_floor},
-            "input_coverage": {"matches_covered": prov.get("matches_covered"),
-                               "matches_targeted": prov.get("matches_targeted"),
-                               "coverage": prov.get("coverage"),
-                               "complete": bool(prov.get("coverage", 0)
-                                                >= prov.get("min_coverage", 1))},
+            "input_coverage": coverage(),
             "rows_used": len(rows), "rows_dropped": dropped,
             "roster_overrides": {str(k): v[1] for k, v in swap.items()},
             "organizations": len(roles), "role_notes": notes, "ranking": env,
