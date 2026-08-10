@@ -7,15 +7,16 @@
   "note": "Structurally complete inventory of every TI2026 in-client item that requires the player to answer, select or configure something. Compiled from Valve's own shipped compendium definition for league 19719, the shipped client localization, and the official announcement. Fantasy rule closure is not complete: runtime values absent from shipped files remain UNRESOLVED and block PHASE 2. Nothing is inferred from previous years.",
   "phase_1_status": "BLOCKED",
   "phase_1_blockers": [
-    "P0 scoring semantics: top-two-game aggregation, Deaths floor, Teamfight Participation curve, best-series eligibility",
-    "P0 War Banner state: emblem slot counts, colour composition, and the stat/tier/trait/order actually on the Core, Mid and Support banners",
-    "P0 coach titles: the offered prefix and suffix lists and the percentage each carries",
-    "P0 legality and lock: whether the three roles may share a team, whether all 16 teams are candidates, and the exact period-0 lock countdown",
-    "P1 roll-token economy and the nine Fantasy percentile reward values"
+    "P0 generic scoring semantics: top-two-game aggregation (sum or average), Deaths floor, Teamfight Participation curve",
+    "P0 account-specific: the current emblem state of the three War Banners",
+    "P1 generic: title bonuses beyond the eight known, stacking and trait composition order, roll weights, period-1 slot count, lock countdown, percentile reward values"
   ],
   "phase_1_resolved_since_last_round": [
-    "The 18 scoring coefficients, the Deaths starting credit and the Teamfight Participation maximum are now populated from S6 at grade user_screenshot_corroborated (points_status PARTIAL, promotable only by a direct client read).",
-    "The user-supplied image was received and reconciled; the 'no screenshot evidence' blocker is withdrawn."
+    "The 18 scoring coefficients, the Deaths starting credit and the Teamfight Participation maximum are populated from S6 and independently corroborated to the unit by the public 2026 calculator's compiled bundle.",
+    "The stat-to-index mapping is now Tier-1 confirmed: the Fantasy_Scoring enum's values 0..17 are exactly the helpstat ordering used by the shipped localization.",
+    "Period-0 banner composition (three emblems: core red/green/red, mid red/blue/green, support blue/green/blue) is known at Tier 2, and the Tier-1 schema explains how it grows between periods via tablet level.",
+    "The trait taxonomy is Tier-1 closed by EFantasyShapeBehavior, the coach-title engine model by FantasyCraftingTitleData_t, and the flat one-token operation cost by the localization plus the absence of a cost field in FantasyCraftOperation_t.",
+    "The shipped package contains no fantasy crafting data resource, which bounds the search: the remaining generic values are not publicly reachable."
   ],
   "source_tiers": {
     "1": "Dota 2 client (shipped game files and in-client UI), Valve/Steam official announcements, official TI pages, Valve league feed",
@@ -194,13 +195,19 @@
       "the Teamfight Participation maximum"
     ],
     "still_requires_live_client": [
-      "Fantasy -> How to Play -> Scoring: the complete wording around 'the top two scoring games', the Deaths floor, and the Teamfight Participation curve",
-      "Fantasy -> each of the Core, Mid and Support War Banners: emblem count, colour composition, and every emblem's stat, tier, trait and position",
-      "Fantasy -> Coaching Titles: the offered prefix and suffix lists with their percentages",
-      "Fantasy -> Choose Team: the candidate list and whether two roles may share a team",
-      "Fantasy main view: the roster lock countdown and the current roll-token balance with operation costs",
-      "Rewards -> Fantasy table: all nine percentile rows and their point values"
-    ]
+      "ACCOUNT-SPECIFIC: the stat, tier, trait and left-to-right order of every emblem currently on the Core, Mid and Support War Banners",
+      "ACCOUNT-SPECIFIC: the remaining roll-token balance and the three operations currently offered on the roll board"
+    ],
+    "withdrawn_requests": {
+      "note": "Requests made in the previous round that are now answered from public Valve files, the shipped schema, or independent public tooling. They must not be asked for again.",
+      "entries": [
+        "generic Scoring panel: the coefficients are double-sourced and the stat-to-index mapping is Tier-1 from the Fantasy_Scoring enum",
+        "generic Coach Titles panel: the engine model is Tier-1 and eight prefix bonuses are known at Tier 2",
+        "generic Choose Team panel: the candidate pool is the fantasy league's own team list, and Valve carries a per-player validity flag",
+        "generic banner colour composition: known for period 0, with the tablet-level growth mechanism Tier-1 confirmed",
+        "generic Rewards table: still unresolved, but demoted to P1 because it changes only the objective function, not the ranking"
+      ]
+    }
   },
   "questions": [
     {

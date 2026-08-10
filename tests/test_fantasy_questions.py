@@ -183,10 +183,12 @@ def test_evidence_grades_place_the_coefficients_below_tier_one(rules):
     assert not any("coefficient" in a for a in g["tier_1_confirmed"])
 
 
-def test_the_roll_token_reading_is_marked_unconfirmed(rules):
-    """The assistant read these off a 178px-wide image; that is a lead, not a budget."""
-    cr = rules["roll_tokens"]["candidate_reading"]
-    assert cr["status"] == "UNCONFIRMED"
+def test_the_roll_token_grant_is_corroborated_but_not_confirmed(rules):
+    """Three secondary sources agreeing is strong; none of them is Valve, so it stays PARTIAL."""
+    g = rules["roll_tokens"]["grants"]
+    assert g["status"] == "PARTIAL"
+    assert g["period_0"] == 40 and g["period_1"] == 30 and g["rollover"] is False
+    assert len(g["corroboration"]) >= 3 and g["why_not_confirmed"]
     assert rules["roll_tokens"]["status"] == "PARTIAL"
 
 

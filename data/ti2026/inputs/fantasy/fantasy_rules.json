@@ -6,6 +6,51 @@
   "note": "The TI2026 fantasy ruleset as established by the shipped client. Every entry cites the localization key it came from. Numeric values the client fills in at runtime ({f:helpstat_N}, {d:prefix_bonus}, {d:suffix_bonus}) are recorded as null with status UNRESOLVED; they are NOT filled in from previous years.",
   "source": "See prediction_questions.json sources S2 (dota_english.txt) and S3 (dota_schinese.txt), both from dotabuff/d2vpkr commit aeb21e7065a4528934d64d8c0d33ab91d2a2a826.",
 
+  "engine_interface": {
+    "status": "CONFIRMED",
+    "tier": 1,
+    "note": "What Valve's own message and schema definitions say the fantasy system IS. This settles the SHAPE of every remaining unknown, and in several cases explains why a value cannot be found in any shipped file: it is data delivered by the game coordinator or compiled into the client, not a resource in the package.",
+    "sources": {
+      "proto": "Protobufs/dota_gcmessages_client_fantasy.proto and dota_shared_enums.proto",
+      "schema": "DumpSource2/schemas/client/Fantasy*.h and EFantasy*.h",
+      "channel": "SteamDatabase/GameTracking-Dota2, an automated mirror of the shipped client"
+    },
+    "stat_enum": {
+      "name": "Fantasy_Scoring",
+      "values_0_to_17": ["KILLS", "DEATHS", "CS", "GPM", "TOWER_KILLS", "ROSHAN_KILLS",
+                         "TEAMFIGHT_PARTICIPATION", "WARDS_PLANTED", "CAMPS_STACKED",
+                         "RUNES_GRABBED", "FIRST_BLOOD", "STUNS", "SMOKES_USED", "MADSTONE",
+                         "WATCHERS_TAKEN", "LOTUSES_GAINED", "TORMENTOR_KILLS", "COURIER_KILLS"],
+      "significance": "This ordering is exactly the helpstat_N ordering used by the shipped localization. The stat-to-index mapping in this file is therefore Tier-1 confirmed, independently of where the coefficient VALUES came from."
+    },
+    "gem_type_enum": ["FANTASY_GEM_TYPE_RUBY (red)", "FANTASY_GEM_TYPE_SAPPHIRE (blue)",
+                      "FANTASY_GEM_TYPE_EMERALD (green)"],
+    "role_enum": ["FANTASY_ROLE_UNDEFINED", "CORE", "SUPPORT", "OFFLANE", "MID"],
+    "tablet_message": {
+      "message": "CMsgDotaFantasyCraftingTabletPeriodData.Tablet",
+      "fields": ["tablet_id", "tablet_level", "fantasy_role", "account_id", "prefix", "suffix",
+                 "team_id", "gems", "score", "best_series"],
+      "significance": "Both team_id and account_id exist on a tablet, and the tablet carries a settled score plus an explicit best_series field. Valve's own data model names the best-series selection, which is the mechanism this project inferred from the help text."
+    },
+    "gem_message": {
+      "message": "CMsgDotaFantasyCraftingTabletPeriodData.Gem",
+      "fields": ["type", "slot", "shape", "quality", "stat"],
+      "significance": "A gem is exactly (colour, position, trait, quality, stat). The `slot` field is what makes adjacency well defined, so emblem ORDER is part of the state and not a display detail."
+    },
+    "user_message": {
+      "message": "CMsgDotaFantasyCraftingUserData",
+      "fields": ["available_rolls", "period_roll_tokens (map period -> tokens)",
+                 "period_scores (map period -> {total_score, percentile})"],
+      "significance": "Roll tokens are held per period, and the percentile the reward table pays on is computed server-side and returned to the client. Both are account-specific runtime state by construction."
+    },
+    "eligibility_flag": {
+      "field": "FantasyPlayerData_t.m_bIsValid",
+      "description": "Is this player still playing in the league?",
+      "significance": "Valve carries a per-player validity flag in the fantasy league data. A player who is no longer competing is marked invalid at source, which is the mechanism by which an ineligible player leaves the candidate pool."
+    },
+    "read_only_discipline": "Only definitions were read. No GC request was issued and no message that mutates account state (PerformOperation, RerollOptions, SelectPlayer, SelectTeam, GenerateTablets, UpgradeTablets) was sent or will be."
+  },
+
   "structure": {
     "status": "CONFIRMED",
     "roles": ["core", "mid", "support"],
@@ -96,10 +141,23 @@
       "adjacency_matters": true,
       "adjacency_note": "Some traits act on adjacent emblems, so the ORDER of emblems on a War Banner is part of the decision."
     },
-    "unresolved": {
-      "emblems_per_banner": null,
-      "color_counts_by_role": null,
-      "note": "Neither the emblem count nor the per-role red/green/blue split appears in any shipped file. Both are required before any optimisation is meaningful."
+    "slot_layout": {
+      "status": "PARTIAL",
+      "period_0_emblems_per_banner": 3,
+      "period_0_color_composition": {
+        "core": ["red", "green", "red"],
+        "mid": ["red", "blue", "green"],
+        "support": ["blue", "green", "blue"]
+      },
+      "evidence_tier_2": "The public 2026 fantasy calculator encodes exactly this as a literal map from role index to colour list (role 0 core, 1 mid, 2 support). Two independent 2026 guides agree that Mid is the only role holding all three colours in stage 1 and that there are three emblem slots in stage 1.",
+      "conflict_noted": "One guide summary describes Core and Support as containing a 'yellow' emblem. There is no yellow emblem: Fantasy_Gem_Type is exactly RUBY / SAPPHIRE / EMERALD. The prose is treated as garbled and the calculator's code is preferred, because it is executable and its colour lists drive the stat pools that the Tier-1 localization also specifies.",
+      "grows_with_tablet_level": {
+        "status": "CONFIRMED",
+        "mechanism": "FantasyCraftingTabletData_t holds m_vecGemSlots of FantasyCraftingGemSlotData_t, and each slot carries m_nRequiredTabletLevel ('Minimum tablet level to unlock this type of gem, -1 or 0 for always unlocked'). FantasyPeriodData_t carries m_nTabletLevel ('What level are fantasy tablets when this is the active crafting period?'), and CMsgDotaFantasyCraftingTabletPeriodData.Tablet carries tablet_level.",
+        "consequence": "The three-slot layout is the PERIOD-0 layout. Period 1 raises the tablet level and unlocks further gem slots. Any optimisation must be done per period against that period's slot count, and the 'upgrade at the beginning of every period' wording in the help text is this mechanism.",
+        "period_1_slot_count": null,
+        "period_1_slot_count_status": "UNRESOLVED"
+      }
     },
     "quality_tiers": {
       "status": "CONFIRMED",
@@ -109,6 +167,19 @@
     },
     "traits": {
       "status": "CONFIRMED",
+      "engine_behaviour_enum": {
+        "source": "EFantasyShapeBehavior in the Source 2 client schema dump",
+        "tier": 1,
+        "mapping": {"k_eFantasyShapeBehavior_MinQuality": "Incorruptible",
+                    "k_eFantasyShapeBehavior_AdjBonus": "Benevolent",
+                    "k_eFantasyShapeBehavior_StealBonus": "Vampiric",
+                    "k_eFantasyShapeBehavior_OnlyOne": "Unique",
+                    "k_eFantasyShapeBehavior_NeedMultiples": "Friendly",
+                    "k_eFantasyShapeBehavior_UniqueQualities": "Fractal"},
+        "note": "Six behaviours plus Invalid, which is the 'Base' no-modifier trait. The taxonomy is therefore closed: there is no seventh hidden behaviour. What the enum does NOT give is composition order or rounding, because those live in code."
+      },
+      "composition_order": null,
+      "composition_order_status": "UNRESOLVED",
       "list": [
         {"id": "Base", "name": "Base", "effect": "no modifier"},
         {"id": "Min", "name": "Incorruptible", "effect": "Emblems with quality lower than Tier III are treated as having Tier III quality."},
@@ -125,16 +196,34 @@
     "status": "PARTIAL",
     "confirmed": "Three unique roll options are available at any time, identical across War Banners. Each roll costs one token, applies only to the currently selected War Banner, and replaces all available roll options. Operations include: reroll stat, reroll quality, increase quality, reroll trait, reroll prefix/suffix, choose prefix/suffix, change team, and randomly increase one or two qualities.",
     "unresolved": "The token budget (initial grant, per-period grant, any purchase route) is not in any shipped file. Without it the crafting problem has no budget constraint and cannot be optimised.",
-    "candidate_reading": {
-      "status": "UNCONFIRMED",
-      "source": "S6",
-      "source_type": "assistant_reading_of_user_screenshot",
-      "grant_period_0": 40,
-      "grant_period_1": 30,
-      "text_as_read": "two reward-unlock rows reading approximately '+40 Group Stage crafting rerolls' and '+30 The International fantasy crafting reroll tokens'",
-      "caveat": "Read by the assistant from the delivered image, which is 178 pixels wide; at that width individual digits are not reliably legible. The operator did NOT transcribe these values. This is recorded as a lead to be confirmed, never as an input to any budget calculation, and roll_tokens.status stays PARTIAL until confirmed.",
-      "cost_per_operation": null,
-      "cost_per_operation_status": "UNRESOLVED"
+    "grants": {
+      "status": "PARTIAL",
+      "period_0": 40,
+      "period_1": 30,
+      "rollover": false,
+      "corroboration": [
+        "assistant reading of the two reward-unlock rows in the user-supplied image (S6)",
+        "the operator's relay of the Escorenews 2026 guide: 40 rerolls for the Group Stage, the next batch only at the next stage",
+        "an independent 2026 guide sweep: 40 tokens for the Group Stage and a separate pool of 30 for the next stage, with Group Stage tokens not transferring"
+      ],
+      "why_not_confirmed": "Three secondary sources agreeing is strong, but none is Valve. The grant is user_data in CMsgDotaFantasyCraftingUserData.period_roll_tokens, which is a per-account runtime value; the only Tier-1 read is the client itself.",
+      "modelling_note": "Non-transferable tokens mean the period-0 budget is use-it-or-lose-it, so the crafting problem is a single-period budget allocation, not an inventory carried across periods."
+    },
+    "cost_per_operation": {
+      "status": "CONFIRMED",
+      "value": 1,
+      "unit": "roll token",
+      "evidence_tier_1": "DOTA_FantasyCraft_Tutorial_Operations_Body: 'Any operation will cost you one Roll Token.'",
+      "schema_corroboration": "FantasyCraftOperation_t carries m_unOperationID, m_nRollWeight, m_eTarget, m_sLocDescription and m_vecOperations, and no cost field. A per-operation price has nowhere to live in the schema, which is consistent with a flat one-token cost for every operation regardless of what it does.",
+      "consequence": "Upgrading a quality, rerolling a stat, rerolling a trait and rerolling the option board all cost the same. The budget problem is therefore about the NUMBER of operations, not their mix."
+    },
+    "option_board": {
+      "status": "CONFIRMED",
+      "tier": 1,
+      "mechanism": "FantasyCraftOperationBucket_t carries m_unOperationCount ('How many operations should the user get from this bucket') over a vector of FantasyCraftOperation_t, each with its own m_nRollWeight ('Weight for when rolling which operations to add to the roll board'). The client shows three options at a time.",
+      "consequence": "The offered operations are a weighted random draw, so crafting is a sequential decision under randomness: the entrant chooses among three sampled options or pays a token to resample the board.",
+      "weights": null,
+      "weights_status": "UNRESOLVED"
     }
   },
 
@@ -142,7 +231,32 @@
     "status": "PARTIAL",
     "source_key": "DOTA_FantasyCraftHelp_CoachDetails",
     "confirmed": "The coach chooses one prefix and one suffix. Each gives a percentage increase to the FINAL score in a game when its condition is met, applied to all players. Titles may be changed freely without spending roll tokens.",
-    "unresolved": "The percentage each title carries, and whether the entire pool below is offered to the coach or only a subset.",
+    "unresolved": "The percentage carried by the eleven titles not listed in known_bonuses, and whether the entire pool below is offered to the coach or only a subset.",
+    "engine_model": {
+      "status": "CONFIRMED",
+      "tier": 1,
+      "source": "FantasyCraftingTitleData_t in the Source 2 client schema dump",
+      "fields": {"m_unTitle": "unique integer id", "m_nBonus": "int32, 'Bonus this title provides'",
+                 "m_eMode": "EFantasyStatMatchMode: Any or All, controls how the stat vector combines",
+                 "m_vecStats": "vector of FantasyCraftingTrackedStat_t"},
+      "tracked_stat_fields": {"m_sStatName": "the stat matched",
+                              "m_eStatType": "EFantasyStatType: Player, Team or Game",
+                              "m_unThresholdValue": "threshold required",
+                              "m_bThresholdIsMin": "whether the threshold is a minimum or a maximum"},
+      "what_this_settles": "The title system is a thresholded predicate over a stat vector evaluated at player, team or game scope, combined with Any/All, paying a single integer bonus. That explains every condition in the lists below: 'the player has the most assists' is Player scope, 'any player gets a rampage' is Game scope, 'games that last less than 25 minutes' is a Game-scope maximum threshold.",
+      "what_this_does_not_settle": "The bonus VALUES are data, not schema, and no shipped file carries them. They are rendered in-client from {d:prefix_bonus} / {d:suffix_bonus}."
+    },
+    "known_bonuses": {
+      "status": "PARTIAL",
+      "source_type": "public_calculator",
+      "tier": 2,
+      "note": "The public 2026 calculator encodes eight prefix bonuses as literals. They are hero-attribute prefixes, which is the subset a calculator can evaluate from match data; the remaining prefixes and all suffixes are absent from it. Values are percentages of the final game score.",
+      "prefix_bonus_percent": {"Crimson": 6, "Cerulean": 11, "Emerald": 6, "Royal": 10,
+                               "Golden": 8, "Elemental": 8, "Otherworldly": 7, "Heroic": 9},
+      "observation": "The bonuses are not uniform, so the coach title choice is a real optimisation and not a formality. Cerulean at 11 percent is nearly double Crimson and Emerald at 6."
+    },
+    "stacking_rule": null,
+    "stacking_rule_status": "UNRESOLVED",
     "prefixes": [
       {"id": "RedHero", "name": "Crimson", "condition": "playing a red hero"},
       {"id": "Sad", "name": "Cerulean", "condition": "playing a blue hero"},
@@ -202,6 +316,13 @@
         "Each value's FORM matches its template: a per-second rate for Stuns, a capped maximum for Teamfight Participation, a starting credit plus a per-death debit for Deaths, and a bare multiplier for GPM.",
         "The Deaths credit is exactly ten times the per-death debit (1950 = 10 x 195), which is the kind of round relationship a genuine table has and a misreading generally does not."
       ],
+      "independent_corroboration": {
+        "source": "the public 2026 fantasy calculator's compiled bundle",
+        "tier": 2,
+        "what_matched": "Its literal coefficient map holds kills 107, deaths 195, creep_score 3, gpm 2, tower_kills 352, obs_placed 117, camps_stacked 234, runes_grabbed 141, watchers_taken 147, smokes_used 293, roshan_kills 1172, teamfight_participation 2124, stuns 10, tormentor_kills 879, courier_kills 703, firstblood 1934, and a separate constant 1950 used as the Deaths starting credit. Every one of these equals the operator's transcription exactly.",
+        "why_it_matters": "Two sources that did not copy each other -- an operator reading a panel and a third party's compiled code -- agreeing on all eighteen values to the unit is much stronger than either alone. It still is not Valve, so the grade does not change; what changes is the probability that a transcription slip is hiding in the table.",
+        "what_it_omits": "The calculator has no entry for Madstone Collected or Lotuses Gained; it carries them in an explicit exclusion set instead. That independently reproduces this project's own finding that those stats are not obtainable from public match data."
+      },
       "what_this_does_NOT_establish": [
         "the transformation semantics behind a value (see scoring_pipeline.unresolved_semantics)",
         "whether the coefficients differ by role, by period, or by emblem colour",
@@ -492,17 +613,32 @@
   },
 
   "blocking_unknowns": [
-    "P0 scoring semantics: whether the top two games in a series are summed or averaged",
-    "P0 scoring semantics: whether the Deaths stat floors at zero or may go negative",
-    "P0 scoring semantics: the function of participation that reaches the Teamfight Participation maximum",
-    "P0 scoring semantics: which series count as eligible draws for the best-series maximum",
-    "P0 banner state: the emblem slot count, colour composition, stat, tier, trait and ORDER on each of the Core, Mid and Support banners",
-    "P0 coach titles: which prefixes and suffixes are actually offered and the percentage each carries",
-    "P0 legality: whether the three roles may select the same team, and whether all 16 teams are candidates",
-    "P0 lock: the exact fantasy period-0 lock countdown",
-    "P1 economy: the roll-token grant per period and the cost of each operation",
-    "P1 rewards: the Compendium Point value of each of the nine percentile tiers",
-    "P1 semantics: the official definition of a rune 'bottled or taken'",
-    "P1 semantics: how prefix and suffix bonuses stack when both trigger, and the trait-composition order"
-  ]
+    "P0 generic: whether the top two games in a series are summed or averaged",
+    "P0 generic: whether the Deaths stat floors at zero or may go negative",
+    "P0 generic: the function of participation that reaches the Teamfight Participation maximum",
+    "P0 account: the stat, tier, trait and ORDER of each emblem currently on the Core, Mid and Support banners",
+    "P1 generic: the bonus percentage of the eleven titles not in coach_titles.known_bonuses, and the prefix-plus-suffix stacking rule",
+    "P1 generic: the trait composition order and rounding when several traits interact",
+    "P1 generic: the quality roll weights and the operation roll weights",
+    "P1 generic: the period-1 tablet level and its emblem slot count",
+    "P1 generic: whether the three roles may select the same organisation",
+    "P1 generic: the exact fantasy period-0 lock countdown",
+    "P1 generic: the Compendium Point value of each of the nine percentile tiers",
+    "P1 generic: the official definition of a rune 'bottled or taken'",
+    "P1 account: the remaining roll-token balance and the three operations currently offered"
+  ],
+  "closed_this_round": {
+    "note": "Blockers withdrawn on evidence gathered from public Valve files, the shipped schema, and independent public tooling. Each names the grade it closed at.",
+    "entries": [
+      {"was": "P0 banner colour composition", "now": "period-0 layout known at tier 2 (calculator code, two guides), and the mechanism by which it grows between periods is tier-1 confirmed"},
+      {"was": "P0 emblem slot count", "now": "three per banner in period 0; gated by tablet level, which is set per period"},
+      {"was": "P0 coach title bonuses", "now": "the engine model is tier-1; eight of nineteen prefix bonuses are known at tier 2"},
+      {"was": "P0 trait semantics", "now": "the behaviour taxonomy is tier-1 closed and complete; only composition order remains"},
+      {"was": "P1 operation cost", "now": "one token for every operation, tier-1 from the localization and corroborated by the absence of a cost field in the schema"},
+      {"was": "P1 roll-token grant", "now": "40 for period 0 and 30 for period 1 with no rollover, at tier 2 from three independent sources"},
+      {"was": "P0 best-series eligibility", "now": "Valve's own tablet message carries an explicit best_series field, confirming the selection is per tablet per period"},
+      {"was": "stat-to-index mapping", "now": "tier-1 confirmed: Fantasy_Scoring enum values 0..17 are exactly the helpstat ordering"}
+    ]
+  },
+  "why_the_rest_cannot_be_closed_publicly": "The remaining generic numbers live in FantasyCraftSetupData_t, and the shipped package listing contains no fantasy crafting data resource. Those values are compiled into the client or delivered by the game coordinator, so no further public research reaches them; only a live client read does. The remaining account items are per-account GC state by construction."
 }

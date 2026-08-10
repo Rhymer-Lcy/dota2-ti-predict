@@ -23,6 +23,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 INPUTS = os.path.join(REPO, "data", "ti2026", "inputs")
 QUESTIONS_JSON = os.path.join(INPUTS, "prediction_questions.json")
 RULES_JSON = os.path.join(INPUTS, "fantasy", "fantasy_rules.json")
+GENERIC_EVIDENCE_JSON = os.path.join(INPUTS, "fantasy", "generic_evidence.json")
 
 STATUSES = ("CONFIRMED", "PARTIAL", "UNRESOLVED")
 ANSWERABLE_STATUS = ("CONFIRMED",)
@@ -156,6 +157,41 @@ def load_rules(path=None):
     if not doc.get("blocking_unknowns") and stats.get("status") != "CONFIRMED":
         raise SystemExit(f"{_relpath(path)}: status is not CONFIRMED but no blocking_unknowns "
                          "are listed; say what is missing")
+    return doc
+
+
+def load_generic_evidence(path=None):
+    """Read and validate the generic-evidence register.
+
+    Its job is to keep the generic / account-specific line honest, so the one thing worth enforcing
+    is that every source declares a tier and that the register still states which facts are
+    account-specific. A register that quietly lost that distinction would justify asking the
+    operator for things the internet can answer, which is exactly what it exists to prevent.
+    """
+    path = path or GENERIC_EVIDENCE_JSON
+    doc = _read(path)
+    split = doc.get("generic_vs_account_specific", {})
+    if not split.get("account_specific_examples") or not split.get("generic_examples"):
+        raise SystemExit(f"{_relpath(path)}: the generic / account-specific split must name "
+                         "examples on both sides")
+    srcs = doc.get("sources", [])
+    if not srcs:
+        raise SystemExit(f"{_relpath(path)}: no sources registered")
+    seen = set()
+    for s in srcs:
+        for f in ("id", "tier", "kind", "what"):
+            if f not in s:
+                raise SystemExit(f"{_relpath(path)}: source {s.get('id', '<unnamed>')} "
+                                 f"is missing {f}")
+        if s["tier"] not in (1, 2, 3):
+            raise SystemExit(f"{_relpath(path)}: source {s['id']} has tier {s['tier']!r}")
+        if s["id"] in seen:
+            raise SystemExit(f"{_relpath(path)}: duplicate source id {s['id']}")
+        seen.add(s["id"])
+    hist = doc.get("historical_valve_official", {})
+    if hist and hist.get("grade") != "OFFICIAL-HISTORICAL":
+        raise SystemExit(f"{_relpath(path)}: historical Valve material must carry the grade "
+                         "OFFICIAL-HISTORICAL so it can never be read as a current confirmation")
     return doc
 
 

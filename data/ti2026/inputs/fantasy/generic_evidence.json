@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "compiled_at": "2026-08-10T18:30:00Z",
+  "purpose": "Provenance for the GENERIC half of the TI2026 Fantasy ruleset: everything that is identical for every entrant and therefore ought to be answerable from public material rather than from the operator's own client. Account-specific runtime state is deliberately out of scope and is tracked separately.",
+  "generic_vs_account_specific": {
+    "principle": "A fact is GENERIC if it is the same for every player of the compendium, and ACCOUNT-SPECIFIC if it depends on that account's random rolls or current operations. Only the second kind justifies asking the operator for a screenshot.",
+    "generic_examples": ["scoring semantics", "banner colour composition", "coach title conditions and bonuses", "trait behaviour", "operation cost", "period boundaries", "reward curve"],
+    "account_specific_examples": ["the stat, tier, trait and order of each emblem currently on a banner", "the remaining roll-token balance", "the three operations currently offered on the roll board"],
+    "why_the_line_matters": "CMsgDotaFantasyCraftingUserData and CMsgDotaFantasyCraftingTabletPeriodData are per-account messages. Nothing published can contain their contents, and no amount of further research changes that."
+  },
+  "sources": [
+    {
+      "id": "G1",
+      "tier": 1,
+      "kind": "valve_protobuf",
+      "what": "Valve's own game-coordinator message definitions for fantasy crafting, and the shared enums they reference.",
+      "artifacts": ["Protobufs/dota_gcmessages_client_fantasy.proto",
+                    "Protobufs/dota_shared_enums.proto"],
+      "channel": "SteamDatabase/GameTracking-Dota2 (automated mirror of the shipped client)",
+      "closed": ["the Fantasy_Scoring enum ordering, which is the helpstat index ordering",
+                 "the gem model (colour, slot, trait, quality, stat)",
+                 "the tablet model, including tablet_level and an explicit best_series field",
+                 "roll tokens being held per period and percentile being computed server-side"],
+      "did_not_close": ["any numeric coefficient, bonus or weight: those are data, not definitions"]
+    },
+    {
+      "id": "G2",
+      "tier": 1,
+      "kind": "valve_source2_schema",
+      "what": "The Source 2 client class schema dump for the fantasy crafting types.",
+      "artifacts": ["DumpSource2/schemas/client/FantasyCraftSetupData_t.h",
+                    "DumpSource2/schemas/client/FantasyCraftingTitleData_t.h",
+                    "DumpSource2/schemas/client/FantasyCraftingQualityData_t.h",
+                    "DumpSource2/schemas/client/FantasyCraftingShapeData_t.h",
+                    "DumpSource2/schemas/client/FantasyCraftingGemSlotData_t.h",
+                    "DumpSource2/schemas/client/FantasyCraftingTabletData_t.h",
+                    "DumpSource2/schemas/client/FantasyCraftingTrackedStat_t.h",
+                    "DumpSource2/schemas/client/FantasyCraftOperation_t.h",
+                    "DumpSource2/schemas/client/FantasyCraftOperationBucket_t.h",
+                    "DumpSource2/schemas/client/FantasyPlayerData_t.h",
+                    "DumpSource2/schemas/client/FantasyPeriodData_t.h",
+                    "DumpSource2/schemas/client/FantasyLeagueData_t.h",
+                    "DumpSource2/schemas/client/EFantasyShapeBehavior.h",
+                    "DumpSource2/schemas/client/EFantasyStatMatchMode.h",
+                    "DumpSource2/schemas/client/EFantasyStatType.h"],
+      "channel": "SteamDatabase/GameTracking-Dota2",
+      "closed": ["the trait taxonomy is exactly six behaviours plus none, so no hidden seventh exists",
+                 "titles are a thresholded predicate over a stat vector at player/team/game scope, combined Any or All, paying one integer bonus",
+                 "gem slots are gated by a required tablet level, and the tablet level is set per period, so the banner grows between periods",
+                 "operations carry no cost field, corroborating the flat one-token cost",
+                 "operations are offered from weighted buckets, so the roll board is a random draw",
+                 "Valve carries a per-player validity flag for league participation"],
+      "did_not_close": ["every value inside those structures"]
+    },
+    {
+      "id": "G3",
+      "tier": 1,
+      "kind": "valve_package_listing",
+      "what": "The shipped package file listing, searched for a fantasy crafting data resource.",
+      "artifacts": ["game/dota/pak01_dir.txt"],
+      "finding": "There is no fantasy crafting vdata resource in the package. Only textures match. The FantasyCraftSetupData_t values are therefore not shipped as a readable file; they are compiled into the client or delivered by the game coordinator.",
+      "significance": "This is the reason the remaining generic numbers cannot be closed by further public research. It is a negative result, and it is the useful kind: it bounds the search."
+    },
+    {
+      "id": "G4",
+      "tier": 2,
+      "kind": "public_calculator",
+      "what": "The public 2026 fantasy calculator, audited from its compiled bundle.",
+      "url": "https://bydoodle.github.io/dota-fantasy-2026/",
+      "closed_at_tier_2": ["all 18 base coefficients and the 1950 Deaths credit, matching the operator's transcription exactly",
+                           "the period-0 banner colour composition per role",
+                           "eight hero-attribute prefix bonuses as literal percentages"],
+      "implements": ["coefficients", "per-role colour composition", "per-slot quality multiplier entered by the user", "team-pair averaging"],
+      "does_not_implement": ["top-two-within-series", "best-series-within-period", "traits", "suffixes", "adjacency"],
+      "data_window": {"leagues": {"19101": "BLAST SLAM VII", "19543": "PGL Wallachia 2026 Season 8",
+                                  "19696": "DreamLeague Season 29", "19785": "Esports World Cup 2026",
+                                  "20009": "1win Essence II"},
+                      "matches_parsed_by_that_tool": 598,
+                      "players": 66},
+      "stale_roster_warning": "Its player universe contains TaiLung and does NOT contain Topson. Anything taken from it about LGD's mid is stale with respect to the TI2026 roster of record and must not reach a candidate.",
+      "use": "external benchmark only; this project recomputes independently from match data."
+    },
+    {
+      "id": "G5",
+      "tier": 2,
+      "kind": "public_guides_2026",
+      "what": "Dedicated 2026 fantasy guides, used only where several agree and none is the origin of the others.",
+      "corroborated": ["40 roll tokens granted for the Group Stage and 30 for the next stage, with no rollover",
+                       "three emblem slots per banner in stage 1",
+                       "Mid is the only role holding all three colours in stage 1",
+                       "titles may be changed freely without spending tokens",
+                       "only the best series of a period contributes"],
+      "not_accepted": ["stat priority recommendations, which are opinion and are treated as a challenger baseline rather than evidence",
+                       "one guide's description of a 'yellow' emblem, which contradicts the Tier-1 gem enum"],
+      "access_note": "The Escorenews article returns HTTP 403 to automated fetches; its content reached this file through the operator's relay and through an independent search of other 2026 guides."
+    },
+    {
+      "id": "G6",
+      "tier": 2,
+      "kind": "match_data",
+      "what": "OpenDota match detail for the 623 universe matches in the five-event window, used for the PHASE 3 baseline.",
+      "artifacts": ["data/ti2026/processed/fantasy/player_map_stats.csv",
+                    "data/ti2026/processed/fantasy/player_stats_provenance.json"]
+    }
+  ],
+  "historical_valve_official": {
+    "grade": "OFFICIAL-HISTORICAL",
+    "rule": "Valve's own wording from previous years may be cited for mechanism continuity and may NEVER be presented as a TI2026 confirmation.",
+    "instances": [
+      {"claim": "the highest scoring two games of a best-of-three count towards a player's score, and if a team plays more than one series during a period only their highest-scoring series counts",
+       "source": "DOTA_FantasyHelpDetailsSub3Text2 in the shipped localization, a pre-2026 string",
+       "status_for_2026": "The 2026-specific string DOTA_FantasyCraftHelp_ScoringDetails2026 says the same thing in its own words, so the mechanism is CONFIRMED for 2026 on its own evidence. The historical string is recorded only as continuity, and it does not resolve sum versus average either."}
+    ]
+  }
+}
