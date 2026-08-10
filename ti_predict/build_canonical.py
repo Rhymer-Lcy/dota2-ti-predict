@@ -35,7 +35,7 @@ def _read(path):
 
 def main():
     matches = _read(os.path.join(PROC, "roster_matches.csv"))
-    v1 = {r["organization"]: r for r in _read(os.path.join(INPUTS, "canonical_identity.csv"))}
+    v1 = {r["organization"]: r for r in _read(os.path.join(PROC, "identity_resolved.csv"))}
     teams = {r["team"]: r for r in _read(os.path.join(INPUTS, "teams.csv"))}
 
     by_org = defaultdict(list)

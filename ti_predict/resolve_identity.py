@@ -9,7 +9,15 @@ Strategy (all from the free OpenDota API, no key):
 
 As-of note: this reads matches up to *now*, i.e. the roster "as of today" for the live TI pick.
 For the rolling backtest, rosters must be re-frozen at each event's cutoff (no post-cutoff match may
-confirm an earlier roster). Writes canonical_identity.csv + recent_matches.csv + manifest.
+confirm an earlier roster).
+
+Outputs and their contract (both fail closed):
+  - processed/identity_resolved.csv  — this module's only table; roster_coverage and
+      build_canonical read it. The tracked inputs/canonical_identity.csv is written by
+      build_canonical alone, so a partial run here can never erase the multi-id mapping the rating
+      universe depends on. A run that fails to resolve all 16 five-player rosters exits non-zero.
+  - raw/promatches_scan.json         — MERGED, never replaced (the deep scan from
+      scan_promatches.py defines the training window; this module only pages the recent window).
 
 Run:  python -m ti_predict.resolve_identity
 """
@@ -56,11 +64,21 @@ ALIASES = {
 }
 
 
-def _get(path):
-    req = urllib.request.Request(BASE + path, headers=UA)
-    with urllib.request.urlopen(req, timeout=45) as r:
-        raw = r.read()
-    return raw, json.loads(raw)
+def _get(path, tries=4):
+    """GET with retries. OpenDota fronts a CDN that returns 5xx in bursts (521/522 observed
+    2026-08-10); a single attempt turns a transient outage into missing roster data."""
+    last = None
+    for i in range(tries):
+        try:
+            req = urllib.request.Request(BASE + path, headers=UA)
+            with urllib.request.urlopen(req, timeout=45) as r:
+                raw = r.read()
+            return raw, json.loads(raw)
+        except Exception as ex:                       # transient HTTP/network/JSON failure
+            last = ex
+            if i < tries - 1:
+                time.sleep(2.0 * (i + 1))
+    raise last
 
 
 def _manifest(endpoint, key, raw, n):
@@ -84,6 +102,31 @@ def scan_promatches():
     return out
 
 
+def merge_scan(fetched, path):
+    """Merge a fresh shallow scan into the stored pro-match universe; coverage NEVER shrinks.
+
+    This module only needs the RECENT window to re-resolve team ids, but it shares one file with
+    scan_promatches.py, whose deep scan defines the rating-universe window. Overwriting turned the
+    universe from 9146 maps (2026-02-27..) into 3000 maps (2026-05-17..) and silently shortened every
+    training window downstream (observed 2026-08-09 and again 2026-08-10) -- so merge, never replace.
+    """
+    uniq = {}
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as fh:
+            for m in json.load(fh):
+                uniq[m["match_id"]] = m
+    before = (len(uniq), min((m["start_time"] for m in uniq.values()), default=None))
+    for m in fetched:
+        uniq[m["match_id"]] = m
+    merged = sorted(uniq.values(), key=lambda m: -m["start_time"])
+    after = (len(merged), min(m["start_time"] for m in merged))
+    if before[1] is not None and (after[0] < before[0] or after[1] > before[1]):
+        raise SystemExit(f"pro-match scan coverage regressed ({before} -> {after}); refusing to write")
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(merged, fh)
+    return merged
+
+
 def roster_from_match(mid, team_id):
     """Return (player_ids, player_names) for team_id's side of match mid, or ([],[])."""
     raw, m = _get(f"/matches/{mid}")
@@ -104,11 +147,10 @@ def roster_from_match(mid, team_id):
 def main():
     os.makedirs(RAW, exist_ok=True); os.makedirs(INPUTS, exist_ok=True); os.makedirs(PROC, exist_ok=True)
     teams = list(csv.DictReader(open(os.path.join(INPUTS, "teams.csv"), encoding="utf-8")))
-    pm = scan_promatches()
-    with open(os.path.join(RAW, "promatches_scan.json"), "w", encoding="utf-8") as fh:
-        json.dump(pm, fh)
-    _manifest("proMatches", f"{PAGES}pages", json.dumps(pm).encode(), len(pm))
-    print(f"proMatches scanned: {len(pm)} matches, "
+    fetched = scan_promatches()
+    pm = merge_scan(fetched, os.path.join(RAW, "promatches_scan.json"))
+    _manifest("proMatches", f"{PAGES}pages+merge", json.dumps(pm).encode(), len(pm))
+    print(f"proMatches: {len(fetched)} fetched -> {len(pm)} in the merged universe, "
           f"{datetime.fromtimestamp(min(m['start_time'] for m in pm), timezone.utc).date()} .. "
           f"{datetime.fromtimestamp(max(m['start_time'] for m in pm), timezone.utc).date()}")
 
@@ -183,13 +225,24 @@ def main():
                             "confidence": "low", "note": "not seen in recent proMatches; check Liquipedia"})
             print(f"{org:<17} NOT FOUND in recent proMatches -> manual/Liquipedia check")
 
-    with open(os.path.join(INPUTS, "canonical_identity.csv"), "w", newline="", encoding="utf-8") as fh:
+    # This module writes ONLY to processed/. The tracked inputs/canonical_identity.csv has a single
+    # writer, build_canonical.py: when resolve_identity also wrote it, an interrupted or partly
+    # failed chain left the tracked table in this intermediate schema with every source_team_ids
+    # mapping erased -- and the rating universe resolves TI organizations through exactly that column
+    # (observed 2026-08-10, when an OpenDota 5xx burst emptied 14 of 16 rosters).
+    with open(os.path.join(PROC, "identity_resolved.csv"), "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=list(id_rows[0])); w.writeheader(); w.writerows(id_rows)
     with open(os.path.join(PROC, "recent_matches.csv"), "w", newline="", encoding="utf-8") as fh:
         if rec_rows:
             w = csv.DictWriter(fh, fieldnames=list(rec_rows[0])); w.writeheader(); w.writerows(rec_rows)
-    print(f"\nwrote canonical_identity.csv ({len(id_rows)} teams) + recent_matches.csv "
+    print(f"\nwrote processed/identity_resolved.csv ({len(id_rows)} teams) + recent_matches.csv "
           f"({len(rec_rows)} rows)")
+    incomplete = [r["organization"] for r in id_rows if len(r["player_ids"].split("|")) != 5]
+    if incomplete:
+        raise SystemExit(
+            "identity resolution INCOMPLETE for: " + ", ".join(incomplete)
+            + "\nRe-run when the match API is healthy; do not continue the chain on a partial "
+              "roster (roster_coverage would silently skip those teams).")
 
 
 if __name__ == "__main__":

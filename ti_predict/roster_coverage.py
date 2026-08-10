@@ -77,7 +77,10 @@ def collect_agg(pids, pro):
 
 def main():
     pro = pro_universe()
-    teams = list(csv.DictReader(open(os.path.join(INPUTS, "canonical_identity.csv"), encoding="utf-8")))
+    ident = os.path.join(PROC, "identity_resolved.csv")
+    if not os.path.exists(ident):
+        raise SystemExit(f"{ident} not found; run python -m ti_predict.resolve_identity first")
+    teams = list(csv.DictReader(open(ident, encoding="utf-8")))
     summary, match_rows = [], []
     for t in teams:
         org = t["organization"]
