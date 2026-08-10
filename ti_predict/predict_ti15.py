@@ -180,6 +180,54 @@ def bt_strengths_for(teams, cut_ts):
     return out, float(est_c(train, smap)), len(train), len(uni), uni_max
 
 
+SCAN_PROVENANCE = os.path.join(PROC, "scan_provenance.json")
+SCAN_REQUIRED = ("scan_completed_at", "scan_source", "coverage_start", "coverage_target_start",
+                 "coverage_complete", "latest_match_time", "latest_match_age_days",
+                 "scan_result_rows")
+
+
+def read_scan_provenance(path=None):
+    """What the last pro-match scan established, or a reason it cannot be trusted.
+
+    Returns a dict; on any problem it carries `usable: False` plus `problem`, so the caller can fail
+    closed with something actionable instead of guessing. Written by ti_predict/scan_promatches.py.
+    """
+    path = path or SCAN_PROVENANCE
+    if not os.path.exists(path):
+        return {"usable": False, "problem": f"no scan provenance at {_relpath(path)}"}
+    try:
+        with open(path, encoding="utf-8") as fh:
+            d = json.load(fh)
+    except (OSError, json.JSONDecodeError) as e:
+        return {"usable": False, "problem": f"scan provenance unreadable: {e}"}
+    if not isinstance(d, dict):
+        return {"usable": False, "problem": "scan provenance is not a JSON object"}
+    missing = [k for k in SCAN_REQUIRED if k not in d]
+    if missing:
+        return {"usable": False, "problem": "scan provenance missing " + ", ".join(missing)}
+    try:
+        completed = datetime.fromisoformat(str(d["scan_completed_at"]).replace("Z", "+00:00"))
+        latest = datetime.fromisoformat(str(d["latest_match_time"]).replace("Z", "+00:00"))
+    except ValueError as e:
+        return {"usable": False, "problem": f"scan provenance has an unparseable timestamp: {e}"}
+    if completed.tzinfo is None or latest.tzinfo is None:
+        return {"usable": False, "problem": "scan provenance timestamps must be timezone-aware"}
+    age = (datetime.now(timezone.utc) - completed).total_seconds() / 86400.0
+    out = dict(d)
+    out["scan_age_days"] = round(age, 2)
+    if not d["coverage_complete"]:
+        out.update(usable=False, problem="the last scan did not reach coverage_target_start "
+                                         f"({d['coverage_start']} > {d['coverage_target_start']})")
+    elif age > STALE_MAX_DAYS:
+        out.update(usable=False, problem=f"the last scan completed {age:.1f}d ago (limit "
+                                         f"{STALE_MAX_DAYS}d); re-run scan_promatches")
+    elif age < 0:
+        out.update(usable=False, problem="scan provenance is dated in the future")
+    else:
+        out["usable"] = True
+    return out
+
+
 def read_draw(draw_path):
     """Load the draw JSON as a dict, or {} when no path is given. Exits on unreadable/invalid JSON."""
     if not draw_path:
@@ -609,6 +657,10 @@ def main():
     a = ap.parse_args()
     mode = "official" if a.official else ("candidate" if a.candidate else "dry-run")
     gated = a.official or a.candidate      # the candidate run answers to every official gate
+    # Sampled BEFORE any work: this is the state of the tree the run started from. Nothing this run
+    # writes can change it, so a `true` here always means real uncommitted input/code, never the
+    # artifact about to be produced.
+    git_at_start = {"git_commit_at_start": _commit(), "git_dirty_at_start": _git_dirty()}
     teams = load_teams()
 
     # ---- hard gate for the official slate ----
@@ -638,21 +690,48 @@ def main():
                       "teams_sha256": _sha256(TEAMS_CSV),
                       "canonical_identity_sha256": _sha256(CANON_CSV),
                       "universe_sha256": _sha256(UNIVERSE_CSV), "draw_sha256": _sha256(a.draw),
-                      "git_commit": _commit(), "git_dirty": _git_dirty()}
-        # data-freshness gate: a stale universe must not silently produce an OFFICIAL slate
+                      **git_at_start}
+        # Data freshness has two separate parts and the gate keeps them separate:
+        #   coverage -- did the last scan actually reach back over the whole window? (machine-recorded
+        #               by scan_promatches in processed/scan_provenance.json)
+        #   recency  -- how old is the newest eligible professional match relative to the cutoff?
+        # An old newest-match is acceptable only BECAUSE a complete scan says nothing newer exists;
+        # passing --allow-stale is a request to check that, not a claim that it is true.
+        scan = read_scan_provenance()
         stale = (cut_ts - uni_max) > STALE_SECS
+        override = bool(stale and a.allow_stale)
+        provenance["scan_provenance"] = {k: scan.get(k) for k in
+                                         list(SCAN_REQUIRED) + ["scan_age_days", "usable",
+                                                                "problem", "scan_sha256"]}
         provenance["freshness_gate"] = {
-            "stale_max_days": STALE_MAX_DAYS, "stale": bool(stale),
-            "overridden": bool(stale and a.allow_stale),
-            "note": ("override accepted: no professional match exists between the universe's latest "
-                     "map and the cutoff; re-run scan_promatches to re-verify before trusting this"
-                     if stale and a.allow_stale else None)}
-        if gated and not a.allow_stale and stale:
-            sys.exit(f"OFFICIAL RUN BLOCKED: universe latest map {_iso(uni_max)} is "
+            "stale_max_days": STALE_MAX_DAYS,
+            "latest_match_time": _iso(uni_max),
+            "latest_match_age_days_vs_cutoff": provenance["universe_lag_days_before_cutoff"],
+            "coverage_complete": bool(scan.get("coverage_complete")),
+            "stale": bool(stale), "stale_override_used": override,
+            "stale_override_reason": None}
+        if gated and stale and not a.allow_stale:
+            sys.exit(f"RUN BLOCKED: newest eligible professional match {_iso(uni_max)} is "
                      f"{provenance['universe_lag_days_before_cutoff']}d before cutoff {cut_iso}; "
-                     f"refresh the data (or pass --allow-stale if there truly are no pre-lock games).")
-        if gated and provenance["git_dirty"]:
-            print("WARNING: repo is dirty (uncommitted changes) for an official run.", file=sys.stderr)
+                     "refresh the data, or pass --allow-stale once a COMPLETE scan confirms there "
+                     "is nothing newer.")
+        if gated and override:
+            if not scan.get("usable"):
+                sys.exit("RUN BLOCKED: --allow-stale needs a complete, current scan to stand on, "
+                         f"and {scan.get('problem')}. Re-run: python -m ti_predict.scan_promatches")
+            if datetime.fromisoformat(scan["latest_match_time"]).timestamp() < uni_max - 1:
+                sys.exit("RUN BLOCKED: the scan provenance reports an older newest match "
+                         f"({scan['latest_match_time']}) than the universe holds ({_iso(uni_max)}); "
+                         "it does not describe this data. Re-run scan_promatches.")
+            provenance["freshness_gate"]["stale_override_reason"] = (
+                f"complete scan performed at {scan['scan_completed_at']} covering "
+                f"{scan['coverage_start']}..{scan['latest_match_time']} "
+                f"({scan['scan_result_rows']} rows); source returned no newer eligible professional "
+                f"matches, so the {provenance['universe_lag_days_before_cutoff']}d gap to the cutoff "
+                "is real absence of play, not missing data")
+        if gated and provenance["git_dirty_at_start"]:
+            print("WARNING: the working tree already had uncommitted changes when this run started.",
+                  file=sys.stderr)
     else:
         strength = synthetic_strengths(teams)
         ssrc = "synthetic (non-predictive)"
@@ -701,7 +780,7 @@ def main():
     with open(os.path.join(outdir, stem + ".md"), "w", encoding="utf-8") as fh:
         fh.write(to_markdown(out))
     print(to_markdown(out))
-    print(f"[{out['manifest']['status']}] wrote {stem}.json / .md to {os.path.relpath(outdir, REPO)}")
+    print(f"[{out['manifest']['status']}] wrote {stem}.json / .md to {_relpath(outdir)}")
 
 
 if __name__ == "__main__":
