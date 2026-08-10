@@ -378,7 +378,7 @@ def uncertainty(entry, seed=SEED, draws=BOOTSTRAP):
             "p90": round(tot[int(.90 * len(tot))], 1), "events": len(leagues)}
 
 
-def coverage(stats_path=None):
+def coverage(stats_path=None, ledger=None):
     """How much of the target window the stat table actually holds, measured from the table itself.
 
     Deliberately not read from the fetcher's provenance file: that file is written when a run ends,
@@ -387,7 +387,7 @@ def coverage(stats_path=None):
     """
     from ti_predict.fantasy import fetch_player_stats as fp
     targets = {t[0] for t in fp.target_matches(fp.DEFAULT_LEAGUES)}
-    have = fp.done_matches(stats_path)
+    have = fp.done_matches(stats_path, ledger)
     covered = len(targets & have)
     frac = covered / len(targets) if targets else 0.0
     return {"matches_covered": covered, "matches_targeted": len(targets),

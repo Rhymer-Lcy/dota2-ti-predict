@@ -17,12 +17,14 @@ averaging nulls into existence.
 """
 import argparse
 import csv
+import hashlib
 import json
 import os
 import sys
 import time
 import urllib.error
 import urllib.request
+from collections import defaultdict
 from datetime import datetime, timezone
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -33,6 +35,11 @@ UNIVERSE = os.path.join(PROC, "universe_maps.csv")
 CANONICAL = os.path.join(INPUTS, "canonical_identity.csv")
 OUT_CSV = os.path.join(FANTASY_PROC, "player_map_stats.csv")
 OUT_PROV = os.path.join(FANTASY_PROC, "player_stats_provenance.json")
+# A match can be fetched successfully and still produce no rows: the five leagues contain plenty of
+# matches between teams that did not qualify for TI. Without a ledger of what was actually
+# requested, those matches look permanently missing -- they would be re-requested on every resume
+# and would hold measured coverage below the threshold for ever.
+OUT_LEDGER = os.path.join(FANTASY_PROC, "player_stats_fetched.txt")
 
 API = "https://api.opendota.com/api/matches/{}"
 # OpenDota answers 403 to the default urllib agent; every fetcher in this repo identifies itself.
@@ -128,12 +135,80 @@ def _rows_for(match, players):
     return out
 
 
-def done_matches(path=None):
+def done_matches(path=None, ledger=None):
+    """Every match already requested, whether or not it yielded rows.
+
+    Reads the ledger and unions in the ids present in the stat table, so a table written before the
+    ledger existed still counts as covered rather than being re-fetched.
+    """
+    out = set()
+    ledger = ledger or OUT_LEDGER
+    if os.path.exists(ledger):
+        with open(ledger, encoding="utf-8") as fh:
+            out |= {int(x) for x in fh.read().split() if x.strip().isdigit()}
     path = path or OUT_CSV
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as fh:
+            out |= {int(r["match_id"]) for r in csv.DictReader(fh) if r.get("match_id")}
+    return out
+
+
+def _sha256(path):
     if not os.path.exists(path):
-        return set()
-    with open(path, encoding="utf-8") as fh:
-        return {int(r["match_id"]) for r in csv.DictReader(fh) if r.get("match_id")}
+        return None
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def coverage_report(stats_path=None, ledger=None):
+    """What the table actually contains, per match, per stat, per player and per team.
+
+    Written so that "we have the data" is a measurement rather than an assertion. A match that was
+    fetched but held no TI player is a real, classified outcome, not a gap.
+    """
+    stats_path = stats_path or OUT_CSV
+    targets = {t[0] for t in target_matches(DEFAULT_LEAGUES)}
+    requested = done_matches(stats_path, ledger)
+    rows = []
+    with open(stats_path, encoding="utf-8") as fh:
+        rows = list(csv.DictReader(fh))
+    with_rows = {int(r["match_id"]) for r in rows}
+    parsed_rows = [r for r in rows if r["parsed"] == "1"]
+    stat_cols = [f for f in FIELDS if f not in
+                 ("match_id", "leagueid", "start_time", "account_id", "player_name",
+                  "organization", "parsed", "duration", "win")]
+    usable = {c: sum(1 for r in parsed_rows if r.get(c) not in ("", "None", None))
+              for c in stat_cols}
+    players = ti_players()
+    seen = {int(r["account_id"]) for r in parsed_rows}
+    by_team = defaultdict(lambda: {"players_with_data": set(), "player_maps": 0})
+    for r in parsed_rows:
+        by_team[r["organization"]]["players_with_data"].add(int(r["account_id"]))
+        by_team[r["organization"]]["player_maps"] += 1
+    return {
+        "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "matches": {"targeted": len(targets), "requested": len(targets & requested),
+                    "with_ti_players": len(with_rows),
+                    "fetched_without_ti_players": len(targets & requested) - len(with_rows),
+                    "failed": len(targets - requested),
+                    "coverage": round(len(targets & requested) / len(targets), 4)},
+        "player_maps": {"total": len(rows), "parsed": len(parsed_rows),
+                        "unparsed_dropped": len(rows) - len(parsed_rows),
+                        "parse_rate": round(len(parsed_rows) / len(rows), 4) if rows else None},
+        "usable_per_stat": {c: {"rows": n,
+                                "rate": round(n / len(parsed_rows), 4) if parsed_rows else None}
+                            for c, n in sorted(usable.items())},
+        "players": {"ti_roster_size": len(players), "with_parsed_data": len(seen & set(players)),
+                    "without_data": sorted(players[a][0] for a in set(players) - seen)},
+        "teams": {t: {"players_with_data": len(v["players_with_data"]),
+                      "player_maps": v["player_maps"]}
+                  for t, v in sorted(by_team.items())},
+        "stat_table_sha256": _sha256(stats_path),
+        "source": API.format("{match_id}"),
+    }
 
 
 def main(argv=None):
@@ -141,9 +216,14 @@ def main(argv=None):
     a.add_argument("--leagues", default=",".join(DEFAULT_LEAGUES))
     a.add_argument("--limit", type=int, default=0, help="stop after N new matches (0 = all)")
     a.add_argument("--sleep", type=float, default=1.05, help="seconds between requests")
+    a.add_argument("--report", action="store_true",
+                   help="print the coverage report for the existing table and exit")
     a = a.parse_args(argv)
 
     os.makedirs(FANTASY_PROC, exist_ok=True)
+    if a.report:
+        print(json.dumps(coverage_report(), indent=2))
+        return 0
     leagues = tuple(x.strip() for x in a.leagues.split(",") if x.strip())
     players = ti_players()
     targets = target_matches(leagues)
@@ -157,8 +237,9 @@ def main(argv=None):
           f"{len(have)} already fetched, {len(todo)} to go", flush=True)
 
     new_header = not os.path.exists(OUT_CSV)
-    failed, fetched = [], 0
-    with open(OUT_CSV, "a", encoding="utf-8", newline="") as fh:
+    failed, fetched, empty = [], 0, 0
+    with open(OUT_CSV, "a", encoding="utf-8", newline="") as fh, \
+            open(OUT_LEDGER, "a", encoding="utf-8") as lg:
         w = csv.DictWriter(fh, fieldnames=FIELDS)
         if new_header:
             w.writeheader()
@@ -167,11 +248,16 @@ def main(argv=None):
             if not isinstance(m, dict) or "players" not in m:
                 failed.append(mid)
             else:
-                for row in _rows_for(m, players):
+                got = _rows_for(m, players)
+                for row in got:
                     w.writerow(row)
+                if not got:
+                    empty += 1
+                lg.write(str(mid) + "\n")
                 fetched += 1
             if n % 25 == 0:
                 fh.flush()
+                lg.flush()
                 print(f"  {n}/{len(todo)} ({len(failed)} failed)", flush=True)
             time.sleep(a.sleep)
 

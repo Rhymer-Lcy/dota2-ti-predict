@@ -260,7 +260,9 @@ def test_coverage_is_measured_from_the_table_not_from_a_stale_provenance_file(tm
     """A provenance file is written when a run ends, so mid-pull it describes an earlier run."""
     empty = tmp_path / "player_map_stats.csv"
     empty.write_text("match_id\n", encoding="utf-8")
-    c = bl.coverage(str(empty))
+    ledger = tmp_path / "player_stats_fetched.txt"
+    ledger.write_text("", encoding="utf-8")
+    c = bl.coverage(str(empty), str(ledger))
     assert c["matches_covered"] == 0 and c["complete"] is False
     assert c["matches_targeted"] > 0
 
