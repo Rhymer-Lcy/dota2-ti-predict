@@ -51,6 +51,20 @@ Evidence grades used throughout (`fantasy_rules.evidence_grades`):
 | partial | structure established, at least one semantic or numeric component is not |
 | unresolved | not established by any source available |
 
+Every unknown carries a second, independent axis. `fact_status` is what the evidence supports;
+`decision_status` is what the unknown does to the answer. They are not the same question, and
+conflating them is what kept this track blocked longer than the evidence justified:
+
+| decision_status | Meaning |
+| --- | --- |
+| BLOCKING | switching the unknown changes what should be chosen |
+| ROBUST | measured across its candidate readings and the choice does not move |
+| SCALE_ONLY | it multiplies every score by one constant, so nothing can see it |
+| IRRELEVANT | it does not enter the decision at all |
+
+A rule graded ROBUST or SCALE_ONLY is still an unresolved rule. `sensitivity.py` measures the
+decision axis on real data; nothing there promotes a fact.
+
 The 18 base coefficients, the Deaths credit and the Teamfight Participation maximum sit at
 **user-screenshot corroborated**, carried as `points_status: PARTIAL`. They are promotable to
 CONFIRMED only by a direct read of the live client, and `ti_predict/fantasy/questions.py` enforces
@@ -132,14 +146,32 @@ without the underlying rate distributions, which is the work of PHASE 3.
 
 These are consequences of the ruleset, recorded now so the modelling phase does not re-derive them.
 
-- **The period score is a maximum, not a sum - held directionally, not frozen.** A role's period
-  score is the score of its *best series*, not the total over the period, so expected maps played
-  times expected points per map is the wrong estimator. This follows from the shipped wording and is
-  not in doubt in direction; the exact estimator stays open until `top_two_aggregation` and
-  `best_series_eligibility` are closed. The final model must keep four levels distinct: the per-game
-  score distribution, the top-two-within-series aggregation, the best-series-within-period maximum,
-  and the number of eligible series as the count of extreme-value draws. More series helps as extra
-  draws from a distribution whose maximum is taken, not as accumulation.
+- **The period score is a maximum, not a sum.** A role's period score is the score of its *best
+  series*, not the total over the period, so expected maps played times expected points per map is
+  the wrong estimator. The model keeps four levels distinct: the per-game score distribution, the
+  top-two-within-series aggregation, the best-series-within-period maximum, and the number of
+  eligible series as the count of extreme-value draws. More series helps as extra draws from a
+  distribution whose maximum is taken, not as accumulation.
+- **Summing versus averaging the top two maps is a scale factor, not a decision.** For any series
+  contributing at least two maps - the TI best-of-three condition - `mean = sum / 2` identically, and
+  a positive constant cannot reorder anything. Measured: ratio 0.499994 to 0.500006 across every
+  organisation and role, with byte-identical rank order. The only mechanism that breaks it is a
+  series shorter than two maps, which cannot occur at TI but makes up a quarter of the training
+  window; the baseline therefore excludes best-of-ones by default. A nonlinearity audit confirms
+  nothing downstream restores a decision effect: coach titles, quality, traits, the Deaths credit
+  and the Teamfight cap all act per player-game *before* the aggregation, the best-series step is a
+  maximum, the role scores are summed, and the reward tiers are percentiles over all entrants, which
+  a common factor leaves unchanged.
+- **A banner scores from one series, so the stat set and the series are chosen together.** Taking
+  each emblem's best series separately and adding them is a sum of maxima, which is unreachable.
+  Every legal stat set is enumerated and scored as a unit instead (75 for core, 120 for mid, 30 for
+  support once the unobtainable stats are removed).
+- **Schedule exposure is nearly flat, so it barely moves the ranking.** Expected series runs from
+  5.23 to 5.64 across the field, because both the strongest and the weakest teams finish in four or
+  five series while the middle of the table reaches six. Going from four draws to six is worth
+  +2.4% to +6.7% of period score, but the *differential* between teams moves the ranking by at most
+  one position. Exposure is read from the frozen track's published bucket probabilities and never
+  recomputed here.
 - **The unit of choice is a team, not a player.** Core and support banners score the *average* of
   the team's two players in that role. Averaging halves the idiosyncratic variance of a single
   player and makes team style, not individual reputation, the dominant signal.
@@ -214,13 +246,17 @@ Nothing in this track re-runs, re-tunes, or re-reports the frozen group-stage sl
 ```
 python -m ti_predict.fantasy.questions          # validate the inventory, print the readiness gate
 python -m ti_predict.fantasy.fetch_player_stats # per-player per-map rows; resumable, fail-closed
-python -m ti_predict.fantasy.baseline --top-two sum
-python -m ti_predict.fantasy.baseline --top-two mean --deaths-floor
-python -m pytest tests/test_fantasy_questions.py tests/test_fantasy_baseline.py -q
+python -m ti_predict.fantasy.baseline            # PRELIMINARY envelope ranking, per role
+python -m ti_predict.fantasy.sensitivity        # fact_status / decision_status, measured
+python -m ti_predict.fantasy.exposure           # schedule exposure from the frozen track
+python -m pytest tests/test_fantasy_questions.py tests/test_fantasy_baseline.py \
+                tests/test_fantasy_exposure.py -q
 ```
 
-The two baseline invocations are the two unresolved hypotheses. Run both; the spread between them is
-the honest error bar on the aggregation rule, and neither is the official one.
+`sensitivity` switches one unresolved rule at a time and reports how far the ranking and the stat
+choices move. Change one factor per comparison: an earlier round of this project compared a setting
+that changed the aggregation *and* the Deaths floor together and attributed the result to the
+aggregation alone.
 
 When the default system temp folder is not writable, use a workspace-local temporary base:
 
