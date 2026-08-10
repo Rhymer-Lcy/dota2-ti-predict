@@ -1,0 +1,89 @@
+{
+  "status": "DIAGNOSTIC ONLY - not fused, not a promotion input",
+  "retrieved_at": "2026-08-10T07:20:26+00:00",
+  "market": "polymarket outright champion, normalized",
+  "market_updated_at": "2026-08-10T07:16:59.324631Z",
+  "cutoff": "2026-08-13T02:00:00+00:00",
+  "spearman_rho_vs_bt": 0.8647,
+  "implied": {
+    "PARIVISION": 0.2144,
+    "Team Yandex": 0.201,
+    "BetBoom Team": 0.0849,
+    "Team Falcons": 0.0759,
+    "Aurora Gaming": 0.0715,
+    "Team Spirit": 0.067,
+    "Team Liquid": 0.0625,
+    "Tundra Esports": 0.0581,
+    "Vici Gaming": 0.0451,
+    "Xtreme Gaming": 0.0397,
+    "OG": 0.0223,
+    "LGD Gaming": 0.0201,
+    "Team Resilience": 0.0156,
+    "Nigma Galaxy": 0.0152,
+    "GamerLegion": 0.0036,
+    "HULIGANI": 0.0031
+  },
+  "model_rank": {
+    "PARIVISION": 0,
+    "Team Yandex": 1,
+    "Team Falcons": 2,
+    "BetBoom Team": 3,
+    "Aurora Gaming": 4,
+    "Team Spirit": 5,
+    "Team Liquid": 6,
+    "Nigma Galaxy": 7,
+    "Tundra Esports": 8,
+    "LGD Gaming": 9,
+    "Team Resilience": 10,
+    "Vici Gaming": 11,
+    "Xtreme Gaming": 12,
+    "GamerLegion": 13,
+    "HULIGANI": 14,
+    "OG": 15
+  },
+  "market_rank": {
+    "PARIVISION": 0,
+    "Team Yandex": 1,
+    "BetBoom Team": 2,
+    "Team Falcons": 3,
+    "Aurora Gaming": 4,
+    "Team Spirit": 5,
+    "Team Liquid": 6,
+    "Tundra Esports": 7,
+    "Vici Gaming": 8,
+    "Xtreme Gaming": 9,
+    "OG": 10,
+    "LGD Gaming": 11,
+    "Team Resilience": 12,
+    "Nigma Galaxy": 13,
+    "GamerLegion": 14,
+    "HULIGANI": 15
+  },
+  "largest_rank_divergences": [
+    {
+      "team": "Nigma Galaxy",
+      "model_rank": 8,
+      "market_rank": 14
+    },
+    {
+      "team": "OG",
+      "model_rank": 16,
+      "market_rank": 11
+    },
+    {
+      "team": "Xtreme Gaming",
+      "model_rank": 13,
+      "market_rank": 10
+    },
+    {
+      "team": "Vici Gaming",
+      "model_rank": 12,
+      "market_rank": 9
+    },
+    {
+      "team": "Team Resilience",
+      "model_rank": 11,
+      "market_rank": 13
+    }
+  ]
+}
