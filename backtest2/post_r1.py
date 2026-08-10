@@ -5,16 +5,17 @@ pod partition (pods_status=unresolved). The official pipeline fails closed on th
 This runner answers the question the frozen pipeline cannot yet answer -- what the slate looks like
 with the REAL round 1 fixed and the pod structure marginalized out.
 
-Hypothesis space over the unpublished structure:
-  open      -- one undivided 16-team Swiss; every round pairs by record across all 16. This is what
-               Valve's feed (a single Swiss node group) and Liquipedia's format section describe.
-  two-pod   -- two 8-team pods; rounds 1-3 pair within a pod, round 4 across pods. This is what the
-               in-client rules text describes. Round 1 is known and never crosses pods, so a pod is
-               exactly a union of four of the eight posted matches: C(8,4)/2 = 35 partitions, each
-               equally admissible with no evidence to separate them.
-The headline is a 50/50 mixture of the two families (uniform over the 35 partitions inside the
-two-pod family). Each family's own slate is reported as well: if they agree, the unpublished pod
-split does not matter and the residual uncertainty is closed by construction.
+What is uncertain is the pod MEMBERSHIP, not the structure. The official TI15 rules state the
+two-pod format: round 1 splits the 16 into two initial groups and pairs within them, rounds 2-3 pair
+inside a team own initial group, round 4 pairs against the other group. Only the eight-team split
+itself is unpublished. Round 1 is known and never crosses pods, so a pod is exactly a union of four
+of the eight posted matches: C(8,4)/2 = 35 admissible memberships, none distinguishable by evidence.
+
+  two-pod (HEADLINE)   -- uniform marginalization over those 35 memberships. This is the official
+                          format and the only basis for a submission.
+  open-16 (COMPARATOR) -- one undivided 16-team pool with no pod constraint at all. NOT the official
+                          format; simulated only to bound how much the pod constraint moves
+                          anything, i.e. the extreme case of "membership does not matter".
 
 Everything downstream of the structure is the FROZEN production configuration: identity side-neutral
 B-bt, half-life 90, no calibration, side-neutral map probability with the train-only radiant
@@ -23,7 +24,6 @@ coefficient, Hungarian assignment plus the verified points refinement. No parame
 Run: python -m backtest2.post_r1 [--cutoff ISO] [--sims-per-hypothesis N] [--out DIR]
 """
 import argparse
-import itertools
 import json
 import os
 import sys
@@ -37,7 +37,8 @@ from ti_predict.contest_rules import BUCKETS, CAPACITY, GROUP_LOCK_UTC, PRODUCTI
 from ti_predict.predict_ti15 import (bt_strengths_for, draw_status, load_teams, parse_cutoff,
                                      points_refinement, resolve_draw, se)
 from ti_predict.rosters import roster_audit
-from ti_predict.swiss import d4_sensitivity_crn, map_pn, monte_carlo
+from ti_predict.swiss import (admissible_two_pod_partitions, d4_sensitivity_crn,
+                              map_pn, monte_carlo)
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DRAW = os.path.join(REPO, "data", "ti2026", "inputs", "draw.json")
@@ -45,19 +46,12 @@ BIDX = {b: i for i, b in enumerate(BUCKETS)}
 
 
 def pod_hypotheses(r1):
-    """Every two-pod partition compatible with the posted round 1 (a pod = 4 whole matches)."""
-    out = []
-    for combo in itertools.combinations(range(8), 4):
-        if 0 not in combo:                      # fix match 0 in pod A so each partition appears once
-            continue
-        podA = [t for i in combo for t in r1[i]]
-        podB = [t for i in range(8) if i not in combo for t in r1[i]]
-        out.append((podA, podB))
-    return out
+    """Every two-pod membership compatible with the posted round 1 (a pod = 4 whole matches)."""
+    return admissible_two_pod_partitions(r1)
 
 
 def structures(r1, teams):
-    """[(family, label, pods)] -- the open pool plus every admissible two-pod partition."""
+    """[(family, label, pods)] -- every admissible two-pod membership, plus the open-16 comparator."""
     out = [("open", "open-16", (list(teams),))]
     for i, pods in enumerate(pod_hypotheses(r1)):
         out.append(("two-pod", f"two-pod-{i:02d}", pods))
@@ -92,7 +86,7 @@ def provisional(strength, r1, teams, c, sims_per_hyp=3000, seed=20260813):
     """Run the full hypothesis space and return the mixture result plus per-family diagnostics."""
     fam = family_archives(strength, r1, teams, c, sims_per_hyp, seed)
     fam_arch = {f: _concat(list(d.values())) for f, d in fam.items()}
-    mix = _concat([fam_arch["open"], fam_arch["two-pod"]])
+    mix = fam_arch["two-pod"]              # HEADLINE: official structure, membership-marginalized
     P = {f: _P(a) for f, a in fam_arch.items()}
     P["mixture"] = _P(mix)
 
@@ -142,7 +136,7 @@ def main():
     teams = [t["team"] for t in teams_rows]
     cut_ts, cut_iso = parse_cutoff(a.cutoff)
     strength, c, n_train, uni_rows, uni_max = bt_strengths_for(teams_rows, cut_ts)
-    pods, r1, src = resolve_draw(teams_rows, a.draw)
+    _, r1, src = resolve_draw(teams_rows, a.draw)
     if r1 is None:
         raise SystemExit("draw file carries no r1_pairings; nothing to fix")
     state = draw_status(a.draw)
@@ -167,7 +161,7 @@ def main():
                                  for b in BUCKETS), 4) for t in teams}
 
     # D4 opponent-choice sensitivity under the open structure with the real round 1
-    d4 = d4_sensitivity_crn((list(teams),), strength, n=max(4000, a.sims_per_hypothesis * 4),
+    d4 = d4_sensitivity_crn(pod_hypotheses(r1)[0], strength, n=max(4000, a.sims_per_hypothesis * 4),
                             seed=a.seed, r1_pairings=r1, c=c)
     d4_slates = {sc: {t: b for t, b, _ in assign(d4[sc])[2]} for sc in d4}
     d4_moves = sorted(t for t in teams if len({d4_slates[sc][t] for sc in d4_slates}) > 1)
@@ -187,14 +181,19 @@ def main():
     out = {
         "status": "RESEARCH - R1-fixed / pods-latent provisional; NOT the official prediction",
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "r1_status": state["r1_status"], "pods_status": state["pods_status"],
-        "pod_evidence_source": state["pod_evidence_source"],
+        "r1_status": state["r1_status"], "structure": state["structure"],
+        "structure_status": state["structure_status"],
+        "pod_membership_status": state["pod_membership_status"],
+        "structure_evidence": state["structure_evidence"],
+        "pod_membership_evidence": state["pod_membership_evidence"],
         "pod_uncertainty_assumptions": {
-            "families": ["open-16", "two-pod"], "family_weights": {"open-16": 0.5, "two-pod": 0.5},
-            "two_pod_partitions": len(hyp_labels) - 1,
-            "within_family_prior": "uniform over every partition compatible with the posted round 1",
-            "note": "the pod split is not published anywhere machine-readable; it is marginalized, "
-                    "not assumed"},
+            "headline_structure": "two_pod (official rule; membership marginalized)",
+            "admissible_memberships": len(hyp_labels) - 1,
+            "membership_prior": "uniform over every membership compatible with the posted round 1",
+            "comparator": "open-16, simulated only to bound the size of the pod constraint; it is "
+                          "NOT the official format and never the basis of a submission",
+            "note": "the two-pod structure is confirmed by the official rules; only WHICH eight "
+                    "teams form each group is unpublished, so membership is marginalized"},
         "draw_source": src, "feed_sha256": state["feed_sha256"],
         "draw_retrieved_at": state["retrieved_at"],
         "cutoff": cut_iso, "half_life_days": PRODUCTION_HALF_LIFE_DAYS,
@@ -208,6 +207,8 @@ def main():
                             key=lambda t: -P[t][b]) for b in BUCKETS},
         "family_slates": {k: {b: sorted([t for t in teams if v[0][t] == b], key=lambda t: -P[t][b])
                               for b in BUCKETS} for k, v in res["slates"].items()},
+        "comparator_agrees_with_official_structure":
+            (res["slates"]["open"][0] == res["slates"]["two-pod"][0]),
         "families_agree": (res["slates"]["open"][0] == res["slates"]["two-pod"][0]),
         "max_structural_family_delta": round(max(family_delta.values()), 4),
         "family_probabilities": {k: {t: {b: round(res["P"][k][t][b], 4) for b in BUCKETS}
@@ -224,10 +225,11 @@ def main():
         json.dump(out, fh, ensure_ascii=False, indent=2)
 
     print(f"[{out['status']}]")
-    print(f"r1_status={out['r1_status']} pods_status={out['pods_status']} "
-          f"| hypotheses={len(hyp_labels)} | mixture sims={n}")
-    print(f"families agree on the slate: {out['families_agree']} | largest per-cell probability "
-          f"difference between structures: {out['max_structural_family_delta']:.4f}")
+    print(f"r1_status={out['r1_status']} structure={out['structure']} "
+          f"({out['structure_status']}) membership={out['pod_membership_status']} "
+          f"| admissible memberships={len(hyp_labels) - 1} | headline sims={n}")
+    print(f"two-pod slate == open-16 comparator slate: {out['families_agree']} | largest per-cell "
+          f"difference: {out['max_structural_family_delta']:.4f}")
     print(f"expected correct = {out['expected_correct']} / 16")
     for b in BUCKETS:
         print(f"  {b:>12} x{CAPACITY[b]}: " + ", ".join(

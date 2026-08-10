@@ -120,6 +120,10 @@ def main():
     else:
         strength, ssrc = synthetic_strengths(teams_rows), "synthetic (non-predictive)"
     pods, r1, draw_src = resolve_draw(teams_rows, a.draw)
+    if pods is None:            # membership unpublished -> take one admissible split
+        from ti_predict.swiss import admissible_two_pod_partitions
+        pods = admissible_two_pod_partitions(r1)[0]
+        draw_src += " (one admissible pod membership; this study compares POLICIES)"
 
     # primary scenario (strategic D4): archive -> P -> policy A -> policy B
     teams, rb = archive(pods, strength, a.sims, a.seed, "strategic", r1=r1, c=c)

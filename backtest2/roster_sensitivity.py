@@ -21,11 +21,18 @@ Method:
   common random numbers -- every scenario reuses one seed, so a slate difference is the perturbation,
              not Monte-Carlo noise.
 
-Structure: the open 16-team Swiss with the posted round 1 (backtest2/post_r1.py establishes that the
-open and two-pod families produce the same slate, so the pod hypothesis is not re-marginalized inside
-every scenario). Everything else is the frozen production configuration.
+Structure: `--structure` selects what each scenario simulates.
+  open-16 (default) -- the no-pod-constraint COMPARATOR, not the official format. Chosen as the
+      default because it is ~7x cheaper per scenario than re-marginalizing 35 pod memberships inside
+      every one of ~30 scenarios, and because backtest2/post_r1.py measures the entire structural
+      effect at <= 0.0056 per cell with zero slate changes -- far below the perturbations studied
+      here. The threshold this script reports is therefore insensitive to that choice.
+  two-pod -- one admissible pod membership compatible with the posted round 1 (the official
+      structure), for anyone who wants the check under the real format.
+Everything else is the frozen production configuration.
 
 Run: python -m backtest2.roster_sensitivity [--team "LGD Gaming"] [--sims N] [--boot N]
+     python -m backtest2.roster_sensitivity --structure two-pod
 """
 import argparse
 import json
@@ -41,7 +48,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ti_predict.assign import assign
 from ti_predict.contest_rules import BUCKETS, GROUP_LOCK_UTC, GROUP_SCORE, PRODUCTION_HALF_LIFE_DAYS
 from ti_predict.predict_ti15 import bt_strengths_for, load_teams, parse_cutoff, resolve_draw
-from ti_predict.swiss import map_pn, monte_carlo
+from ti_predict.swiss import admissible_two_pod_partitions, map_pn, monte_carlo
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DRAW = os.path.join(REPO, "data", "ti2026", "inputs", "draw.json")
@@ -82,9 +89,9 @@ def bootstrap_strengths(cut_ts, teams, n_boot=300, seed=20260810, block="event")
     return draws
 
 
-def run_scenario(strength, teams, r1, c, n, seed):
-    """One Monte-Carlo run under the open structure; returns (P, assignment, archive)."""
-    P, arch = monte_carlo((list(teams),), strength, n=n, seed=seed, r1_pairings=r1,
+def run_scenario(strength, pods, r1, c, n, seed):
+    """One Monte-Carlo run under the given structure; returns (P, assignment, archive)."""
+    P, arch = monte_carlo(pods, strength, n=n, seed=seed, r1_pairings=r1,
                           elim_choice="strategic", c=c, return_archive=True)
     arch = {t: np.asarray(v, dtype=np.int8) for t, v in arch.items()}
     _, _, rows = assign(P)
@@ -105,6 +112,9 @@ def main():
     ap.add_argument("--cutoff", default=GROUP_LOCK_UTC)
     ap.add_argument("--sims", type=int, default=40000)
     ap.add_argument("--boot", type=int, default=300)
+    ap.add_argument("--structure", choices=("open-16", "two-pod"), default="open-16",
+                    help="open-16 is the cheap comparator (default); two-pod uses one admissible "
+                         "membership of the official structure")
     ap.add_argument("--seed", type=int, default=20260813)
     ap.add_argument("--out", default=os.path.join(REPO, "predictions", "ti2026", "group-stage",
                                                   "research"))
@@ -115,6 +125,8 @@ def main():
     cut_ts, cut_iso = parse_cutoff(a.cutoff)
     base_strength, c, n_train, uni_rows, _ = bt_strengths_for(rows, cut_ts)
     _, r1, _ = resolve_draw(rows, DRAW)
+    pods = ((list(teams),) if a.structure == "open-16"
+            else admissible_two_pod_partitions(r1)[0])
     tgt = a.team
     if tgt not in base_strength:
         raise SystemExit(f"unknown team {tgt!r}")
@@ -129,7 +141,7 @@ def main():
 
     r1_opp = next((x for pair in r1 for x in pair if x != tgt and tgt in pair), None)
 
-    base_P, base_asg, base_arch = run_scenario(base_strength, teams, r1, c, a.sims, a.seed)
+    base_P, base_asg, base_arch = run_scenario(base_strength, pods, r1, c, a.sims, a.seed)
     base_pts = expected_points(base_asg, base_arch)
 
     def scenario(delta):
@@ -144,7 +156,7 @@ def main():
                                         what says whether a re-order matters.
         """
         s = dict(base_strength); s[tgt] = base_strength[tgt] + delta
-        P, asg, arch = run_scenario(s, teams, r1, c, a.sims, a.seed)   # same seed for every scenario
+        P, asg, arch = run_scenario(s, pods, r1, c, a.sims, a.seed)    # same seed for every scenario
         p_map = map_pn(s[r1_opp], s[tgt], c) if r1_opp else None       # opponent's win prob
         moved = sorted(t for t in teams if asg[t] != base_asg[t])
         exp_scen = sum(P[t][asg[t]] for t in teams)
@@ -187,7 +199,11 @@ def main():
 
     out = {"status": "RESEARCH - roster-change sensitivity; production strengths unchanged",
            "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-           "team": tgt, "cutoff": cut_iso, "structure": "open-16 with the posted round 1",
+           "team": tgt, "cutoff": cut_iso,
+           "structure": f"{a.structure} with the posted round 1"
+                        + (" (comparator, not the official format; justified in the module "
+                           "docstring)" if a.structure == "open-16" else " (official structure, one "
+                           "admissible membership)"),
            "sims_per_scenario": a.sims, "seed": a.seed, "bootstrap_resamples": a.boot,
            "training_maps": n_train, "universe_rows": uni_rows,
            "baseline_strength": round(base_strength[tgt], 4),
