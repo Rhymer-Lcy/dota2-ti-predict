@@ -7,8 +7,10 @@ Two modes, by design:
   --dry-run   pipeline rehearsal on synthetic or historical inputs. Writes to <repo>/.dryrun/.
               Every artifact is stamped "DRY RUN - NOT OFFICIAL". Never emits an official slate.
   --official  the real slate. HARD-GATED: refuses to run unless ALL are present -- the posted draw
-              file (two pods + round-1 pairings), an explicit frozen --cutoff, and B-bt strengths
-              (--strengths bt) computed for all 16 teams. Missing any -> exit with an error.
+              file (round-1 pairings AND a confirmed structure: a two-pod partition, or an explicit
+              open-16 declaration), an explicit timezone-aware --cutoff, B-bt strengths
+              (--strengths bt) for all 16 teams, a roster audit with no CONFLICT/UNRESOLVED team,
+              and a fresh universe. Missing any -> exit with an actionable error.
 
 This prevents a rehearsal from ever masquerading as the official prediction. The main-event
 (14-series) track is deferred until the group draw is set.
@@ -38,7 +40,8 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ti_predict.assign import assign
 from ti_predict.contest_rules import (GROUP_SCORE, PRODUCTION_HALF_LIFE_DAYS, STALE_MAX_DAYS)
-from ti_predict.swiss import BUCKETS, CAPACITY, d4_sensitivity_crn, monte_carlo
+from ti_predict.rosters import roster_audit
+from ti_predict.swiss import BUCKETS, CAPACITY, d4_sensitivity_crn, is_two_pod, monte_carlo, teams_of
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INPUTS = os.path.join(REPO, "data", "ti2026", "inputs")
@@ -165,13 +168,47 @@ def bt_strengths_for(teams, cut_ts):
     return out, float(est_c(train, smap)), len(train), len(uni), uni_max
 
 
+def read_draw(draw_path):
+    """Load the draw JSON as a dict, or {} when no path is given. Exits on unreadable/invalid JSON."""
+    if not draw_path:
+        return {}
+    try:
+        with open(draw_path, encoding="utf-8") as fh:
+            d = json.load(fh)
+    except (OSError, json.JSONDecodeError) as e:
+        sys.exit(f"draw: cannot read {draw_path}: {e}")
+    if not isinstance(d, dict):
+        sys.exit("draw: top-level JSON must be an object with podA/podB/r1_pairings")
+    return d
+
+
+def draw_status(draw_path):
+    """Publication status of the draw, for the run manifest: what is official and what is assumed."""
+    d = read_draw(draw_path)
+    if not d:
+        return {"r1_status": "synthetic", "pods_status": "synthetic",
+                "pod_evidence_source": None, "feed_sha256": None, "retrieved_at": None}
+    pods = str(d.get("pods_status", "confirmed")).lower()
+    return {"r1_status": str(d.get("r1_status", "unknown")).lower(), "pods_status": pods,
+            "declared_structure": str(d.get("structure", "two-pod")).lower(),
+            "pod_evidence_source": d.get("pods_evidence") or d.get("source"),
+            "feed_sha256": d.get("feed_sha256"), "retrieved_at": d.get("retrieved_at")}
+
+
 def resolve_draw(teams, draw_path, require_r1=False):
     """Return (pods, r1_pairings, source). Draw file references teams by their teams.csv 'team' name.
 
+    `pods` is (podA, podB) when a two-pod partition is published, or the 1-tuple (teams,) for the
+    open 16-team Swiss -- either because the draw explicitly declares that structure
+    (pods_status="confirmed" + structure="open-16"), or, in research mode only, because the pod split
+    is unresolved.
+
     Full validation: pods are two disjoint sets of 8 that partition exactly the 16 teams with no
-    duplicates; if require_r1 (official mode) the round-1 draw MUST be present, exactly 8 within-pod
-    matches of two distinct teams covering every team exactly once. A missing r1 is rejected in
-    official mode (it would otherwise be randomized yet still labeled OFFICIAL).
+    duplicates; if require_r1 (official mode) the round-1 draw MUST be present, exactly 8 matches of
+    two distinct teams covering every team exactly once (and within pods when pods are published). A
+    missing r1 is rejected in official mode (it would otherwise be randomized yet still labeled
+    OFFICIAL), and so is an unresolved pod structure: an OFFICIAL slate must not rest on a pod split
+    that no source publishes.
     """
     names = {t["team"] for t in teams}
     if not draw_path:
@@ -180,28 +217,44 @@ def resolve_draw(teams, draw_path, require_r1=False):
         order = [t["team"] for t in teams]      # synthetic split (dry-run only), random round 1
         return (order[0::2], order[1::2]), None, "synthetic (teams.csv split, random round 1)"
 
-    try:
-        with open(draw_path, encoding="utf-8") as fh:
-            d = json.load(fh)
-    except (OSError, json.JSONDecodeError) as e:
-        sys.exit(f"draw: cannot read {draw_path}: {e}")
-    if not isinstance(d, dict):
-        sys.exit("draw: top-level JSON must be an object with podA/podB/r1_pairings")
-    podA, podB = list(d.get("podA", [])), list(d.get("podB", []))
-    if len(podA) != 8 or len(podB) != 8:
-        sys.exit("draw: podA and podB must each list 8 teams")
-    allp = podA + podB
-    if len(set(allp)) != 16:
-        sys.exit("draw: pods must be 16 distinct teams (duplicate or overlap found)")
-    if set(allp) != names:
-        sys.exit(f"draw: pods must partition exactly the 16 teams; mismatch {set(allp) ^ names}")
-    pod_of = {t: "A" for t in podA}; pod_of.update({t: "B" for t in podB})
+    d = read_draw(draw_path)
+    pods_status = str(d.get("pods_status", "confirmed")).lower()
+    structure = str(d.get("structure", "two-pod")).lower()
+    if pods_status not in ("confirmed", "unresolved"):
+        sys.exit(f"draw: pods_status must be 'confirmed' or 'unresolved', found {pods_status!r}")
+    if structure not in ("two-pod", "open-16"):
+        sys.exit(f"draw: structure must be 'two-pod' or 'open-16', found {structure!r}")
+    if pods_status == "confirmed" and structure == "open-16":
+        # An explicit, evidenced declaration that the published format is ONE undivided 16-team
+        # Swiss (which is what Valve's league feed shows). This is a positive claim the operator
+        # makes and the manifest records - not the same thing as "no pod split was found".
+        pods, pod_of, allp = (sorted(names),), None, sorted(names)
+    elif pods_status == "unresolved":
+        if require_r1:
+            sys.exit("OFFICIAL RUN BLOCKED: draw declares pods_status='unresolved'. Round 1 may be "
+                     "official, but an official slate must not assume an unpublished pod split. "
+                     "Either run the R1-fixed / pods-latent research mode (backtest2/post_r1.py), "
+                     "or - if the single undivided 16-team Swiss in the league feed is accepted as "
+                     "the published structure - declare it explicitly with pods_status='confirmed' "
+                     "and structure='open-16'.")
+        pods, pod_of, allp = (sorted(names),), None, sorted(names)
+    else:
+        podA, podB = list(d.get("podA", [])), list(d.get("podB", []))
+        if len(podA) != 8 or len(podB) != 8:
+            sys.exit("draw: podA and podB must each list 8 teams")
+        allp = podA + podB
+        if len(set(allp)) != 16:
+            sys.exit("draw: pods must be 16 distinct teams (duplicate or overlap found)")
+        if set(allp) != names:
+            sys.exit(f"draw: pods must partition exactly the 16 teams; mismatch {set(allp) ^ names}")
+        pod_of = {t: "A" for t in podA}; pod_of.update({t: "B" for t in podB})
+        pods = (podA, podB)
 
     raw = d.get("r1_pairings") or []
     if not raw:
         if require_r1:
             sys.exit("draw: official run requires r1_pairings (the posted round-1 matchups)")
-        return (podA, podB), None, _relpath(draw_path)
+        return pods, None, _relpath(draw_path)
     r1 = [tuple(p) for p in raw]
     if len(r1) != 8:
         sys.exit(f"draw: r1_pairings must have exactly 8 matches, found {len(r1)}")
@@ -211,12 +264,12 @@ def resolve_draw(teams, draw_path, require_r1=False):
             sys.exit(f"draw: r1 references unknown team(s): {a}, {b}")
         if a == b:
             sys.exit(f"draw: r1 match has a team against itself: {a}")
-        if pod_of[a] != pod_of[b]:
+        if pod_of is not None and pod_of[a] != pod_of[b]:
             sys.exit(f"draw: r1 match crosses pods: {a} vs {b}")
         seen += [a, b]
     if sorted(seen) != sorted(allp):
         sys.exit("draw: r1_pairings must cover every team exactly once")
-    return (podA, podB), r1, _relpath(draw_path)
+    return pods, r1, _relpath(draw_path)
 
 
 def se(p, n):
@@ -314,7 +367,7 @@ def sensitivity(pods, strength, n, seed, r1, c=0.0):
 
 
 def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengths_source,
-          train_maps, c=0.0, provenance=None):
+          train_maps, c=0.0, provenance=None, draw_state=None, rosters=None):
     P, diag, arch = monte_carlo(pods, strength, n=n, seed=seed, r1_pairings=r1,
                                 elim_choice="strategic", return_diag=True, c=c,
                                 return_archive=True)
@@ -370,7 +423,12 @@ def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengt
                                         "tail: overall (tie_16) / bucket-relevant 3-2 pick order "
                                         "(tie_32)"},
         "draw_source": draw_source,
-        "pods": {"A": list(pods[0]), "B": list(pods[1])},
+        "draw_status": draw_state,
+        "roster_audit": rosters,
+        "pods": ({"structure": "two-pod", "A": list(pods[0]), "B": list(pods[1])} if is_two_pod(pods)
+                 else {"structure": "open-16", "teams": teams_of(pods),
+                       "note": "no pod partition is published; rounds 2-4 pair by record across all "
+                               "16 (see docs/contest-official-ti15.md sec 9)"}),
         "r1_pairings": [list(p) for p in r1] if r1 else None,
         "teams": [{"team": t["team"], "alias": t["ti_alias"], "region": t["region"],
                    "opendota_team_id": t["opendota_team_id"], "note": t["notes"]} for t in teams],
@@ -464,7 +522,14 @@ def main():
                       "universe_sha256": _sha256(UNIVERSE_CSV), "draw_sha256": _sha256(a.draw),
                       "git_commit": _commit(), "git_dirty": _git_dirty()}
         # data-freshness gate: a stale universe must not silently produce an OFFICIAL slate
-        if a.official and not a.allow_stale and (cut_ts - uni_max) > STALE_SECS:
+        stale = (cut_ts - uni_max) > STALE_SECS
+        provenance["freshness_gate"] = {
+            "stale_max_days": STALE_MAX_DAYS, "stale": bool(stale),
+            "overridden": bool(stale and a.allow_stale),
+            "note": ("override accepted: no professional match exists between the universe's latest "
+                     "map and the cutoff; re-run scan_promatches to re-verify before trusting this"
+                     if stale and a.allow_stale else None)}
+        if a.official and not a.allow_stale and stale:
             sys.exit(f"OFFICIAL RUN BLOCKED: universe latest map {_iso(uni_max)} is "
                      f"{provenance['universe_lag_days_before_cutoff']}d before cutoff {cut_iso}; "
                      f"refresh the data (or pass --allow-stale if there truly are no pre-lock games).")
@@ -477,8 +542,15 @@ def main():
     pods, r1, draw_source = resolve_draw(teams, a.draw, require_r1=a.official)
     if provenance is not None:
         provenance["draw_sha256"] = _sha256(a.draw)      # recompute now the draw path is validated
+    rosters = roster_audit(orgs=[t["team"] for t in teams])
+    if a.official and rosters["blocking"]:
+        sys.exit("OFFICIAL RUN BLOCKED: unresolved roster audit for "
+                 + ", ".join(rosters["blocking"])
+                 + "\nresolve the lineup in data/ti2026/inputs/roster_events.csv (a CONFLICT must "
+                   "never be silently decided in favour of the roster already in the model).")
     out = build(teams, strength, pods, r1, draw_source, a.sims, a.seed, mode, cut_iso, ssrc,
-                train_maps, c=c, provenance=provenance)
+                train_maps, c=c, provenance=provenance, draw_state=draw_status(a.draw),
+                rosters=rosters)
 
     outdir = a.out or (os.path.join(REPO, "predictions", "ti2026", "group-stage")
                        if a.official else os.path.join(REPO, ".dryrun"))
