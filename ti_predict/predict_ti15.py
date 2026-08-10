@@ -6,11 +6,14 @@ assignment solver (assign.py) -> D4 sensitivity -> JSON (fact source) + Markdown
 Two modes, by design:
   --dry-run   pipeline rehearsal on synthetic or historical inputs. Writes to <repo>/.dryrun/.
               Every artifact is stamped "DRY RUN - NOT OFFICIAL". Never emits an official slate.
-  --official  the real slate. HARD-GATED: refuses to run unless ALL are present -- the posted draw
-              file (round-1 pairings AND a confirmed structure: a two-pod partition, or an explicit
-              open-16 declaration), an explicit timezone-aware --cutoff, B-bt strengths
-              (--strengths bt) for all 16 teams, a roster audit with no CONFLICT/UNRESOLVED team,
-              and a fresh universe. Missing any -> exit with an actionable error.
+  --official  the real slate. HARD-GATED: refuses to run unless ALL are present -- the posted
+              round-1 pairings, a CONFIRMED structure (the official two-pod format; the open-16 pool
+              is a sensitivity comparator and is refused here), an explicit timezone-aware --cutoff,
+              B-bt strengths (--strengths bt) for all 16 teams, a roster audit with no
+              CONFLICT/UNRESOLVED team, and a fresh universe. Missing any -> actionable error.
+              If the pod MEMBERSHIP is still unpublished the slate is marginalized over every
+              membership compatible with round 1, the manifest records that, and the run is blocked
+              if any admissible membership would have made a materially better slate.
 
 This prevents a rehearsal from ever masquerading as the official prediction. The main-event
 (14-series) track is deferred until the group draw is set.
@@ -39,9 +42,11 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ti_predict.assign import assign
-from ti_predict.contest_rules import (GROUP_SCORE, PRODUCTION_HALF_LIFE_DAYS, STALE_MAX_DAYS)
+from ti_predict.contest_rules import (GROUP_SCORE, POD_MEMBERSHIP_REGRET_MAX, POD_STRUCTURE,
+                                      PRODUCTION_HALF_LIFE_DAYS, STALE_MAX_DAYS)
 from ti_predict.rosters import roster_audit
-from ti_predict.swiss import BUCKETS, CAPACITY, d4_sensitivity_crn, is_two_pod, monte_carlo, teams_of
+from ti_predict.swiss import (BUCKETS, CAPACITY, admissible_two_pod_partitions, d4_sensitivity_crn,
+                              is_two_pod, monte_carlo, teams_of)
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INPUTS = os.path.join(REPO, "data", "ti2026", "inputs")
@@ -183,32 +188,43 @@ def read_draw(draw_path):
 
 
 def draw_status(draw_path):
-    """Publication status of the draw, for the run manifest: what is official and what is assumed."""
+    """Publication status of the draw, for the run manifest: what is official and what is assumed.
+
+    Three separate facts, deliberately not collapsed into one flag:
+      structure               -- 'two_pod' (the official rule) or 'open-16' (sensitivity comparator);
+      structure_status        -- whether that structure is an official rule or an assumption;
+      pod_membership_status   -- whether the actual eight-team split is published.
+    A feed that carries no pod field leaves MEMBERSHIP unresolved; it says nothing about STRUCTURE.
+    """
     d = read_draw(draw_path)
     if not d:
-        return {"r1_status": "synthetic", "pods_status": "synthetic",
-                "pod_evidence_source": None, "feed_sha256": None, "retrieved_at": None}
-    pods = str(d.get("pods_status", "confirmed")).lower()
-    return {"r1_status": str(d.get("r1_status", "unknown")).lower(), "pods_status": pods,
-            "declared_structure": str(d.get("structure", "two-pod")).lower(),
-            "pod_evidence_source": d.get("pods_evidence") or d.get("source"),
+        return {"r1_status": "synthetic", "structure": "two_pod", "structure_status": "synthetic",
+                "pod_membership_status": "synthetic", "structure_evidence": None,
+                "pod_membership_evidence": None, "feed_sha256": None, "retrieved_at": None}
+    return {"r1_status": str(d.get("r1_status", "unknown")).lower(),
+            "structure": str(d.get("structure", POD_STRUCTURE)).lower(),
+            "structure_status": str(d.get("structure_status", "confirmed")).lower(),
+            "pod_membership_status": str(d.get("pod_membership_status", "confirmed")).lower(),
+            "structure_evidence": d.get("structure_evidence"),
+            "pod_membership_evidence": d.get("pod_membership_evidence") or d.get("source"),
             "feed_sha256": d.get("feed_sha256"), "retrieved_at": d.get("retrieved_at")}
 
 
 def resolve_draw(teams, draw_path, require_r1=False):
     """Return (pods, r1_pairings, source). Draw file references teams by their teams.csv 'team' name.
 
-    `pods` is (podA, podB) when a two-pod partition is published, or the 1-tuple (teams,) for the
-    open 16-team Swiss -- either because the draw explicitly declares that structure
-    (pods_status="confirmed" + structure="open-16"), or, in research mode only, because the pod split
-    is unresolved.
+    `pods` is:
+      (podA, podB) -- the published two-pod membership;
+      None         -- two-pod structure with UNRESOLVED membership: the caller must marginalize over
+                      swiss.admissible_two_pod_partitions(r1);
+      (teams,)     -- the open 16-team pool. NOT the official format; a sensitivity comparator only,
+                      and refused in official mode.
 
-    Full validation: pods are two disjoint sets of 8 that partition exactly the 16 teams with no
-    duplicates; if require_r1 (official mode) the round-1 draw MUST be present, exactly 8 matches of
-    two distinct teams covering every team exactly once (and within pods when pods are published). A
+    Full validation: a published membership is two disjoint sets of 8 partitioning exactly the 16
+    teams; if require_r1 (official mode) the round-1 draw MUST be present -- exactly 8 matches of two
+    distinct teams covering every team once, and within pods when the membership is published. A
     missing r1 is rejected in official mode (it would otherwise be randomized yet still labeled
-    OFFICIAL), and so is an unresolved pod structure: an OFFICIAL slate must not rest on a pod split
-    that no source publishes.
+    OFFICIAL), and so is any structure whose status is not 'confirmed'.
     """
     names = {t["team"] for t in teams}
     if not draw_path:
@@ -218,26 +234,31 @@ def resolve_draw(teams, draw_path, require_r1=False):
         return (order[0::2], order[1::2]), None, "synthetic (teams.csv split, random round 1)"
 
     d = read_draw(draw_path)
-    pods_status = str(d.get("pods_status", "confirmed")).lower()
-    structure = str(d.get("structure", "two-pod")).lower()
-    if pods_status not in ("confirmed", "unresolved"):
-        sys.exit(f"draw: pods_status must be 'confirmed' or 'unresolved', found {pods_status!r}")
-    if structure not in ("two-pod", "open-16"):
-        sys.exit(f"draw: structure must be 'two-pod' or 'open-16', found {structure!r}")
-    if pods_status == "confirmed" and structure == "open-16":
-        # An explicit, evidenced declaration that the published format is ONE undivided 16-team
-        # Swiss (which is what Valve's league feed shows). This is a positive claim the operator
-        # makes and the manifest records - not the same thing as "no pod split was found".
-        pods, pod_of, allp = (sorted(names),), None, sorted(names)
-    elif pods_status == "unresolved":
+    structure = str(d.get("structure", POD_STRUCTURE)).lower()
+    structure_status = str(d.get("structure_status", "confirmed")).lower()
+    membership = str(d.get("pod_membership_status", "confirmed")).lower()
+    if structure not in ("two_pod", "open-16"):
+        sys.exit(f"draw: structure must be 'two_pod' or 'open-16', found {structure!r}")
+    if structure_status not in ("confirmed", "assumed"):
+        sys.exit("draw: structure_status must be 'confirmed' or 'assumed', found "
+                 f"{structure_status!r}")
+    if require_r1 and structure_status != "confirmed":
+        sys.exit(f"OFFICIAL RUN BLOCKED: draw declares structure_status={structure_status!r}; an "
+                 "official slate needs a CONFIRMED pairing structure, not an assumed one.")
+    if membership not in ("confirmed", "unresolved"):
+        sys.exit("draw: pod_membership_status must be 'confirmed' or 'unresolved', found "
+                 f"{membership!r}")
+    if structure == "open-16":
         if require_r1:
-            sys.exit("OFFICIAL RUN BLOCKED: draw declares pods_status='unresolved'. Round 1 may be "
-                     "official, but an official slate must not assume an unpublished pod split. "
-                     "Either run the R1-fixed / pods-latent research mode (backtest2/post_r1.py), "
-                     "or - if the single undivided 16-team Swiss in the league feed is accepted as "
-                     "the published structure - declare it explicitly with pods_status='confirmed' "
-                     "and structure='open-16'.")
+            sys.exit("OFFICIAL RUN BLOCKED: structure='open-16' is a sensitivity comparator, not the "
+                     "official format. The official TI15 rules split the field into two initial "
+                     "groups (rounds 1-3 inside the group, round 4 across), so an official slate "
+                     "must use structure='two_pod'.")
         pods, pod_of, allp = (sorted(names),), None, sorted(names)
+    elif membership == "unresolved":
+        # Two-pod structure is an official rule; only WHICH eight teams are in each group is
+        # unpublished. The caller marginalizes over every partition compatible with round 1.
+        pods, pod_of, allp = None, None, sorted(names)
     else:
         podA, podB = list(d.get("podA", [])), list(d.get("podB", []))
         if len(podA) != 8 or len(podB) != 8:
@@ -351,10 +372,94 @@ def points_refinement(asgA, arch_opt, arch_ver, seed):
         "rule": "adopt iff independent-archive paired gain > 2 se"}
 
 
-def sensitivity(pods, strength, n, seed, r1, c=0.0):
+def _pods_manifest(pods_list, agreement):
+    """What the artifact claims about the pod structure -- never more than is published."""
+    if len(pods_list) == 1 and not is_two_pod(pods_list[0]):
+        return {"structure": "open-16", "structure_status": "comparator (NOT the official format)",
+                "teams": teams_of(pods_list[0])}
+    if len(pods_list) == 1:
+        return {"structure": POD_STRUCTURE, "pod_membership_status": "confirmed",
+                "A": list(pods_list[0][0]), "B": list(pods_list[0][1])}
+    return {"structure": POD_STRUCTURE, "structure_status": "confirmed (official rule)",
+            "pod_membership_status": "unresolved",
+            "handling": "marginalized over every pod membership compatible with the posted round 1",
+            "membership_agreement": agreement}
+
+
+def _marginal_mc(pods_list, strength, n, seed, r1, c, return_diag=False):
+    """Simulate every admissible pod structure and pool the results.
+
+    `n` is the TOTAL number of simulations, split evenly across the structures, so the pooled archive
+    keeps the precision the caller asked for (and with it the points-refinement gate power) no matter
+    how many memberships are still admissible. Returns (P, archive, per_structure_P, diag).
+    """
+    n_each = max(1, n // len(pods_list))
+    archs, per_struct, tie16, tie32, tot = [], [], 0.0, 0.0, 0
+    for k, pods in enumerate(pods_list):
+        out = monte_carlo(pods, strength, n=n_each, seed=seed + 1009 * k, r1_pairings=r1,
+                          elim_choice="strategic", return_diag=return_diag, c=c, return_archive=True)
+        if return_diag:
+            Pk, dg, ak = out
+            tie16 += dg["tie_16_rate"] * n_each; tie32 += dg["tie_32_rate"] * n_each
+        else:
+            Pk, ak = out
+        per_struct.append(Pk)
+        archs.append({t: np.asarray(v, dtype=np.int8) for t, v in ak.items()})
+        tot += n_each
+    teams = list(archs[0])
+    arch = {t: np.concatenate([a[t] for a in archs]) for t in teams}
+    P = {t: {b: float((arch[t] == _BIDX[b]).sum()) / tot for b in BUCKETS} for t in teams}
+    diag = ({"tie_16_rate": tie16 / tot, "tie_32_rate": tie32 / tot, "n": tot}
+            if return_diag else None)
+    return P, arch, per_struct, diag
+
+
+def membership_agreement(per_opt, per_ver, assigned):
+    """How much the unresolved pod membership could cost, if the slate were wrong about it.
+
+    For every admissible membership: does its own optimal slate equal the submitted one, and if not,
+    how many expected-correct slots does submitting the marginalized slate give up under that
+    membership? Label disagreement alone is not decisive here -- three teams sit within 0.01 of each
+    other in the extreme buckets, so per-membership slates reshuffle on Monte-Carlo noise at any
+    affordable simulation count. The regret is what says whether being wrong would matter.
+
+    The regret is measured OUT OF SAMPLE: each membership's alternative slate is chosen on the
+    optimize archive and scored on the independent verification archive. Scoring a slate on the
+    archive that selected it is the same winner's-curse trap the points refinement was corrected for
+    (backtest2/results-adversarial.md) -- in-sample it reported 0.21 expected correct where the
+    held-out value is near zero.
+    """
+    identical, regrets = 0, []
+    for Popt, Pver in zip(per_opt, per_ver):
+        _, _, rows = assign(Popt)
+        alt = {t: b for t, b, _ in rows}
+        if alt == assigned:
+            identical += 1
+        regrets.append(sum(Pver[t][alt[t]] for t in alt) - sum(Pver[t][assigned[t]] for t in assigned))
+    return {"n_admissible_memberships": len(per_opt),
+            "memberships_with_identical_slate": identical,
+            "max_regret_expected_correct": round(max(regrets), 4),
+            "mean_regret_expected_correct": round(sum(regrets) / len(regrets), 4),
+            "regret_basis": "held-out: alternative slate chosen on the optimize archive, scored on "
+                            "the independent verification archive"}
+
+
+def sensitivity(pods_list, strength, n, seed, r1, c=0.0):
     """CRN D4 sensitivity: buckets whose membership changes across opponent-choice scenarios, with a
-    shared Swiss outcome + shared match RNG per sim (isolates the choice effect from path noise)."""
-    Ps = d4_sensitivity_crn(pods, strength, n=n, seed=seed, r1_pairings=r1, c=c, choices=D4_SCENARIOS)
+    shared Swiss outcome + shared match RNG per sim (isolates the choice effect from path noise).
+    Averaged over the admissible pod structures when the membership is still unresolved."""
+    n_each = max(1, n // len(pods_list))
+    acc = None
+    for k, pods in enumerate(pods_list):
+        Pk = d4_sensitivity_crn(pods, strength, n=n_each, seed=seed + 1009 * k, r1_pairings=r1, c=c,
+                                choices=D4_SCENARIOS)
+        if acc is None:
+            acc = {sc: {t: {b: 0.0 for b in BUCKETS} for t in Pk[sc]} for sc in D4_SCENARIOS}
+        for sc in D4_SCENARIOS:
+            for t in Pk[sc]:
+                for b in BUCKETS:
+                    acc[sc][t][b] += Pk[sc][t][b] / len(pods_list)
+    Ps = acc
     slates = {sc: {b: {t for t, _ in assign(Ps[sc])[0][b]} for b in BUCKETS} for sc in D4_SCENARIOS}
     sensitive = {}
     base = slates["strategic"]
@@ -366,19 +471,16 @@ def sensitivity(pods, strength, n, seed, r1, c=0.0):
     return Ps, sensitive
 
 
-def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengths_source,
+def build(teams, strength, pods_list, r1, draw_source, n, seed, mode, cutoff, strengths_source,
           train_maps, c=0.0, provenance=None, draw_state=None, rosters=None):
-    P, diag, arch = monte_carlo(pods, strength, n=n, seed=seed, r1_pairings=r1,
-                                elim_choice="strategic", return_diag=True, c=c,
-                                return_archive=True)
-    arch = {t: np.asarray(v, dtype=np.int8) for t, v in arch.items()}
+    """`pods_list` is every admissible pod structure: one entry when the membership is published,
+    all round-1-compatible partitions when it is not (the slate is then marginalized over them)."""
+    P, arch, per_struct, diag = _marginal_mc(pods_list, strength, n, seed, r1, c, return_diag=True)
     slate_h, exp_correct_h, rows_h = assign(P)
     asgA = {t: b for t, b, _ in rows_h}
 
     # verified expected-points refinement (decision layer; independent verification archive)
-    _, arch_ver = monte_carlo(pods, strength, n=n, seed=seed + 424243, r1_pairings=r1,
-                              elim_choice="strategic", c=c, return_archive=True)
-    arch_ver = {t: np.asarray(v, dtype=np.int8) for t, v in arch_ver.items()}
+    _, arch_ver, per_ver, _ = _marginal_mc(pods_list, strength, n, seed + 424243, r1, c)
     assigned, refine = points_refinement(asgA, arch, arch_ver, seed + 7)
 
     slate = {b: sorted(((t, P[t][b]) for t in assigned if assigned[t] == b),
@@ -387,7 +489,9 @@ def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengt
     exp_correct = sum(p for _, _, p in rows)
     refine["hungarian_expected_correct"] = round(exp_correct_h, 3)
 
-    _, sensitive = sensitivity(pods, strength, n, seed, r1, c=c)
+    _, sensitive = sensitivity(pods_list, strength, n, seed, r1, c=c)
+    agreement = (membership_agreement(per_struct, per_ver, assigned) if len(pods_list) > 1
+                 else None)
     per_team = {}
     for t in P:
         b = assigned[t]
@@ -425,10 +529,7 @@ def build(teams, strength, pods, r1, draw_source, n, seed, mode, cutoff, strengt
         "draw_source": draw_source,
         "draw_status": draw_state,
         "roster_audit": rosters,
-        "pods": ({"structure": "two-pod", "A": list(pods[0]), "B": list(pods[1])} if is_two_pod(pods)
-                 else {"structure": "open-16", "teams": teams_of(pods),
-                       "note": "no pod partition is published; rounds 2-4 pair by record across all "
-                               "16 (see docs/contest-official-ti15.md sec 9)"}),
+        "pods": _pods_manifest(pods_list, agreement),
         "r1_pairings": [list(p) for p in r1] if r1 else None,
         "teams": [{"team": t["team"], "alias": t["ti_alias"], "region": t["region"],
                    "opendota_team_id": t["opendota_team_id"], "note": t["notes"]} for t in teams],
@@ -540,6 +641,16 @@ def main():
         ssrc = "synthetic (non-predictive)"
 
     pods, r1, draw_source = resolve_draw(teams, a.draw, require_r1=a.official)
+    state = draw_status(a.draw)
+    if pods is None:                                     # membership unresolved -> marginalize
+        if r1 is None:
+            sys.exit("draw: pod membership is unresolved, so round-1 pairings are required to "
+                     "enumerate the admissible memberships")
+        pods_list = admissible_two_pod_partitions(r1)
+        print(f"pod membership unresolved: marginalizing over {len(pods_list)} memberships "
+              f"compatible with the posted round 1", file=sys.stderr)
+    else:
+        pods_list = [pods]
     if provenance is not None:
         provenance["draw_sha256"] = _sha256(a.draw)      # recompute now the draw path is validated
     rosters = roster_audit(orgs=[t["team"] for t in teams])
@@ -548,9 +659,17 @@ def main():
                  + ", ".join(rosters["blocking"])
                  + "\nresolve the lineup in data/ti2026/inputs/roster_events.csv (a CONFLICT must "
                    "never be silently decided in favour of the roster already in the model).")
-    out = build(teams, strength, pods, r1, draw_source, a.sims, a.seed, mode, cut_iso, ssrc,
-                train_maps, c=c, provenance=provenance, draw_state=draw_status(a.draw),
-                rosters=rosters)
+    out = build(teams, strength, pods_list, r1, draw_source, a.sims, a.seed, mode, cut_iso, ssrc,
+                train_maps, c=c, provenance=provenance, draw_state=state, rosters=rosters)
+
+    # An unresolved membership may be marginalized, never asserted: the slate is only allowed to go
+    # out OFFICIAL if no single admissible membership would have made a materially better one.
+    agree = out["manifest"]["pods"].get("membership_agreement")
+    if a.official and agree and agree["max_regret_expected_correct"] > POD_MEMBERSHIP_REGRET_MAX:
+        sys.exit("OFFICIAL RUN BLOCKED: the pod membership is unresolved and it matters -- the worst "
+                 f"admissible membership beats the marginalized slate by "
+                 f"{agree['max_regret_expected_correct']:.3f} expected correct (limit "
+                 f"{POD_MEMBERSHIP_REGRET_MAX}). Wait for the published membership.")
 
     outdir = a.out or (os.path.join(REPO, "predictions", "ti2026", "group-stage")
                        if a.official else os.path.join(REPO, ".dryrun"))

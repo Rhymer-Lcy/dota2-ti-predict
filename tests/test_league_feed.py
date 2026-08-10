@@ -1,4 +1,9 @@
-"""The official league feed: round 1 is read, pods are never invented, and the gate holds."""
+"""The official league feed: round 1 is read, pod membership is never invented, and the gate holds.
+
+The distinction these tests protect: the two-pod STRUCTURE is an official rule, while the pod
+MEMBERSHIP is unpublished. A feed with no pod field is evidence about the feed, not about the format,
+so it may never be turned into an "undivided 16-team Swiss" claim.
+"""
 import json
 import os
 
@@ -6,13 +11,22 @@ import pytest
 
 from ti_predict.league_feed import FEED_JSON, parse_draw
 from ti_predict.predict_ti15 import draw_status, load_teams, resolve_draw
-from ti_predict.swiss import is_two_pod, teams_of
+from ti_predict.swiss import admissible_two_pod_partitions, is_two_pod, teams_of
 
-ORGS = {t["team"] for t in load_teams()}
+TEAMS = load_teams()
+ORGS = {t["team"] for t in TEAMS}
+NAMES = [t["team"] for t in TEAMS]
+R1 = [[NAMES[2 * i], NAMES[2 * i + 1]] for i in range(8)]
 DRAW = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                     "data", "ti2026", "inputs", "draw.json")
 has_feed = pytest.mark.skipif(not os.path.exists(FEED_JSON), reason="league feed snapshot absent")
 has_draw = pytest.mark.skipif(not os.path.exists(DRAW), reason="draw.json absent (draw not posted)")
+
+
+def _write(tmp_path, obj):
+    p = tmp_path / "draw.json"
+    p.write_text(json.dumps(obj), encoding="utf-8")
+    return str(p)
 
 
 @has_feed
@@ -33,74 +47,82 @@ def test_round_one_covers_each_of_the_sixteen_exactly_once():
 
 
 @has_feed
-def test_pods_are_never_inferred_from_the_feed():
-    """The feed exposes one undivided Swiss group; A/B labels are broadcast slots, not pods.
-
-    Round-1 node names ("Match 1.A" .. "Match 4.B") split on SCHEDULED TIME, and a pod partition
-    read off them would be a fabrication. parse_draw must report the structure as unresolved.
-    """
+def test_feed_silence_leaves_membership_unresolved_but_never_denies_the_structure():
+    """The A/B labels are broadcast blocks (two start times), not pods, and absence != open-16."""
     d = parse_draw()
-    assert d["pods_status"] == "unresolved"
+    assert d["structure"] == "two_pod" and d["structure_status"] == "confirmed"
+    assert d["pod_membership_status"] == "unresolved"
     assert "podA" not in d and "podB" not in d
     times = {s["scheduled_utc"] for s in d["r1_schedule"]}
-    assert len(times) == 2                         # the A/B labels are two start times
+    assert len(times) == 2                         # the .A / .B suffixes are two start times
 
 
 @has_draw
-def test_draw_file_declares_official_r1_and_unresolved_pods():
+def test_draw_file_separates_structure_from_membership():
     st = draw_status(DRAW)
-    assert st["r1_status"] == "official" and st["pods_status"] == "unresolved"
-    assert st["pod_evidence_source"] and st["feed_sha256"]
+    assert st["r1_status"] == "official"
+    assert st["structure"] == "two_pod" and st["structure_status"] == "confirmed"
+    assert st["pod_membership_status"] == "unresolved"
+    assert st["structure_evidence"] and st["feed_sha256"]
 
 
 @has_draw
-def test_unresolved_pods_give_the_open_structure_in_research_mode():
-    pods, r1, _ = resolve_draw(load_teams(), DRAW)
-    assert not is_two_pod(pods)
-    assert sorted(teams_of(pods)) == sorted(ORGS)
+def test_unresolved_membership_asks_the_caller_to_marginalize():
+    pods, r1, _ = resolve_draw(TEAMS, DRAW)
+    assert pods is None                            # None == "marginalize", not "no pods"
     assert len(r1) == 8
+    hyps = admissible_two_pod_partitions([tuple(p) for p in r1])
+    assert len(hyps) == 35 and all(is_two_pod(h) for h in hyps)
 
 
-@has_draw
-def test_unresolved_pods_block_an_official_run():
-    with pytest.raises(SystemExit, match="pods_status='unresolved'"):
-        resolve_draw(load_teams(), DRAW, require_r1=True)
+def test_every_admissible_membership_respects_the_posted_round_one(tmp_path):
+    for podA, podB in admissible_two_pod_partitions([tuple(p) for p in R1]):
+        pod_of = {t: "A" for t in podA}
+        pod_of.update({t: "B" for t in podB})
+        assert len(podA) == 8 and len(podB) == 8 and set(podA + podB) == ORGS
+        for a, b in R1:
+            assert pod_of[a] == pod_of[b]
 
 
-def test_bad_pods_status_value_fails_closed(tmp_path):
-    p = tmp_path / "draw.json"
-    p.write_text(json.dumps({"pods_status": "probably fine"}), encoding="utf-8")
-    with pytest.raises(SystemExit, match="pods_status must be"):
-        resolve_draw(load_teams(), str(p))
+def test_open_16_is_refused_for_an_official_run(tmp_path):
+    """The comparator must never become the official structure, however it is declared."""
+    p = _write(tmp_path, {"structure": "open-16", "structure_status": "confirmed",
+                          "pod_membership_status": "confirmed", "r1_status": "official",
+                          "r1_pairings": R1})
+    with pytest.raises(SystemExit, match="sensitivity comparator"):
+        resolve_draw(TEAMS, p, require_r1=True)
+    pods, _, _ = resolve_draw(TEAMS, p)            # still available for research
+    assert not is_two_pod(pods) and sorted(teams_of(pods)) == sorted(ORGS)
 
 
-def test_missing_pods_without_a_declaration_still_fails_closed(tmp_path):
-    """Silence is not consent: a draw with no pods and no pods_status is rejected, not opened up."""
-    p = tmp_path / "draw.json"
-    p.write_text(json.dumps({"r1_pairings": []}), encoding="utf-8")
-    with pytest.raises(SystemExit, match="8 teams"):
-        resolve_draw(load_teams(), str(p))
+def test_assumed_structure_blocks_an_official_run(tmp_path):
+    """A structure the operator merely assumes is not a structure an official slate may claim."""
+    p = _write(tmp_path, {"structure": "two_pod", "structure_status": "assumed",
+                          "pod_membership_status": "unresolved", "r1_status": "official",
+                          "r1_pairings": R1})
+    with pytest.raises(SystemExit, match="CONFIRMED pairing structure"):
+        resolve_draw(TEAMS, p, require_r1=True)
+    pods, _, _ = resolve_draw(TEAMS, p)            # research mode still runs
+    assert pods is None
 
 
-def test_open_structure_may_be_declared_explicitly_for_an_official_run(tmp_path):
-    """If the single undivided 16-team Swiss IS the published format, say so and own the claim.
-
-    'no pod split was found' must stay blocking; 'the published structure is one 16-team Swiss' is a
-    positive, recorded declaration that unblocks the official run.
-    """
-    teams = load_teams()
-    names = [t["team"] for t in teams]
-    r1 = [[names[2 * i], names[2 * i + 1]] for i in range(8)]
-    p = tmp_path / "draw.json"
-    p.write_text(json.dumps({"pods_status": "confirmed", "structure": "open-16",
-                             "r1_status": "official", "r1_pairings": r1}), encoding="utf-8")
-    pods, got_r1, _ = resolve_draw(teams, str(p), require_r1=True)
-    assert not is_two_pod(pods) and len(got_r1) == 8
-    assert draw_status(str(p))["declared_structure"] == "open-16"
-
-
-def test_unknown_structure_value_fails_closed(tmp_path):
-    p = tmp_path / "draw.json"
-    p.write_text(json.dumps({"structure": "three-pod"}), encoding="utf-8")
+def test_bad_status_values_fail_closed(tmp_path):
     with pytest.raises(SystemExit, match="structure must be"):
-        resolve_draw(load_teams(), str(p))
+        resolve_draw(TEAMS, _write(tmp_path, {"structure": "three_pod"}))
+    with pytest.raises(SystemExit, match="structure_status must be"):
+        resolve_draw(TEAMS, _write(tmp_path, {"structure_status": "probably fine"}))
+    with pytest.raises(SystemExit, match="pod_membership_status must be"):
+        resolve_draw(TEAMS, _write(tmp_path, {"pod_membership_status": "probably fine"}))
+
+
+def test_a_published_membership_is_still_validated(tmp_path):
+    """Declaring the membership confirmed does not exempt it from the partition checks."""
+    with pytest.raises(SystemExit, match="8 teams"):
+        resolve_draw(TEAMS, _write(tmp_path, {"pod_membership_status": "confirmed",
+                                              "r1_pairings": R1}))
+    podA, podB = admissible_two_pod_partitions([tuple(p) for p in R1])[0]
+    good = _write(tmp_path, {"structure": "two_pod", "structure_status": "confirmed",
+                             "pod_membership_status": "confirmed", "podA": podA, "podB": podB,
+                             "r1_status": "official", "r1_pairings": R1})
+    pods, r1, _ = resolve_draw(TEAMS, good, require_r1=True)
+    assert is_two_pod(pods) and len(r1) == 8
