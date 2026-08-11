@@ -1,0 +1,122 @@
+{
+  "status": "HOLD",
+  "label": "PRE-BANNER INITIAL SELECTION - GATE NOT PASSED",
+  "generated_at": "2026-08-11T00:00:00Z",
+  "supersedes": "preselection_20260810.json",
+  "target_account_state": {
+    "core": "not selected",
+    "mid": "not selected",
+    "support": "not selected",
+    "war_banner": "not initialised",
+    "roll_board": "not shown",
+    "roll_tokens": "not shown",
+    "tier": "user_runtime_observation",
+    "note": "The client shows no token balance and no roll board until the three teams are chosen for the first time. Their absence is a property of the pre-selection state, not missing data, and the target account must not be used to test mechanics."
+  },
+  "test_account_observations": {
+    "tier": "user_runtime_observation",
+    "account": "the operator's own account, never the target",
+    "period_0_roll_tokens": 40,
+    "cost_per_operation": 1,
+    "change_team_after_selection": "observed to consume a roll token",
+    "operation_board_size": 3,
+    "not_used_for": "any prior, sample or recommendation for the target account"
+  },
+  "gate": {
+    "event_aggregation_correct": true,
+    "ti_future_exposure_integrated": true,
+    "exact_trait_semantics": true,
+    "all_16_teams_represented": true,
+    "cold_start_inside_argmax": true,
+    "coach_uncertainty_non_blocking": false,
+    "token_range_robust": true,
+    "banner_prior_uncertainty_robust": false,
+    "verdict": "HOLD"
+  },
+  "why_hold": [
+    {
+      "blocker": "coach_prefixes_uncomputable",
+      "detail": "The eight prefixes are hero-conditional. Computing their per-team trigger rates needs hero identity per player-map AND Valve's hero-category membership lists (red/blue/green/purple/yellow, aquatic-fiery-icy, undead-demon-spirit, caped-masked). The category lists are rendered by a client tooltip event and appear in NO shipped file: the localization holds only the tooltip call, not its contents. A single prefix is worth 6 to 11 percent and the top candidates are separated by 0.1 percent, so the bound cannot be shown not to move the pick.",
+      "would_close_if": "the friend's client shows the hero-category lists, or a Tier-1 source for them is found"
+    },
+    {
+      "blocker": "banner_prior_disagreement",
+      "detail": "Under the uniform state prior the argmax is PARIVISION / Tundra / Xtreme. Under all four declared alternative prior families the mid argmax becomes Team Falcons, and the support argmax splits between Xtreme and LGD. The distribution-free minimax-regret argmin is different again in every role (Aurora / Falcons / Aurora). Three independent robustness axes do not agree, so no pick is robust.",
+      "would_close_if": "the stat, quality and trait draw weights become known, which the banner reveal itself supplies"
+    }
+  ],
+  "attribution": {
+    "note": "Single-factor toggles at 1200 draws, uniform prior, lambda 0.02.",
+    "rows": [
+      {
+        "config": "old published model (pooled events, scalar banner, historical exposure)",
+        "picks": {
+          "core": "BetBoom Team",
+          "mid": "Tundra Esports",
+          "support": "LGD Gaming"
+        }
+      },
+      {
+        "config": "+ event-level aggregation (scalar banner, historical exposure)",
+        "picks": {
+          "core": "LGD Gaming",
+          "mid": "Tundra Esports",
+          "support": "LGD Gaming"
+        },
+        "changed": [
+          "core"
+        ]
+      },
+      {
+        "config": "+ TI exposure (scalar banner)",
+        "picks": {
+          "core": "PARIVISION",
+          "mid": "Tundra Esports",
+          "support": "Xtreme Gaming"
+        },
+        "changed": [
+          "core",
+          "support"
+        ]
+      },
+      {
+        "config": "+ exact trait evaluator (historical exposure)",
+        "picks": {
+          "core": "LGD Gaming",
+          "mid": "Tundra Esports",
+          "support": "LGD Gaming"
+        },
+        "changed": []
+      },
+      {
+        "config": "+ exact trait evaluator + TI exposure (the corrected model)",
+        "picks": {
+          "core": "PARIVISION",
+          "mid": "Tundra Esports",
+          "support": "LGD Gaming"
+        },
+        "changed": [
+          "core"
+        ]
+      }
+    ],
+    "reading": "TI exposure is the dominant correction: it alone flips core and support. The exact banner matters at the margin, flipping support back. Mid is the one stable role across every toggle. Cold-start entering the argmax changed no top-four position once it was represented honestly."
+  },
+  "cold_start_correction": {
+    "first_attempt": "pooled the role's series and widened the spread by 1.35",
+    "why_it_was_wrong": "the period score is a MAXIMUM over series, so extra per-series variance wins maxima. Widening for ignorance handed the unobserved roles a manufactured advantage, and it put all three cold-start roles at the top of their tables.",
+    "fix": "a cold-start role borrows one randomly chosen observed team's distribution on every draw, so its mean is the field mean, its spread is a real team's spread, and the uncertainty lives across draws.",
+    "effect": "no cold-start role appears in any role's top four."
+  },
+  "deadline": {
+    "group_stage_lock_utc": "2026-08-13T02:00:00Z",
+    "client_countdown_observed": "about one day",
+    "consequence": "HOLD cannot run past the lock. If the blockers are not closed, a decision has to be made on the corrected uniform-prior model with its disagreement stated, rather than defaulting to no entry."
+  },
+  "client_name_mapping": {
+    "BetBoom Team": "BOOMBOYS",
+    "Tundra Esports": "IRON WING",
+    "PARIVISION": "TEAM VISION"
+  },
+  "target_account_action": "HOLD - select nothing"
+}

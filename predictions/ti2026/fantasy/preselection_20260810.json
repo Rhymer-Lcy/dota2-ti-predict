@@ -714,5 +714,8 @@
       "note": "These are the roles with no usable joint sample. The probability quoted is the chance a team performing like a RANDOM member of this field would beat the pick. There is no evidence placing any of them above the field mean, and reputation is not evidence. None of them changes the recommendation."
     }
   },
-  "next_step": "PHASE 4B, after the friend selects these three and screenshots the Fantasy page."
+  "next_step": "PHASE 4B, after the friend selects these three and screenshots the Fantasy page.",
+  "status": "SUPERSEDED_PRELIMINARY",
+  "superseded_by": "preselection_20260811_hold.json",
+  "superseded_reason": "Four modelling errors were found after publication: historical series were pooled across events and one global maximum taken; TI exposure was not used at all; the banner was a Uniform(0.9,2.1) scalar rather than the real trait evaluator; and cold-start roles sat outside the argmax. Correcting them changes the core and support picks. Do not act on this file."
 }
