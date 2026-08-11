@@ -626,7 +626,133 @@
         "name": "the Clutch",
         "condition": "playing the last possible match of a series"
       }
-    ]
+    ],
+    "selectable_pool_2026": {
+      "status": "PARTIAL",
+      "tier": "user_runtime_observation",
+      "source": "operator's live client, Coaching Titles panel",
+      "counts": {
+        "prefixes": 8,
+        "suffixes": 8
+      },
+      "reconciliation_with_localization": {
+        "localization_universe": {
+          "prefixes": 19,
+          "suffixes": 20
+        },
+        "finding": "The live panel offers a strict SUBSET. The eight prefixes it offers are exactly the eight hero-attribute prefixes, and their percentages match the public 2026 calculator's literals to the point, which is an independent second source. No paging control was reported, so the offered pool is taken to be these 8 + 8.",
+        "if_this_is_wrong": "If the panel pages, the unlisted titles return as unknowns. The test is cheap: the panel would show a scrollbar or a second page.",
+        "consequence": "coach_title_bonuses is no longer an unbounded unknown. Every offered title now has a number, so the coach choice can be optimised rather than bounded."
+      },
+      "prefixes": [
+        {
+          "name": "Crimson",
+          "bonus_percent": 6,
+          "condition": "red hero"
+        },
+        {
+          "name": "Cerulean",
+          "bonus_percent": 11,
+          "condition": "blue hero"
+        },
+        {
+          "name": "Emerald",
+          "bonus_percent": 6,
+          "condition": "green hero"
+        },
+        {
+          "name": "Royal",
+          "bonus_percent": 10,
+          "condition": "purple hero"
+        },
+        {
+          "name": "Golden",
+          "bonus_percent": 8,
+          "condition": "yellow or brown hero"
+        },
+        {
+          "name": "Elemental",
+          "bonus_percent": 8,
+          "condition": "aquatic, fiery or icy hero"
+        },
+        {
+          "name": "Otherworldly",
+          "bonus_percent": 7,
+          "condition": "undead, demon or spirit hero"
+        },
+        {
+          "name": "Heroic",
+          "bonus_percent": 9,
+          "condition": "caped or masked hero"
+        }
+      ],
+      "suffixes": [
+        {
+          "name": "the Tormented",
+          "zh": "受难之人",
+          "bonus_percent": 23,
+          "condition": "any player dies to a Tormentor",
+          "scope": "game",
+          "computable": false
+        },
+        {
+          "name": "the Flayed Twins Acolyte",
+          "zh": "剥皮双子侍祭",
+          "bonus_percent": 9,
+          "condition": "first blood before the starting horn",
+          "scope": "game",
+          "computable": false
+        },
+        {
+          "name": "the Patient",
+          "zh": "隐忍之人",
+          "bonus_percent": 23,
+          "condition": "first blood after 10 minutes",
+          "scope": "game",
+          "computable": false
+        },
+        {
+          "name": "the Underdog",
+          "zh": "败者",
+          "bonus_percent": 6,
+          "condition": "the player loses the game",
+          "scope": "player",
+          "computable": true
+        },
+        {
+          "name": "the Decisive",
+          "zh": "果敢之人",
+          "bonus_percent": 24,
+          "condition": "the game lasts under 25 minutes",
+          "scope": "game",
+          "computable": true
+        },
+        {
+          "name": "the Clutch",
+          "zh": "关键之人",
+          "bonus_percent": 16,
+          "condition": "the last possible game of a series",
+          "scope": "game",
+          "computable": true
+        },
+        {
+          "name": "the Lucky",
+          "zh": "幸运之人",
+          "bonus_percent": 21,
+          "condition": "the match time ends with an 8",
+          "scope": "game",
+          "computable": true
+        },
+        {
+          "name": "the Cruel",
+          "zh": "残酷之人",
+          "bonus_percent": 13,
+          "condition": "a player is killed in their own fountain",
+          "scope": "game",
+          "computable": false
+        }
+      ]
+    }
   },
   "stats": {
     "status": "PARTIAL",
@@ -1311,29 +1437,26 @@
       "scope": "generic",
       "question": "What bonus do the eleven unpriced prefixes and all twenty suffixes carry?",
       "fact_status": "PARTIAL",
-      "decision_status": "BLOCKING",
-      "blocking_for": [
-        "core",
-        "mid",
-        "support"
-      ],
+      "decision_status": "ROBUST",
+      "blocking_for": [],
       "measured_by": "sensitivity.coach_titles",
-      "note": "Eight prefix bonuses are known (6 to 11 percent); eleven prefixes and all twenty suffixes are unpriced. Graded by measurement, not assumed.",
-      "measured": "Top-1 to top-2 gaps are 2.6 percent (core), 2.5 percent (mid) and 10.3 percent (support). A single title can swing a team by its full bonus if its condition triggers for one team and not another; the largest KNOWN bonus is 11 percent and the stress value used is 22 percent. No role's gap survives that, so the unpriced titles can reorder the pick."
+      "note": "Withdraws the previous BLOCKING grade, which rested on the bonuses being unknown.",
+      "measured": "Every title the live panel offers now carries a number (8 prefixes 6-11 percent, 8 suffixes 6-24 percent), and the prefixes match the public calculator's literals exactly. The unknown is no longer the bonus but the per-team TRIGGER RATE, which is handled by computing the four computable suffixes exactly and bounding the rest."
     },
     {
       "id": "title_stacking",
       "scope": "generic",
       "question": "Do a prefix and a suffix that both trigger add or multiply?",
       "fact_status": "UNRESOLVED",
-      "decision_status": "BLOCKING",
+      "decision_status": "CONDITIONAL",
       "blocking_for": [
         "core",
         "mid"
       ],
       "measured_by": "sensitivity.coach_titles",
       "note": "Blocks core and mid only; support is robust to the stacking choice.",
-      "measured": "Additive (1+p+s) and multiplicative (1+p)(1+s) differ by exactly p*s, which is 4.84 percent at the stress bonus. That exceeds the core gap (2.6 percent) and the mid gap (2.5 percent) but not the support gap (10.3 percent)."
+      "measured": "Additive and multiplicative differ by exactly p*s, at most 0.0264 with the real maxima (0.11 x 0.24).",
+      "condition": "Blocks only when the chosen prefix and suffix can both trigger on the same game and the resulting difference (p*s) exceeds the gap between the top two candidates for that role. Evaluated per recommendation."
     },
     {
       "id": "trait_composition",
@@ -1412,7 +1535,77 @@
         "crafting"
       ],
       "note": "Per-account GC state."
+    },
+    {
+      "id": "team_switch_cost",
+      "scope": "generic",
+      "question": "Does changing a team cost roll tokens, and how many?",
+      "fact_status": "PARTIAL",
+      "decision_status": "ROBUST",
+      "blocking_for": [],
+      "note": "Handled by carrying the token price as a scenario rather than a constant; the pre-selection recommendation is required to hold across the whole scenario range."
     }
   ],
-  "readiness_note": "This register is the ONLY source of readiness. There is no second hand-written blocker list: a blocker is any entry whose decision_status is BLOCKING, plus any CONDITIONAL entry whose condition currently holds. ti_predict/fantasy/questions.py derives it and refuses a register that carries an unmeasured decision_status."
+  "readiness_note": "This register is the ONLY source of readiness. There is no second hand-written blocker list: a blocker is any entry whose decision_status is BLOCKING, plus any CONDITIONAL entry whose condition currently holds. ti_predict/fantasy/questions.py derives it and refuses a register that carries an unmeasured decision_status.",
+  "team_selection": {
+    "status": "PARTIAL",
+    "first_selection_cost": null,
+    "first_selection_cost_status": "UNRESOLVED",
+    "change_cost_tokens": 1,
+    "change_cost_status": "PARTIAL",
+    "operational_model": "positive cost, one roll token per change, charged per banner",
+    "user_runtime_observation": {
+      "tier": "user_runtime_observation",
+      "account": "operator's own test account, NOT the target account",
+      "claim": "changing a team AFTER one has been selected consumes a reroll token",
+      "why_it_matters": "An earlier version of this ruleset recorded team changes as free, on the strength of the word 'freely' in DOTA_FantasyCraft_Tutorial2026_ViewTablet_Body. That reading is withdrawn: 'freely' there means 'at will', not 'at no cost'."
+    },
+    "schema_evidence": {
+      "tier": 1,
+      "two_paths_exist": "The client can change a team two ways, and only one of them is costed.",
+      "path_a_select_team": {
+        "message": "CMsgClientToGCFantasyCraftingSelectTeam",
+        "response_fields": [
+          "response",
+          "tablet_data"
+        ],
+        "response_enum": [
+          "k_eInternalError",
+          "k_eSuccess",
+          "k_eTooBusy",
+          "k_eDisabled",
+          "k_eTimeout",
+          "k_eInvalidLeague",
+          "k_eInvalidTeam=7"
+        ],
+        "reading": "No k_eNoTokens member, and no user_data in the response. Every costed action in this system returns user_data because that is where period_roll_tokens lives. Note the enum SKIPS value 6, which is exactly where k_eNoTokens sits in the operation response. This path looks free."
+      },
+      "path_b_change_team_operation": {
+        "localization_key": "DOTA_FantasyCraft_Operation_ChooseTeam",
+        "label": "Change Team",
+        "reading": "'Change Team' is one of the crafting OPERATIONS, and Tier-1 localization states that any operation costs one Roll Token (DOTA_FantasyCraft_Tutorial_Operations_Body). The operation response returns both user_data and tablet_data, i.e. a new token balance."
+      },
+      "reconciliation": "The most economical reading that fits both the schema and the operator's test is that the free SelectTeam path is the INITIAL assignment, and once a banner holds a team a change is routed through the costed operation. This is not confirmed, so the operational model assumes a positive cost either way -- the conservative direction, since assuming free switching is what would produce a bad first pick."
+    },
+    "unresolved": [
+      "whether the very first selection is free (schema suggests yes; not confirmed)",
+      "whether a change costs exactly one token or more",
+      "whether the three roles are charged separately (assumed yes: operations target one tablet)",
+      "whether a team change regenerates the emblems or preserves the banner",
+      "whether a team change refreshes the roll board"
+    ]
+  },
+  "banner_generation_independence": {
+    "status": "CONFIRMED",
+    "tier": 1,
+    "claim": "The War Banner's structure is generated from the ROLE, not from the chosen team.",
+    "evidence": "FantasyCraftingTabletData_t is keyed by m_unID and m_eRole and holds m_vecGemSlots; it carries no team field. Each FantasyCraftingGemSlotData_t fixes the gem COLOUR and the tablet level required to unlock it. The stat a gem may roll comes from FantasyCraftingGemData_t.m_eStats, which is keyed by gem colour. team_id appears only on the tablet INSTANCE (CMsgDotaFantasyCraftingTabletPeriodData.Tablet), never in any generation structure.",
+    "consequence": "P(banner) is independent of the team chosen, so the pre-selection problem factorises: the banner distribution can be integrated once per role and reused for every candidate team. This was checked rather than assumed."
+  },
+  "lock_countdown_observed": {
+    "tier": "user_runtime_observation",
+    "group_stage": "about one day from the observation",
+    "main_event": "about eight days from the observation",
+    "note": "Consistent with the 2026-08-13T02:00:00Z and 2026-08-20T02:00:00Z lock instants already recorded. The live countdown remains the authority on the day."
+  }
 }
