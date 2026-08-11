@@ -34,6 +34,20 @@ CANONICAL = os.path.join(INPUTS, "canonical_identity.csv")
 OUT_CSV = os.path.join(INPUTS, "fantasy", "roster_positions.csv")
 
 FANTASY_ROLE = {1: "core", 2: "mid", 3: "core", 4: "support", 5: "support"}
+
+# What the client actually prints, where it differs from this project's canonical organisation name.
+# Anything a human is asked to click on must use these, because the canonical name is not what the
+# Fantasy team chooser shows. The canonical name stays the key so the data never becomes ambiguous.
+CLIENT_NAMES = {
+    "BetBoom Team": "BOOMBOYS",
+    "Tundra Esports": "IRON WING",
+    "PARIVISION": "TEAM VISION",
+}
+
+
+def client_name(organization):
+    """The label a human will see in the Fantasy team chooser."""
+    return CLIENT_NAMES.get(organization, organization)
 FIELDS = ("organization", "account_id", "player", "position", "fantasy_role", "active",
           "evidence", "evidence_tier", "retrieved_at", "note")
 

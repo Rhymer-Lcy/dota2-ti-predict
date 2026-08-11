@@ -37,7 +37,7 @@ def test_the_policy_value_is_not_the_same_number_for_every_candidate():
     optimal when it is not optimal; T1 is far off when it is not.
     """
     a = _analysis([[10.0, 9.0], [9.7, 10.0]])
-    pv = ps.policy_value(a, 0.05)
+    pv = ps.policy_table(a['teams'], a['_score'], 0.05)
     values = {e["organization"]: e["policy_value"] for e in pv}
     assert values["T0"] > values["T1"]
 
@@ -49,14 +49,14 @@ def test_a_free_token_makes_every_candidate_equivalent():
     the whole point: it is what makes the first choice a real decision.
     """
     a = _analysis([[10.0, 8.0], [2.0, 9.0]])
-    pv = ps.policy_value(a, 0.0)
+    pv = ps.policy_table(a['teams'], a['_score'], 0.0)
     values = [e["policy_value"] for e in pv]
     assert max(values) == pytest.approx(min(values))
 
 
 def test_a_candidate_that_is_always_optimal_never_switches():
     a = _analysis([[10.0, 1.0], [10.0, 2.0], [10.0, 3.0]])
-    pv = {e["organization"]: e for e in ps.policy_value(a, 0.02)}
+    pv = {e["organization"]: e for e in ps.policy_table(a['teams'], a['_score'], 0.02)}
     assert pv["T0"]["p_optimal"] == pytest.approx(1.0)
     assert pv["T0"]["p_switch"] == pytest.approx(0.0)
     assert pv["T1"]["p_switch"] == pytest.approx(1.0)
@@ -66,8 +66,9 @@ def test_regret_is_relative_so_the_weight_scale_cannot_dominate():
     """Doubling every score on a draw must not change any candidate's relative standing."""
     a = _analysis([[10.0, 8.0], [4.0, 18.0]])
     b = _analysis([[20.0, 16.0], [8.0, 36.0]])
-    pa = {e["organization"]: e["policy_value"] for e in ps.policy_value(a, 0.02)}
-    pb = {e["organization"]: e["policy_value"] for e in ps.policy_value(b, 0.02)}
+    pa = {e["organization"]: e["policy_value"] for e in ps.policy_table(a['teams'], a['_score'], 0.02)}
+    pb = {e["organization"]: e["policy_value"]
+          for e in ps.policy_table(b['teams'], b['_score'], 0.02)}
     assert pa == pytest.approx(pb)
 
 
