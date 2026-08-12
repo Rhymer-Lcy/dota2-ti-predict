@@ -45,6 +45,21 @@
   "tier_1_valve": [],
   "note": "no Valve source states the category membership of any hero, so no part of the prefix pricing is Tier 1"
  },
+ "suffix_bonus_cross_check": {
+  "checked_on": "all 8 suffixes offered by the live panel",
+  "agreement": "EXACT, four-way",
+  "sources": {
+   "user_runtime_observation": "TARGET ACCOUNT's own client, Coaching Titles panel, read at high resolution: Tormented 23, Flayed Twins Acolyte 9, Patient 23, Underdog 6, Decisive 24, Clutch 16, Lucky 21, Cruel 13",
+   "tier_2_a": "Kadadji1 data/titles.ts -- identical on all eight",
+   "tier_2_b": "MyKa322 scoring.js SUFFIXES -- identical on all eight",
+   "repository_fact_source": "fantasy_rules.json coach_titles.selectable_pool_2026 -- identical on all eight, and correct since it was written"
+  },
+  "defect_found": {
+   "what": "coach_optimize.py kept its own hand-typed SUFFIX_BONUS literal, in which the Flayed Twins Acolyte read 30 (client 9), the Tormented 13 (client 23) and the Cruel 19 (client 13)",
+   "why_it_survived": "the four suffixes priced in earlier rounds -- Underdog, Decisive, Clutch, Lucky -- were inherited from validated code and were right, so every regression test passed. The three wrong values belonged to titles that had never been priced before, so nothing compared them against anything.",
+   "fix": "the literal is deleted. Both bonus tables are now read from the ruleset at import, so there is exactly one copy of the fact, and a test pins all eight values."
+  }
+ },
  "withdrawn_claim": {
   "claim": "the community frequencies admit two equally admissible readings, a percentage reading and a normalised-count reading, and the recommendation is ROBUST across both",
   "status": "WITHDRAWN",
@@ -55,65 +70,153 @@
   "state": "account_state_target_20260812b.json",
   "seed": 20260812,
   "draws": 4000,
-  "suffix_trigger_rates": {
-   "the Underdog": 0.457,
-   "the Decisive": 0.0293,
-   "the Clutch": 0.1185,
-   "the Lucky": 0.0741,
-   "the Patient": 0.0,
-   "the Flayed Twins Acolyte": 0.0
-  },
-  "suffix_attenuation": {
-   "the Underdog": 0.459,
-   "the Decisive": 1.992,
-   "the Clutch": 0.586,
-   "the Lucky": 2.093
-  },
-  "suffix_never_observed": {
+  "population_bounds": {
    "the Patient": {
-    "player_maps_decided": 1426,
-    "observed_rate": 0.0,
-    "rate_upper_95": 0.0021,
-    "gain_ceiling_at_that_rate": 0.00101,
-    "classification": "CONFIRMED COMPUTABLE, measured zero"
+    "unique_matches_in_population": 328,
+    "matches_triggered": 0,
+    "rate_or_rule_of_three_upper_95": 0.00915,
+    "gain_ceiling_at_that_bound": 0.00392,
+    "basis": "all fetched matches in the same five leagues, not only the 84 scored"
    },
    "the Flayed Twins Acolyte": {
-    "player_maps_decided": 1426,
-    "observed_rate": 0.0,
-    "rate_upper_95": 0.0021,
-    "gain_ceiling_at_that_rate": 0.00132,
-    "classification": "CONFIRMED COMPUTABLE, measured zero"
+    "unique_matches_in_population": 328,
+    "matches_triggered": 0,
+    "rate_or_rule_of_three_upper_95": 0.00915,
+    "gain_ceiling_at_that_bound": 0.00153,
+    "basis": "all fetched matches in the same five leagues, not only the 84 scored"
+   },
+   "first_blood_time_seconds": {
+    "min": 0,
+    "max": 420,
+    "threshold_for_the_Patient": 600,
+    "threshold_for_the_Acolyte": 0
+   },
+   "the Tormented": {
+    "unique_matches_in_population": 328,
+    "matches_with_any_unattributed_death": 9,
+    "rate_or_rule_of_three_upper_95": 0.0274,
+    "gain_ceiling_at_that_bound": 0.01173,
+    "basis": "all fetched matches in the same five leagues, not only the 84 scored"
    }
   },
-  "match_extras_coverage": 0.326,
+  "suffix_classification": {
+   "the Tormented": "BOUNDED",
+   "the Flayed Twins Acolyte": "PARTIAL-COVERAGE",
+   "the Patient": "PARTIAL-COVERAGE",
+   "the Underdog": "COMPLETE",
+   "the Decisive": "COMPLETE",
+   "the Clutch": "COMPLETE",
+   "the Lucky": "COMPLETE",
+   "the Cruel": "UNAVAILABLE"
+  },
+  "coverage": {
+   "unique_matches_scored": 84,
+   "unique_matches_with_extras": 40,
+   "extras_rows_fetched": 328,
+   "extras_fetch_complete": false,
+   "note": "a suffix decided on fewer units than unique_matches_scored is PARTIAL-COVERAGE",
+   "fingerprint": {
+    "matches": 328,
+    "sha256_16": "28401236abc2dff5",
+    "complete": false
+   },
+   "generated_utc": "2026-08-12T09:23:01+00:00"
+  },
+  "all_eight_closed": false,
+  "suffix_scope": {
+   "the Tormented": "match",
+   "the Flayed Twins Acolyte": "match",
+   "the Patient": "match",
+   "the Decisive": "match",
+   "the Clutch": "match",
+   "the Lucky": "match",
+   "the Cruel": "match",
+   "the Underdog": "team_game"
+  },
+  "suffix_units_decided": {
+   "the Flayed Twins Acolyte": 40,
+   "the Patient": 40,
+   "the Underdog": 84,
+   "the Decisive": 84,
+   "the Clutch": 84,
+   "the Lucky": 84
+  },
+  "suffix_units_triggered": {
+   "the Flayed Twins Acolyte": 0,
+   "the Patient": 0,
+   "the Underdog": 43,
+   "the Decisive": 3,
+   "the Clutch": 11,
+   "the Lucky": 7
+  },
+  "suffix_trigger_rates": {
+   "the Flayed Twins Acolyte": 0.0,
+   "the Patient": 0.0,
+   "the Underdog": 0.5119,
+   "the Decisive": 0.0357,
+   "the Clutch": 0.131,
+   "the Lucky": 0.0833
+  },
+  "suffix_attenuation": {
+   "the Underdog": 0.41,
+   "the Decisive": 1.635,
+   "the Clutch": 0.53,
+   "the Lucky": 1.861
+  },
+  "suffix_never_observed": {
+   "the Flayed Twins Acolyte": {
+    "scope": "match",
+    "unique_units_decided": 40,
+    "units_triggered": 0,
+    "observed_rate": 0.0,
+    "rate_upper_95_rule_of_three": 0.075,
+    "gain_ceiling_at_that_rate": 0.01256
+   },
+   "the Patient": {
+    "scope": "match",
+    "unique_units_decided": 40,
+    "units_triggered": 0,
+    "observed_rate": 0.0,
+    "rate_upper_95_rule_of_three": 0.075,
+    "gain_ceiling_at_that_rate": 0.0321
+   }
+  },
+  "match_extras_coverage": 0.526,
   "unpriced_suffixes": {
    "the Tormented": {
-    "bonus_percent": 13,
+    "bonus_percent": 23,
+    "scope": "match",
     "must_beat": {
      "suffix": "the Lucky",
      "total_gain": 0.03257
     },
-    "breakpoint_rate_if_uncorrelated": 0.1197,
-    "breakpoint_rate_if_tied_to_losing": 0.5461,
+    "breakpoint_rate_if_uncorrelated": 0.0761,
+    "breakpoint_rate_if_tied_to_losing": 0.3457,
     "measured_attenuation_range": [
-     0.459,
-     2.093
+     0.41,
+     1.861
     ],
-    "measured_upper_bound_rate": 0.0246,
-    "verdict": "RULED OUT: the upper bound on its trigger rate is below the rate it would need even under the most favourable attenuation measured",
-    "classification": "PARTIAL-BOUNDED"
+    "measured_upper_bound_rate": 0.0274,
+    "in_sample_upper_bound": 0.0,
+    "population_upper_bound": 0.0274,
+    "unique_matches_bounded": 40,
+    "exact_negatives": 40,
+    "bound_method": "an upper bound; every zero is an exact negative",
+    "classification": "PARTIAL-BOUNDED",
+    "verdict": "RULED OUT at +23%: the upper bound on its trigger rate (0.0274) is strictly below the rate it would need (0.0761) even under the most favourable attenuation measured on any suffix"
    },
    "the Cruel": {
-    "bonus_percent": 19,
+    "bonus_percent": 13,
+    "scope": "match",
     "must_beat": {
      "suffix": "the Lucky",
      "total_gain": 0.03257
     },
-    "breakpoint_rate_if_uncorrelated": 0.0819,
-    "breakpoint_rate_if_tied_to_losing": 0.3736,
+    "breakpoint_rate_if_uncorrelated": 0.1346,
+    "breakpoint_rate_if_tied_to_losing": 0.6117,
     "measured_attenuation_range": [
-     0.459,
-     2.093
+     0.41,
+     1.861
     ],
     "classification": "UNAVAILABLE",
     "why": "the condition is positional -- a death at a team's own fountain -- and no field in the match object carries a death position. killed_by names the killer, not the place. Recovering it needs full replay parsing, not an API field.",
@@ -138,9 +241,9 @@
      "Crimson": 0.00993,
      "Emerald": 0.00288,
      "Cerulean": 0.00106,
-     "the Decisive": 0.0,
+     "the Flayed Twins Acolyte": 0.0,
      "the Patient": 0.0,
-     "the Flayed Twins Acolyte": 0.0
+     "the Decisive": 0.0
     },
     "prefix_attenuation": {
      "Crimson": {
@@ -209,8 +312,8 @@
      "the Lucky": 0.00344,
      "Cerulean": 0.00089,
      "the Underdog": 2e-05,
-     "the Patient": 0.0,
-     "the Flayed Twins Acolyte": 0.0
+     "the Flayed Twins Acolyte": 0.0,
+     "the Patient": 0.0
     },
     "prefix_attenuation": {
      "Crimson": {
@@ -281,8 +384,8 @@
      "Cerulean": 0.0072,
      "the Clutch": 0.00524,
      "the Decisive": 1e-05,
-     "the Patient": 0.0,
-     "the Flayed Twins Acolyte": 0.0
+     "the Flayed Twins Acolyte": 0.0,
+     "the Patient": 0.0
     },
     "prefix_attenuation": {
      "Crimson": {
@@ -345,8 +448,8 @@
    "Crimson": 0.00928,
    "Emerald": 0.00909,
    "Cerulean": 0.0018,
-   "the Patient": 0.0,
-   "the Flayed Twins Acolyte": 0.0
+   "the Flayed Twins Acolyte": 0.0,
+   "the Patient": 0.0
   },
   "untabled_prefix_total_ceiling": {
    "Royal": 0.03552,
@@ -391,12 +494,12 @@
    }
   },
   "priced_suffixes": [
+   "the Flayed Twins Acolyte",
+   "the Patient",
    "the Underdog",
    "the Decisive",
    "the Clutch",
-   "the Lucky",
-   "the Patient",
-   "the Flayed Twins Acolyte"
+   "the Lucky"
   ],
   "prefix_coverage": {
    "exact": [
@@ -415,17 +518,17 @@
    ]
   },
   "tormented_bound_all_players": {
-   "matches": 203,
-   "matches_with_any_unattributed_death": 5,
-   "upper_bound_trigger_rate": 0.0246,
-   "exact_negatives": 198,
+   "matches": 328,
+   "matches_with_any_unattributed_death": 9,
+   "upper_bound_trigger_rate": 0.0274,
+   "exact_negatives": 319,
    "note": "an upper bound; every zero is an exact negative"
   },
   "tormented_bound_roster_only": {
-   "matches": 203,
-   "matches_with_any_unattributed_death": 3,
-   "upper_bound_trigger_rate": 0.0148,
-   "exact_negatives": 200,
+   "matches": 328,
+   "matches_with_any_unattributed_death": 4,
+   "upper_bound_trigger_rate": 0.0122,
+   "exact_negatives": 324,
    "note": "an upper bound; every zero is an exact negative"
   },
   "community_frequencies_parsed": false

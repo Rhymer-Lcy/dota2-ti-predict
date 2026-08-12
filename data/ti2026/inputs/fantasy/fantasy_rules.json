@@ -1586,7 +1586,29 @@
    "blocking_for": [],
    "measured_by": "coach_optimize.build.unpriced_suffixes",
    "note": "the Cruel's condition is positional and no match-object field carries a death position; killed_by names the killer, not the place. Only full replay parsing would recover it.",
-   "measured": "Priced by breakpoint instead. To match the best priced suffix it would have to fire on 8.2% of player-maps if uncorrelated with performance, or 37.4% if tied to losing -- and a fountain death is tied to losing, so the higher figure is the relevant one. Neither is an achievable rate for a fountain death in professional play."
+   "measured": "Priced by breakpoint at the CORRECT +13% (an earlier revision used +19% from a hand-typed constant). To match the best priced suffix it would have to fire on 13.5% of MATCHES if uncorrelated with performance, or 61.2% if tied to losing -- and a fountain death is tied to losing, so the higher figure governs. Neither is achievable in professional play."
+  },
+  {
+   "id": "first_blood_extras_coverage",
+   "scope": "generic",
+   "question": "Do the Patient and the Flayed Twins Acolyte ever trigger in this population?",
+   "fact_status": "PARTIAL",
+   "decision_status": "SCALE_ONLY",
+   "blocking_for": [],
+   "measured_by": "coach_optimize.build.population_bounds",
+   "note": "first_blood_time is a MATCH property, so the Bernoulli unit is a match, not a player-map. An earlier revision used the player-map count as the denominator, which made a zero-event bound look about three times tighter than the evidence supports. Coverage is partial: 40 of 84 scored matches carry extras, and 328 of 620 rows are fetched.",
+   "measured": "Zero triggers in 328 unique matches for both. Latest first blood observed is 420 s against a 600 s threshold, and none is negative. Rule-of-three upper bound 0.00915, giving gain ceilings of 0.00392 and 0.00153 against the Lucky's 0.03257. SCALE_ONLY: finishing the fetch can only tighten a bound that is already an order of magnitude clear."
+  },
+  {
+   "id": "tormentor_death_attribution",
+   "scope": "generic",
+   "question": "Did a roster player die to a Tormentor in a given match?",
+   "fact_status": "PARTIAL",
+   "decision_status": "IRRELEVANT",
+   "blocking_for": [],
+   "measured_by": "coach_optimize.tormented_bound",
+   "note": "killed_by credits enemy heroes only, so a death it does not account for is a death to something that is not a hero. That is a true upper bound, and a zero is an exact negative. Re-evaluated at the correct +23%, not the +19%-era 13% constant.",
+   "measured": "RULED OUT at +23%: the upper bound on its trigger rate (0.0274) is strictly below the rate it would need (0.0761) even under the most favourable attenuation measured on any suffix"
   }
  ],
  "readiness_note": "This register is the ONLY source of readiness. There is no second hand-written blocker list: a blocker is any entry whose decision_status is BLOCKING, plus any CONDITIONAL entry whose condition currently holds. ti_predict/fantasy/questions.py derives it and refuses a register that carries an unmeasured decision_status.",

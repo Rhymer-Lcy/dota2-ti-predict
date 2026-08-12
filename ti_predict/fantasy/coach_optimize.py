@@ -28,6 +28,8 @@ What can and cannot be priced is a property of the evidence, not of convenience:
 """
 import argparse
 import csv
+import datetime
+import hashlib
 import json
 import os
 import re
@@ -40,6 +42,7 @@ from ti_predict.fantasy import baseline as bl
 from ti_predict.fantasy import exposure as ex
 from ti_predict.fantasy import fetch_player_stats as fp
 from ti_predict.fantasy import preselection as pre
+from ti_predict.fantasy import questions as fq
 
 SEED = 20260812
 DRAWS = 4000
@@ -51,8 +54,21 @@ COMMUNITY = os.path.join("data", "ti2026", "inputs", "fantasy",
 EXTRAS_CSV = os.path.join(fp.FANTASY_PROC, "match_extras.csv")
 HEROES_CSV = os.path.join(fp.FANTASY_PROC, "player_map_heroes.csv")
 
-PREFIX_BONUS = {"Crimson": 6, "Cerulean": 11, "Emerald": 6, "Royal": 10,
-                "Golden": 8, "Elemental": 8, "Otherworldly": 7, "Heroic": 9}
+def _pool_bonuses(kind):
+    """Bonuses read from the ruleset, never re-typed here.
+
+    An earlier revision kept its own literal copy of these numbers, and three of the eight
+    suffixes were transcribed wrong -- the Flayed Twins Acolyte at 30 instead of 9, the Tormented
+    at 13 instead of 23, the Cruel at 19 instead of 13. The ruleset had them right the whole time.
+    A second copy of a fact is a bug waiting to happen, so there is now only one.
+    """
+    pool = fq.load_rules()["coach_titles"]["selectable_pool_2026"][kind]
+    return {e["name"]: int(e["bonus_percent"]) for e in pool}
+
+
+PREFIX_BONUS = _pool_bonuses("prefixes")
+SUFFIX_BONUS = _pool_bonuses("suffixes")
+
 # how each 2026 condition maps onto the community table's flags, and how tightly
 PREFIX_FLAG = {"Crimson": ("isred", "exact"), "Cerulean": ("isblue", "exact"),
                "Emerald": ("isgreen", "exact"),
@@ -60,9 +76,14 @@ PREFIX_FLAG = {"Crimson": ("isred", "exact"), "Cerulean": ("isblue", "exact"),
                "Otherworldly": ("isundead", "lower_bound")}
 PREFIX_NO_TABLE = ("Royal", "Golden", "Heroic")
 
-SUFFIX_BONUS = {"the Underdog": 6, "the Decisive": 24, "the Clutch": 16, "the Lucky": 21,
-                "the Patient": 23, "the Flayed Twins Acolyte": 30, "the Tormented": 13,
-                "the Cruel": 19}
+# The independent unit each suffix's condition is drawn on. Seven conditions are properties of the
+# GAME and are shared by everyone in it, so counting them once per player-map would inflate the
+# sample eight-fold and shrink every confidence bound by the square root of that. Only the
+# Underdog varies within a game, and even then only between the two teams, not between teammates.
+SUFFIX_SCOPE = {"the Tormented": "match", "the Flayed Twins Acolyte": "match",
+                "the Patient": "match", "the Decisive": "match", "the Clutch": "match",
+                "the Lucky": "match", "the Cruel": "match", "the Underdog": "team_game"}
+
 FIRST_BLOOD_LATE = 600      # "first blood does not happen in the first ten minutes"
 
 
@@ -81,6 +102,14 @@ def load_hero_maps(path=HEROES_CSV):
         for r in csv.DictReader(fh):
             out[(int(r["match_id"]), int(r["account_id"]))] = int(r["hero_id"])
     return out
+
+
+def extras_fingerprint(extras):
+    """Which matches the bounds were computed on, so a partial run is never mistaken for a full one."""
+    ids = sorted(extras)
+    digest = hashlib.sha256(",".join(str(i) for i in ids).encode()).hexdigest()[:16]
+    return {"matches": len(ids), "sha256_16": digest,
+            "complete": len(ids) >= 620}
 
 
 def load_extras(path=EXTRAS_CSV):
@@ -173,6 +202,34 @@ def series_scores(per, n_players, bonus_of, min_series_maps=2):
             if len(vals) >= min_series_maps:
                 out[event][sid] = sum(sorted(vals, reverse=True)[:2])
     return {k: v for k, v in out.items() if v}
+
+
+def scored_matches(per, n_players, min_series_maps=2):
+    """The matches that actually reached the period score, so a rate is measured on them.
+
+    A match where only one of the role's two players appeared never contributed, and a series with
+    too few complete games was dropped whole. Counting triggers over anything wider would measure
+    a rate on games the scoring never saw.
+    """
+    out = set()
+    for ser in per.values():
+        for by_match in ser.values():
+            complete = [m for m, d in by_match.items() if len(d) == n_players]
+            if len(complete) >= min_series_maps:
+                out.update(complete)
+    return out
+
+
+def bernoulli_units(scope, matches, org):
+    """The independent trials a suffix's trigger is drawn on, given what its condition depends on.
+
+    A game-level condition is one trial per match no matter how many of our players were in it.
+    Treating each player-map as its own trial is the error that makes a zero-event bound look
+    roughly three times tighter than the evidence supports.
+    """
+    if scope == "match":
+        return {m: m for m in matches}
+    return {(m, org): m for m in matches}
 
 
 def expected_period(scores_by_event, counts):
@@ -357,6 +414,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
 
     roles_map = bl.roles_from_roster()
     out_roles = {}
+    role_matches = {}
     # decidable, NOT "observed to fire": a suffix whose trigger can be evaluated on our data is
     # priced even when it never fires, because a measured zero is a result and not a gap
     priced_suffixes = [s for s in SUFFIX_BONUS if any(s in v for v in table.values())]
@@ -400,6 +458,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
                 "basis": f"community rate x bonus x {worst}, the largest attenuation measured "
                          f"on any prefix this role CAN be scored on"}
 
+        role_matches[role] = (org, scored_matches(per, len(accounts)))
         out_roles[role] = {"organization": org, "priced": True,
                            "players": len(accounts), "dropped_slots": drop,
                            "player_maps_scored": len(maps),
@@ -423,44 +482,136 @@ def build(state_path, titles_path=None, draws=DRAWS):
         if all(c for _b, c in vals):
             ceilings[p] = round(sum(b * c["gain_ceiling"] for b, c in vals) / denom, 5)
 
-    # suffix attenuation, measured on the whole account rather than per role
-    decided = {s: sum(1 for v in table.values() if s in v) for s in priced_suffixes}
-    suffix_rate = {s: sum(1 for v in table.values() if v.get(s)) / max(1, decided[s])
-                   for s in priced_suffixes}
-    suffix_att = {s: attenuation(totals[s], suffix_rate[s], SUFFIX_BONUS[s])
-                  for s in priced_suffixes if suffix_rate[s] > 0}
-    # a suffix that never fired is bounded by the rule of three rather than asserted to be zero
-    never = {s: {"player_maps_decided": decided[s], "observed_rate": 0.0,
-                 "rate_upper_95": round(3.0 / decided[s], 5),
+    # Trigger rates on the right unit. Seven of the eight conditions are properties of the GAME,
+    # so the trial is a match; only the Underdog varies between the two teams in one. Roles are
+    # unioned rather than summed, because Core and Support are both Xtreme Gaming and share every
+    # match, and adding them would count the same coin flip twice.
+    units = {}
+    for s_name in priced_suffixes:
+        scope = SUFFIX_SCOPE[s_name]
+        seen = {}
+        for _role, (org_r, ms) in role_matches.items():
+            for key, mid in bernoulli_units(scope, ms, org_r).items():
+                acct = next((a for (m, a) in table if m == mid), None)
+                if acct is None or s_name not in table[(mid, acct)]:
+                    continue        # not decidable on this match: extras have not covered it yet
+                seen[key] = table[(mid, acct)][s_name]
+        units[s_name] = seen
+    decided = {k: len(v) for k, v in units.items()}
+    fired = {k: sum(1 for x in v.values() if x) for k, v in units.items()}
+    suffix_rate = {k: (fired[k] / decided[k] if decided[k] else 0.0) for k in units}
+    suffix_att = {k: attenuation(totals[k], suffix_rate[k], SUFFIX_BONUS[k])
+                  for k in units if suffix_rate[k] > 0}
+    hi_att = max(suffix_att.values()) if suffix_att else 1.0
+    # a suffix that never fired is bounded by the rule of three on the MATCH count, not the
+    # player-map count; the looser bound is the one the evidence actually supports
+    never = {k: {"scope": SUFFIX_SCOPE[k],
+                 "unique_units_decided": decided[k],
+                 "units_triggered": 0,
+                 "observed_rate": 0.0,
+                 "rate_upper_95_rule_of_three": round(3.0 / decided[k], 5),
                  "gain_ceiling_at_that_rate": round(
-                     3.0 / decided[s] * SUFFIX_BONUS[s] / 100.0 * max(
-                         suffix_att.values() or [1.0]), 5),
-                 "classification": "CONFIRMED COMPUTABLE, measured zero"}
-             for s in priced_suffixes if suffix_rate[s] == 0 and decided[s]}
-    best_suffix = max(priced_suffixes, key=lambda s: totals[s]) if priced_suffixes else None
+                     3.0 / decided[k] * SUFFIX_BONUS[k] / 100.0 * hi_att, 5)}
+             for k in units if suffix_rate[k] == 0 and decided[k]}
+    best_suffix = max(priced_suffixes, key=lambda x: totals[x]) if priced_suffixes else None
     lo, hi = (min(suffix_att.values()), max(suffix_att.values())) if suffix_att else (None, None)
     unpriced = {}
-    for s in SUFFIX_BONUS:
-        if s in priced_suffixes or best_suffix is None:
+    for s_name in SUFFIX_BONUS:
+        if s_name in priced_suffixes or best_suffix is None:
             continue
-        b = SUFFIX_BONUS[s]
-        unpriced[s] = {
+        b = SUFFIX_BONUS[s_name]
+        unpriced[s_name] = {
             "bonus_percent": b,
+            "scope": SUFFIX_SCOPE[s_name],
             "must_beat": {"suffix": best_suffix, "total_gain": totals[best_suffix]},
             "breakpoint_rate_if_uncorrelated": round(
                 breakpoint_rate(totals[best_suffix], b, hi), 4),
             "breakpoint_rate_if_tied_to_losing": round(
                 breakpoint_rate(totals[best_suffix], b, lo), 4),
             "measured_attenuation_range": [round(lo, 3), round(hi, 3)]}
-    tb = tormented_bound(extras, "all")
+    # coverage, on unique matches. Until every scored match has its extras, a suffix that depends
+    # on them is PARTIAL-COVERAGE and the set is not "closed" however favourable it looks.
+    all_scored = {m for _r, (_o, ms) in role_matches.items() for m in ms}
+    classification = {}
+    for s_name in SUFFIX_BONUS:
+        if s_name == "the Cruel":
+            classification[s_name] = "UNAVAILABLE"
+        elif s_name == "the Tormented":
+            classification[s_name] = "BOUNDED"
+        elif s_name not in priced_suffixes:
+            classification[s_name] = "UNAVAILABLE"
+        elif decided.get(s_name, 0) >= len(all_scored):
+            classification[s_name] = "COMPLETE"
+        else:
+            classification[s_name] = "PARTIAL-COVERAGE"
+    coverage = {
+        "unique_matches_scored": len(all_scored),
+        "unique_matches_with_extras": len(all_scored & set(extras)),
+        "extras_rows_fetched": len(extras),
+        "extras_fetch_complete": len(extras) >= 620,
+        "note": "a suffix decided on fewer units than unique_matches_scored is PARTIAL-COVERAGE",
+        "fingerprint": extras_fingerprint(extras),
+        "generated_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(
+            timespec="seconds")}
+    closed = all(c in ("COMPLETE", "BOUNDED") for c in classification.values())
+
+    # A first-blood time is a property of a professional game, not of whether our three roles
+    # happened to score in it. The 84 scored matches are a small slice of the same five-league
+    # population, so the event rate is bounded on every match fetched -- a far tighter and equally
+    # valid bound. Both are reported; the in-sample one is the conservative fallback.
+    fb = [e["first_blood_time"] for e in extras.values() if e.get("first_blood_time") is not None]
+    population = {}
+    if fb:
+        for s_name, hit in (("the Patient", lambda x: x >= FIRST_BLOOD_LATE),
+                            ("the Flayed Twins Acolyte", lambda x: x < 0)):
+            n_hit = sum(1 for x in fb if hit(x))
+            rate = n_hit / len(fb)
+            bound = rate if n_hit else 3.0 / len(fb)
+            population[s_name] = {
+                "unique_matches_in_population": len(fb),
+                "matches_triggered": n_hit,
+                "rate_or_rule_of_three_upper_95": round(bound, 5),
+                "gain_ceiling_at_that_bound": round(
+                    bound * SUFFIX_BONUS[s_name] / 100.0 * hi_att, 5),
+                "basis": "all fetched matches in the same five leagues, not only the 84 scored"}
+        population["first_blood_time_seconds"] = {
+            "min": min(fb), "max": max(fb), "threshold_for_the_Patient": FIRST_BLOOD_LATE,
+            "threshold_for_the_Acolyte": 0}
+
+    covered = all_scored & set(extras)
+    tb_pop = tormented_bound(extras, "all")
+    if tb_pop:
+        population["the Tormented"] = {
+            "unique_matches_in_population": tb_pop["matches"],
+            "matches_with_any_unattributed_death": tb_pop["matches_with_any_unattributed_death"],
+            "rate_or_rule_of_three_upper_95": tb_pop["upper_bound_trigger_rate"],
+            "gain_ceiling_at_that_bound": round(
+                tb_pop["upper_bound_trigger_rate"] * SUFFIX_BONUS["the Tormented"] / 100.0
+                * hi_att, 5),
+            "basis": "all fetched matches in the same five leagues, not only the 84 scored"}
+    tb = tormented_bound({m: extras[m] for m in covered}, "all")
     if tb and "the Tormented" in unpriced:
         u = unpriced["the Tormented"]
-        u["measured_upper_bound_rate"] = tb["upper_bound_trigger_rate"]
-        u["verdict"] = ("RULED OUT: the upper bound on its trigger rate is below the rate it "
-                        "would need even under the most favourable attenuation measured"
-                        if tb["upper_bound_trigger_rate"] < u["breakpoint_rate_if_uncorrelated"]
-                        else "LIVE: the upper bound leaves room to beat the incumbent")
-        u["classification"] = "PARTIAL-BOUNDED"
+        # the conservative of the two bounds: the 84-match in-sample one is often zero purely
+        # because so few scored matches have extras yet, and a zero on 40 trials is not evidence
+        pop = population.get("the Tormented", {}).get("rate_or_rule_of_three_upper_95", 0.0)
+        conservative = max(tb["upper_bound_trigger_rate"], pop)
+        u.update({"measured_upper_bound_rate": conservative,
+                  "in_sample_upper_bound": tb["upper_bound_trigger_rate"],
+                  "population_upper_bound": pop,
+                  "unique_matches_bounded": tb["matches"],
+                  "exact_negatives": tb["exact_negatives"],
+                  "bound_method": tb["note"],
+                  "classification": "PARTIAL-BOUNDED"})
+        u["verdict"] = (
+            f"RULED OUT at +{SUFFIX_BONUS['the Tormented']}%: the upper bound on its trigger "
+            f"rate ({conservative:.4f}) is strictly below the rate it would "
+            f"need ({u['breakpoint_rate_if_uncorrelated']:.4f}) even under the most favourable "
+            f"attenuation measured on any suffix"
+            if conservative < u["breakpoint_rate_if_uncorrelated"]
+            else f"LIVE at +{SUFFIX_BONUS['the Tormented']}%: the upper bound "
+                 f"({conservative:.4f}) leaves room to reach the breakpoint "
+                 f"({u['breakpoint_rate_if_uncorrelated']:.4f})")
     if "the Cruel" in unpriced:
         unpriced["the Cruel"]["classification"] = "UNAVAILABLE"
         unpriced["the Cruel"]["why"] = (
@@ -473,6 +624,13 @@ def build(state_path, titles_path=None, draws=DRAWS):
             "least achievable")
 
     return {"state": os.path.basename(state_path), "seed": SEED, "draws": draws,
+            "population_bounds": population,
+            "suffix_classification": classification,
+            "coverage": coverage,
+            "all_eight_closed": closed,
+            "suffix_scope": SUFFIX_SCOPE,
+            "suffix_units_decided": decided,
+            "suffix_units_triggered": fired,
             "suffix_trigger_rates": {k: round(v, 4) for k, v in suffix_rate.items()},
             "suffix_attenuation": {k: round(v, 3) for k, v in suffix_att.items()},
             "suffix_never_observed": never,
@@ -520,6 +678,31 @@ PROVENANCE = {
             "prefix pricing is Tier 1",
 }
 
+SUFFIX_BONUS_CROSS_CHECK = {
+    "checked_on": "all 8 suffixes offered by the live panel",
+    "agreement": "EXACT, four-way",
+    "sources": {
+        "user_runtime_observation": "TARGET ACCOUNT's own client, Coaching Titles panel, read at "
+                                    "high resolution: Tormented 23, Flayed Twins Acolyte 9, "
+                                    "Patient 23, Underdog 6, Decisive 24, Clutch 16, Lucky 21, "
+                                    "Cruel 13",
+        "tier_2_a": "Kadadji1 data/titles.ts -- identical on all eight",
+        "tier_2_b": "MyKa322 scoring.js SUFFIXES -- identical on all eight",
+        "repository_fact_source": "fantasy_rules.json coach_titles.selectable_pool_2026 -- "
+                                  "identical on all eight, and correct since it was written"},
+    "defect_found": {
+        "what": "coach_optimize.py kept its own hand-typed SUFFIX_BONUS literal, in which the "
+                "Flayed Twins Acolyte read 30 (client 9), the Tormented 13 (client 23) and the "
+                "Cruel 19 (client 13)",
+        "why_it_survived": "the four suffixes priced in earlier rounds -- Underdog, Decisive, "
+                           "Clutch, Lucky -- were inherited from validated code and were right, "
+                           "so every regression test passed. The three wrong values belonged to "
+                           "titles that had never been priced before, so nothing compared them "
+                           "against anything.",
+        "fix": "the literal is deleted. Both bonus tables are now read from the ruleset at import, "
+               "so there is exactly one copy of the fact, and a test pins all eight values."},
+}
+
 WITHDRAWN = {
     "claim": "the community frequencies admit two equally admissible readings, a percentage "
              "reading and a normalised-count reading, and the recommendation is ROBUST across "
@@ -559,6 +742,7 @@ def assemble(computed, state_path):
             "label": "BEST-KNOWN PROVISIONAL -- not FINAL, not a ROBUST OPTIMUM",
             "method": METHOD,
             "provenance": PROVENANCE,
+            "suffix_bonus_cross_check": SUFFIX_BONUS_CROSS_CHECK,
             "withdrawn_claim": WITHDRAWN,
             "exact_pricing": computed}
 

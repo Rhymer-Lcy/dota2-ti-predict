@@ -6,6 +6,7 @@ properties the scoring rules demand: that the bonus lands on the player-game and
 average, that a trigger correlated with bad games is worth less than its frequency implies, and
 that a trigger uncorrelated with anything is worth exactly its frequency implies.
 """
+import inspect
 import json
 import math
 import os
@@ -14,6 +15,7 @@ import numpy as np
 import pytest
 
 from ti_predict.fantasy import coach_optimize as co
+from ti_predict.fantasy import questions as fq
 
 
 def _per(series):
@@ -150,6 +152,63 @@ def test_the_tormentor_bound_treats_a_zero_as_an_exact_negative():
     got = co.tormented_bound(extras, "all")
     assert got["exact_negatives"] == 3
     assert got["upper_bound_trigger_rate"] == pytest.approx(0.25)
+
+
+def test_the_suffix_bonuses_are_exactly_what_the_client_displays():
+    """Three of these were wrong in a hand-typed copy of the ruleset. Pin all eight."""
+    assert co.SUFFIX_BONUS == {
+        "the Tormented": 23, "the Flayed Twins Acolyte": 9, "the Patient": 23,
+        "the Underdog": 6, "the Decisive": 24, "the Clutch": 16,
+        "the Lucky": 21, "the Cruel": 13}
+
+
+def test_the_bonuses_are_read_from_the_ruleset_and_not_re_typed_in_the_module():
+    """The root cause was a second copy of a fact. There must not be a second copy."""
+    src = inspect.getsource(co)
+    body = src.split("def _pool_bonuses", 1)[1].split("PREFIX_BONUS =", 1)[0]
+    assert 'bonus_percent' in body            # it reads the field
+    for stale in ('"the Flayed Twins Acolyte": 30', '"the Tormented": 13', '"the Cruel": 19'):
+        assert stale not in src, f"stale suffix constant still present: {stale}"
+    pool = fq.load_rules()["coach_titles"]["selectable_pool_2026"]["suffixes"]
+    assert co.SUFFIX_BONUS == {e["name"]: e["bonus_percent"] for e in pool}
+
+
+def test_the_tormented_breakpoint_is_computed_at_twenty_three_percent():
+    """At 13 percent the breakpoint sits roughly twice as high; the verdict must not inherit it."""
+    at_23 = co.breakpoint_rate(0.03262, co.SUFFIX_BONUS["the Tormented"], 1.864)
+    at_13 = co.breakpoint_rate(0.03262, 13, 1.864)
+    assert at_23 == pytest.approx(0.0761, abs=5e-4)
+    assert at_13 > 1.7 * at_23
+
+
+def test_a_game_level_condition_counts_once_per_match_not_once_per_player():
+    """Eight of our players in one game is one coin flip, not eight."""
+    matches = {101, 102, 103}
+    assert co.bernoulli_units("match", matches, "Xtreme Gaming") == {m: m for m in matches}
+    team = co.bernoulli_units("team_game", matches, "Xtreme Gaming")
+    assert set(team) == {(m, "Xtreme Gaming") for m in matches}
+    assert len(team) == len(matches)
+
+
+def test_duplicate_player_rows_cannot_tighten_a_match_level_bound():
+    """The bug this guards: more players per game must not shrink a zero-event interval."""
+    per_one = {"E": {"s": {1: {10: 5.0}, 2: {10: 5.0}}}}
+    per_many = {"E": {"s": {1: {10: 5.0, 11: 5.0}, 2: {10: 5.0, 11: 5.0}}}}
+    a = co.scored_matches(per_one, 1)
+    b = co.scored_matches(per_many, 2)
+    assert a == b == {1, 2}
+    assert len(co.bernoulli_units("match", b, "Org")) == 2
+
+
+def test_only_complete_series_contribute_matches_to_the_denominator():
+    per = {"E": {"good": {1: {10: 1.0}, 2: {10: 1.0}}, "short": {3: {10: 1.0}}}}
+    assert co.scored_matches(per, 1) == {1, 2}
+
+
+def test_every_suffix_declares_the_unit_its_condition_is_drawn_on():
+    assert set(co.SUFFIX_SCOPE) == set(co.SUFFIX_BONUS)
+    assert co.SUFFIX_SCOPE["the Underdog"] == "team_game"
+    assert all(co.SUFFIX_SCOPE[s] == "match" for s in co.SUFFIX_BONUS if s != "the Underdog")
 
 
 def test_every_prefix_is_classified_and_none_is_silently_missing():
