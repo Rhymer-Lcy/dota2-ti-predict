@@ -1,5 +1,5 @@
 {
-  "status": "HOLD",
+  "status": "SUPERSEDED",
   "label": "PRE-BANNER INITIAL SELECTION - GATE NOT PASSED",
   "generated_at": "2026-08-11T00:00:00Z",
   "supersedes": "preselection_20260810.json",
@@ -118,5 +118,7 @@
     "Tundra Esports": "IRON WING",
     "PARIVISION": "TEAM VISION"
   },
-  "target_account_action": "HOLD - select nothing"
+  "target_account_action": "HOLD - select nothing",
+  "superseded_by": "preselection_20260811_go.json",
+  "superseded_reason": "The two blockers it named were re-examined. The coach trigger rates are STRUCTURALLY unobtainable before the first team selection -- the client exposes no Coaching Titles panel while all three roles are empty -- so they cannot be a reason to wait. The banner prior can never be known before the reveal either. Both were converted from blockers into sensitivity axes and the decision was made on prior-family minimax expected regret."
 }

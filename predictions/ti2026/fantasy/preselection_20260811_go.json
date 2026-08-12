@@ -1,0 +1,72 @@
+{
+  "status": "GO",
+  "label": "PRE-BANNER INITIAL SELECTION - FINAL",
+  "generated_at": "2026-08-11T00:40:00Z",
+  "supersedes": [
+    "preselection_20260810.json",
+    "preselection_20260811_hold.json"
+  ],
+  "lock": {
+    "group_stage_lock_utc": "2026-08-13T02:00:00Z",
+    "client_countdown_observed": "23h19m41s at the time of the observation"
+  },
+  "decision_criterion": {
+    "name": "prior-family minimax expected regret",
+    "why_not_expected_value": "The top candidates sit within about 0.1 percent of each other on token-adjusted expected value. That difference is far below model error, so the argmax of expected value is not identifiable and picking on it would be picking on noise. The team that is never badly wrong across the whole declared prior family IS identifiable.",
+    "families": [
+      "uniform",
+      "quality_low_heavy",
+      "quality_high_heavy",
+      "trait_base_heavy",
+      "trait_active_heavy"
+    ],
+    "statistic": "per candidate, the WORST expected relative regret across the five families; then argmin over candidates"
+  },
+  "structurally_unavailable_not_missing": {
+    "observation": "With all three roles unselected the client exposes no Coaching Titles panel, no Roll Board, no token balance and no War Banner.",
+    "tier": "user_runtime_observation (target account)",
+    "consequence": "Valve's hero-category lists are rendered by a Coaching Titles tooltip that does not exist yet, so per-team coach trigger rates cannot be obtained before the very action they are supposed to inform. Neither can the banner draw weights. Both were therefore treated as sensitivity axes, not blockers -- waiting for them is waiting for something that only appears after the decision."
+  },
+  "selection": {
+    "core": {
+      "canonical": "PARIVISION",
+      "client_name": "TEAM VISION",
+      "worst_expected_regret": 0.161,
+      "runner_up": "Team Falcons",
+      "margin": 0.00015,
+      "confidence": "MEDIUM",
+      "coach_stability": "modal argmin at every perturbation spread (8/12, 7/12, 7/12)",
+      "note": "a near-exact tie with Team Falcons on the criterion; the distinct-team constraint resolves it, since Falcons is taken at mid"
+    },
+    "mid": {
+      "canonical": "Team Falcons",
+      "client_name": "Team Falcons",
+      "worst_expected_regret": 0.2622,
+      "runner_up": "Team Liquid",
+      "margin": 0.00416,
+      "confidence": "MEDIUM",
+      "coach_stability": "10/24 argmin wins and the lowest mean worst-regret (0.2609) over 24 seeds at spread 0.5",
+      "note": "a 12-seed run had put Team Liquid first; 24 seeds reversed it. The 12-seed read was small-sample noise and is withdrawn."
+    },
+    "support": {
+      "canonical": "Xtreme Gaming",
+      "client_name": "Xtreme Gaming",
+      "worst_expected_regret": 0.1949,
+      "runner_up": "LGD Gaming",
+      "margin": 0.01328,
+      "confidence": "MEDIUM-HIGH",
+      "coach_stability": "8/12 at spreads 0.25 and 0.5; only at the pathological 24 percent spread does it tie with LGD Gaming",
+      "note": "the widest margin of the three and the clearest single pick"
+    }
+  },
+  "distinct_team_constraint": {
+    "satisfied": true,
+    "note": "Three different organisations, so the recommendation is legal whether or not the client requires distinctness."
+  },
+  "coach": {
+    "action": "do not set one now",
+    "reason": "Coach titles are free to change and the panel does not exist until the teams are chosen. It is a stage-B decision."
+  },
+  "what_this_is_not": "Not a final Fantasy candidate. It is the blind stage-A pick. Emblems, coach and any team change are decided in PHASE 4B after the reveal.",
+  "next_step": "Select these three, touch nothing else, screenshot the Fantasy page."
+}
