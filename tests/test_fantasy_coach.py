@@ -100,8 +100,13 @@ def test_a_partial_fetch_is_never_reported_as_a_population_bound(art):
     """New matches raise the numerator too, and the unfetched remainder is the latest slice."""
     ex = art["exact_pricing"]
     m = ex["missingness"]
-    complete = ex["coverage"]["fingerprint"]["complete"]
+    fp_ = ex["coverage"]["fingerprint"]
+    complete = fp_["coverage_complete"]
     assert m["is_missingness_ignorable"] is complete
+    # completeness is a claim about the target set, not about a row count
+    assert complete == (fp_["missing_matches"] == 0
+                        and fp_["fetched_matches"] == fp_["expected_matches"])
+    assert len(fp_["sha256"]) == 64
     for name, b in ex["population_bounds"].items():
         if not isinstance(b, dict) or "scope_of_validity" not in b:
             continue
@@ -130,6 +135,16 @@ def test_both_overclaims_are_recorded_as_withdrawn(art):
     assert any("cannot change the conclusion" in c for c in claims)
     assert any("their ceiling" in c for c in claims)
     assert all(w["status"].startswith("WITHDRAWN") for w in claims.values())
+
+
+def test_an_exclusion_that_rests_on_an_assumption_says_so(art):
+    """The same discipline as the prefix ceiling: largest observed is not largest possible."""
+    for name, u in art["exact_pricing"]["unpriced_suffixes"].items():
+        assert "not_a_proven_exclusion" in u, name
+    t = art["exact_pricing"]["unpriced_suffixes"].get("the Tormented")
+    if t and t.get("required_attenuation_to_compete"):
+        assert t["required_attenuation_to_compete"] > t["largest_attenuation_measured"]
+        assert "under a stated assumption" in t["verdict"] or "LIVE" in t["verdict"]
 
 
 def test_the_artifact_records_how_to_regenerate_itself(art):

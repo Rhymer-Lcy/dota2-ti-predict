@@ -104,12 +104,19 @@ def load_hero_maps(path=HEROES_CSV):
     return out
 
 
-def extras_fingerprint(extras):
-    """Which matches the bounds were computed on, so a partial run is never mistaken for a full one."""
+def extras_fingerprint(extras, expected):
+    """Which matches the bounds were computed on, so a partial run is never mistaken for a full one.
+
+    Completeness is checked against the actual target set, not a remembered round number: the
+    difference between "620 rows" and "every match this window contains" is exactly the difference
+    between a bound that may be read as a population bound and one that may not.
+    """
     ids = sorted(extras)
-    digest = hashlib.sha256(",".join(str(i) for i in ids).encode()).hexdigest()[:16]
-    return {"matches": len(ids), "sha256_16": digest,
-            "complete": len(ids) >= 620}
+    digest = hashlib.sha256(",".join(str(i) for i in ids).encode()).hexdigest()
+    missing = sorted(set(expected) - set(ids))
+    return {"expected_matches": len(expected), "fetched_matches": len(ids),
+            "unique_matches": len(set(ids)), "missing_matches": len(missing),
+            "sha256": digest, "coverage_complete": not missing}
 
 
 def load_extras(path=EXTRAS_CSV):
@@ -533,9 +540,15 @@ def build(state_path, titles_path=None, draws=DRAWS):
             "breakpoint_rate_if_tied_to_losing": round(
                 breakpoint_rate(totals[best_suffix], b, lo), 4),
             "measured_attenuation_range": [round(lo, 3), round(hi, 3)]}
+        unpriced[s_name]["not_a_proven_exclusion"] = (
+            "the breakpoints below use the largest attenuation OBSERVED on a scoreable suffix. "
+            "That is not a proven maximum, so a rival is excluded only under the assumption that "
+            "it does not attenuate harder than anything measured.")
     # coverage, on unique matches. Until every scored match has its extras, a suffix that depends
     # on them is PARTIAL-COVERAGE and the set is not "closed" however favourable it looks.
     all_scored = {m for _r, (_o, ms) in role_matches.items() for m in ms}
+    target_ids = {m for m, _lg, _ts in fp.target_matches(fp.DEFAULT_LEAGUES)}
+    complete_fetch = not (target_ids - set(extras))
     classification = {}
     for s_name in SUFFIX_BONUS:
         if s_name == "the Cruel":
@@ -552,9 +565,9 @@ def build(state_path, titles_path=None, draws=DRAWS):
         "unique_matches_scored": len(all_scored),
         "unique_matches_with_extras": len(all_scored & set(extras)),
         "extras_rows_fetched": len(extras),
-        "extras_fetch_complete": len(extras) >= 620,
+        "extras_fetch_complete": complete_fetch,
         "note": "a suffix decided on fewer units than unique_matches_scored is PARTIAL-COVERAGE",
-        "fingerprint": extras_fingerprint(extras),
+        "fingerprint": extras_fingerprint(extras, target_ids),
         "generated_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(
             timespec="seconds")}
     closed = all(c in ("COMPLETE", "BOUNDED") for c in classification.values())
@@ -564,7 +577,6 @@ def build(state_path, titles_path=None, draws=DRAWS):
     # population, so the event rate is bounded on every match fetched -- a far tighter and equally
     # valid bound. Both are reported; the in-sample one is the conservative fallback.
     fb = [e["first_blood_time"] for e in extras.values() if e.get("first_blood_time") is not None]
-    complete_fetch = len(extras) >= 620
     missingness = {
         "fetch_order": "the target list is sorted by start_time and fetched in order, so a "
                        "partial run holds the CHRONOLOGICALLY EARLIEST matches and is missing "
@@ -626,11 +638,17 @@ def build(state_path, titles_path=None, draws=DRAWS):
                   "exact_negatives": tb["exact_negatives"],
                   "bound_method": tb["note"],
                   "classification": "PARTIAL-BOUNDED"})
+        need = (totals[best_suffix] / (conservative * SUFFIX_BONUS["the Tormented"] / 100.0)
+                if conservative else None)
+        u["required_attenuation_to_compete"] = round(need, 3) if need else None
+        u["largest_attenuation_measured"] = round(hi, 3)
         u["verdict"] = (
-            f"RULED OUT at +{SUFFIX_BONUS['the Tormented']}%: the upper bound on its trigger "
-            f"rate ({conservative:.4f}) is strictly below the rate it would "
-            f"need ({u['breakpoint_rate_if_uncorrelated']:.4f}) even under the most favourable "
-            f"attenuation measured on any suffix"
+            f"EXCLUDED at +{SUFFIX_BONUS['the Tormented']}% under a stated assumption: its "
+            f"trigger rate is at most {conservative:.4f} on complete coverage, so to match the "
+            f"Lucky it would need an attenuation of {need:.2f} -- "
+            f"{need / hi - 1:.0%} above the largest value ({hi:.2f}) measured on any suffix that "
+            f"can be scored. Nothing proves that is impossible; there is simply no mechanism for "
+            f"it, since a Tormentor death is at most weakly related to how the game went."
             if conservative < u["breakpoint_rate_if_uncorrelated"]
             else f"LIVE at +{SUFFIX_BONUS['the Tormented']}%: the upper bound "
                  f"({conservative:.4f}) leaves room to reach the breakpoint "
@@ -789,14 +807,25 @@ def assemble(computed, state_path):
             "label": "BEST-KNOWN PROVISIONAL -- not FINAL, not a ROBUST OPTIMUM",
             "label_by_component": {
                 "suffix_the_Lucky": {
-                    "grade": "DECISION-ROBUST FOR CURRENT EVIDENCE",
-                    "why": "it beats every other suffix that can be scored by more than a factor "
-                           "of two, and both zero-trigger rivals and the bounded one are an order "
-                           "of magnitude short of their breakpoints",
-                    "residual": "the Cruel is unmeasured. It would have to fire on 13.5 percent "
-                                "of matches to compete if uncorrelated with performance, or 61.7 "
-                                "percent if tied to losing, which is where a fountain death "
-                                "belongs. Implausible, but not measured."},
+                    "grade": "FROZEN FOR PERIOD 0 ON COMPLETE OBSERVED COVERAGE",
+                    "why": "every match in the five-league window has been fetched, so the "
+                           "first-blood bounds are population bounds rather than prefix bounds. "
+                           "the Lucky beats the next scoreable suffix by a factor of 2.3, and "
+                           "the Patient and the Flayed Twins Acolyte are ruled out on zero "
+                           "triggers in 623 matches.",
+                    "not_claimed": "this is not a proven optimum over all eight. Two residuals "
+                                   "are named below and neither is closed by measurement.",
+                    "residual_the_Cruel": "unmeasured. It would have to fire on 13.5 percent of "
+                                          "matches to compete if uncorrelated with performance, "
+                                          "or 61.2 percent if tied to losing, which is where a "
+                                          "fountain death belongs.",
+                    "residual_the_Tormented": "bounded at 5.78 percent on complete coverage, "
+                                              "which leaves it needing an attenuation about a "
+                                              "third above the largest ever measured. Excluded "
+                                              "under that assumption, not by proof.",
+                    "what_would_reopen_it": "a measured fountain-death rate above 13.5 percent, "
+                                            "or a demonstration that a rare trigger can attenuate "
+                                            "past 2.4"},
                 "prefix_Elemental": {
                     "grade": "BEST-KNOWN PROVISIONAL",
                     "why": "first under every construction tried, and its own figure is a lower "
