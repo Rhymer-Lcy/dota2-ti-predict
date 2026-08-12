@@ -114,8 +114,9 @@
     },
     "war_banners": 3,
     "team_change": "free, via the 'Choose Team' button on the War Banner, until the period locks",
-    "distinct_teams_required": null,
-    "distinct_teams_status": "UNRESOLVED"
+    "distinct_teams_required": false,
+    "distinct_teams_status": "CONFIRMED",
+    "distinct_teams_evidence": "The target account holds Xtreme Gaming on BOTH Core and Support simultaneously, submitted through the normal chooser without error. Duplicate teams across roles are allowed."
   },
   "periods": {
     "status": "CONFIRMED",
@@ -1487,13 +1488,12 @@
       "id": "distinct_teams_required",
       "scope": "generic",
       "question": "May two roles select the same organisation?",
-      "fact_status": "UNRESOLVED",
-      "decision_status": "CONDITIONAL",
-      "blocking_for": [
-        "roster"
-      ],
-      "condition": "Blocks only if the optimum would put the same organisation on two banners. The public envelope's per-role top picks are three different organisations, so the constraint is currently slack.",
-      "note": "Re-check whenever the ranking changes."
+      "fact_status": "CONFIRMED",
+      "decision_status": "IRRELEVANT",
+      "blocking_for": [],
+      "condition": "closed: a duplicate assignment was submitted successfully",
+      "note": "Closed by direct observation. Roles are optimised independently; no distinctness penalty is applied anywhere.",
+      "answer": false
     },
     {
       "id": "percentile_reward_values",
@@ -1576,7 +1576,7 @@
         "name": "the 更改战队 / Change Team button on a War Banner",
         "gc_message": "CMsgClientToGCFantasyCraftingSelectTeam",
         "token_cost": 0,
-        "cost_status": "CONFIRMED by direct experiment",
+        "cost_status": "CONFIRMED on two independent accounts",
         "preserves_banner": true,
         "preserves_banner_status": "CONFIRMED by direct experiment",
         "evidence": {
@@ -1593,7 +1593,11 @@
           },
           "banner_after": "identical stats, quality tiers, traits, slot order and displayed multipliers; the roll board was also unchanged"
         },
-        "schema_agreement": "This is exactly what the schema predicted. SelectTeamResponse has no k_eNoTokens member and returns only tablet_data, never user_data -- and user_data is where period_roll_tokens lives. Every costed action returns it. The experiment and the message definition now agree."
+        "schema_agreement": "This is exactly what the schema predicted. SelectTeamResponse has no k_eNoTokens member and returns only tablet_data, never user_data -- and user_data is where period_roll_tokens lives. Every costed action returns it. The experiment and the message definition now agree.",
+        "confirmed_on": [
+          "operator test account (39 -> 39)",
+          "target account (38 -> 38)"
+        ]
       },
       "path_b_crafting_operation": {
         "name": "a 'Change Team' entry appearing on the crafting roll board",

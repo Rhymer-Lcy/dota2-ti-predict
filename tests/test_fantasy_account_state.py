@@ -237,3 +237,46 @@ def test_a_green_stat_reroll_is_only_worth_it_where_the_current_stat_is_weak():
     with_tormentor_zero = {r: (4 * ev[r] + weight[r] * (0 - current[r])) / 5 for r in weight}
     assert with_tormentor_zero["support"] > 0
     assert with_tormentor_zero["mid"] < 0
+
+
+# ---- state 4: after the free core team change --------------------------------------------------
+STATE4_PATH = _os.path.join("predictions", "ti2026", "fantasy",
+                            "account_state_target_20260812.json")
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE4_PATH), reason="state 4 not recorded")
+def test_state_four_reproduces_the_client_and_kept_its_banner():
+    s4 = acc.load_state(STATE4_PATH)
+    s3 = acc.load_state(STATE3_PATH)
+    for role in acc.ROLES:
+        w = acc.banner_weights(s4, role)
+        for i, slot in enumerate(s4["banners"][role]["slots"]):
+            assert w[i] == pytest.approx(slot["displayed_multiplier"]), f"{role} slot {i + 1}"
+    # the team changed but every emblem on that banner survived unchanged
+    assert s3["banners"]["core"]["client_team"] != s4["banners"]["core"]["client_team"]
+    assert s3["banners"]["core"]["slots"] == s4["banners"]["core"]["slots"]
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE4_PATH), reason="state 4 not recorded")
+def test_the_team_change_cost_nothing_on_the_target_account_too():
+    s3, s4 = acc.load_state(STATE3_PATH), acc.load_state(STATE4_PATH)
+    assert s3["roll_tokens"] == s4["roll_tokens"] == 38
+    assert s4["action_taken_since"]["tokens_spent"] == 0
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE4_PATH), reason="state 4 not recorded")
+def test_duplicate_teams_across_roles_are_confirmed_allowed():
+    """Core and Support are the same organisation at once, submitted without error."""
+    s4 = acc.load_state(STATE4_PATH)
+    assert s4["banners"]["core"]["canonical_team"] == s4["banners"]["support"]["canonical_team"]
+    d = s4["resolved_this_round"]["duplicate_team_across_roles"]
+    assert d["status"] == "CONFIRMED" and d["allowed"] is True
+
+
+def test_the_ruleset_no_longer_charges_a_distinctness_constraint():
+    from ti_predict.fantasy import questions as fq
+    r = fq.load_rules()
+    assert r["structure"]["distinct_teams_required"] is False
+    assert r["structure"]["distinct_teams_status"] == "CONFIRMED"
+    u = {x["id"]: x for x in r["unknowns"]}["distinct_teams_required"]
+    assert u["decision_status"] == "IRRELEVANT" and u["answer"] is False
