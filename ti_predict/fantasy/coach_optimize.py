@@ -447,6 +447,267 @@ def summarise_gap(draws, name_a, name_b):
                                     or (draws < 0).mean() >= 0.95)}
 
 
+# ------------------------------------------------------------------- joint pricing
+
+STACKINGS = ("additive", "multiplicative")
+
+
+def joint_bonus_fn(prefix, suffix, stacking, heroes, cats, table):
+    """One player-game multiplier for a prefix AND a suffix together.
+
+    A coach is one prefix plus one suffix, always both. Pricing them separately against no-coach
+    answers a question nobody is asking: the account is choosing between Elemental+Tormented and
+    Elemental+Lucky, not between Tormented and Lucky in isolation. The two indicators are resolved
+    on the same player-game, so the interaction term survives into the layering instead of being
+    lost.
+    """
+    p = PREFIX_BONUS[prefix] / 100.0 if prefix else 0.0
+    sfx = SUFFIX_BONUS[suffix] / 100.0 if suffix else 0.0
+    flag = PREFIX_FLAG[prefix][0] if prefix else None
+
+    def fn(mid, acct):
+        ip = 1.0 if flag and cats.get(heroes.get((mid, acct)), {}).get(flag) else 0.0
+        i_s = 1.0 if suffix and table.get((mid, acct), {}).get(suffix) else 0.0
+        if stacking == "multiplicative":
+            return (1.0 + p * ip) * (1.0 + sfx * i_s) - 1.0
+        return p * ip + sfx * i_s
+    return fn
+
+
+def account_gain(role_inputs, bonus_for):
+    """Base-weighted gain over no coach, summed across the roles the account actually holds."""
+    num = den = 0.0
+    for role, (per, n, counts, base) in role_inputs.items():
+        num += base * (price(per, n, counts, bonus_for(role)) / base - 1.0)
+        den += base
+    return num / den if den else float("nan")
+
+
+def period_draws(scores_by_event, counts, seed=SEED):
+    """Per-draw period scores, not just their mean. The predictive distribution, event-equal.
+
+    Each draw picks one historical event uniformly, then plays a TI-length period inside it. The
+    mean of this matches project_period exactly; what it adds is the spread, which is a statement
+    about how the coming period could go rather than about how well the mean is pinned down.
+    Common random numbers hold across coach settings because the pools are the same series.
+    """
+    rng = np.random.default_rng(seed)
+    events = sorted(scores_by_event)
+    pools = [_event_pool(scores_by_event, e) for e in events]
+    counts = np.asarray(counts)
+    n, width = counts.size, int(counts.max()) if counts.size else 0
+    pick = rng.integers(0, len(pools), size=n)
+    u = rng.random((n, width))
+    mask = np.arange(width)[None, :] < counts[:, None]
+    out = np.empty(n)
+    for j, pool in enumerate(pools):
+        sel = pick == j
+        if not sel.any():
+            continue
+        idx = np.minimum((u[sel] * pool.size).astype(int), pool.size - 1)
+        out[sel] = np.where(mask[sel], pool[idx], -np.inf).max(axis=1)
+    return out
+
+
+def account_period_draws(role_inputs, bonus_for):
+    """Account-level period score per draw: the three roles are summed, not averaged."""
+    total = None
+    for role, (per, n, counts, _base) in role_inputs.items():
+        d = period_draws(series_scores(per, n, bonus_for(role)), counts)
+        total = d if total is None else total + d
+    return total
+
+
+def describe_predictive(draws):
+    q = np.percentile(draws, [10, 25, 50, 75, 90, 95])
+    return {"mean": round(float(draws.mean()), 2), "p10": round(float(q[0]), 2),
+            "p25": round(float(q[1]), 2), "median": round(float(q[2]), 2),
+            "p75": round(float(q[3]), 2), "p90": round(float(q[4]), 2),
+            "p95": round(float(q[5]), 2)}
+
+
+def hierarchical_bootstrap(role_inputs, bonus_a, bonus_b, reps=400, seed=SEED):
+    """Resample EVENTS with replacement, then series inside them. Both levels, not just the inner.
+
+    The within-event bootstrap alone treats the set of tournaments as fixed and known, so it can
+    only say how well each event's own series pin its own distribution down. It cannot speak to
+    patch or field differences between tournaments. This adds the outer level -- but with three
+    events per role, an outer resample has three distinct values to draw from, so the result is a
+    coarse indication and is labelled as one rather than quoted as a precise interval.
+    """
+    rng = np.random.default_rng(seed)
+    gaps = []
+    prepared = {}
+    for role, (per, n, counts, _base) in role_inputs.items():
+        prepared[role] = ({"0": series_scores(per, n, bonus_a(role)),
+                           "1": series_scores(per, n, bonus_b(role)),
+                           "base": series_scores(per, n, _zero)}, counts)
+    for _ in range(reps):
+        num = den = 0.0
+        for role, (srcs, counts) in prepared.items():
+            events = sorted(srcs["base"])
+            take = rng.integers(0, len(events), size=len(events))     # outer: events
+            rep = {k: {} for k in srcs}
+            for slot, e in enumerate(take):
+                ev = events[e]
+                ids = sorted(srcs["base"][ev])
+                pick = rng.integers(0, len(ids), size=len(ids))        # inner: series
+                for k in srcs:
+                    rep[k][f"{slot}"] = {i: srcs[k][ev][ids[j]] for i, j in enumerate(pick)}
+            base = project_period(rep["base"], counts)
+            if not base:
+                continue
+            num += base * (project_period(rep["0"], counts)
+                           - project_period(rep["1"], counts)) / base
+            den += base
+        if den:
+            gaps.append(num / den)
+    return np.array(gaps)
+
+
+def leave_one_event_out(role_inputs, bonus_a, bonus_b):
+    """Drop one historical event at a time and recompute. Deterministic, no resampling."""
+    events = sorted({e for role, (per, n, _c, _b) in role_inputs.items()
+                     for e in series_scores(per, n, _zero)})
+    folds = []
+    for dropped in events:
+        num_a = num_b = den = 0.0
+        roles = {}
+        for role, (per, n, counts, _base) in role_inputs.items():
+            keep = {e: v for e, v in series_scores(per, n, _zero).items() if e != dropped}
+            if not keep:
+                continue
+            b = project_period(keep, counts)
+            ga = project_period({e: v for e, v in series_scores(per, n, bonus_a(role)).items()
+                                 if e != dropped}, counts) / b - 1.0
+            gb = project_period({e: v for e, v in series_scores(per, n, bonus_b(role)).items()
+                                 if e != dropped}, counts) / b - 1.0
+            roles[role] = {"a": round(ga, 5), "b": round(gb, 5), "gap": round(ga - gb, 5)}
+            num_a += b * ga
+            num_b += b * gb
+            den += b
+        folds.append({"dropped_event": dropped,
+                      "a": round(num_a / den, 5), "b": round(num_b / den, 5),
+                      "gap": round((num_a - num_b) / den, 5),
+                      "winner": "a" if num_a > num_b else "b",
+                      "by_role": roles})
+    return folds
+
+
+def joint_closing(role_inputs, prefix, contenders, heroes, cats, table, priced_suffixes):
+    """The comparison the account actually faces: one prefix plus one suffix, against another.
+
+    Everything here is paired. Estimator uncertainty and the predictive distribution are kept in
+    separate fields with separate names, because they answer different questions: how well the
+    parameter is pinned down, versus how the coming period could actually turn out.
+    """
+    def bonus_for(pref, suf, stacking):
+        return lambda _role: joint_bonus_fn(pref, suf, stacking, heroes, cats, table)
+
+    out = {"prefix_held_fixed": prefix, "contenders": list(contenders), "by_stacking": {}}
+    a, b = contenders
+    for stacking in STACKINGS:
+        fa, fb = bonus_for(prefix, a, stacking), bonus_for(prefix, b, stacking)
+        ga, gb = account_gain(role_inputs, fa), account_gain(role_inputs, fb)
+        # the approximation this replaces: adding two standalone gains as if the layering were
+        # linear. It is not -- a bonus reorders player-games, which moves the top two of a series
+        # and the best series of a period.
+        pa = account_gain(role_inputs, bonus_for(prefix, None, stacking))
+        sa = account_gain(role_inputs, bonus_for(None, a, stacking))
+        sb = account_gain(role_inputs, bonus_for(None, b, stacking))
+        da = account_period_draws(role_inputs, fa)
+        db = account_period_draws(role_inputs, fb)
+        diff = da - db
+        grid = np.percentile(np.concatenate([da, db]), [60, 70, 80, 90, 95])
+        out["by_stacking"][stacking] = {
+            "joint_gain": {a: round(ga, 5), b: round(gb, 5)},
+            "gap": round(ga - gb, 5),
+            "winner": a if ga > gb else b,
+            "standalone_sum_approximation": {
+                a: round(pa + sa, 5), b: round(pa + sb, 5),
+                "prefix_alone": round(pa, 5),
+                "interaction_residual": {a: round(ga - pa - sa, 5), b: round(gb - pa - sb, 5)},
+                "note": "exact joint minus the sum of standalone gains; nonzero because the "
+                        "top-two and best-series maxima are not linear in a player-game bonus"},
+            "predictive_distribution": {
+                "what_this_is": "how the coming TI period could turn out, at the fitted "
+                                "historical distribution. NOT estimator uncertainty.",
+                a: describe_predictive(da), b: describe_predictive(db),
+                "paired_difference": {
+                    "mean": round(float(diff.mean()), 2),
+                    "median": round(float(np.median(diff)), 2),
+                    "p10": round(float(np.percentile(diff, 10)), 2),
+                    "p90": round(float(np.percentile(diff, 90)), 2),
+                    f"P_{a.replace(' ', '_')}_higher": round(float((diff > 0).mean()), 4),
+                    "P_tie": round(float((diff == 0).mean()), 4)},
+                "threshold_crossing": {
+                    f"score>={int(t)}": {a: round(float((da >= t).mean()), 4),
+                                         b: round(float((db >= t).mean()), 4)}
+                    for t in grid}},
+        }
+    # joint search over everything that can be scored exactly, at the settled stacking if the two
+    # agree, reported for both otherwise
+    search = {}
+    for stacking in STACKINGS:
+        rows_ = []
+        for pref in sorted(PREFIX_FLAG):
+            for suf in priced_suffixes:
+                rows_.append({"prefix": pref, "suffix": suf,
+                              "joint_gain": round(account_gain(
+                                  role_inputs, bonus_for(pref, suf, stacking)), 5)})
+        rows_.sort(key=lambda r: -r["joint_gain"])
+        best_suffix_at_prefix = max(
+            (r for r in rows_ if r["prefix"] == prefix), key=lambda r: r["joint_gain"])
+        best_prefix_at_b = max(
+            (r for r in rows_ if r["suffix"] == b), key=lambda r: r["joint_gain"])
+        current = next(r for r in rows_ if r["prefix"] == prefix and r["suffix"] == b)
+        search[stacking] = {
+            "best_known_joint": rows_[0],
+            "best_suffix_with_prefix_held": best_suffix_at_prefix,
+            "best_measurable_prefix_with_current_suffix": best_prefix_at_b,
+            "current_setting": current,
+            "gap_current_to_joint_optimum": round(
+                rows_[0]["joint_gain"] - current["joint_gain"], 5),
+            "top_five": rows_[:5],
+            "excluded_from_search": {
+                "prefixes": list(PREFIX_NO_TABLE),
+                "why": "no hero category table; their figures are extrapolations, not ceilings, "
+                       "so they cannot enter an exact search"}}
+    out["joint_search"] = search
+    return out
+
+
+def scenario_minimax_regret(role_inputs, prefix, contenders, heroes, cats, table):
+    """Real minimax regret over a named scenario family, not the endpoints of an interval.
+
+    A bootstrap percentile is not a regret. Regret needs scenarios in which an action can be
+    wrong. The family here is the two admissible stacking rules crossed with dropping each
+    historical event, which are the modelling choices actually still open.
+    """
+    a, b = contenders
+    scenarios = []
+    for stacking in STACKINGS:
+        def mk(suf, st=stacking):
+            return lambda _role: joint_bonus_fn(prefix, suf, st, heroes, cats, table)
+        scenarios.append({"scenario": f"{stacking} / all events",
+                          a: account_gain(role_inputs, mk(a)),
+                          b: account_gain(role_inputs, mk(b))})
+        for fold in leave_one_event_out(role_inputs, mk(a), mk(b)):
+            scenarios.append({"scenario": f"{stacking} / drop {fold['dropped_event']}",
+                              a: fold["a"], b: fold["b"]})
+    regret = {a: 0.0, b: 0.0}
+    for sc in scenarios:
+        best = max(sc[a], sc[b])
+        for act in (a, b):
+            regret[act] = max(regret[act], best - sc[act])
+    return {"definition": "max over scenarios of (best action in that scenario minus this action)",
+            "scenario_family": "stacking hypothesis x leave-one-event-out",
+            "scenarios": [{k: (round(v, 5) if isinstance(v, float) else v)
+                           for k, v in sc.items()} for sc in scenarios],
+            "max_regret": {k: round(v, 5) for k, v in regret.items()},
+            "minimax_choice": min(regret, key=regret.get)}
+
+
 # ------------------------------------------------------- checking the public numbers
 
 def replicate_frequencies(hero_rows, cats, community, min_maps=15):
@@ -517,6 +778,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
     roles_map = bl.roles_from_roster()
     out_roles = {}
     role_matches = {}
+    role_inputs = {}
     # decidable, NOT "observed to fire": a suffix whose trigger can be evaluated on our data is
     # priced even when it never fires, because a measured zero is a result and not a gap
     priced_suffixes = [s for s in SUFFIX_BONUS if any(s in v for v in table.values())]
@@ -565,6 +827,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
                                  "largest value POSSIBLE."}
 
         role_matches[role] = (org, scored_matches(per, len(accounts)))
+        role_inputs[role] = (per, len(accounts), counts, base)
         out_roles[role] = {"organization": org, "priced": True,
                            "players": len(accounts), "dropped_slots": drop,
                            "player_maps_scored": len(maps),
@@ -752,32 +1015,16 @@ def build(state_path, titles_path=None, draws=DRAWS):
             w = v["base_expected_period_score"] / denom
             gap_draws = w * d if gap_draws is None else gap_draws + w * d
         gap = summarise_gap(gap_draws, top, runner)
-        # The coach is free and reversible, so the incumbent gets NO utility bonus and there is
-        # no switching cost to trade against. Under that, three objectives are worth separating.
-        worst_if_leader = max(0.0, -gap["p05"])     # leader chosen, runner-up turns out better
-        worst_if_runner = max(0.0, gap["p95"])      # runner-up chosen, leader turns out better
-        gap["decision_rule"] = {
-            "switching_cost": "zero roll tokens, reversible, so status quo carries no premium",
-            "expected_value_pick": top if gap["mean_gap"] > 0 else runner,
-            "minimax_regret": {
-                "regret_if_" + top.replace(" ", "_"): round(worst_if_leader, 5),
-                "regret_if_" + runner.replace(" ", "_"): round(worst_if_runner, 5),
-                "pick": top if worst_if_leader <= worst_if_runner else runner},
-            "upside_tail_pick": top if gap["p95"] > -gap["p05"] else runner,
-            "objective_used": "expected period score",
-            "why_that_objective": (
-                "the choice is free and reversible, so there is nothing to be risk-averse about "
-                "and no incumbency to protect. Expected score is the default; minimax regret and "
-                "the upside tail are reported alongside because a 95 percent separation was not "
-                "reached, and a recommendation that only one of the three supports would be worth "
-                "flagging as fragile.")}
-        picks = {gap["decision_rule"]["expected_value_pick"],
-                 gap["decision_rule"]["minimax_regret"]["pick"],
-                 gap["decision_rule"]["upside_tail_pick"]}
-        gap["decision_rule"]["all_objectives_agree"] = len(picks) == 1
-        gap["decision_rule"]["operational_choice"] = (
-            picks.pop() if len(picks) == 1 else
-            "INCONCLUSIVE: the three objectives disagree")
+        gap["what_this_is"] = ("ESTIMATOR uncertainty on the parameter gap: how well the "
+                               "historical data pins the difference down. It is NOT a statement "
+                               "about how the coming period will go -- that is the predictive "
+                               "distribution, reported separately under joint_closing.")
+        gap["interval_endpoints"] = {
+            "worst_endpoint_over_the_90_percent_bootstrap_interval": {
+                top: round(max(0.0, -gap["p05"]), 5),
+                runner: round(max(0.0, gap["p95"]), 5)},
+            "not_minimax_regret": "these are interval endpoints, not regrets. Real minimax regret "
+                                  "over a scenario family is computed in scenario_minimax_regret."}
     # A freeze needs two things, and an earlier revision only checked the first: every rival
     # scoreable, AND the leader actually separated from the runner-up. Two suffixes resting on a
     # handful of triggering games can differ by half a point and not be distinguishable at all.
@@ -797,8 +1044,45 @@ def build(state_path, titles_path=None, draws=DRAWS):
                 "every rival is scoreable, but the leader is NOT separated from the runner-up: "
                 f"P(leader ahead) = {gap['p_a_ahead'] if gap else 'n/a'}")}
 
+    joint = scen = hier = loo = None
+    current_prefix = "Elemental"
+    if role_inputs and top and runner and current_prefix in PREFIX_FLAG:
+        contenders = (top, runner)
+        joint = joint_closing(role_inputs, current_prefix, contenders, heroes, cats, table,
+                              priced_suffixes)
+        scen = scenario_minimax_regret(role_inputs, current_prefix, contenders, heroes, cats,
+                                       table)
+
+        def mk(suf, st="additive"):
+            return lambda _r: joint_bonus_fn(current_prefix, suf, st, heroes, cats, table)
+        hier_draws = hierarchical_bootstrap(role_inputs, mk(top), mk(runner))
+        hier = summarise_gap(hier_draws, top, runner)
+        hier["what_this_is"] = ("ESTIMATOR uncertainty with the event set itself resampled. "
+                                "With only three historical events per role the outer level has "
+                                "three distinct values to draw from, so this is a coarse "
+                                "indication of between-tournament variation, not a precise "
+                                "interval.")
+        loo = leave_one_event_out(role_inputs, mk(top), mk(runner))
+        flips = len({f["winner"] for f in loo}) > 1
+        loo = {"folds": loo, "winner_flips_when_an_event_is_dropped": flips,
+               "labels": {"a": top, "b": runner},
+               "event_sensitive": flips}
+        suffix_grade["joint_decision"] = {
+            "compared": f"{current_prefix} + {top} vs {current_prefix} + {runner}",
+            "additive_winner": joint["by_stacking"]["additive"]["winner"],
+            "multiplicative_winner": joint["by_stacking"]["multiplicative"]["winner"],
+            "stacking_robust": (joint["by_stacking"]["additive"]["winner"]
+                                == joint["by_stacking"]["multiplicative"]["winner"]),
+            "leave_one_event_out_robust": not flips,
+            "minimax_choice": scen["minimax_choice"],
+            "hierarchical_p_leader_ahead": hier["p_a_ahead"]}
+
     return {"state": os.path.basename(state_path), "seed": SEED, "draws": draws,
             "suffix_grade": suffix_grade,
+            "joint_closing": joint,
+            "scenario_minimax_regret": scen,
+            "hierarchical_bootstrap": hier,
+            "leave_one_event_out": loo,
             "population_bounds": population,
             "missingness": missingness,
             "suffix_classification": classification,
@@ -902,6 +1186,44 @@ WITHDRAWN_CEILING = {
     "replaced_by": "untabled_prefix_total_extrapolation, named and treated as an extrapolation",
 }
 
+WITHDRAWN_STANDALONE = {
+    "claim": "the Tormented is worth +3.730 percent and the Lucky +2.583 percent, therefore the "
+             "account should run the Tormented",
+    "status": "WITHDRAWN as a comparison, RETAINED as standalone diagnostics",
+    "why": "those are each title's gain against NO COACH. The account never faces that choice: a "
+           "coach is always one prefix and one suffix, so the real comparison is Elemental plus "
+           "one suffix against Elemental plus the other. Composing the two best standalone titles "
+           "is not a valid route to the best pair, because prefix and suffix indicators land on "
+           "the same player-game and the top-two and best-series maxima are not linear in a "
+           "player-game bonus.",
+    "replaced_by": "joint_closing, which resolves both indicators on the same player-game and "
+                   "carries the pair through the whole layering",
+}
+
+WITHDRAWN_OBJECTIVE = {
+    "claim": "because changing the coach is free and reversible there is nothing to be "
+             "risk-averse about, so expected score is the default objective",
+    "status": "WITHDRAWN",
+    "why": "free and reversible sets the switching cost and the incumbency premium to zero. It "
+           "says nothing about the reward function. This compendium pays on percentile bands, and "
+           "percentile_reward_values is still an open unknown, so maximising expected score is "
+           "not the same as maximising the chance of clearing a band. The objective had to be "
+           "chosen from the reward structure, not from the cost of switching.",
+    "replaced_by": "objective sensitivity across expected score, median, downside, upper tail and "
+                   "a threshold-crossing grid, with the crossing points reported where the two "
+                   "distributions cross",
+}
+
+WITHDRAWN_ENDPOINTS = {
+    "claim": "the negative fifth percentile and the positive ninety-fifth percentile of the "
+             "bootstrap gap are the regret of each action, so this is minimax regret",
+    "status": "WITHDRAWN",
+    "why": "those are endpoints of an estimator-uncertainty interval. A regret needs a scenario in "
+           "which an action is wrong and a best action to compare it against.",
+    "replaced_by": "scenario_minimax_regret over a named family: stacking hypothesis crossed with "
+                   "leave-one-event-out",
+}
+
 WITHDRAWN_POOLING = {
     "claim": "the historical pool is per event and never pooled across events",
     "status": "WITHDRAWN -- the docstring said this, the code did the opposite",
@@ -998,7 +1320,7 @@ def assemble(computed, state_path):
                           f"--out <this file>",
             "label": "BEST-KNOWN PROVISIONAL -- not FINAL, not a ROBUST OPTIMUM",
             "label_by_component": {
-                "suffix_the_Lucky": {
+                "suffix_choice": {
                     "grade": computed["suffix_grade"]["grade"],
                     "grade_basis": computed["suffix_grade"],
                     "why": "every match in the five-league window has been fetched, so the "
@@ -1034,7 +1356,8 @@ def assemble(computed, state_path):
             "coach_change_cost": COACH_CHANGE_COST,
             "withdrawn_claims": [WITHDRAWN, WITHDRAWN_COMPLETION, WITHDRAWN_CEILING,
                                  WITHDRAWN_TORMENTOR, WITHDRAWN_POOLING,
-                                 WITHDRAWN_COACH_COST],
+                                 WITHDRAWN_COACH_COST, WITHDRAWN_STANDALONE,
+                                 WITHDRAWN_OBJECTIVE, WITHDRAWN_ENDPOINTS],
             "withdrawn_claim": WITHDRAWN,
             "exact_pricing": computed}
 

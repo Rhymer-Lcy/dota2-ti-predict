@@ -3,7 +3,7 @@
  "regenerate": "python -m ti_predict.fantasy.coach_optimize --state predictions/ti2026/fantasy/account_state_target_20260812b.json --out <this file>",
  "label": "BEST-KNOWN PROVISIONAL -- not FINAL, not a ROBUST OPTIMUM",
  "label_by_component": {
-  "suffix_the_Lucky": {
+  "suffix_choice": {
    "grade": "DECISION-PREFERRED / BEST-KNOWN ON CURRENT EVIDENCE",
    "grade_basis": {
     "best_point_estimate": "the Tormented",
@@ -16,19 +16,13 @@
      "p95": 0.04283,
      "p_a_ahead": 0.7675,
      "separated_at_95": false,
-     "decision_rule": {
-      "switching_cost": "zero roll tokens, reversible, so status quo carries no premium",
-      "expected_value_pick": "the Tormented",
-      "minimax_regret": {
-       "regret_if_the_Tormented": 0.01103,
-       "regret_if_the_Lucky": 0.04283,
-       "pick": "the Tormented"
+     "what_this_is": "ESTIMATOR uncertainty on the parameter gap: how well the historical data pins the difference down. It is NOT a statement about how the coming period will go -- that is the predictive distribution, reported separately under joint_closing.",
+     "interval_endpoints": {
+      "worst_endpoint_over_the_90_percent_bootstrap_interval": {
+       "the Tormented": 0.01103,
+       "the Lucky": 0.04283
       },
-      "upside_tail_pick": "the Tormented",
-      "objective_used": "expected period score",
-      "why_that_objective": "the choice is free and reversible, so there is nothing to be risk-averse about and no incumbency to protect. Expected score is the default; minimax regret and the upside tail are reported alongside because a 95 percent separation was not reached, and a recommendation that only one of the three supports would be worth flagging as fragile.",
-      "all_objectives_agree": true,
-      "operational_choice": "the Tormented"
+      "not_minimax_regret": "these are interval endpoints, not regrets. Real minimax regret over a scenario family is computed in scenario_minimax_regret."
      }
     },
     "grade": "DECISION-PREFERRED / BEST-KNOWN ON CURRENT EVIDENCE",
@@ -37,7 +31,16 @@
     "unavailable_rivals": [
      "the Cruel"
     ],
-    "why": "every rival is scoreable, but the leader is NOT separated from the runner-up: P(leader ahead) = 0.7675"
+    "why": "every rival is scoreable, but the leader is NOT separated from the runner-up: P(leader ahead) = 0.7675",
+    "joint_decision": {
+     "compared": "Elemental + the Tormented vs Elemental + the Lucky",
+     "additive_winner": "the Tormented",
+     "multiplicative_winner": "the Tormented",
+     "stacking_robust": true,
+     "leave_one_event_out_robust": false,
+     "minimax_choice": "the Tormented",
+     "hierarchical_p_leader_ahead": 0.6525
+    }
    },
    "why": "every match in the five-league window has been fetched, so the first-blood bounds are population bounds rather than prefix bounds. the Lucky beats the next scoreable suffix by a factor of 2.3, and the Patient and the Flayed Twins Acolyte are ruled out on zero triggers in 623 matches.",
    "not_claimed": "this is not a proven optimum over all eight. Two residuals are named below and neither is closed by measurement.",
@@ -156,6 +159,24 @@
    "status": "WITHDRAWN",
    "why": "the ruleset already recorded the answer, from the shipped help string DOTA_FantasyCraftHelp_CoachDetails: titles may be changed freely without spending roll tokens. The operator's own client rules panel says the same. The claim was asserted from memory against a fact this repository already held -- the same failure as the hand-typed suffix bonuses.",
    "replaced_by": "coach_change_cost, recorded as free and reversible, and a decision rule that gives the incumbent no premium"
+  },
+  {
+   "claim": "the Tormented is worth +3.730 percent and the Lucky +2.583 percent, therefore the account should run the Tormented",
+   "status": "WITHDRAWN as a comparison, RETAINED as standalone diagnostics",
+   "why": "those are each title's gain against NO COACH. The account never faces that choice: a coach is always one prefix and one suffix, so the real comparison is Elemental plus one suffix against Elemental plus the other. Composing the two best standalone titles is not a valid route to the best pair, because prefix and suffix indicators land on the same player-game and the top-two and best-series maxima are not linear in a player-game bonus.",
+   "replaced_by": "joint_closing, which resolves both indicators on the same player-game and carries the pair through the whole layering"
+  },
+  {
+   "claim": "because changing the coach is free and reversible there is nothing to be risk-averse about, so expected score is the default objective",
+   "status": "WITHDRAWN",
+   "why": "free and reversible sets the switching cost and the incumbency premium to zero. It says nothing about the reward function. This compendium pays on percentile bands, and percentile_reward_values is still an open unknown, so maximising expected score is not the same as maximising the chance of clearing a band. The objective had to be chosen from the reward structure, not from the cost of switching.",
+   "replaced_by": "objective sensitivity across expected score, median, downside, upper tail and a threshold-crossing grid, with the crossing points reported where the two distributions cross"
+  },
+  {
+   "claim": "the negative fifth percentile and the positive ninety-fifth percentile of the bootstrap gap are the regret of each action, so this is minimax regret",
+   "status": "WITHDRAWN",
+   "why": "those are endpoints of an estimator-uncertainty interval. A regret needs a scenario in which an action is wrong and a best action to compare it against.",
+   "replaced_by": "scenario_minimax_regret over a named family: stacking hypothesis crossed with leave-one-event-out"
   }
  ],
  "withdrawn_claim": {
@@ -179,19 +200,13 @@
     "p95": 0.04283,
     "p_a_ahead": 0.7675,
     "separated_at_95": false,
-    "decision_rule": {
-     "switching_cost": "zero roll tokens, reversible, so status quo carries no premium",
-     "expected_value_pick": "the Tormented",
-     "minimax_regret": {
-      "regret_if_the_Tormented": 0.01103,
-      "regret_if_the_Lucky": 0.04283,
-      "pick": "the Tormented"
+    "what_this_is": "ESTIMATOR uncertainty on the parameter gap: how well the historical data pins the difference down. It is NOT a statement about how the coming period will go -- that is the predictive distribution, reported separately under joint_closing.",
+    "interval_endpoints": {
+     "worst_endpoint_over_the_90_percent_bootstrap_interval": {
+      "the Tormented": 0.01103,
+      "the Lucky": 0.04283
      },
-     "upside_tail_pick": "the Tormented",
-     "objective_used": "expected period score",
-     "why_that_objective": "the choice is free and reversible, so there is nothing to be risk-averse about and no incumbency to protect. Expected score is the default; minimax regret and the upside tail are reported alongside because a 95 percent separation was not reached, and a recommendation that only one of the three supports would be worth flagging as fragile.",
-     "all_objectives_agree": true,
-     "operational_choice": "the Tormented"
+     "not_minimax_regret": "these are interval endpoints, not regrets. Real minimax regret over a scenario family is computed in scenario_minimax_regret."
     }
    },
    "grade": "DECISION-PREFERRED / BEST-KNOWN ON CURRENT EVIDENCE",
@@ -200,7 +215,458 @@
    "unavailable_rivals": [
     "the Cruel"
    ],
-   "why": "every rival is scoreable, but the leader is NOT separated from the runner-up: P(leader ahead) = 0.7675"
+   "why": "every rival is scoreable, but the leader is NOT separated from the runner-up: P(leader ahead) = 0.7675",
+   "joint_decision": {
+    "compared": "Elemental + the Tormented vs Elemental + the Lucky",
+    "additive_winner": "the Tormented",
+    "multiplicative_winner": "the Tormented",
+    "stacking_robust": true,
+    "leave_one_event_out_robust": false,
+    "minimax_choice": "the Tormented",
+    "hierarchical_p_leader_ahead": 0.6525
+   }
+  },
+  "joint_closing": {
+   "prefix_held_fixed": "Elemental",
+   "contenders": [
+    "the Tormented",
+    "the Lucky"
+   ],
+   "by_stacking": {
+    "additive": {
+     "joint_gain": {
+      "the Tormented": 0.07121,
+      "the Lucky": 0.0618
+     },
+     "gap": 0.00941,
+     "winner": "the Tormented",
+     "standalone_sum_approximation": {
+      "the Tormented": 0.07142,
+      "the Lucky": 0.05995,
+      "prefix_alone": 0.03412,
+      "interaction_residual": {
+       "the Tormented": -0.00022,
+       "the Lucky": 0.00185
+      },
+      "note": "exact joint minus the sum of standalone gains; nonzero because the top-two and best-series maxima are not linear in a player-game bonus"
+     },
+     "predictive_distribution": {
+      "what_this_is": "how the coming TI period could turn out, at the fitted historical distribution. NOT estimator uncertainty.",
+      "the Tormented": {
+       "mean": 28082.83,
+       "p10": 24020.01,
+       "p25": 26224.11,
+       "median": 27388.73,
+       "p75": 31059.62,
+       "p90": 31183.04,
+       "p95": 31326.92
+      },
+      "the Lucky": {
+       "mean": 27866.63,
+       "p10": 24238.35,
+       "p25": 26192.66,
+       "median": 27785.97,
+       "p75": 30713.99,
+       "p90": 30811.21,
+       "p95": 30920.36
+      },
+      "paired_difference": {
+       "mean": 216.2,
+       "median": 0.0,
+       "p10": -809.0,
+       "p90": 1360.4,
+       "P_the_Tormented_higher": 0.4502,
+       "P_tie": 0.1842
+      },
+      "threshold_crossing": {
+       "score>=29716": {
+        "the Tormented": 0.438,
+        "the Lucky": 0.3715
+       },
+       "score>=30639": {
+        "the Tormented": 0.3285,
+        "the Lucky": 0.3058
+       },
+       "score>=30811": {
+        "the Tormented": 0.2958,
+        "the Lucky": 0.2228
+       },
+       "score>=31059": {
+        "the Tormented": 0.2838,
+        "the Lucky": 0.0
+       },
+       "score>=31183": {
+        "the Tormented": 0.1225,
+        "the Lucky": 0.0
+       }
+      }
+     }
+    },
+    "multiplicative": {
+     "joint_gain": {
+      "the Tormented": 0.07214,
+      "the Lucky": 0.06284
+     },
+     "gap": 0.0093,
+     "winner": "the Tormented",
+     "standalone_sum_approximation": {
+      "the Tormented": 0.07142,
+      "the Lucky": 0.05995,
+      "prefix_alone": 0.03412,
+      "interaction_residual": {
+       "the Tormented": 0.00071,
+       "the Lucky": 0.00289
+      },
+      "note": "exact joint minus the sum of standalone gains; nonzero because the top-two and best-series maxima are not linear in a player-game bonus"
+     },
+     "predictive_distribution": {
+      "what_this_is": "how the coming TI period could turn out, at the fitted historical distribution. NOT estimator uncertainty.",
+      "the Tormented": {
+       "mean": 28106.86,
+       "p10": 24020.01,
+       "p25": 26224.11,
+       "median": 27388.73,
+       "p75": 31159.1,
+       "p90": 31183.04,
+       "p95": 31364.28
+      },
+      "the Lucky": {
+       "mean": 27893.61,
+       "p10": 24249.9,
+       "p25": 26192.66,
+       "median": 27785.97,
+       "p75": 30713.99,
+       "p90": 30902.04,
+       "p95": 30920.36
+      },
+      "paired_difference": {
+       "mean": 213.25,
+       "median": 0.0,
+       "p10": -820.55,
+       "p90": 1404.64,
+       "P_the_Tormented_higher": 0.4502,
+       "P_tie": 0.1842
+      },
+      "threshold_crossing": {
+       "score>=29753": {
+        "the Tormented": 0.438,
+        "the Lucky": 0.3715
+       },
+       "score>=30663": {
+        "the Tormented": 0.309,
+        "the Lucky": 0.2973
+       },
+       "score>=30902": {
+        "the Tormented": 0.2958,
+        "the Lucky": 0.1958
+       },
+       "score>=31159": {
+        "the Tormented": 0.2502,
+        "the Lucky": 0.0
+       },
+       "score>=31183": {
+        "the Tormented": 0.1225,
+        "the Lucky": 0.0
+       }
+      }
+     }
+    }
+   },
+   "joint_search": {
+    "additive": {
+     "best_known_joint": {
+      "prefix": "Elemental",
+      "suffix": "the Tormented",
+      "joint_gain": 0.07121
+     },
+     "best_suffix_with_prefix_held": {
+      "prefix": "Elemental",
+      "suffix": "the Tormented",
+      "joint_gain": 0.07121
+     },
+     "best_measurable_prefix_with_current_suffix": {
+      "prefix": "Elemental",
+      "suffix": "the Lucky",
+      "joint_gain": 0.0618
+     },
+     "current_setting": {
+      "prefix": "Elemental",
+      "suffix": "the Lucky",
+      "joint_gain": 0.0618
+     },
+     "gap_current_to_joint_optimum": 0.00941,
+     "top_five": [
+      {
+       "prefix": "Elemental",
+       "suffix": "the Tormented",
+       "joint_gain": 0.07121
+      },
+      {
+       "prefix": "Elemental",
+       "suffix": "the Lucky",
+       "joint_gain": 0.0618
+      },
+      {
+       "prefix": "Otherworldly",
+       "suffix": "the Tormented",
+       "joint_gain": 0.05604
+      },
+      {
+       "prefix": "Elemental",
+       "suffix": "the Clutch",
+       "joint_gain": 0.04851
+      },
+      {
+       "prefix": "Elemental",
+       "suffix": "the Underdog",
+       "joint_gain": 0.04797
+      }
+     ],
+     "excluded_from_search": {
+      "prefixes": [
+       "Royal",
+       "Golden",
+       "Heroic"
+      ],
+      "why": "no hero category table; their figures are extrapolations, not ceilings, so they cannot enter an exact search"
+     }
+    },
+    "multiplicative": {
+     "best_known_joint": {
+      "prefix": "Elemental",
+      "suffix": "the Tormented",
+      "joint_gain": 0.07214
+     },
+     "best_suffix_with_prefix_held": {
+      "prefix": "Elemental",
+      "suffix": "the Tormented",
+      "joint_gain": 0.07214
+     },
+     "best_measurable_prefix_with_current_suffix": {
+      "prefix": "Elemental",
+      "suffix": "the Lucky",
+      "joint_gain": 0.06284
+     },
+     "current_setting": {
+      "prefix": "Elemental",
+      "suffix": "the Lucky",
+      "joint_gain": 0.06284
+     },
+     "gap_current_to_joint_optimum": 0.0093,
+     "top_five": [
+      {
+       "prefix": "Elemental",
+       "suffix": "the Tormented",
+       "joint_gain": 0.07214
+      },
+      {
+       "prefix": "Elemental",
+       "suffix": "the Lucky",
+       "joint_gain": 0.06284
+      },
+      {
+       "prefix": "Otherworldly",
+       "suffix": "the Tormented",
+       "joint_gain": 0.05672
+      },
+      {
+       "prefix": "Elemental",
+       "suffix": "the Clutch",
+       "joint_gain": 0.04948
+      },
+      {
+       "prefix": "Elemental",
+       "suffix": "the Underdog",
+       "joint_gain": 0.04838
+      }
+     ],
+     "excluded_from_search": {
+      "prefixes": [
+       "Royal",
+       "Golden",
+       "Heroic"
+      ],
+      "why": "no hero category table; their figures are extrapolations, not ceilings, so they cannot enter an exact search"
+     }
+    }
+   }
+  },
+  "scenario_minimax_regret": {
+   "definition": "max over scenarios of (best action in that scenario minus this action)",
+   "scenario_family": "stacking hypothesis x leave-one-event-out",
+   "scenarios": [
+    {
+     "scenario": "additive / all events",
+     "the Tormented": 0.07121,
+     "the Lucky": 0.0618
+    },
+    {
+     "scenario": "additive / drop 19101",
+     "the Tormented": 0.07275,
+     "the Lucky": 0.06133
+    },
+    {
+     "scenario": "additive / drop 19543",
+     "the Tormented": 0.0832,
+     "the Lucky": 0.0683
+    },
+    {
+     "scenario": "additive / drop 19696",
+     "the Tormented": 0.06499,
+     "the Lucky": 0.04415
+    },
+    {
+     "scenario": "additive / drop 19785",
+     "the Tormented": 0.06165,
+     "the Lucky": 0.07276
+    },
+    {
+     "scenario": "multiplicative / all events",
+     "the Tormented": 0.07214,
+     "the Lucky": 0.06284
+    },
+    {
+     "scenario": "multiplicative / drop 19101",
+     "the Tormented": 0.07372,
+     "the Lucky": 0.06232
+    },
+    {
+     "scenario": "multiplicative / drop 19543",
+     "the Tormented": 0.08444,
+     "the Lucky": 0.06969
+    },
+    {
+     "scenario": "multiplicative / drop 19696",
+     "the Tormented": 0.06554,
+     "the Lucky": 0.04426
+    },
+    {
+     "scenario": "multiplicative / drop 19785",
+     "the Tormented": 0.06255,
+     "the Lucky": 0.07437
+    }
+   ],
+   "max_regret": {
+    "the Tormented": 0.01182,
+    "the Lucky": 0.02128
+   },
+   "minimax_choice": "the Tormented"
+  },
+  "hierarchical_bootstrap": {
+   "comparison": "the Tormented minus the Lucky",
+   "reps": 400,
+   "mean_gap": 0.00975,
+   "p05": -0.01852,
+   "p95": 0.04633,
+   "p_a_ahead": 0.6525,
+   "separated_at_95": false,
+   "what_this_is": "ESTIMATOR uncertainty with the event set itself resampled. With only three historical events per role the outer level has three distinct values to draw from, so this is a coarse indication of between-tournament variation, not a precise interval."
+  },
+  "leave_one_event_out": {
+   "folds": [
+    {
+     "dropped_event": "19101",
+     "a": 0.07275,
+     "b": 0.06133,
+     "gap": 0.01141,
+     "winner": "a",
+     "by_role": {
+      "core": {
+       "a": 0.08214,
+       "b": 0.06136,
+       "gap": 0.02078
+      },
+      "mid": {
+       "a": 0.04997,
+       "b": 0.05393,
+       "gap": -0.00396
+      },
+      "support": {
+       "a": 0.07955,
+       "b": 0.07569,
+       "gap": 0.00386
+      }
+     }
+    },
+    {
+     "dropped_event": "19543",
+     "a": 0.0832,
+     "b": 0.0683,
+     "gap": 0.0149,
+     "winner": "a",
+     "by_role": {
+      "core": {
+       "a": 0.09533,
+       "b": 0.07278,
+       "gap": 0.02255
+      },
+      "mid": {
+       "a": 0.05294,
+       "b": 0.06071,
+       "gap": -0.00777
+      },
+      "support": {
+       "a": 0.1111,
+       "b": 0.06852,
+       "gap": 0.04257
+      }
+     }
+    },
+    {
+     "dropped_event": "19696",
+     "a": 0.06499,
+     "b": 0.04415,
+     "gap": 0.02084,
+     "winner": "a",
+     "by_role": {
+      "core": {
+       "a": 0.07353,
+       "b": 0.03406,
+       "gap": 0.03947
+      },
+      "mid": {
+       "a": 0.04816,
+       "b": 0.05644,
+       "gap": -0.00829
+      },
+      "support": {
+       "a": 0.07194,
+       "b": 0.05416,
+       "gap": 0.01779
+      }
+     }
+    },
+    {
+     "dropped_event": "19785",
+     "a": 0.06165,
+     "b": 0.07276,
+     "gap": -0.01111,
+     "winner": "b",
+     "by_role": {
+      "core": {
+       "a": 0.07435,
+       "b": 0.07522,
+       "gap": -0.00087
+      },
+      "mid": {
+       "a": 0.04104,
+       "b": 0.05416,
+       "gap": -0.01312
+      },
+      "support": {
+       "a": 0.05771,
+       "b": 0.10062,
+       "gap": -0.04291
+      }
+     }
+    }
+   ],
+   "winner_flips_when_an_event_is_dropped": true,
+   "labels": {
+    "a": "the Tormented",
+    "b": "the Lucky"
+   },
+   "event_sensitive": true
   },
   "population_bounds": {
    "the Patient": {
@@ -265,7 +731,7 @@
     "sha256": "507264727f41d993fe61b6155de1b404c2741658b0ffe99bf09d3b89f3f3e412",
     "coverage_complete": true
    },
-   "generated_utc": "2026-08-12T14:16:10+00:00"
+   "generated_utc": "2026-08-12T14:48:12+00:00"
   },
   "all_eight_closed": false,
   "suffix_scope": {

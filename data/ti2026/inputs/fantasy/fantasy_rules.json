@@ -1449,31 +1449,24 @@
    "scope": "generic",
    "question": "Do a prefix and a suffix that both trigger add or multiply?",
    "fact_status": "UNRESOLVED",
-   "decision_status": "CONDITIONAL",
-   "blocking_for": [
-    "core",
-    "mid"
-   ],
+   "decision_status": "ROBUST",
+   "blocking_for": [],
    "measured_by": "sensitivity.coach_titles",
-   "note": "Blocks core and mid only; support is robust to the stacking choice.",
-   "measured": "Additive and multiplicative differ by exactly p*s, at most 0.0264 with the real maxima (0.11 x 0.24).",
-   "condition": "Blocks only when the chosen prefix and suffix can both trigger on the same game and the resulting difference (p*s) exceeds the gap between the top two candidates for that role. Evaluated per recommendation."
+   "note": "No longer blocks. Both admissible rules were run end to end on the actual pair the account faces, not bounded by the maximum interaction term.",
+   "measured": "Elemental+the Tormented wins under BOTH stackings. Additive: {'the Tormented': 0.07121, 'the Lucky': 0.0618}, gap 0.00941. Multiplicative: {'the Tormented': 0.07214, 'the Lucky': 0.06284}, gap 0.00930. The interaction term (0.08 x 0.23 = 0.0184) is real and of the same order as the gap, which is why it had to be run rather than bounded, but it moves both candidates in the same direction and does not reorder them. fact_status stays UNRESOLVED: we still do not know which rule Valve uses, only that it does not matter here."
   },
   {
    "id": "trait_composition",
    "scope": "generic",
    "question": "In what order do trait and quality multipliers compose, and how is it rounded?",
-   "fact_status": "UNRESOLVED",
-   "decision_status": "BLOCKING",
-   "blocking_for": [
-    "core",
-    "mid",
-    "support"
-   ],
+   "fact_status": "CONFIRMED",
+   "decision_status": "IRRELEVANT",
+   "blocking_for": [],
    "measured_by": "sensitivity.trait_composition",
-   "note": "Provisionally BLOCKING until measured; an unmeasured unknown is treated as blocking, never as harmless.",
-   "measured": "Sampling per-slot multipliers across the full legal quality-and-trait envelope, with the stat set and the control held fixed, changes the top team in 60.3 percent of draws for core, 10.9 percent for mid and 38.4 percent for support.",
-   "consequence": "This is the strongest single result of the round: the best TEAM for a banner depends on that banner's weights, which are account state. The public envelope ranking is therefore a comparison under equal weights, not a team recommendation, and the roster choice is not separable from the banner."
+   "note": "Closed by account runtime evidence, not downgraded for convenience. The composition rule is multiplier = 1 + quality_bonus + net_trait_bonus, which reproduces all 18 displayed emblem multipliers across two accounts exactly, and was used to make two predictions before the fact that both landed. The earlier multiplicative reading was falsified by the client's own printed numbers.",
+   "measured": "The sensitivity result that made this BLOCKING was about a different quantity: sampling banner weights across the legal envelope changes the best TEAM in 60.3 / 10.9 / 38.4 percent of draws for core / mid / support. That finding stands, but it is not an unknown about composition, and it no longer blocks anything: the TARGET ACCOUNT's banner is observed, so the weights are data rather than a distribution to integrate over.",
+   "consequence": "This is the strongest single result of the round: the best TEAM for a banner depends on that banner's weights, which are account state. The public envelope ranking is therefore a comparison under equal weights, not a team recommendation, and the roster choice is not separable from the banner.",
+   "scope_note": "Retained scope: none for composition. The team-versus-banner coupling is recorded as a settled consequence, not an open unknown."
   },
   {
    "id": "period_1_slot_count",
@@ -1614,12 +1607,17 @@
    "id": "historical_event_aggregation",
    "scope": "generic",
    "question": "How should historical events be combined into one period-level estimate?",
-   "fact_status": "CONFIRMED",
-   "decision_status": "SCALE_ONLY",
-   "blocking_for": [],
+   "fact_status": "PARTIAL",
+   "decision_status": "CONDITIONAL",
+   "blocking_for": [
+    "coach_suffix"
+   ],
    "measured_by": "coach_optimize.project_period",
-   "note": "Settled as event-equal blocks. The withdrawn estimator flattened every event into one series pool, which made attendance into weight and let a simulated period draw its maximum from a different tournament. The bootstrap repeated the same flatten, so the interval described a different estimand from the estimate.",
-   "measured": "Single-factor switch, everything else held: the Tormented moved 0.03872 -> 0.03730 and the Lucky 0.03257 -> 0.02583, so the gap widened from 0.00615 to 0.01199 and P(Tormented ahead) rose from 0.657 to 0.7675. Core separates at 0.955 in the Tormented's favour, Mid favours the Lucky outright, Support is a coin flip."
+   "note": "Two separate things, previously conflated under one CONFIRMED label. What IS settled is a correctness defect: flattening every event into one series pool made attendance into weight and let a simulated period take its maximum from a different tournament. What is NOT a fact is the replacement. Equal weight per event is a MODELLING CHOICE, not a Valve rule and not an observable truth, so it is recorded as a selected estimator rather than as a confirmed fact.",
+   "measured": "Validated three ways. Duplicating or growing one event's series pool leaves the projection unchanged, by construction and by test. Leave-one-event-out over 4 folds: the winner FLIPS on ['19785'], so the estimate is event-sensitive. A hierarchical bootstrap that resamples the event set itself widens the interval to [-0.01852, 0.04633] and drops P(leader ahead) from 0.7675 to 0.6525 -- with only three events per role the outer level has three distinct values to draw from, so that is a coarse indication of between-tournament variation and not a precise interval.",
+   "model_status": "SELECTED",
+   "is_estimator_choice_not_a_rule": true,
+   "condition": "Applies whenever two coach settings are within the spread that dropping one historical event can produce. It does not touch team or banner choices."
   }
  ],
  "readiness_note": "This register is the ONLY source of readiness. There is no second hand-written blocker list: a blocker is any entry whose decision_status is BLOCKING, plus any CONDITIONAL entry whose condition currently holds. ti_predict/fantasy/questions.py derives it and refuses a register that carries an unmeasured decision_status.",

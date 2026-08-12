@@ -161,7 +161,7 @@ def test_the_freeze_is_derived_from_rival_status_and_not_asserted(art):
         assert g["grade"].startswith("DECISION-PREFERRED")
     else:
         assert g["grade"].startswith("FROZEN")
-    assert art["label_by_component"]["suffix_the_Lucky"]["grade"] == g["grade"]
+    assert art["label_by_component"]["suffix_choice"]["grade"] == g["grade"]
 
 
 def test_a_leader_inside_the_bootstrap_interval_is_not_called_settled(art):
@@ -198,20 +198,69 @@ def test_the_coach_change_cost_has_exactly_one_consistent_statement(art):
     assert "cost advantage" not in body.replace("no cost advantage", "")
 
 
-def test_the_decision_rule_gives_the_incumbent_no_premium(art):
-    """Free and reversible means the saved suffix wins nothing for being saved."""
-    gap = art["exact_pricing"]["suffix_grade"].get("gap_bootstrap")
-    if not gap:
-        pytest.skip("only one scoreable suffix")
-    d = gap["decision_rule"]
-    assert "no premium" in d["switching_cost"]
-    assert d["objective_used"]
-    assert d["all_objectives_agree"] == (
-        len({d["expected_value_pick"], d["minimax_regret"]["pick"], d["upside_tail_pick"]}) == 1)
-    if d["all_objectives_agree"]:
-        assert d["operational_choice"] == d["expected_value_pick"]
-    else:
-        assert d["operational_choice"].startswith("INCONCLUSIVE")
+def test_estimator_uncertainty_and_the_predictive_distribution_are_never_conflated(art):
+    """Two different questions, so two different fields with two different names."""
+    ex = art["exact_pricing"]
+    gap = ex["suffix_grade"]["gap_bootstrap"]
+    assert "ESTIMATOR uncertainty" in gap["what_this_is"]
+    assert "decision_rule" not in gap          # the old field mixed both
+    pred = ex["joint_closing"]["by_stacking"]["additive"]["predictive_distribution"]
+    assert "NOT estimator uncertainty" in pred["what_this_is"]
+    # the predictive side reports period scores; the estimator side reports a gap in gain
+    assert set(pred["paired_difference"]) & {"p05", "p95"} == set()
+    assert set(gap) & {"median", "p10", "p90"} == set()
+
+
+def test_bootstrap_interval_endpoints_are_not_called_minimax_regret(art):
+    ex = art["exact_pricing"]
+    e = ex["suffix_grade"]["gap_bootstrap"]["interval_endpoints"]
+    assert "worst_endpoint_over_the_90_percent_bootstrap_interval" in e
+    # no KEY may name these regrets; the disclaimer text is allowed to say what they are not
+    assert not any("regret" in k for k in e
+                   if k != "not_minimax_regret")
+    # a real one exists, over a named scenario family
+    sm = ex["scenario_minimax_regret"]
+    assert "stacking hypothesis x leave-one-event-out" in sm["scenario_family"]
+    assert len(sm["scenarios"]) >= 4
+    assert sm["minimax_choice"] in sm["max_regret"]
+    assert sm["max_regret"][sm["minimax_choice"]] == min(sm["max_regret"].values())
+
+
+def test_the_joint_comparison_is_the_one_the_account_actually_faces(art):
+    """Prefix held fixed, suffix varied -- not two standalone gains against no coach."""
+    jc = art["exact_pricing"]["joint_closing"]
+    assert jc["prefix_held_fixed"] == "Elemental"
+    for stacking in ("additive", "multiplicative"):
+        b = jc["by_stacking"][stacking]
+        assert set(b["joint_gain"]) == set(jc["contenders"])
+        resid = b["standalone_sum_approximation"]["interaction_residual"]
+        # the whole point: the exact joint is not the sum of standalone gains
+        assert any(abs(v) > 1e-6 for v in resid.values())
+
+
+def test_the_event_aggregation_choice_is_not_recorded_as_a_confirmed_fact():
+    """Equal weight per event is an estimator, not a Valve rule or an observable."""
+    from ti_predict.fantasy import questions as fq
+    u = next(x for x in fq.load_rules()["unknowns"]
+             if x["id"] == "historical_event_aggregation")
+    assert u["fact_status"] != "CONFIRMED"
+    assert u.get("is_estimator_choice_not_a_rule") is True
+    assert u.get("model_status") == "SELECTED"
+
+
+def test_event_sensitivity_is_reported_rather_than_smoothed_over(art):
+    loo = art["exact_pricing"]["leave_one_event_out"]
+    winners = {f["winner"] for f in loo["folds"]}
+    assert loo["winner_flips_when_an_event_is_dropped"] == (len(winners) > 1)
+    assert loo["event_sensitive"] == loo["winner_flips_when_an_event_is_dropped"]
+    for f in loo["folds"]:
+        assert set(f["by_role"]) <= {"core", "mid", "support"}
+
+
+def test_the_hierarchical_bootstrap_says_how_coarse_it_is(art):
+    h = art["exact_pricing"]["hierarchical_bootstrap"]
+    assert "three distinct values" in h["what_this_is"]
+    assert "coarse" in h["what_this_is"]
 
 
 def test_the_cross_event_pooling_defect_is_recorded_as_withdrawn(art):

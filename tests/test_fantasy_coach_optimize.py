@@ -174,6 +174,113 @@ def test_a_series_with_too_few_complete_games_is_dropped_entirely():
     assert co.series_scores(per, 1, co._zero) == {}
 
 
+# ------------------------------------------------------------------- joint pricing
+
+CATS = {7: {"isaquatic": True}, 8: {"isaquatic": False}}
+HEROES = {(1, 10): 7, (2, 10): 8, (3, 10): 7, (4, 10): 8}
+
+
+def _table(trigger_on):
+    return {(m, 10): {"the Lucky": m in trigger_on} for m in (1, 2, 3, 4)}
+
+
+def test_the_joint_bonus_resolves_both_indicators_on_the_same_player_game():
+    """Prefix and suffix are decided per player-game, so their overlap is visible there."""
+    fn = co.joint_bonus_fn("Elemental", "the Lucky", "additive", HEROES, CATS, _table({1, 2}))
+    p, s_ = co.PREFIX_BONUS["Elemental"] / 100, co.SUFFIX_BONUS["the Lucky"] / 100
+    assert fn(1, 10) == pytest.approx(p + s_)      # aquatic hero AND lucky duration
+    assert fn(2, 10) == pytest.approx(s_)         # lucky only
+    assert fn(3, 10) == pytest.approx(p)          # aquatic only
+    assert fn(4, 10) == pytest.approx(0.0)        # neither
+
+
+def test_additive_and_multiplicative_differ_only_where_both_fire():
+    add = co.joint_bonus_fn("Elemental", "the Lucky", "additive", HEROES, CATS, _table({1, 2}))
+    mul = co.joint_bonus_fn("Elemental", "the Lucky", "multiplicative", HEROES, CATS,
+                            _table({1, 2}))
+    p, s_ = co.PREFIX_BONUS["Elemental"] / 100, co.SUFFIX_BONUS["the Lucky"] / 100
+    assert mul(1, 10) - add(1, 10) == pytest.approx(p * s_)     # the interaction term
+    for mid in (2, 3, 4):
+        assert mul(mid, 10) == pytest.approx(add(mid, 10))
+
+
+def test_a_joint_gain_is_not_the_sum_of_two_standalone_gains():
+    """top-two and best-series are maxima, so a player-game bonus does not pass through linearly."""
+    per = _per({"s1": {1: {10: 100.0}, 2: {10: 99.0}, 3: {10: 98.0}},
+                "s2": {4: {10: 90.0}, 5: {10: 10.0}, 6: {10: 10.0}}})
+    counts = np.full(4000, 2)
+    base = co.price(per, 1, counts, co._zero)
+    only_p = lambda mid, _a: 0.30 if mid in (3, 5) else 0.0      # noqa: E731
+    only_s = lambda mid, _a: 0.30 if mid in (3, 6) else 0.0      # noqa: E731
+    both = lambda mid, a: only_p(mid, a) + only_s(mid, a)        # noqa: E731
+    gp = co.price(per, 1, counts, only_p) / base - 1
+    gs = co.price(per, 1, counts, only_s) / base - 1
+    gj = co.price(per, 1, counts, both) / base - 1
+    assert gj != pytest.approx(gp + gs, abs=1e-6)                # interaction is real
+
+
+def test_the_joint_gains_recompute_from_raw_inputs_rather_than_from_the_artifact():
+    """Elemental+X is rebuilt from stats, heroes and extras, then checked against what shipped."""
+    art_path = os.path.join("predictions", "ti2026", "fantasy", "coach_pricing_20260812.json")
+    if not os.path.exists(art_path):
+        pytest.skip("artifact not generated")
+    with open(art_path, encoding="utf-8") as fh:
+        jc = json.load(fh)["exact_pricing"]["joint_closing"]
+    rules = co.bl.load_rules()
+    rows, _d, _i = co.bl.load_stats()
+    with open(os.path.join("predictions", "ti2026", "fantasy",
+                           "account_state_target_20260812b.json"), encoding="utf-8") as fh:
+        state = json.load(fh)
+    weights = co.banner_weights(state)
+    probs, _src = co.ex.frozen_bucket_probabilities()
+    roles_map = co.bl.roles_from_roster()
+    cats, heroes = co.load_hero_categories(), co.load_hero_maps()
+    table = co.suffix_trigger_table(rows, co.load_extras())
+    role_inputs = {}
+    for role in co.ROLES:
+        org = state["banners"][role]["canonical_team"]
+        accounts = set(roles_map.get(org, {}).get(role, []))
+        keep, _drop = weights[role]
+        per = co.player_map_totals(rows, accounts, keep, rules)
+        counts = co.exposure_counts(org, probs, 4000)
+        role_inputs[role] = (per, len(accounts), counts,
+                             co.price(per, len(accounts), counts, co._zero))
+    for stacking, block in jc["by_stacking"].items():
+        for suffix, published in block["joint_gain"].items():
+            got = co.account_gain(role_inputs, lambda _r, s=suffix, st=stacking:
+                                  co.joint_bonus_fn("Elemental", s, st, heroes, cats, table))
+            assert got == pytest.approx(published, abs=1e-5), (stacking, suffix)
+
+
+def test_leave_one_event_out_is_deterministic():
+    per = _per({"s1": {1: {10: 10.0}, 2: {10: 12.0}},
+                "s2": {3: {10: 40.0}, 4: {10: 44.0}}})
+    per = {"A": per["E"], "B": {"s3": {5: {10: 90.0}, 6: {10: 95.0}}}}
+    ri = {"core": (per, 1, np.full(500, 2), co.price(per, 1, np.full(500, 2), co._zero))}
+    a = lambda _r: (lambda mid, _acct: 0.2 if mid in (1, 5) else 0.0)      # noqa: E731
+    b = lambda _r: (lambda mid, _acct: 0.2 if mid in (3,) else 0.0)        # noqa: E731
+    first = co.leave_one_event_out(ri, a, b)
+    assert first == co.leave_one_event_out(ri, a, b)
+    assert [f["dropped_event"] for f in first] == ["A", "B"]
+
+
+def test_the_hierarchical_bootstrap_resamples_events_as_well_as_series(monkeypatch):
+    """The outer level must actually vary which events a replicate sees."""
+    per = {"A": {"s1": {1: {10: 10.0}, 2: {10: 10.0}}},
+           "B": {"s2": {3: {10: 90.0}, 4: {10: 90.0}}}}
+    ri = {"core": (per, 1, np.full(200, 2), co.price(per, 1, np.full(200, 2), co._zero))}
+    seen = []
+    real = co.project_period
+    monkeypatch.setattr(co, "project_period",
+                        lambda sc, c, seed=co.SEED: seen.append(
+                            tuple(sorted(next(iter(v.values())) for v in sc.values())))
+                        or real(sc, c, seed))
+    zero = lambda _r: co._zero        # noqa: E731
+    co.hierarchical_bootstrap(ri, zero, zero, reps=40)
+    # with two events resampled with replacement, some replicates must draw the same event twice
+    assert len({s for s in seen}) > 1
+
+
 # --------------------------------------------------------- what the public numbers mean
 
 def test_the_community_categories_overlap_so_a_share_of_the_eight_is_not_a_denominator():
