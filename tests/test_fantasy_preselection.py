@@ -1,4 +1,8 @@
-"""The pre-banner decision: a two-stage problem with a switching cost, not a leaderboard lookup.
+"""The pre-banner decision, and the mechanics that later collapsed it.
+
+It was modelled as a two-stage problem with a switching cost. A test-account experiment
+then showed the War Banner team switch is free and preserves the banner, so the cost term
+is zero and the stage-A commitment it was built around does not exist.
 
 The failure this guards against is the one that makes the whole module pointless: treating the
 initial pick as `argmax E[score]`. With a positive token price the right objective is the value of
@@ -146,12 +150,40 @@ def test_cold_start_roles_are_reported_rather_than_dropped():
 
 
 # ---- the mechanics this round corrected -------------------------------------------------------------
-def test_switching_teams_is_recorded_as_costed_not_free():
+def test_the_two_team_change_paths_are_recorded_separately():
+    """A single generic cost was recorded twice and was wrong both times.
+
+    The War Banner button and a roll-board 'Change Team' operation are different actions with
+    different prices, and a before/after experiment settled the one that matters.
+    """
     ts = fq.load_rules()["team_selection"]
-    assert ts["change_cost_tokens"] == 1
-    assert "positive cost" in ts["operational_model"]
-    assert ts["user_runtime_observation"]["tier"] == "user_runtime_observation"
-    assert "withdrawn" in ts["user_runtime_observation"]["why_it_matters"]
+    a = ts["two_paths"]["path_a_war_banner_button"]
+    b = ts["two_paths"]["path_b_crafting_operation"]
+    assert a["token_cost"] == 0 and a["cost_status"].startswith("CONFIRMED")
+    assert a["preserves_banner"] is True
+    assert b["token_cost"] == 1 and b["cost_status"].startswith("PARTIAL")
+    assert "Withdrawn" in ts["two_paths"]["note"]
+
+
+def test_the_free_switch_removes_the_switching_cost_term():
+    ts = fq.load_rules()["team_selection"]
+    assert "no commitment cost" in ts["operational_model"]
+    assert "superseded" in ts["consequence_for_optimisation"]
+
+
+def test_banner_regeneration_is_closed_as_false():
+    u = {x["id"]: x for x in fq.load_rules()["unknowns"]}
+    m = u["team_change_regenerates_banner"]
+    assert m["fact_status"] == "CONFIRMED" and m["answer"] is False
+    assert m["decision_status"] == "IRRELEVANT"
+
+
+def test_a_stat_reroll_is_blocked_while_its_outcome_distribution_is_assumed():
+    """Tier-1 guarantees a NEW stat; it never says the draw is uniform."""
+    u = {x["id"]: x for x in fq.load_rules()["unknowns"]}
+    s = u["stat_reroll_outcome_distribution"]
+    assert s["fact_status"] == "UNRESOLVED" and s["decision_status"] == "BLOCKING"
+    assert "stat_reroll" in s["blocking_for"]
 
 
 def test_banner_generation_is_confirmed_independent_of_the_team():

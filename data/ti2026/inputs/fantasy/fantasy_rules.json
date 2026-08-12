@@ -1541,59 +1541,71 @@
       "scope": "generic",
       "question": "Does changing a team cost roll tokens, and how many?",
       "fact_status": "PARTIAL",
-      "decision_status": "ROBUST",
+      "decision_status": "IRRELEVANT",
       "blocking_for": [],
-      "note": "Handled by carrying the token price as a scenario rather than a constant; the pre-selection recommendation is required to hold across the whole scenario range."
+      "note": "Resolved for the path that matters: the War Banner button is free and preserves the banner, confirmed by a before/after experiment on the test account. The roll-board operation variant is still only inferred at one token, and it does not gate anything."
+    },
+    {
+      "id": "team_change_regenerates_banner",
+      "scope": "generic",
+      "question": "Does changing a team regenerate the War Banner?",
+      "fact_status": "CONFIRMED",
+      "decision_status": "IRRELEVANT",
+      "blocking_for": [],
+      "answer": false,
+      "note": "CLOSED. A before/after test-account experiment showed the banner byte-for-byte unchanged across a Team Spirit -> TEAM VISION switch. This withdraws the previous BLOCKING grade, which had been sized at a -5360 expected loss against a +1334 gain."
+    },
+    {
+      "id": "stat_reroll_outcome_distribution",
+      "scope": "generic",
+      "question": "Is a stat reroll uniform over the remaining stats of that colour?",
+      "fact_status": "UNRESOLVED",
+      "decision_status": "BLOCKING",
+      "blocking_for": [
+        "stat_reroll"
+      ],
+      "note": "Tier-1 states only that a reroll GUARANTEES a new stat and that no banner carries duplicate stats. It says nothing about the probabilities. Every stat-reroll EV computed so far assumed uniformity, which is an assumption and not evidence, so no stat reroll is recommended until it is checked."
     }
   ],
   "readiness_note": "This register is the ONLY source of readiness. There is no second hand-written blocker list: a blocker is any entry whose decision_status is BLOCKING, plus any CONDITIONAL entry whose condition currently holds. ti_predict/fantasy/questions.py derives it and refuses a register that carries an unmeasured decision_status.",
   "team_selection": {
     "status": "PARTIAL",
-    "first_selection_cost": null,
-    "first_selection_cost_status": "UNRESOLVED",
-    "change_cost_tokens": 1,
-    "change_cost_status": "PARTIAL",
-    "operational_model": "positive cost, one roll token per change, charged per banner",
-    "user_runtime_observation": {
-      "tier": "user_runtime_observation",
-      "account": "operator's own test account, NOT the target account",
-      "claim": "changing a team AFTER one has been selected consumes a reroll token",
-      "why_it_matters": "An earlier version of this ruleset recorded team changes as free, on the strength of the word 'freely' in DOTA_FantasyCraft_Tutorial2026_ViewTablet_Body. That reading is withdrawn: 'freely' there means 'at will', not 'at no cost'."
-    },
-    "schema_evidence": {
-      "tier": 1,
-      "two_paths_exist": "The client can change a team two ways, and only one of them is costed.",
-      "path_a_select_team": {
-        "message": "CMsgClientToGCFantasyCraftingSelectTeam",
-        "response_fields": [
-          "response",
-          "tablet_data"
-        ],
-        "response_enum": [
-          "k_eInternalError",
-          "k_eSuccess",
-          "k_eTooBusy",
-          "k_eDisabled",
-          "k_eTimeout",
-          "k_eInvalidLeague",
-          "k_eInvalidTeam=7"
-        ],
-        "reading": "No k_eNoTokens member, and no user_data in the response. Every costed action in this system returns user_data because that is where period_roll_tokens lives. Note the enum SKIPS value 6, which is exactly where k_eNoTokens sits in the operation response. This path looks free."
+    "two_paths": {
+      "note": "There are TWO ways to change a team and they behave differently. Earlier versions of this file recorded a single generic cost, first as free and then as costed; both were wrong because neither distinguished the paths. Withdrawn.",
+      "path_a_war_banner_button": {
+        "name": "the 更改战队 / Change Team button on a War Banner",
+        "gc_message": "CMsgClientToGCFantasyCraftingSelectTeam",
+        "token_cost": 0,
+        "cost_status": "CONFIRMED by direct experiment",
+        "preserves_banner": true,
+        "preserves_banner_status": "CONFIRMED by direct experiment",
+        "evidence": {
+          "tier": "user_runtime_observation",
+          "account": "the operator's TEST account, never the target",
+          "design": "clean before/after on the same client session",
+          "before": {
+            "core_team": "Team Spirit",
+            "roll_tokens": 39
+          },
+          "after": {
+            "core_team": "TEAM VISION",
+            "roll_tokens": 39
+          },
+          "banner_after": "identical stats, quality tiers, traits, slot order and displayed multipliers; the roll board was also unchanged"
+        },
+        "schema_agreement": "This is exactly what the schema predicted. SelectTeamResponse has no k_eNoTokens member and returns only tablet_data, never user_data -- and user_data is where period_roll_tokens lives. Every costed action returns it. The experiment and the message definition now agree."
       },
-      "path_b_change_team_operation": {
+      "path_b_crafting_operation": {
+        "name": "a 'Change Team' entry appearing on the crafting roll board",
         "localization_key": "DOTA_FantasyCraft_Operation_ChooseTeam",
-        "label": "Change Team",
-        "reading": "'Change Team' is one of the crafting OPERATIONS, and Tier-1 localization states that any operation costs one Roll Token (DOTA_FantasyCraft_Tutorial_Operations_Body). The operation response returns both user_data and tablet_data, i.e. a new token balance."
-      },
-      "reconciliation": "The most economical reading that fits both the schema and the operator's test is that the free SelectTeam path is the INITIAL assignment, and once a banner holds a team a change is routed through the costed operation. This is not confirmed, so the operational model assumes a positive cost either way -- the conservative direction, since assuming free switching is what would produce a bad first pick."
+        "token_cost": 1,
+        "cost_status": "PARTIAL - inferred, not directly observed",
+        "reasoning": "It is an operation, and Tier-1 localization states that any operation costs one Roll Token. It has not been seen on a board in this account's session.",
+        "note": "The operator's earlier observation that 'changing a team consumed a token' is most consistent with this path, or with a miscount. It does not apply to the banner button."
+      }
     },
-    "unresolved": [
-      "whether the very first selection is free (schema suggests yes; not confirmed)",
-      "whether a change costs exactly one token or more",
-      "whether the three roles are charged separately (assumed yes: operations target one tablet)",
-      "whether a team change regenerates the emblems or preserves the banner",
-      "whether a team change refreshes the roll board"
-    ]
+    "operational_model": "A team change through the War Banner button is FREE and preserves the banner. There is therefore no commitment cost to a team choice: a switch can be made now and revised later at no price, which removes the switching-cost term from the pre-selection decision entirely.",
+    "consequence_for_optimisation": "The two-stage keep-or-pay model that drove the pre-banner round is superseded for team choice. With lambda = 0 the optimal policy is simply to hold the current argmax and re-evaluate whenever the banner changes."
   },
   "banner_generation_independence": {
     "status": "CONFIRMED",
