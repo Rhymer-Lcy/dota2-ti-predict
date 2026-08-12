@@ -1,0 +1,136 @@
+{
+  "label": "PHASE 4B coach pricing and joint team+coach optimum",
+  "generated_at": "2026-08-12T04:30:00Z",
+  "target_account_state": "state 5: Core Xtreme Gaming, Mid Team Yandex, Support Xtreme Gaming, 38 tokens",
+  "public_evidence_audit": {
+    "prefix_and_suffix_definitions": {
+      "grade": "tier_2_independent_community x2, agreeing with user_runtime_observation",
+      "sources": [
+        "Kadadji1/dota2-fantasy-optimizer-2026 data/titles.ts (fetched and read)",
+        "operator's live client Coaching Titles panel"
+      ],
+      "finding": "All 8 prefixes and all 8 suffixes match the client panel exactly, including every bonus percentage. titles.ts also carries a Russian translation of each condition, which is an independent restatement rather than a copy of the English.",
+      "not_tier_1": "None of this is a Valve source; it is corroboration."
+    },
+    "third_party_score_model_rejected": {
+      "finding": "Kadadji's lib/optimizer.ts composes traits MULTIPLICATIVELY (factors[i] *= 1.6 for Fractal, *= 1.3 Unique, *= 1.5 Friendly/Vampiric, *= 1.2 / *= 0.9 for adjacency).",
+      "why_rejected": "That is the rule this project used before the client falsified it. On the target account's own Core banner it would give quality x 1.2 rather than 1 + 0.60 + 0.20, and it reproduces none of the 18 observed multipliers. Their definitions are usable evidence; their scoring model is not.",
+      "our_rule": "multiplier = 1 + quality_bonus + net_trait_bonus, validated on 18 emblems across two accounts plus two predictions made before the fact."
+    },
+    "hero_category_table": {
+      "source": "bydoodle/dota2fantasy heroes.json (a TI2025-era table)",
+      "fields": [
+        "isred",
+        "isblue",
+        "isgreen",
+        "isundead",
+        "isaquatic",
+        "ishorns",
+        "isbearded",
+        "attr"
+      ],
+      "coverage_against_the_2026_prefixes": {
+        "exact": [
+          "Crimson (red)",
+          "Cerulean (blue)",
+          "Emerald (green)"
+        ],
+        "strict_subset_only": [
+          "Elemental: isaquatic is a subset of 'aquatic, fiery or ice'",
+          "Otherworldly: isundead is a subset of 'undead, demon or spirit'"
+        ],
+        "absent": [
+          "Royal (purple)",
+          "Golden (yellow or brown)",
+          "Heroic (masked or cloaked)"
+        ]
+      },
+      "consequence": "Our own hero_id recomputation can verify three prefixes exactly and only LOWER-BOUND the recommended one. That limit is stated rather than papered over."
+    }
+  },
+  "denominator_reconstruction": {
+    "question": "Are Kadadji's prefix values counts or percentages?",
+    "evidence": "The repo's own accessor names the field `frequency`, and getAveragePrefixFrequency takes a plain arithmetic mean of the two players in a pair. No denominator, match count or normalisation appears anywhere in the repository.",
+    "range_check": "All values lie in 0..62, and per-player totals across the eight categories run 142..198. Both readings fit that: percentages can exceed 100 in total because a hero can belong to several categories, and counts over roughly 100-150 matches give the same range.",
+    "resolution": "Not resolvable from the source, so BOTH readings were carried and compared. Reading A treats them as percentages; reading B treats them as counts and normalises each player by his own total, which is the proxy for unequal denominators. The two readings agree on the ranking, because the per-player totals are similar enough that normalising does not reorder the prefixes.",
+    "status": "UNRESOLVED as a fact, IRRELEVANT to the decision"
+  },
+  "prefix_pricing": {
+    "method": "expected gain = sum over roles of role_score x bonus x trigger_frequency, with the role frequency taken as the mean over that role's players",
+    "averaging_caveat": "The exact rule is a score-weighted mean of the two players' triggers, since the role score is the mean of individual scores. An arithmetic mean of the frequencies is used because per-player scores are not separated in this pipeline; with bonuses of 6-11 percent the difference is second order.",
+    "reading_A_percentages": {
+      "Elemental": 733,
+      "Royal": 622,
+      "Golden": 509,
+      "Heroic": 453,
+      "Otherworldly": 448,
+      "Crimson": 445,
+      "Cerulean": 385,
+      "Emerald": 253
+    },
+    "reading_B_normalised_counts": {
+      "Elemental": 441,
+      "Royal": 389,
+      "Golden": 312,
+      "Otherworldly": 277,
+      "Heroic": 277,
+      "Crimson": 269,
+      "Cerulean": 232,
+      "Emerald": 153
+    },
+    "agreement": "Elemental first and Royal second under both. Heroic, the title currently equipped, is fourth or fifth.",
+    "decision_status": "ROBUST across the two admissible readings"
+  },
+  "suffix_pricing": {
+    "empirical_trigger_rates_over_4709_player_maps": {
+      "the Underdog": 0.457,
+      "the Clutch": 0.1185,
+      "the Lucky": 0.0741,
+      "the Decisive": 0.0293
+    },
+    "simulated_gain_over_no_suffix": {
+      "the Underdog": 380,
+      "the Decisive": 412,
+      "the Clutch": 339,
+      "the Lucky": 927
+    },
+    "why_frequency_times_bonus_is_the_wrong_ranking": "A period keeps the MAXIMUM over series, so what matters is the correlation between a trigger and the game's score, not the naive product. the Underdog fires on 45.7 percent of player-maps but only on LOSSES, which are low-scoring games the maximum discards: it delivers 1.29 percent against a naive 2.74 percent. the Lucky fires on a duration digit, which is independent of performance, so the maximum picks it up: it delivers 3.14 percent against a naive 1.56 percent.",
+    "unpriced_rivals": {
+      "note": "Four suffixes have conditions this pipeline cannot evaluate. Their breakpoints against the Lucky, before amplification, are:",
+      "the Tormented": "needs above 13.7 percent",
+      "the Patient": "needs above 13.7 percent",
+      "the Cruel": "needs above 24.2 percent",
+      "the Flayed Twins Acolyte": "needs above 34.9 percent",
+      "honest_caveat": "the Tormented is uncorrelated with the fantasy player's own performance, so it would amplify like the Lucky and its effective breakpoint is lower than 13.7 percent. It is a live candidate that cannot be priced here."
+    }
+  },
+  "joint_team_and_coach": {
+    "structure": "total = sum over roles of f(team; prefix, suffix), separable GIVEN the coach, so the exact optimum is a search over coach settings with a per-role argmax inside",
+    "result": "Under ALL EIGHT prefixes the per-role argmax is the same triple: Xtreme Gaming / Team Yandex / LGD Gaming. The coach-team coupling is real in principle and does not move a single team choice in fact.",
+    "joint_optimum": {
+      "prefix": "Elemental",
+      "total": 31511,
+      "picks": {
+        "core": "Xtreme Gaming",
+        "mid": "Team Yandex",
+        "support": "LGD Gaming"
+      }
+    },
+    "current_triple_under_the_same_coach": 31156,
+    "gap": 354,
+    "gap_source": "entirely the Support slot, which is blocked by the unscoreable Watchers emblem"
+  },
+  "recommendation": {
+    "prefix": "Elemental",
+    "suffix": "the Lucky",
+    "gain_prefix": 286,
+    "gain_suffix": 588,
+    "gain_total": 874,
+    "cost": "free and reversible",
+    "keep": {
+      "core": "Xtreme Gaming",
+      "mid": "Team Yandex",
+      "support": "Xtreme Gaming"
+    }
+  }
+}
