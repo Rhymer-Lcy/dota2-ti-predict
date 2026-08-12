@@ -177,3 +177,63 @@ def test_one_token_was_spent_and_the_trait_actually_changed():
     before = s1["banners"]["mid"]["slots"][0]["trait"]
     after = s2["banners"]["mid"]["slots"][0]["trait"]
     assert before == "Unique" and after == "Vampiric" and before != after
+
+
+# ---- state 3: after the quality reroll ---------------------------------------------------------
+STATE3_PATH = _os.path.join("predictions", "ti2026", "fantasy",
+                            "account_state_target_20260811c.json")
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE3_PATH), reason="state 3 not recorded")
+def test_state_three_also_reproduces_the_client_exactly():
+    s3 = acc.load_state(STATE3_PATH)
+    for role in acc.ROLES:
+        w = acc.banner_weights(s3, role)
+        for i, slot in enumerate(s3["banners"][role]["slots"]):
+            assert w[i] == pytest.approx(slot["displayed_multiplier"]), f"{role} slot {i + 1}"
+
+
+def test_changing_one_quality_can_switch_fractal_on_elsewhere():
+    """The cross-slot consequence that was predicted before it happened.
+
+    Raising the red emblem from Tier I to Tier II made the three qualities all distinct, which is
+    Fractal's condition. The blue emblem gained +60 percent without being touched.
+    """
+    before = bm.slot_weights((0, 2, 0), ("Vampiric", "Fractal", "Unique"))
+    after = bm.slot_weights((1, 2, 0), ("Vampiric", "Fractal", "Unique"))
+    assert before == pytest.approx([1.60, 1.50, 1.40])
+    assert after == pytest.approx([1.80, 2.10, 1.40])
+    # the blue emblem moved because a DIFFERENT emblem's quality changed
+    assert after[1] - before[1] == pytest.approx(0.60)
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE3_PATH), reason="state 3 not recorded")
+def test_a_stat_reroll_class_of_operation_is_now_recorded():
+    s3 = acc.load_state(STATE3_PATH)
+    assert {o["kind"] for o in s3["roll_board"]} == {"stat"}
+    assert {o["which"] for o in s3["roll_board"]} == {"first", "last", "all"}
+
+
+def test_a_green_stat_reroll_is_only_worth_it_where_the_current_stat_is_weak():
+    """Same operation, opposite sign depending on which banner it is applied to.
+
+    The reroll is uniform over the other green stats, so its value is driven by what is being given
+    up. Support holds the weakest green stat of the three and is the only positive target.
+    """
+    weight = {"core": 1.20, "mid": 1.40, "support": 1.30}
+    current = {"core": 1449.6, "mid": 1129.4, "support": 676.9}
+    alternatives = {
+        "core": [2755.6, 580.7, 712.5, 351.5],
+        "mid": [3084.8, 603.8, 586.1, 511.3],
+        "support": [2852.6, 948.2, 931.5, 87.9],
+    }
+    ev = {r: weight[r] * (sum(alternatives[r]) / len(alternatives[r]) - current[r])
+          for r in weight}
+    assert ev["support"] > ev["mid"] > ev["core"]
+    assert ev["core"] < 0                      # Roshan is already a decent green stat for a core
+    assert ev["support"] > 5 * ev["mid"]       # and Support is not marginally better, it is the pick
+    # the unresolved Tormentor value is a fifth outcome; including it at zero flips mid negative
+    # while Support stays positive, which is what makes Support the robust target
+    with_tormentor_zero = {r: (4 * ev[r] + weight[r] * (0 - current[r])) / 5 for r in weight}
+    assert with_tormentor_zero["support"] > 0
+    assert with_tormentor_zero["mid"] < 0
