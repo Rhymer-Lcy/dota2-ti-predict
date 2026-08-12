@@ -301,9 +301,14 @@ def recency_weights(events, half_life_days, dates=None):
     if half_life_days is None:
         return {e: 1.0 for e in events}
     dates = dates or event_end_dates()
-    anchor = max(dates[e] for e in events if e in dates)
-    return {e: 0.5 ** (((anchor - dates[e]) / 86400.0) / half_life_days)
-            for e in events if e in dates}
+    known = [e for e in events if e in dates]
+    if not known:
+        # nothing to rank them by, so weighting them would be inventing an order
+        return {e: 1.0 for e in events}
+    anchor = max(dates[e] for e in known)
+    out = {e: 0.5 ** (((anchor - dates[e]) / 86400.0) / half_life_days) for e in known}
+    out.update({e: 1.0 for e in events if e not in dates})
+    return out
 
 
 def project_period_pooled(scores_by_event, counts, seed=SEED):
@@ -714,7 +719,8 @@ def leave_one_event_out(role_inputs, bonus_a, bonus_b):
     return folds
 
 
-def joint_closing(role_inputs, prefix, contenders, heroes, cats, table, priced_suffixes):
+def joint_closing(role_inputs, prefix, contenders, heroes, cats, table,
+                  priced_suffixes, streams=None):
     """The comparison the account actually faces: one prefix plus one suffix, against another.
 
     Everything here is paired. Estimator uncertainty and the predictive distribution are kept in
@@ -735,8 +741,8 @@ def joint_closing(role_inputs, prefix, contenders, heroes, cats, table, priced_s
         pa = account_gain(role_inputs, bonus_for(prefix, None, stacking))
         sa = account_gain(role_inputs, bonus_for(None, a, stacking))
         sb = account_gain(role_inputs, bonus_for(None, b, stacking))
-        da = account_period_draws(role_inputs, fa)
-        db = account_period_draws(role_inputs, fb)
+        da = account_period_draws(role_inputs, fa, streams)
+        db = account_period_draws(role_inputs, fb, streams)
         diff = da - db
         grid = np.percentile(np.concatenate([da, db]), [60, 70, 80, 90, 95])
         out["by_stacking"][stacking] = {
@@ -752,6 +758,7 @@ def joint_closing(role_inputs, prefix, contenders, heroes, cats, table, priced_s
             "predictive_distribution": {
                 "what_this_is": "how the coming TI period could turn out, at the fitted "
                                 "historical distribution. NOT estimator uncertainty.",
+                "dependence": "by_organization" if streams else "common (DIAGNOSTIC ONLY)",
                 a: describe_predictive(da), b: describe_predictive(db),
                 "paired_difference": {
                     "mean": round(float(diff.mean()), 2),
@@ -974,6 +981,204 @@ def cruel_joint_breakpoint(role_inputs, prefix, leader, heroes, cats, table,
                                             "implausible the required rate is."}
 
 
+SWEEP_DRAWS = 2000
+MISSING_MASS_FRACTIONS = (0.05, 0.10, 0.20, 0.50)     # of eligible non-aquatic player-games
+
+
+def _eligible_games(role_inputs, heroes, cats, flag="isaquatic"):
+    """Scored player-games the flag does NOT mark, i.e. where unseen membership could hide."""
+    out, by_hero = [], {}
+    for _role, (per, _n, _c, _b) in role_inputs.items():
+        for ev in per.values():
+            for ser in ev.values():
+                for mid, by_acct in ser.items():
+                    for acct in by_acct:
+                        h = heroes.get((mid, acct))
+                        if not cats.get(h, {}).get(flag):
+                            out.append((mid, acct))
+                            by_hero.setdefault(h, []).append((mid, acct))
+    return sorted(set(out)), by_hero
+
+
+def _gap(role_inputs, prefix, a, b, stacking, heroes, cats, table, extra):
+    ga = account_gain(role_inputs, lambda _r: joint_bonus_fn(
+        prefix, a, stacking, heroes, cats, table, extra))
+    gb = account_gain(role_inputs, lambda _r: joint_bonus_fn(
+        prefix, b, stacking, heroes, cats, table, extra))
+    return ga - gb
+
+
+def adversarial_membership(role_inputs, prefix, contenders, heroes, cats, table,
+                           hero_consistent=False):
+    """Rank unseen-membership candidates by how much each one alone shrinks the gap.
+
+    The placement is chosen to minimise the FINAL joint gap directly, rather than by the proxy of
+    putting triggers on the rival's trigger games. It is greedy on the single-flip marginal, so it
+    is the worst placement FOUND, not a proven minimum, and it is named that way.
+
+    hero_consistent flips every appearance of a hero at once, which is the physically coherent
+    assumption: a hero either is Fiery or Icy or it is not. The game-level version relaxes that
+    and is therefore a looser, more conservative envelope.
+    """
+    a, b = contenders
+    games, by_hero = _eligible_games(role_inputs, heroes, cats)
+    units = ([(h, tuple(g)) for h, g in sorted(by_hero.items(), key=lambda kv: str(kv[0]))]
+             if hero_consistent else [(g, (g,)) for g in games])
+    scored = []
+    for key, members in units:
+        d = _gap(role_inputs, prefix, a, b, "additive", heroes, cats, table, frozenset(members))
+        scored.append((d, len(members), key, members))
+    scored.sort(key=lambda t: t[0])          # most gap-reducing first
+    return scored, len(games)
+
+
+def membership_family(role_inputs, prefix, contenders, heroes, cats, table, community, name_of):
+    """Central estimate plus a wide stress, each with the worst placement found at that mass."""
+    plan = missing_prefix_mass(role_inputs, prefix, heroes, cats, community, name_of)
+    central = sum(v["n_extra"] for v in plan.values())
+    out = {"none": frozenset()}
+    meta = {"none": {"mass": 0, "placement": "observed flag only"}}
+    for consistent in (False, True):
+        ranked, eligible = adversarial_membership(role_inputs, prefix, contenders, heroes, cats,
+                                                  table, consistent)
+        tag = "hero_consistent" if consistent else "game_level"
+        masses = [("central", central)] + [
+            (f"{int(f * 100)}pct", int(round(f * eligible))) for f in MISSING_MASS_FRACTIONS]
+        for label, mass in masses:
+            picked, used = set(), 0
+            for _d, n, _key, members in ranked:
+                if used + n > mass:
+                    continue
+                picked.update(members)
+                used += n
+                if used >= mass:
+                    break
+            key = f"{tag}_{label}"
+            out[key] = frozenset(picked)
+            meta[key] = {"mass_budget": mass, "player_games_flipped": used,
+                         "placement": f"worst found, {tag}", "eligible": eligible}
+    return out, meta, central
+
+
+def cartesian_scenarios(role_inputs, prefix, contenders, heroes, cats, table,
+                        membership_sets, draws=SWEEP_DRAWS):
+    """Every combination of stacking x event state x recency x membership, recomputed from raw.
+
+    Not an append of one-factor sweeps. The point is the corners: dropping the most recent event
+    AND weighting recency AND granting the rival the worst membership placement, all at once.
+    """
+    a, b = contenders
+    events = sorted({e for _r, (per, n, _c, _bs) in role_inputs.items()
+                     for e in series_scores(per, n, _zero)})
+    dates = event_end_dates()
+    counts = {role: exposure_counts_from(v[2], draws) for role, v in role_inputs.items()}
+    base_scores = {role: series_scores(per, n, _zero)
+                   for role, (per, n, _c, _b) in role_inputs.items()}
+    cand = {}
+    for stacking in STACKINGS:
+        for mname, extra in membership_sets.items():
+            for who in (a, b):
+                for role, (per, n, _c, _b) in role_inputs.items():
+                    cand[(stacking, mname, who, role)] = series_scores(
+                        per, n, joint_bonus_fn(prefix, who, stacking, heroes, cats, table, extra))
+    rows = []
+    for drop in [None] + events:
+        keep = [e for e in events if e != drop]
+        if not keep:
+            continue
+        for hl in HALF_LIVES:
+            w = recency_weights(keep, hl, dates)
+            base = {}
+            for role in role_inputs:
+                sc = {e: v for e, v in base_scores[role].items() if e != drop}
+                base[role] = project_period(sc, counts[role], weights=w) if sc else None
+            for stacking in STACKINGS:
+                for mname in membership_sets:
+                    tot = {}
+                    den = 0.0
+                    for who in (a, b):
+                        num = 0.0
+                        den = 0.0
+                        for role in role_inputs:
+                            if not base[role]:
+                                continue
+                            sc = {e: v for e, v in cand[(stacking, mname, who, role)].items()
+                                  if e != drop}
+                            g = project_period(sc, counts[role], weights=w) / base[role] - 1.0
+                            num += base[role] * g
+                            den += base[role]
+                        tot[who] = num / den if den else float("nan")
+                    rows.append({"stacking": stacking,
+                                 "event_state": "all" if drop is None else f"drop {drop}",
+                                 "recency_half_life_days": hl,
+                                 "membership": mname,
+                                 a: round(tot[a], 5), b: round(tot[b], 5),
+                                 "gap": round(tot[a] - tot[b], 5),
+                                 "winner": a if tot[a] > tot[b] else b})
+    return rows
+
+
+def exposure_counts_from(counts, draws):
+    """Resize a frozen exposure vector for the sweep without redrawing its distribution."""
+    counts = np.asarray(counts)
+    if counts.size >= draws:
+        return counts[:draws]
+    reps = int(np.ceil(draws / counts.size))
+    return np.tile(counts, reps)[:draws]
+
+
+def cartesian_regret(rows, contenders):
+    a, b = contenders
+    regret = {a: 0.0, b: 0.0}
+    worst = {a: None, b: None}
+    for r in rows:
+        best = max(r[a], r[b])
+        for act in (a, b):
+            if best - r[act] > regret[act]:
+                regret[act] = best - r[act]
+                worst[act] = r
+    wins_b = [r for r in rows if r["winner"] == b]
+    # which factor level, if any, is NECESSARY for the runner-up to win. A factor that appears in
+    # every one of its wins is the whole story; the rest are along for the ride.
+    factors = ("stacking", "event_state", "recency_half_life_days", "membership")
+    necessary, decomposition = {}, {}
+    for f in factors:
+        levels = {}
+        for r in rows:
+            k = str(r[f])
+            levels.setdefault(k, [0, 0])
+            levels[k][1] += 1
+            if r["winner"] == b:
+                levels[k][0] += 1
+        decomposition[f] = {k: {"runner_up_wins": v[0], "scenarios": v[1]}
+                            for k, v in sorted(levels.items())}
+        if wins_b:
+            hit = {k for k, v in levels.items() if v[0]}
+            if len(hit) == 1:
+                necessary[f] = hit.pop()
+    intact = [r for r in rows if r["event_state"] == "all"]
+    return {"definition": "max over the full Cartesian scenario family of "
+                          "(best action in that scenario minus this action)",
+            "runner_up_win_decomposition": decomposition,
+            "factor_levels_necessary_for_every_runner_up_win": necessary,
+            "with_all_events_kept": {
+                "scenarios": len(intact),
+                "runner_up_wins": sum(1 for r in intact if r["winner"] == b),
+                "worst_gap_for_leader": (round(min(r["gap"] for r in intact), 5)
+                                         if intact else None)},
+            "scenario_family": "stacking x event state (all + each leave-one-out) x recency "
+                               "half-life x Elemental missing-membership assumption",
+            "is_full_cartesian_product": True,
+            "n_scenarios": len(rows),
+            "max_regret": {k: round(v, 5) for k, v in regret.items()},
+            "minimax_choice": min(regret, key=regret.get),
+            "worst_scenario_for": {k: (v if v is None else
+                                       {kk: vv for kk, vv in v.items()}) for k, v in worst.items()},
+            "scenarios_won_by_runner_up": len(wins_b),
+            "largest_runner_up_margin": (round(max(r[b] - r[a] for r in wins_b), 5)
+                                         if wins_b else None)}
+
+
 def scenario_minimax_regret(role_inputs, prefix, contenders, heroes, cats, table,
                             weighting=None, membership=None):
     """Real minimax regret over a named scenario family, not the endpoints of an interval.
@@ -1007,8 +1212,11 @@ def scenario_minimax_regret(role_inputs, prefix, contenders, heroes, cats, table
         for act in (a, b):
             regret[act] = max(regret[act], best - sc[act])
     return {"definition": "max over scenarios of (best action in that scenario minus this action)",
-            "scenario_family": "stacking x leave-one-event-out x recency weighting x "
-                               "unseen Elemental membership assignment",
+            "scenario_family": "PARTIAL / one-factor sweeps appended, NOT a Cartesian "
+                               "product: stacking x event state, then recency "
+                               "alone, then membership alone. The full product is "
+                               "in cartesian_scenario_regret.",
+            "is_full_cartesian_product": False,
             "scenarios": [{k: (round(v, 5) if isinstance(v, float) else v)
                            for k, v in sc.items()} for sc in scenarios],
             "max_regret": {k: round(v, 5) for k, v in regret.items()},
@@ -1354,12 +1562,13 @@ def build(state_path, titles_path=None, draws=DRAWS):
                 f"P(leader ahead) = {gap['p_a_ahead'] if gap else 'n/a'}")}
 
     joint = scen = hier = loo = weighting = membership = dependence = None
-    cruel = None
+    cruel = cartesian = None
     current_prefix = "Elemental"
     if role_inputs and top and runner and current_prefix in PREFIX_FLAG:
         contenders = (top, runner)
+        streams = role_streams(role_orgs, "by_organization")
         joint = joint_closing(role_inputs, current_prefix, contenders, heroes, cats, table,
-                              priced_suffixes)
+                              priced_suffixes, streams)
         weighting = weighting_sensitivity(role_inputs, current_prefix, contenders, heroes, cats,
                                           table)
         membership = prefix_membership_sensitivity(role_inputs, current_prefix, contenders,
@@ -1367,6 +1576,19 @@ def build(state_path, titles_path=None, draws=DRAWS):
         dependence = dependence_sensitivity(role_inputs, role_orgs, current_prefix, contenders,
                                             heroes, cats, table)
         cruel = cruel_joint_breakpoint(role_inputs, current_prefix, top, heroes, cats, table)
+        msets, mmeta, mcentral = membership_family(role_inputs, current_prefix, contenders,
+                                                   heroes, cats, table, community, name_of)
+        cart_rows = cartesian_scenarios(role_inputs, current_prefix, contenders, heroes, cats,
+                                        table, msets)
+        cartesian = cartesian_regret(cart_rows, contenders)
+        cartesian["membership_sets"] = mmeta
+        cartesian["central_missing_mass_is_a_point_estimate_not_a_bound"] = {
+            "central": mcentral,
+            "why": "it is community Elemental frequency minus our own isaquatic rate measured on "
+                   "a DIFFERENT window, so the difference carries sampling noise, patch drift and "
+                   "hero-pool drift as well as genuine missing Fiery/Icy membership. It is a "
+                   "central estimate; the stress family above brackets it."}
+        cartesian["scenarios"] = cart_rows
         scen = scenario_minimax_regret(role_inputs, current_prefix, contenders, heroes, cats,
                                        table, weighting, membership)
 
@@ -1405,8 +1627,10 @@ def build(state_path, titles_path=None, draws=DRAWS):
                 "recency_robust": not weighting["winner_flips_under_recency"],
                 "elemental_membership_robust": not membership[
                     "winner_flips_under_any_assignment"],
-                "minimax_choice": scen["minimax_choice"],
-                "max_regret": scen["max_regret"]},
+                "partial_family_minimax_choice": scen["minimax_choice"],
+                "full_cartesian_minimax_choice": cartesian["minimax_choice"],
+                "full_cartesian_max_regret": cartesian["max_regret"],
+                "full_cartesian_scenarios": cartesian["n_scenarios"]},
             "D_predictive_utility": {
                 "mean_winner": top if dependence["modes"]["by_organization"][
                     "paired"]["mean"] > 0 else runner,
@@ -1430,6 +1654,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
             "prefix_membership_sensitivity": membership,
             "dependence_sensitivity": dependence,
             "cruel_joint_breakpoint": cruel,
+            "cartesian_scenario_regret": cartesian,
             "scenario_minimax_regret": scen,
             "hierarchical_bootstrap": hier,
             "leave_one_event_out": loo,

@@ -1627,8 +1627,8 @@
    "decision_status": "SCALE_ONLY",
    "blocking_for": [],
    "measured_by": "coach_optimize.prefix_membership_sensitivity",
-   "note": "The only flag any source carries is isaquatic, which is a strict subset of the client's condition. Scores computed with it are therefore lower bounds, and calling them exact was an overstatement that has been withdrawn. No source recovers the full membership: Kadadji carries frequencies but no hero table, MyKa322's hero config has names only, and bydoodle's flags stop at isaquatic.",
-   "measured": "The shortfall is small and does not decide anything. Against 93 observed trigger player-games, the community frequency implies only 3 unseen ones. Assigning them at random, to either suffix's games, to the highest-scoring games, and adversarially to the rival, under both stacking rules -- the winner never changes."
+   "note": "The only flag any source carries is isaquatic, a strict subset of the client's condition, so scores computed with it are lower bounds. The shortfall estimate -- community Elemental frequency minus our own isaquatic rate -- is a POINT ESTIMATE, not a bound: it is measured across different windows, so it carries sampling noise, patch drift and hero-pool drift as well as genuine missing Fiery/Icy membership. It is bracketed by a stress family rather than quoted as a maximum.",
+   "measured": "Central estimate 3 player-games, stressed up to 50 percent of the 192 eligible non-aquatic player-games, under two placement models: hero-consistent (every appearance of an assumed Fiery/Icy hero fires, the physically coherent case) and game-level (a looser envelope that relaxes consistency). Placement is chosen to minimise the final joint gap directly, greedy on the single-flip marginal, so it is the worst placement FOUND rather than a proven minimum. With the event set intact the leader survives every one of these: worst gap 0.00452, still in its favour."
   },
   {
    "id": "cross_role_predictive_dependence",
@@ -1650,7 +1650,7 @@
    "blocking_for": [],
    "measured_by": "coach_optimize.weighting_sensitivity",
    "note": "A modelling choice, like the event-equal aggregation it extends. Half-lives were pre-registered at 180 / 90 / 60 / 30 days and the weights are generated from each event's own end date, so nothing can be tuned toward a winner.",
-   "measured": "The winner does not flip across the family (stable); the gap widens monotonically as weighting favours recent events, from 0.00941 at equal weight to 0.02955 at a 30-day half-life. That direction is consistent with leave-one-event-out, where the single flip comes from dropping 19785, the most recent event in the pools."
+   "measured": "The winner does not flip across the family (stable); the gap widens monotonically as weighting favours recent events, from 0.00941 at equal weight to 0.02955 at a 30-day half-life. That direction is consistent with leave-one-event-out, where the single flip comes from dropping 19785, the most recent event in the pools. In the full Cartesian family (550 scenarios) the runner-up wins 110, and every single one requires drop 19785 -- no recency level, stacking rule or membership assumption flips it on its own."
   }
  ],
  "readiness_note": "This register is the ONLY source of readiness. There is no second hand-written blocker list: a blocker is any entry whose decision_status is BLOCKING, plus any CONDITIONAL entry whose condition currently holds. ti_predict/fantasy/questions.py derives it and refuses a register that carries an unmeasured decision_status.",

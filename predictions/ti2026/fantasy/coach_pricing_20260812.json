@@ -49,11 +49,13 @@
       "leave_one_event_out_robust": false,
       "recency_robust": true,
       "elemental_membership_robust": true,
-      "minimax_choice": "the Tormented",
-      "max_regret": {
-       "the Tormented": 0.01182,
-       "the Lucky": 0.02955
-      }
+      "partial_family_minimax_choice": "the Tormented",
+      "full_cartesian_minimax_choice": "the Tormented",
+      "full_cartesian_max_regret": {
+       "the Tormented": 0.01812,
+       "the Lucky": 0.04316
+      },
+      "full_cartesian_scenarios": 550
      },
      "D_predictive_utility": {
       "mean_winner": "the Tormented",
@@ -255,11 +257,13 @@
      "leave_one_event_out_robust": false,
      "recency_robust": true,
      "elemental_membership_robust": true,
-     "minimax_choice": "the Tormented",
-     "max_regret": {
-      "the Tormented": 0.01182,
-      "the Lucky": 0.02955
-     }
+     "partial_family_minimax_choice": "the Tormented",
+     "full_cartesian_minimax_choice": "the Tormented",
+     "full_cartesian_max_regret": {
+      "the Tormented": 0.01812,
+      "the Lucky": 0.04316
+     },
+     "full_cartesian_scenarios": 550
     },
     "D_predictive_utility": {
      "mean_winner": "the Tormented",
@@ -300,52 +304,53 @@
      },
      "predictive_distribution": {
       "what_this_is": "how the coming TI period could turn out, at the fitted historical distribution. NOT estimator uncertainty.",
+      "dependence": "by_organization",
       "the Tormented": {
-       "mean": 28082.83,
-       "p10": 24020.01,
-       "p25": 26224.11,
+       "mean": 28092.63,
+       "p10": 20754.26,
+       "p25": 25067.57,
        "median": 27388.73,
-       "p75": 31059.62,
-       "p90": 31183.04,
-       "p95": 31326.92
+       "p75": 31113.8,
+       "p90": 33988.04,
+       "p95": 35442.17
       },
       "the Lucky": {
-       "mean": 27866.63,
-       "p10": 24238.35,
-       "p25": 26192.66,
-       "median": 27785.97,
-       "p75": 30713.99,
-       "p90": 30811.21,
-       "p95": 30920.36
+       "mean": 27854.93,
+       "p10": 21151.5,
+       "p25": 24934.8,
+       "median": 27362.4,
+       "p75": 30851.12,
+       "p90": 34518.15,
+       "p95": 35193.76
       },
       "paired_difference": {
-       "mean": 216.2,
+       "mean": 237.7,
        "median": 0.0,
-       "p10": -809.0,
+       "p10": -884.76,
        "p90": 1360.4,
-       "P_the_Tormented_higher": 0.4502,
-       "P_tie": 0.1842
+       "P_the_Tormented_higher": 0.4933,
+       "P_tie": 0.1648
       },
       "threshold_crossing": {
-       "score>=29716": {
-        "the Tormented": 0.438,
-        "the Lucky": 0.3715
-       },
-       "score>=30639": {
-        "the Tormented": 0.3285,
-        "the Lucky": 0.3058
+       "score>=29785": {
+        "the Tormented": 0.4113,
+        "the Lucky": 0.396
        },
        "score>=30811": {
-        "the Tormented": 0.2958,
-        "the Lucky": 0.2228
+        "the Tormented": 0.313,
+        "the Lucky": 0.31
        },
-       "score>=31059": {
-        "the Tormented": 0.2838,
-        "the Lucky": 0.0
+       "score>=31683": {
+        "the Tormented": 0.1983,
+        "the Lucky": 0.2062
        },
-       "score>=31183": {
-        "the Tormented": 0.1225,
-        "the Lucky": 0.0
+       "score>=34004": {
+        "the Tormented": 0.0975,
+        "the Lucky": 0.1232
+       },
+       "score>=35372": {
+        "the Tormented": 0.0742,
+        "the Lucky": 0.0345
        }
       }
      }
@@ -369,52 +374,53 @@
      },
      "predictive_distribution": {
       "what_this_is": "how the coming TI period could turn out, at the fitted historical distribution. NOT estimator uncertainty.",
+      "dependence": "by_organization",
       "the Tormented": {
-       "mean": 28106.86,
-       "p10": 24020.01,
-       "p25": 26224.11,
+       "mean": 28117.76,
+       "p10": 20754.26,
+       "p25": 25067.57,
        "median": 27388.73,
        "p75": 31159.1,
-       "p90": 31183.04,
-       "p95": 31364.28
+       "p90": 34087.51,
+       "p95": 35541.64
       },
       "the Lucky": {
-       "mean": 27893.61,
-       "p10": 24249.9,
-       "p25": 26192.66,
-       "median": 27785.97,
-       "p75": 30713.99,
-       "p90": 30902.04,
-       "p95": 30920.36
+       "mean": 27882.66,
+       "p10": 21151.5,
+       "p25": 24939.97,
+       "median": 27362.4,
+       "p75": 30902.04,
+       "p90": 34678.97,
+       "p95": 35284.59
       },
       "paired_difference": {
-       "mean": 213.25,
-       "median": 0.0,
-       "p10": -820.55,
+       "mean": 235.1,
+       "median": 20.6,
+       "p10": -884.76,
        "p90": 1404.64,
-       "P_the_Tormented_higher": 0.4502,
-       "P_tie": 0.1842
+       "P_the_Tormented_higher": 0.5005,
+       "P_tie": 0.1648
       },
       "threshold_crossing": {
-       "score>=29753": {
-        "the Tormented": 0.438,
-        "the Lucky": 0.3715
-       },
-       "score>=30663": {
-        "the Tormented": 0.309,
-        "the Lucky": 0.2973
+       "score>=29822": {
+        "the Tormented": 0.4113,
+        "the Lucky": 0.396
        },
        "score>=30902": {
-        "the Tormented": 0.2958,
-        "the Lucky": 0.1958
+        "the Tormented": 0.313,
+        "the Lucky": 0.2985
        },
-       "score>=31159": {
-        "the Tormented": 0.2502,
-        "the Lucky": 0.0
+       "score>=31801": {
+        "the Tormented": 0.1983,
+        "the Lucky": 0.2062
        },
-       "score>=31183": {
-        "the Tormented": 0.1225,
-        "the Lucky": 0.0
+       "score>=34122": {
+        "the Tormented": 0.0975,
+        "the Lucky": 0.1232
+       },
+       "score>=35472": {
+        "the Tormented": 0.0742,
+        "the Lucky": 0.0345
        }
       }
      }
@@ -1004,9 +1010,5727 @@
    "decision_relevant": true,
    "not_a_mathematical_exclusion": "no bound on the fountain-death rate exists, so this is a breakpoint, not a proof. What it shows is how implausible the required rate is."
   },
+  "cartesian_scenario_regret": {
+   "definition": "max over the full Cartesian scenario family of (best action in that scenario minus this action)",
+   "runner_up_win_decomposition": {
+    "stacking": {
+     "additive": {
+      "runner_up_wins": 55,
+      "scenarios": 275
+     },
+     "multiplicative": {
+      "runner_up_wins": 55,
+      "scenarios": 275
+     }
+    },
+    "event_state": {
+     "all": {
+      "runner_up_wins": 0,
+      "scenarios": 110
+     },
+     "drop 19101": {
+      "runner_up_wins": 0,
+      "scenarios": 110
+     },
+     "drop 19543": {
+      "runner_up_wins": 0,
+      "scenarios": 110
+     },
+     "drop 19696": {
+      "runner_up_wins": 0,
+      "scenarios": 110
+     },
+     "drop 19785": {
+      "runner_up_wins": 110,
+      "scenarios": 110
+     }
+    },
+    "recency_half_life_days": {
+     "180": {
+      "runner_up_wins": 22,
+      "scenarios": 110
+     },
+     "30": {
+      "runner_up_wins": 22,
+      "scenarios": 110
+     },
+     "60": {
+      "runner_up_wins": 22,
+      "scenarios": 110
+     },
+     "90": {
+      "runner_up_wins": 22,
+      "scenarios": 110
+     },
+     "None": {
+      "runner_up_wins": 22,
+      "scenarios": 110
+     }
+    },
+    "membership": {
+     "game_level_10pct": {
+      "runner_up_wins": 10,
+      "scenarios": 50
+     },
+     "game_level_20pct": {
+      "runner_up_wins": 10,
+      "scenarios": 50
+     },
+     "game_level_50pct": {
+      "runner_up_wins": 10,
+      "scenarios": 50
+     },
+     "game_level_5pct": {
+      "runner_up_wins": 10,
+      "scenarios": 50
+     },
+     "game_level_central": {
+      "runner_up_wins": 10,
+      "scenarios": 50
+     },
+     "hero_consistent_10pct": {
+      "runner_up_wins": 10,
+      "scenarios": 50
+     },
+     "hero_consistent_20pct": {
+      "runner_up_wins": 10,
+      "scenarios": 50
+     },
+     "hero_consistent_50pct": {
+      "runner_up_wins": 10,
+      "scenarios": 50
+     },
+     "hero_consistent_5pct": {
+      "runner_up_wins": 10,
+      "scenarios": 50
+     },
+     "hero_consistent_central": {
+      "runner_up_wins": 10,
+      "scenarios": 50
+     },
+     "none": {
+      "runner_up_wins": 10,
+      "scenarios": 50
+     }
+    }
+   },
+   "factor_levels_necessary_for_every_runner_up_win": {
+    "event_state": "drop 19785"
+   },
+   "with_all_events_kept": {
+    "scenarios": 110,
+    "runner_up_wins": 0,
+    "worst_gap_for_leader": 0.00452
+   },
+   "scenario_family": "stacking x event state (all + each leave-one-out) x recency half-life x Elemental missing-membership assumption",
+   "is_full_cartesian_product": true,
+   "n_scenarios": 550,
+   "max_regret": {
+    "the Tormented": 0.01812,
+    "the Lucky": 0.04316
+   },
+   "minimax_choice": "the Tormented",
+   "worst_scenario_for": {
+    "the Tormented": {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.07726,
+     "the Lucky": 0.09538,
+     "gap": -0.01812,
+     "winner": "the Lucky"
+    },
+    "the Lucky": {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "none",
+     "the Tormented": 0.08508,
+     "the Lucky": 0.04192,
+     "gap": 0.04316,
+     "winner": "the Tormented"
+    }
+   },
+   "scenarios_won_by_runner_up": 110,
+   "largest_runner_up_margin": 0.01812,
+   "membership_sets": {
+    "none": {
+     "mass": 0,
+     "placement": "observed flag only"
+    },
+    "game_level_central": {
+     "mass_budget": 3,
+     "player_games_flipped": 3,
+     "placement": "worst found, game_level",
+     "eligible": 192
+    },
+    "game_level_5pct": {
+     "mass_budget": 10,
+     "player_games_flipped": 10,
+     "placement": "worst found, game_level",
+     "eligible": 192
+    },
+    "game_level_10pct": {
+     "mass_budget": 19,
+     "player_games_flipped": 19,
+     "placement": "worst found, game_level",
+     "eligible": 192
+    },
+    "game_level_20pct": {
+     "mass_budget": 38,
+     "player_games_flipped": 38,
+     "placement": "worst found, game_level",
+     "eligible": 192
+    },
+    "game_level_50pct": {
+     "mass_budget": 96,
+     "player_games_flipped": 96,
+     "placement": "worst found, game_level",
+     "eligible": 192
+    },
+    "hero_consistent_central": {
+     "mass_budget": 3,
+     "player_games_flipped": 3,
+     "placement": "worst found, hero_consistent",
+     "eligible": 192
+    },
+    "hero_consistent_5pct": {
+     "mass_budget": 10,
+     "player_games_flipped": 10,
+     "placement": "worst found, hero_consistent",
+     "eligible": 192
+    },
+    "hero_consistent_10pct": {
+     "mass_budget": 19,
+     "player_games_flipped": 19,
+     "placement": "worst found, hero_consistent",
+     "eligible": 192
+    },
+    "hero_consistent_20pct": {
+     "mass_budget": 38,
+     "player_games_flipped": 38,
+     "placement": "worst found, hero_consistent",
+     "eligible": 192
+    },
+    "hero_consistent_50pct": {
+     "mass_budget": 96,
+     "player_games_flipped": 96,
+     "placement": "worst found, hero_consistent",
+     "eligible": 192
+    }
+   },
+   "central_missing_mass_is_a_point_estimate_not_a_bound": {
+    "central": 3,
+    "why": "it is community Elemental frequency minus our own isaquatic rate measured on a DIFFERENT window, so the difference carries sampling noise, patch drift and hero-pool drift as well as genuine missing Fiery/Icy membership. It is a central estimate; the stress family above brackets it."
+   },
+   "scenarios": [
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "none",
+     "the Tormented": 0.0713,
+     "the Lucky": 0.06233,
+     "gap": 0.00896,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "game_level_central",
+     "the Tormented": 0.0721,
+     "the Lucky": 0.06492,
+     "gap": 0.00719,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07379,
+     "the Lucky": 0.06728,
+     "gap": 0.00651,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07684,
+     "the Lucky": 0.07066,
+     "gap": 0.00618,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.08485,
+     "the Lucky": 0.07849,
+     "gap": 0.00637,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.0997,
+     "the Lucky": 0.09348,
+     "gap": 0.00622,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.0718,
+     "the Lucky": 0.06357,
+     "gap": 0.00823,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07417,
+     "the Lucky": 0.0666,
+     "gap": 0.00756,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07286,
+     "the Lucky": 0.0654,
+     "gap": 0.00746,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.07815,
+     "the Lucky": 0.07155,
+     "gap": 0.0066,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.08794,
+     "the Lucky": 0.08275,
+     "gap": 0.00518,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "none",
+     "the Tormented": 0.07223,
+     "the Lucky": 0.06339,
+     "gap": 0.00884,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "game_level_central",
+     "the Tormented": 0.07304,
+     "the Lucky": 0.06615,
+     "gap": 0.00689,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07472,
+     "the Lucky": 0.06859,
+     "gap": 0.00612,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07777,
+     "the Lucky": 0.07201,
+     "gap": 0.00576,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.08612,
+     "the Lucky": 0.07987,
+     "gap": 0.00625,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10126,
+     "the Lucky": 0.09517,
+     "gap": 0.00609,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07274,
+     "the Lucky": 0.0648,
+     "gap": 0.00793,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07512,
+     "the Lucky": 0.06784,
+     "gap": 0.00728,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07381,
+     "the Lucky": 0.06674,
+     "gap": 0.00707,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.07905,
+     "the Lucky": 0.07289,
+     "gap": 0.00617,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.08934,
+     "the Lucky": 0.08482,
+     "gap": 0.00452,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "none",
+     "the Tormented": 0.07348,
+     "the Lucky": 0.06115,
+     "gap": 0.01233,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "game_level_central",
+     "the Tormented": 0.07434,
+     "the Lucky": 0.06382,
+     "gap": 0.01051,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07616,
+     "the Lucky": 0.0664,
+     "gap": 0.00977,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07882,
+     "the Lucky": 0.06937,
+     "gap": 0.00945,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.08722,
+     "the Lucky": 0.07761,
+     "gap": 0.00961,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10147,
+     "the Lucky": 0.09199,
+     "gap": 0.00948,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07402,
+     "the Lucky": 0.06241,
+     "gap": 0.01161,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07675,
+     "the Lucky": 0.0658,
+     "gap": 0.01096,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07507,
+     "the Lucky": 0.06431,
+     "gap": 0.01076,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08117,
+     "the Lucky": 0.0713,
+     "gap": 0.00988,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09084,
+     "the Lucky": 0.0822,
+     "gap": 0.00863,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "none",
+     "the Tormented": 0.07444,
+     "the Lucky": 0.06215,
+     "gap": 0.01229,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "game_level_central",
+     "the Tormented": 0.0753,
+     "the Lucky": 0.06499,
+     "gap": 0.0103,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07712,
+     "the Lucky": 0.06765,
+     "gap": 0.00947,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07977,
+     "the Lucky": 0.07064,
+     "gap": 0.00913,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.08857,
+     "the Lucky": 0.07891,
+     "gap": 0.00965,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10316,
+     "the Lucky": 0.09356,
+     "gap": 0.0096,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07498,
+     "the Lucky": 0.06358,
+     "gap": 0.0114,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07773,
+     "the Lucky": 0.06697,
+     "gap": 0.01077,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07605,
+     "the Lucky": 0.06558,
+     "gap": 0.01047,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08209,
+     "the Lucky": 0.07256,
+     "gap": 0.00953,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09233,
+     "the Lucky": 0.08408,
+     "gap": 0.00824,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "none",
+     "the Tormented": 0.07556,
+     "the Lucky": 0.05973,
+     "gap": 0.01583,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "game_level_central",
+     "the Tormented": 0.07646,
+     "the Lucky": 0.06247,
+     "gap": 0.01399,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07843,
+     "the Lucky": 0.06526,
+     "gap": 0.01317,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08073,
+     "the Lucky": 0.06787,
+     "gap": 0.01287,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.0895,
+     "the Lucky": 0.0765,
+     "gap": 0.01299,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.1033,
+     "the Lucky": 0.09041,
+     "gap": 0.01289,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07614,
+     "the Lucky": 0.061,
+     "gap": 0.01514,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07924,
+     "the Lucky": 0.06474,
+     "gap": 0.01449,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07716,
+     "the Lucky": 0.06297,
+     "gap": 0.0142,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.0841,
+     "the Lucky": 0.0708,
+     "gap": 0.0133,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09372,
+     "the Lucky": 0.08152,
+     "gap": 0.01221,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "none",
+     "the Tormented": 0.07654,
+     "the Lucky": 0.06066,
+     "gap": 0.01588,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "game_level_central",
+     "the Tormented": 0.07744,
+     "the Lucky": 0.06357,
+     "gap": 0.01387,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.0794,
+     "the Lucky": 0.06642,
+     "gap": 0.01298,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08171,
+     "the Lucky": 0.06906,
+     "gap": 0.01265,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09092,
+     "the Lucky": 0.07772,
+     "gap": 0.01321,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10509,
+     "the Lucky": 0.09184,
+     "gap": 0.01326,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07712,
+     "the Lucky": 0.06209,
+     "gap": 0.01503,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08024,
+     "the Lucky": 0.06584,
+     "gap": 0.01441,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07817,
+     "the Lucky": 0.06415,
+     "gap": 0.01402,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08504,
+     "the Lucky": 0.07198,
+     "gap": 0.01305,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.0953,
+     "the Lucky": 0.08321,
+     "gap": 0.01209,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "none",
+     "the Tormented": 0.07749,
+     "the Lucky": 0.05814,
+     "gap": 0.01935,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "game_level_central",
+     "the Tormented": 0.07843,
+     "the Lucky": 0.06093,
+     "gap": 0.0175,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08053,
+     "the Lucky": 0.06392,
+     "gap": 0.01661,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08253,
+     "the Lucky": 0.06622,
+     "gap": 0.01631,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09164,
+     "the Lucky": 0.07522,
+     "gap": 0.01642,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10511,
+     "the Lucky": 0.08878,
+     "gap": 0.01633,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07809,
+     "the Lucky": 0.0594,
+     "gap": 0.0187,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08157,
+     "the Lucky": 0.0635,
+     "gap": 0.01807,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.0791,
+     "the Lucky": 0.06143,
+     "gap": 0.01767,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08687,
+     "the Lucky": 0.07011,
+     "gap": 0.01676,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09652,
+     "the Lucky": 0.08073,
+     "gap": 0.01579,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "none",
+     "the Tormented": 0.07849,
+     "the Lucky": 0.05899,
+     "gap": 0.0195,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "game_level_central",
+     "the Tormented": 0.07943,
+     "the Lucky": 0.06194,
+     "gap": 0.01749,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08152,
+     "the Lucky": 0.06499,
+     "gap": 0.01653,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08352,
+     "the Lucky": 0.06731,
+     "gap": 0.01621,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09314,
+     "the Lucky": 0.07633,
+     "gap": 0.01681,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10702,
+     "the Lucky": 0.09007,
+     "gap": 0.01695,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07909,
+     "the Lucky": 0.0604,
+     "gap": 0.01869,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.0826,
+     "the Lucky": 0.06451,
+     "gap": 0.01809,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08013,
+     "the Lucky": 0.06252,
+     "gap": 0.01761,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08781,
+     "the Lucky": 0.0712,
+     "gap": 0.01662,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09818,
+     "the Lucky": 0.08223,
+     "gap": 0.01595,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "none",
+     "the Tormented": 0.08213,
+     "the Lucky": 0.05306,
+     "gap": 0.02907,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "game_level_central",
+     "the Tormented": 0.08315,
+     "the Lucky": 0.05591,
+     "gap": 0.02724,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.0856,
+     "the Lucky": 0.05943,
+     "gap": 0.02618,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08698,
+     "the Lucky": 0.0611,
+     "gap": 0.02588,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.0969,
+     "the Lucky": 0.07097,
+     "gap": 0.02593,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11001,
+     "the Lucky": 0.08412,
+     "gap": 0.02589,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.0828,
+     "the Lucky": 0.05424,
+     "gap": 0.02855,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08728,
+     "the Lucky": 0.05929,
+     "gap": 0.02799,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08373,
+     "the Lucky": 0.05643,
+     "gap": 0.0273,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09377,
+     "the Lucky": 0.0674,
+     "gap": 0.02637,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.1038,
+     "the Lucky": 0.07814,
+     "gap": 0.02566,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "none",
+     "the Tormented": 0.08315,
+     "the Lucky": 0.05365,
+     "gap": 0.0295,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "game_level_central",
+     "the Tormented": 0.08417,
+     "the Lucky": 0.05662,
+     "gap": 0.02754,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08662,
+     "the Lucky": 0.06019,
+     "gap": 0.02642,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08799,
+     "the Lucky": 0.06187,
+     "gap": 0.02612,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09858,
+     "the Lucky": 0.07175,
+     "gap": 0.02683,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11221,
+     "the Lucky": 0.085,
+     "gap": 0.02721,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08382,
+     "the Lucky": 0.05496,
+     "gap": 0.02886,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08834,
+     "the Lucky": 0.06001,
+     "gap": 0.02834,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08479,
+     "the Lucky": 0.0572,
+     "gap": 0.02759,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09472,
+     "the Lucky": 0.06817,
+     "gap": 0.02655,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "all",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10566,
+     "the Lucky": 0.07912,
+     "gap": 0.02655,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "none",
+     "the Tormented": 0.07291,
+     "the Lucky": 0.06178,
+     "gap": 0.01113,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "game_level_central",
+     "the Tormented": 0.07351,
+     "the Lucky": 0.06347,
+     "gap": 0.01004,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07527,
+     "the Lucky": 0.06593,
+     "gap": 0.00933,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08007,
+     "the Lucky": 0.07108,
+     "gap": 0.009,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.0861,
+     "the Lucky": 0.07691,
+     "gap": 0.00919,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10161,
+     "the Lucky": 0.09257,
+     "gap": 0.00903,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07336,
+     "the Lucky": 0.06223,
+     "gap": 0.01113,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07567,
+     "the Lucky": 0.06523,
+     "gap": 0.01044,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.0743,
+     "the Lucky": 0.06397,
+     "gap": 0.01033,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08079,
+     "the Lucky": 0.07136,
+     "gap": 0.00943,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.0912,
+     "the Lucky": 0.0839,
+     "gap": 0.0073,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "none",
+     "the Tormented": 0.07389,
+     "the Lucky": 0.06278,
+     "gap": 0.0111,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "game_level_central",
+     "the Tormented": 0.07449,
+     "the Lucky": 0.06447,
+     "gap": 0.01001,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07624,
+     "the Lucky": 0.06703,
+     "gap": 0.00921,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08104,
+     "the Lucky": 0.07221,
+     "gap": 0.00884,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.08742,
+     "the Lucky": 0.07809,
+     "gap": 0.00933,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10324,
+     "the Lucky": 0.09407,
+     "gap": 0.00916,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07434,
+     "the Lucky": 0.06323,
+     "gap": 0.0111,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07666,
+     "the Lucky": 0.06624,
+     "gap": 0.01043,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07529,
+     "the Lucky": 0.06509,
+     "gap": 0.01021,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08173,
+     "the Lucky": 0.07248,
+     "gap": 0.00926,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09266,
+     "the Lucky": 0.086,
+     "gap": 0.00666,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "none",
+     "the Tormented": 0.07527,
+     "the Lucky": 0.06069,
+     "gap": 0.01458,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "game_level_central",
+     "the Tormented": 0.07592,
+     "the Lucky": 0.06248,
+     "gap": 0.01344,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07782,
+     "the Lucky": 0.06516,
+     "gap": 0.01266,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08195,
+     "the Lucky": 0.06961,
+     "gap": 0.01233,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.0885,
+     "the Lucky": 0.07601,
+     "gap": 0.01249,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10332,
+     "the Lucky": 0.09096,
+     "gap": 0.01236,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07578,
+     "the Lucky": 0.0612,
+     "gap": 0.01458,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07843,
+     "the Lucky": 0.06454,
+     "gap": 0.01389,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07668,
+     "the Lucky": 0.06299,
+     "gap": 0.01369,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08411,
+     "the Lucky": 0.07134,
+     "gap": 0.01277,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09431,
+     "the Lucky": 0.08336,
+     "gap": 0.01095,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "none",
+     "the Tormented": 0.07627,
+     "the Lucky": 0.06164,
+     "gap": 0.01463,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "game_level_central",
+     "the Tormented": 0.07692,
+     "the Lucky": 0.06342,
+     "gap": 0.01349,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07881,
+     "the Lucky": 0.06618,
+     "gap": 0.01262,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08294,
+     "the Lucky": 0.07067,
+     "gap": 0.01227,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.0899,
+     "the Lucky": 0.0771,
+     "gap": 0.0128,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10507,
+     "the Lucky": 0.09233,
+     "gap": 0.01274,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07678,
+     "the Lucky": 0.06214,
+     "gap": 0.01463,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07945,
+     "the Lucky": 0.06548,
+     "gap": 0.01397,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.0777,
+     "the Lucky": 0.06403,
+     "gap": 0.01366,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08507,
+     "the Lucky": 0.07238,
+     "gap": 0.01269,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09586,
+     "the Lucky": 0.08522,
+     "gap": 0.01063,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "none",
+     "the Tormented": 0.07746,
+     "the Lucky": 0.05936,
+     "gap": 0.01809,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "game_level_central",
+     "the Tormented": 0.07815,
+     "the Lucky": 0.06125,
+     "gap": 0.0169,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08019,
+     "the Lucky": 0.06413,
+     "gap": 0.01606,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.0837,
+     "the Lucky": 0.06796,
+     "gap": 0.01574,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09078,
+     "the Lucky": 0.0749,
+     "gap": 0.01587,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10505,
+     "the Lucky": 0.08928,
+     "gap": 0.01577,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07802,
+     "the Lucky": 0.05993,
+     "gap": 0.01809,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08103,
+     "the Lucky": 0.0636,
+     "gap": 0.01743,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07888,
+     "the Lucky": 0.06176,
+     "gap": 0.01712,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08723,
+     "the Lucky": 0.07104,
+     "gap": 0.01619,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.0973,
+     "the Lucky": 0.08265,
+     "gap": 0.01464,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "none",
+     "the Tormented": 0.07847,
+     "the Lucky": 0.06023,
+     "gap": 0.01824,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "game_level_central",
+     "the Tormented": 0.07917,
+     "the Lucky": 0.06212,
+     "gap": 0.01705,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.0812,
+     "the Lucky": 0.06508,
+     "gap": 0.01612,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08471,
+     "the Lucky": 0.06893,
+     "gap": 0.01578,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09225,
+     "the Lucky": 0.07591,
+     "gap": 0.01635,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10691,
+     "the Lucky": 0.09051,
+     "gap": 0.0164,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07904,
+     "the Lucky": 0.0608,
+     "gap": 0.01824,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08207,
+     "the Lucky": 0.06447,
+     "gap": 0.0176,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07992,
+     "the Lucky": 0.06272,
+     "gap": 0.0172,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.0882,
+     "the Lucky": 0.072,
+     "gap": 0.0162,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09893,
+     "the Lucky": 0.08428,
+     "gap": 0.01465,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "none",
+     "the Tormented": 0.07943,
+     "the Lucky": 0.05785,
+     "gap": 0.02158,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "game_level_central",
+     "the Tormented": 0.08017,
+     "the Lucky": 0.05983,
+     "gap": 0.02034,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08234,
+     "the Lucky": 0.06291,
+     "gap": 0.01943,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08532,
+     "the Lucky": 0.06619,
+     "gap": 0.01912,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09288,
+     "the Lucky": 0.07365,
+     "gap": 0.01923,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10674,
+     "the Lucky": 0.0876,
+     "gap": 0.01914,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08005,
+     "the Lucky": 0.05847,
+     "gap": 0.02158,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08341,
+     "the Lucky": 0.06247,
+     "gap": 0.02093,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08086,
+     "the Lucky": 0.06035,
+     "gap": 0.02052,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09008,
+     "the Lucky": 0.0705,
+     "gap": 0.01958,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.1001,
+     "the Lucky": 0.08182,
+     "gap": 0.01827,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "none",
+     "the Tormented": 0.08046,
+     "the Lucky": 0.05864,
+     "gap": 0.02182,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "game_level_central",
+     "the Tormented": 0.0812,
+     "the Lucky": 0.06062,
+     "gap": 0.02058,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08336,
+     "the Lucky": 0.06377,
+     "gap": 0.01959,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08634,
+     "the Lucky": 0.06707,
+     "gap": 0.01926,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09442,
+     "the Lucky": 0.07455,
+     "gap": 0.01987,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10871,
+     "the Lucky": 0.08869,
+     "gap": 0.02002,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08107,
+     "the Lucky": 0.05926,
+     "gap": 0.02182,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08446,
+     "the Lucky": 0.06326,
+     "gap": 0.0212,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08192,
+     "the Lucky": 0.06122,
+     "gap": 0.0207,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09105,
+     "the Lucky": 0.07137,
+     "gap": 0.01968,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.1018,
+     "the Lucky": 0.08323,
+     "gap": 0.01858,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "none",
+     "the Tormented": 0.08389,
+     "the Lucky": 0.05296,
+     "gap": 0.03093,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "game_level_central",
+     "the Tormented": 0.08476,
+     "the Lucky": 0.05516,
+     "gap": 0.0296,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08726,
+     "the Lucky": 0.05874,
+     "gap": 0.02851,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08912,
+     "the Lucky": 0.06091,
+     "gap": 0.02821,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.0979,
+     "the Lucky": 0.06963,
+     "gap": 0.02826,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11124,
+     "the Lucky": 0.08302,
+     "gap": 0.02822,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08461,
+     "the Lucky": 0.05368,
+     "gap": 0.03093,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08897,
+     "the Lucky": 0.0586,
+     "gap": 0.03036,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08536,
+     "the Lucky": 0.0557,
+     "gap": 0.02966,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09668,
+     "the Lucky": 0.06797,
+     "gap": 0.02871,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10691,
+     "the Lucky": 0.07903,
+     "gap": 0.02787,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "none",
+     "the Tormented": 0.08493,
+     "the Lucky": 0.0535,
+     "gap": 0.03143,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "game_level_central",
+     "the Tormented": 0.0858,
+     "the Lucky": 0.0557,
+     "gap": 0.0301,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08829,
+     "the Lucky": 0.05933,
+     "gap": 0.02896,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.09015,
+     "the Lucky": 0.0615,
+     "gap": 0.02865,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09961,
+     "the Lucky": 0.07024,
+     "gap": 0.02937,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11348,
+     "the Lucky": 0.08372,
+     "gap": 0.02976,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08565,
+     "the Lucky": 0.05422,
+     "gap": 0.03143,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.09004,
+     "the Lucky": 0.05914,
+     "gap": 0.0309,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08643,
+     "the Lucky": 0.05629,
+     "gap": 0.03014,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09765,
+     "the Lucky": 0.06856,
+     "gap": 0.02909,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19101",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10881,
+     "the Lucky": 0.07987,
+     "gap": 0.02893,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "none",
+     "the Tormented": 0.08439,
+     "the Lucky": 0.06791,
+     "gap": 0.01648,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "game_level_central",
+     "the Tormented": 0.08545,
+     "the Lucky": 0.07135,
+     "gap": 0.0141,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08767,
+     "the Lucky": 0.07443,
+     "gap": 0.01324,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08826,
+     "the Lucky": 0.07517,
+     "gap": 0.01309,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09791,
+     "the Lucky": 0.08482,
+     "gap": 0.01309,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10529,
+     "the Lucky": 0.09219,
+     "gap": 0.01309,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.0851,
+     "the Lucky": 0.06959,
+     "gap": 0.0155,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08803,
+     "the Lucky": 0.07341,
+     "gap": 0.01463,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08624,
+     "the Lucky": 0.07175,
+     "gap": 0.01449,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09303,
+     "the Lucky": 0.07967,
+     "gap": 0.01336,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09947,
+     "the Lucky": 0.08635,
+     "gap": 0.01312,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "none",
+     "the Tormented": 0.08566,
+     "the Lucky": 0.06931,
+     "gap": 0.01635,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "game_level_central",
+     "the Tormented": 0.08672,
+     "the Lucky": 0.07299,
+     "gap": 0.01374,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08893,
+     "the Lucky": 0.07617,
+     "gap": 0.01276,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08952,
+     "the Lucky": 0.07691,
+     "gap": 0.01261,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09965,
+     "the Lucky": 0.08656,
+     "gap": 0.01309,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10742,
+     "the Lucky": 0.09397,
+     "gap": 0.01345,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08637,
+     "the Lucky": 0.07122,
+     "gap": 0.01514,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08933,
+     "the Lucky": 0.07504,
+     "gap": 0.01429,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08753,
+     "the Lucky": 0.07349,
+     "gap": 0.01404,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09425,
+     "the Lucky": 0.08141,
+     "gap": 0.01283,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10136,
+     "the Lucky": 0.08812,
+     "gap": 0.01324,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "none",
+     "the Tormented": 0.08499,
+     "the Lucky": 0.06521,
+     "gap": 0.01978,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "game_level_central",
+     "the Tormented": 0.08606,
+     "the Lucky": 0.06859,
+     "gap": 0.01747,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08835,
+     "the Lucky": 0.07179,
+     "gap": 0.01656,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08897,
+     "the Lucky": 0.07257,
+     "gap": 0.0164,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.0988,
+     "the Lucky": 0.0824,
+     "gap": 0.0164,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10686,
+     "the Lucky": 0.09046,
+     "gap": 0.0164,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.0857,
+     "the Lucky": 0.06683,
+     "gap": 0.01888,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08893,
+     "the Lucky": 0.07088,
+     "gap": 0.01805,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08681,
+     "the Lucky": 0.06901,
+     "gap": 0.0178,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09424,
+     "the Lucky": 0.07755,
+     "gap": 0.01669,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10124,
+     "the Lucky": 0.08481,
+     "gap": 0.01643,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "none",
+     "the Tormented": 0.08624,
+     "the Lucky": 0.06647,
+     "gap": 0.01977,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "game_level_central",
+     "the Tormented": 0.0873,
+     "the Lucky": 0.07007,
+     "gap": 0.01723,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08959,
+     "the Lucky": 0.07336,
+     "gap": 0.01622,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.0902,
+     "the Lucky": 0.07414,
+     "gap": 0.01606,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.10058,
+     "the Lucky": 0.08398,
+     "gap": 0.0166,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10906,
+     "the Lucky": 0.09206,
+     "gap": 0.01699,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08695,
+     "the Lucky": 0.0683,
+     "gap": 0.01864,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.0902,
+     "the Lucky": 0.07236,
+     "gap": 0.01785,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08808,
+     "the Lucky": 0.07058,
+     "gap": 0.0175,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09543,
+     "the Lucky": 0.07912,
+     "gap": 0.01631,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10318,
+     "the Lucky": 0.08642,
+     "gap": 0.01676,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "none",
+     "the Tormented": 0.08559,
+     "the Lucky": 0.06254,
+     "gap": 0.02304,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "game_level_central",
+     "the Tormented": 0.08666,
+     "the Lucky": 0.06586,
+     "gap": 0.0208,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08903,
+     "the Lucky": 0.06917,
+     "gap": 0.01985,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08967,
+     "the Lucky": 0.07,
+     "gap": 0.01967,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09969,
+     "the Lucky": 0.08002,
+     "gap": 0.01967,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10841,
+     "the Lucky": 0.08874,
+     "gap": 0.01967,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08631,
+     "the Lucky": 0.06409,
+     "gap": 0.02221,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08983,
+     "the Lucky": 0.06838,
+     "gap": 0.02145,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08737,
+     "the Lucky": 0.06629,
+     "gap": 0.02108,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09545,
+     "the Lucky": 0.07545,
+     "gap": 0.02,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10301,
+     "the Lucky": 0.0833,
+     "gap": 0.01971,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "none",
+     "the Tormented": 0.08681,
+     "the Lucky": 0.06366,
+     "gap": 0.02314,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "game_level_central",
+     "the Tormented": 0.08788,
+     "the Lucky": 0.06718,
+     "gap": 0.0207,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.09024,
+     "the Lucky": 0.07058,
+     "gap": 0.01965,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.09088,
+     "the Lucky": 0.0714,
+     "gap": 0.01947,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.10149,
+     "the Lucky": 0.08143,
+     "gap": 0.02007,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11068,
+     "the Lucky": 0.09017,
+     "gap": 0.0205,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08753,
+     "the Lucky": 0.06541,
+     "gap": 0.02211,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.09108,
+     "the Lucky": 0.0697,
+     "gap": 0.02137,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08862,
+     "the Lucky": 0.0677,
+     "gap": 0.02092,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09661,
+     "the Lucky": 0.07686,
+     "gap": 0.01975,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10498,
+     "the Lucky": 0.08473,
+     "gap": 0.02025,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "none",
+     "the Tormented": 0.08617,
+     "the Lucky": 0.05996,
+     "gap": 0.0262,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "game_level_central",
+     "the Tormented": 0.08725,
+     "the Lucky": 0.06322,
+     "gap": 0.02403,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08968,
+     "the Lucky": 0.06664,
+     "gap": 0.02304,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.09035,
+     "the Lucky": 0.06751,
+     "gap": 0.02284,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.10055,
+     "the Lucky": 0.07771,
+     "gap": 0.02284,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10991,
+     "the Lucky": 0.08707,
+     "gap": 0.02284,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.0869,
+     "the Lucky": 0.06145,
+     "gap": 0.02545,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.0907,
+     "the Lucky": 0.06596,
+     "gap": 0.02473,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08792,
+     "the Lucky": 0.06366,
+     "gap": 0.02425,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09663,
+     "the Lucky": 0.07343,
+     "gap": 0.0232,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10472,
+     "the Lucky": 0.08184,
+     "gap": 0.02288,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "none",
+     "the Tormented": 0.08736,
+     "the Lucky": 0.06095,
+     "gap": 0.02642,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "game_level_central",
+     "the Tormented": 0.08844,
+     "the Lucky": 0.06439,
+     "gap": 0.02405,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.09087,
+     "the Lucky": 0.06789,
+     "gap": 0.02298,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.09154,
+     "the Lucky": 0.06876,
+     "gap": 0.02278,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.10238,
+     "the Lucky": 0.07895,
+     "gap": 0.02343,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11224,
+     "the Lucky": 0.08834,
+     "gap": 0.0239,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08809,
+     "the Lucky": 0.06262,
+     "gap": 0.02547,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.09192,
+     "the Lucky": 0.06713,
+     "gap": 0.02479,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08915,
+     "the Lucky": 0.06491,
+     "gap": 0.02424,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09776,
+     "the Lucky": 0.07468,
+     "gap": 0.02308,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10673,
+     "the Lucky": 0.08311,
+     "gap": 0.02362,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "none",
+     "the Tormented": 0.08773,
+     "the Lucky": 0.05321,
+     "gap": 0.03453,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "game_level_central",
+     "the Tormented": 0.08882,
+     "the Lucky": 0.05629,
+     "gap": 0.03253,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.09145,
+     "the Lucky": 0.06001,
+     "gap": 0.03144,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.09219,
+     "the Lucky": 0.06099,
+     "gap": 0.0312,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.10282,
+     "the Lucky": 0.07162,
+     "gap": 0.0312,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11388,
+     "the Lucky": 0.08268,
+     "gap": 0.0312,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08848,
+     "the Lucky": 0.05451,
+     "gap": 0.03397,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.09301,
+     "the Lucky": 0.05962,
+     "gap": 0.03339,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.0894,
+     "the Lucky": 0.05677,
+     "gap": 0.03263,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09979,
+     "the Lucky": 0.06816,
+     "gap": 0.03163,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10929,
+     "the Lucky": 0.07804,
+     "gap": 0.03125,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "none",
+     "the Tormented": 0.08887,
+     "the Lucky": 0.05384,
+     "gap": 0.03502,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "game_level_central",
+     "the Tormented": 0.08996,
+     "the Lucky": 0.05706,
+     "gap": 0.0329,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.09257,
+     "the Lucky": 0.06083,
+     "gap": 0.03174,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.09331,
+     "the Lucky": 0.06181,
+     "gap": 0.0315,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.10473,
+     "the Lucky": 0.07244,
+     "gap": 0.03229,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11638,
+     "the Lucky": 0.08352,
+     "gap": 0.03286,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08962,
+     "the Lucky": 0.05529,
+     "gap": 0.03433,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.09418,
+     "the Lucky": 0.06039,
+     "gap": 0.03379,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.09057,
+     "the Lucky": 0.05759,
+     "gap": 0.03298,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.10085,
+     "the Lucky": 0.06898,
+     "gap": 0.03187,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19543",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.1114,
+     "the Lucky": 0.07888,
+     "gap": 0.03252,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "none",
+     "the Tormented": 0.06652,
+     "the Lucky": 0.04388,
+     "gap": 0.02265,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "game_level_central",
+     "the Tormented": 0.06736,
+     "the Lucky": 0.0463,
+     "gap": 0.02106,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.06901,
+     "the Lucky": 0.04867,
+     "gap": 0.02034,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07214,
+     "the Lucky": 0.0523,
+     "gap": 0.01985,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.08189,
+     "the Lucky": 0.06176,
+     "gap": 0.02013,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10431,
+     "the Lucky": 0.08441,
+     "gap": 0.0199,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.06706,
+     "the Lucky": 0.04518,
+     "gap": 0.02187,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07042,
+     "the Lucky": 0.04874,
+     "gap": 0.02168,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.06785,
+     "the Lucky": 0.04687,
+     "gap": 0.02098,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.07463,
+     "the Lucky": 0.05415,
+     "gap": 0.02048,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.089,
+     "the Lucky": 0.0701,
+     "gap": 0.01891,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "none",
+     "the Tormented": 0.0671,
+     "the Lucky": 0.04398,
+     "gap": 0.02312,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "game_level_central",
+     "the Tormented": 0.06793,
+     "the Lucky": 0.04659,
+     "gap": 0.02134,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.06957,
+     "the Lucky": 0.04896,
+     "gap": 0.02062,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07271,
+     "the Lucky": 0.05264,
+     "gap": 0.02007,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.08303,
+     "the Lucky": 0.06212,
+     "gap": 0.02091,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10591,
+     "the Lucky": 0.08522,
+     "gap": 0.02069,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.06763,
+     "the Lucky": 0.04547,
+     "gap": 0.02216,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07102,
+     "the Lucky": 0.04903,
+     "gap": 0.02199,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.06845,
+     "the Lucky": 0.0472,
+     "gap": 0.02125,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.07514,
+     "the Lucky": 0.05447,
+     "gap": 0.02067,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09032,
+     "the Lucky": 0.0713,
+     "gap": 0.01902,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "none",
+     "the Tormented": 0.07047,
+     "the Lucky": 0.04343,
+     "gap": 0.02704,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "game_level_central",
+     "the Tormented": 0.07138,
+     "the Lucky": 0.04602,
+     "gap": 0.02536,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07326,
+     "the Lucky": 0.04871,
+     "gap": 0.02455,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07596,
+     "the Lucky": 0.05188,
+     "gap": 0.02408,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.08616,
+     "the Lucky": 0.06184,
+     "gap": 0.02432,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10706,
+     "the Lucky": 0.08294,
+     "gap": 0.02413,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07104,
+     "the Lucky": 0.04475,
+     "gap": 0.02629,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07486,
+     "the Lucky": 0.04879,
+     "gap": 0.02607,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07186,
+     "the Lucky": 0.04659,
+     "gap": 0.02527,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.07958,
+     "the Lucky": 0.05487,
+     "gap": 0.02471,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.0935,
+     "the Lucky": 0.07019,
+     "gap": 0.02332,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "none",
+     "the Tormented": 0.07112,
+     "the Lucky": 0.04353,
+     "gap": 0.02759,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "game_level_central",
+     "the Tormented": 0.07204,
+     "the Lucky": 0.04631,
+     "gap": 0.02573,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.0739,
+     "the Lucky": 0.04899,
+     "gap": 0.02491,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.0766,
+     "the Lucky": 0.0522,
+     "gap": 0.0244,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.08746,
+     "the Lucky": 0.06218,
+     "gap": 0.02527,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10887,
+     "the Lucky": 0.08364,
+     "gap": 0.02522,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07169,
+     "the Lucky": 0.04503,
+     "gap": 0.02666,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07555,
+     "the Lucky": 0.04907,
+     "gap": 0.02647,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07254,
+     "the Lucky": 0.0469,
+     "gap": 0.02564,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08016,
+     "the Lucky": 0.05518,
+     "gap": 0.02498,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09498,
+     "the Lucky": 0.07122,
+     "gap": 0.02376,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "none",
+     "the Tormented": 0.07411,
+     "the Lucky": 0.04301,
+     "gap": 0.0311,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "game_level_central",
+     "the Tormented": 0.07509,
+     "the Lucky": 0.04574,
+     "gap": 0.02935,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07717,
+     "the Lucky": 0.04872,
+     "gap": 0.02844,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07949,
+     "the Lucky": 0.05148,
+     "gap": 0.02801,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09008,
+     "the Lucky": 0.06188,
+     "gap": 0.0282,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.10961,
+     "the Lucky": 0.08157,
+     "gap": 0.02804,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07471,
+     "the Lucky": 0.04433,
+     "gap": 0.03038,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07895,
+     "the Lucky": 0.04881,
+     "gap": 0.03014,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07554,
+     "the Lucky": 0.0463,
+     "gap": 0.02924,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08416,
+     "the Lucky": 0.05554,
+     "gap": 0.02862,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09768,
+     "the Lucky": 0.07029,
+     "gap": 0.0274,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "none",
+     "the Tormented": 0.07483,
+     "the Lucky": 0.04311,
+     "gap": 0.03173,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "game_level_central",
+     "the Tormented": 0.07581,
+     "the Lucky": 0.04601,
+     "gap": 0.0298,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07788,
+     "the Lucky": 0.04899,
+     "gap": 0.02889,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.0802,
+     "the Lucky": 0.05179,
+     "gap": 0.02842,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09152,
+     "the Lucky": 0.0622,
+     "gap": 0.02932,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.1116,
+     "the Lucky": 0.08218,
+     "gap": 0.02943,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07543,
+     "the Lucky": 0.0446,
+     "gap": 0.03084,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.07971,
+     "the Lucky": 0.04908,
+     "gap": 0.03063,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07631,
+     "the Lucky": 0.04659,
+     "gap": 0.02971,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.0848,
+     "the Lucky": 0.05583,
+     "gap": 0.02898,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.09932,
+     "the Lucky": 0.07116,
+     "gap": 0.02815,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "none",
+     "the Tormented": 0.07732,
+     "the Lucky": 0.04264,
+     "gap": 0.03468,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "game_level_central",
+     "the Tormented": 0.07835,
+     "the Lucky": 0.04547,
+     "gap": 0.03289,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08061,
+     "the Lucky": 0.04871,
+     "gap": 0.0319,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08262,
+     "the Lucky": 0.05112,
+     "gap": 0.0315,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09353,
+     "the Lucky": 0.06188,
+     "gap": 0.03165,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11186,
+     "the Lucky": 0.08034,
+     "gap": 0.03152,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07795,
+     "the Lucky": 0.04394,
+     "gap": 0.03401,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08255,
+     "the Lucky": 0.04881,
+     "gap": 0.03375,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.0788,
+     "the Lucky": 0.04602,
+     "gap": 0.03277,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08822,
+     "the Lucky": 0.05613,
+     "gap": 0.03209,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10141,
+     "the Lucky": 0.07039,
+     "gap": 0.03101,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "none",
+     "the Tormented": 0.07811,
+     "the Lucky": 0.04273,
+     "gap": 0.03539,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "game_level_central",
+     "the Tormented": 0.07914,
+     "the Lucky": 0.04572,
+     "gap": 0.03342,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08139,
+     "the Lucky": 0.04896,
+     "gap": 0.03243,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08339,
+     "the Lucky": 0.0514,
+     "gap": 0.03199,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.09509,
+     "the Lucky": 0.06217,
+     "gap": 0.03292,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11402,
+     "the Lucky": 0.08086,
+     "gap": 0.03316,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.07874,
+     "the Lucky": 0.04419,
+     "gap": 0.03454,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.08338,
+     "the Lucky": 0.04906,
+     "gap": 0.03432,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07962,
+     "the Lucky": 0.04629,
+     "gap": 0.03333,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.08893,
+     "the Lucky": 0.0564,
+     "gap": 0.03253,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.10318,
+     "the Lucky": 0.07113,
+     "gap": 0.03205,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "none",
+     "the Tormented": 0.08416,
+     "the Lucky": 0.04185,
+     "gap": 0.04231,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "game_level_central",
+     "the Tormented": 0.08527,
+     "the Lucky": 0.0448,
+     "gap": 0.04047,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08791,
+     "the Lucky": 0.04859,
+     "gap": 0.03932,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.08927,
+     "the Lucky": 0.0503,
+     "gap": 0.03897,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.10073,
+     "the Lucky": 0.0617,
+     "gap": 0.03903,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11664,
+     "the Lucky": 0.07766,
+     "gap": 0.03898,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08484,
+     "the Lucky": 0.04307,
+     "gap": 0.04178,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.09018,
+     "the Lucky": 0.04871,
+     "gap": 0.04147,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08569,
+     "the Lucky": 0.04536,
+     "gap": 0.04034,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09701,
+     "the Lucky": 0.05746,
+     "gap": 0.03954,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.1095,
+     "the Lucky": 0.07073,
+     "gap": 0.03876,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "none",
+     "the Tormented": 0.08508,
+     "the Lucky": 0.04192,
+     "gap": 0.04316,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "game_level_central",
+     "the Tormented": 0.08619,
+     "the Lucky": 0.045,
+     "gap": 0.04119,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.08882,
+     "the Lucky": 0.04879,
+     "gap": 0.04003,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.09017,
+     "the Lucky": 0.05051,
+     "gap": 0.03966,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.10255,
+     "the Lucky": 0.06191,
+     "gap": 0.04064,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.11914,
+     "the Lucky": 0.07797,
+     "gap": 0.04117,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.08576,
+     "the Lucky": 0.04326,
+     "gap": 0.0425,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.09114,
+     "the Lucky": 0.0489,
+     "gap": 0.04224,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.08666,
+     "the Lucky": 0.04556,
+     "gap": 0.0411,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.09783,
+     "the Lucky": 0.05767,
+     "gap": 0.04016,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19696",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.11155,
+     "the Lucky": 0.07115,
+     "gap": 0.04039,
+     "winner": "the Tormented"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "none",
+     "the Tormented": 0.06197,
+     "the Lucky": 0.07349,
+     "gap": -0.01152,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "game_level_central",
+     "the Tormented": 0.06265,
+     "the Lucky": 0.07613,
+     "gap": -0.01348,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.06362,
+     "the Lucky": 0.07741,
+     "gap": -0.01379,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.06784,
+     "the Lucky": 0.08195,
+     "gap": -0.01411,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.07436,
+     "the Lucky": 0.08819,
+     "gap": -0.01383,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.08946,
+     "the Lucky": 0.10351,
+     "gap": -0.01406,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.06234,
+     "the Lucky": 0.07499,
+     "gap": -0.01265,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.06265,
+     "the Lucky": 0.07613,
+     "gap": -0.01348,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.06358,
+     "the Lucky": 0.07655,
+     "gap": -0.01297,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.06389,
+     "the Lucky": 0.07769,
+     "gap": -0.01379,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.07264,
+     "the Lucky": 0.08833,
+     "gap": -0.01569,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "none",
+     "the Tormented": 0.06287,
+     "the Lucky": 0.07512,
+     "gap": -0.01225,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "game_level_central",
+     "the Tormented": 0.06355,
+     "the Lucky": 0.07803,
+     "gap": -0.01448,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.06452,
+     "the Lucky": 0.07945,
+     "gap": -0.01492,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.06874,
+     "the Lucky": 0.08403,
+     "gap": -0.01529,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.07527,
+     "the Lucky": 0.09032,
+     "gap": -0.01505,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.09044,
+     "the Lucky": 0.10612,
+     "gap": -0.01568,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.06324,
+     "the Lucky": 0.07689,
+     "gap": -0.01365,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.06355,
+     "the Lucky": 0.07803,
+     "gap": -0.01448,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.06449,
+     "the Lucky": 0.07862,
+     "gap": -0.01413,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.06479,
+     "the Lucky": 0.07975,
+     "gap": -0.01496,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": null,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.07363,
+     "the Lucky": 0.09152,
+     "gap": -0.01789,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "none",
+     "the Tormented": 0.06306,
+     "the Lucky": 0.07472,
+     "gap": -0.01166,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "game_level_central",
+     "the Tormented": 0.06378,
+     "the Lucky": 0.0775,
+     "gap": -0.01372,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.06479,
+     "the Lucky": 0.07884,
+     "gap": -0.01405,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.06863,
+     "the Lucky": 0.08297,
+     "gap": -0.01434,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.07538,
+     "the Lucky": 0.08946,
+     "gap": -0.01408,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.08953,
+     "the Lucky": 0.10383,
+     "gap": -0.01429,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.06346,
+     "the Lucky": 0.07632,
+     "gap": -0.01286,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.06378,
+     "the Lucky": 0.0775,
+     "gap": -0.01372,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.06472,
+     "the Lucky": 0.07791,
+     "gap": -0.01319,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.06504,
+     "the Lucky": 0.07909,
+     "gap": -0.01405,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.07327,
+     "the Lucky": 0.08904,
+     "gap": -0.01577,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "none",
+     "the Tormented": 0.064,
+     "the Lucky": 0.07642,
+     "gap": -0.01242,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "game_level_central",
+     "the Tormented": 0.06471,
+     "the Lucky": 0.07948,
+     "gap": -0.01477,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.06572,
+     "the Lucky": 0.08096,
+     "gap": -0.01523,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.06957,
+     "the Lucky": 0.08514,
+     "gap": -0.01558,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.07632,
+     "the Lucky": 0.09167,
+     "gap": -0.01535,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.09055,
+     "the Lucky": 0.10649,
+     "gap": -0.01593,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.06439,
+     "the Lucky": 0.0783,
+     "gap": -0.01391,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.06471,
+     "the Lucky": 0.07948,
+     "gap": -0.01477,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.06566,
+     "the Lucky": 0.08006,
+     "gap": -0.01441,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.06598,
+     "the Lucky": 0.08124,
+     "gap": -0.01526,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 180,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.07429,
+     "the Lucky": 0.09222,
+     "gap": -0.01793,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "none",
+     "the Tormented": 0.06412,
+     "the Lucky": 0.07591,
+     "gap": -0.01179,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "game_level_central",
+     "the Tormented": 0.06487,
+     "the Lucky": 0.07882,
+     "gap": -0.01395,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.06591,
+     "the Lucky": 0.08021,
+     "gap": -0.01429,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.0694,
+     "the Lucky": 0.08396,
+     "gap": -0.01457,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.07635,
+     "the Lucky": 0.09068,
+     "gap": -0.01432,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.08961,
+     "the Lucky": 0.10413,
+     "gap": -0.01452,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.06453,
+     "the Lucky": 0.0776,
+     "gap": -0.01306,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.06487,
+     "the Lucky": 0.07882,
+     "gap": -0.01395,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.06582,
+     "the Lucky": 0.07922,
+     "gap": -0.0134,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.06615,
+     "the Lucky": 0.08045,
+     "gap": -0.01429,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.07388,
+     "the Lucky": 0.08972,
+     "gap": -0.01584,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "none",
+     "the Tormented": 0.06509,
+     "the Lucky": 0.07767,
+     "gap": -0.01258,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "game_level_central",
+     "the Tormented": 0.06584,
+     "the Lucky": 0.08089,
+     "gap": -0.01505,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.06688,
+     "the Lucky": 0.08241,
+     "gap": -0.01553,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07037,
+     "the Lucky": 0.08622,
+     "gap": -0.01585,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.07733,
+     "the Lucky": 0.09297,
+     "gap": -0.01564,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.09066,
+     "the Lucky": 0.10684,
+     "gap": -0.01618,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.0655,
+     "the Lucky": 0.07966,
+     "gap": -0.01416,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.06584,
+     "the Lucky": 0.08089,
+     "gap": -0.01505,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.06679,
+     "the Lucky": 0.08146,
+     "gap": -0.01467,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.06712,
+     "the Lucky": 0.08268,
+     "gap": -0.01556,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 90,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.07493,
+     "the Lucky": 0.0929,
+     "gap": -0.01797,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "none",
+     "the Tormented": 0.06513,
+     "the Lucky": 0.07705,
+     "gap": -0.01192,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "game_level_central",
+     "the Tormented": 0.06591,
+     "the Lucky": 0.08009,
+     "gap": -0.01418,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.067,
+     "the Lucky": 0.08152,
+     "gap": -0.01453,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07014,
+     "the Lucky": 0.08492,
+     "gap": -0.01478,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.0773,
+     "the Lucky": 0.09185,
+     "gap": -0.01456,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.08969,
+     "the Lucky": 0.10442,
+     "gap": -0.01474,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.06557,
+     "the Lucky": 0.07882,
+     "gap": -0.01326,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.06591,
+     "the Lucky": 0.08009,
+     "gap": -0.01418,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.06688,
+     "the Lucky": 0.08048,
+     "gap": -0.01361,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.06722,
+     "the Lucky": 0.08175,
+     "gap": -0.01453,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.07447,
+     "the Lucky": 0.09038,
+     "gap": -0.01591,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "none",
+     "the Tormented": 0.06613,
+     "the Lucky": 0.07887,
+     "gap": -0.01273,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "game_level_central",
+     "the Tormented": 0.06692,
+     "the Lucky": 0.08224,
+     "gap": -0.01532,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.068,
+     "the Lucky": 0.08381,
+     "gap": -0.01581,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07114,
+     "the Lucky": 0.08725,
+     "gap": -0.01611,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.0783,
+     "the Lucky": 0.09421,
+     "gap": -0.01591,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.09077,
+     "the Lucky": 0.10718,
+     "gap": -0.01641,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.06657,
+     "the Lucky": 0.08097,
+     "gap": -0.0144,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.06692,
+     "the Lucky": 0.08224,
+     "gap": -0.01532,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.06788,
+     "the Lucky": 0.0828,
+     "gap": -0.01492,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.06822,
+     "the Lucky": 0.08406,
+     "gap": -0.01584,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 60,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.07555,
+     "the Lucky": 0.09356,
+     "gap": -0.01801,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "none",
+     "the Tormented": 0.0679,
+     "the Lucky": 0.08016,
+     "gap": -0.01226,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "game_level_central",
+     "the Tormented": 0.06877,
+     "the Lucky": 0.08354,
+     "gap": -0.01477,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.06995,
+     "the Lucky": 0.08511,
+     "gap": -0.01515,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.07221,
+     "the Lucky": 0.08756,
+     "gap": -0.01535,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.07988,
+     "the Lucky": 0.09505,
+     "gap": -0.01518,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.08992,
+     "the Lucky": 0.10524,
+     "gap": -0.01532,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.0684,
+     "the Lucky": 0.08216,
+     "gap": -0.01377,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.06877,
+     "the Lucky": 0.08354,
+     "gap": -0.01477,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.06976,
+     "the Lucky": 0.08391,
+     "gap": -0.01415,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.07013,
+     "the Lucky": 0.08529,
+     "gap": -0.01515,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "additive",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.07609,
+     "the Lucky": 0.0922,
+     "gap": -0.01611,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "none",
+     "the Tormented": 0.069,
+     "the Lucky": 0.08215,
+     "gap": -0.01315,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "game_level_central",
+     "the Tormented": 0.06987,
+     "the Lucky": 0.0859,
+     "gap": -0.01603,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "game_level_5pct",
+     "the Tormented": 0.07105,
+     "the Lucky": 0.08762,
+     "gap": -0.01657,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "game_level_10pct",
+     "the Tormented": 0.0733,
+     "the Lucky": 0.0901,
+     "gap": -0.01681,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "game_level_20pct",
+     "the Tormented": 0.08097,
+     "the Lucky": 0.09762,
+     "gap": -0.01664,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "game_level_50pct",
+     "the Tormented": 0.09109,
+     "the Lucky": 0.10812,
+     "gap": -0.01704,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_central",
+     "the Tormented": 0.06949,
+     "the Lucky": 0.08452,
+     "gap": -0.01503,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_5pct",
+     "the Tormented": 0.06987,
+     "the Lucky": 0.0859,
+     "gap": -0.01603,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_10pct",
+     "the Tormented": 0.07085,
+     "the Lucky": 0.08644,
+     "gap": -0.01559,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_20pct",
+     "the Tormented": 0.07123,
+     "the Lucky": 0.08782,
+     "gap": -0.01659,
+     "winner": "the Lucky"
+    },
+    {
+     "stacking": "multiplicative",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "membership": "hero_consistent_50pct",
+     "the Tormented": 0.07726,
+     "the Lucky": 0.09538,
+     "gap": -0.01812,
+     "winner": "the Lucky"
+    }
+   ]
+  },
   "scenario_minimax_regret": {
    "definition": "max over scenarios of (best action in that scenario minus this action)",
-   "scenario_family": "stacking x leave-one-event-out x recency weighting x unseen Elemental membership assignment",
+   "scenario_family": "PARTIAL / one-factor sweeps appended, NOT a Cartesian product: stacking x event state, then recency alone, then membership alone. The full product is in cartesian_scenario_regret.",
+   "is_full_cartesian_product": false,
    "scenarios": [
     {
      "scenario": "additive / all events",
@@ -1314,7 +7038,7 @@
     "sha256": "507264727f41d993fe61b6155de1b404c2741658b0ffe99bf09d3b89f3f3e412",
     "coverage_complete": true
    },
-   "generated_utc": "2026-08-12T16:09:25+00:00"
+   "generated_utc": "2026-08-12T16:24:23+00:00"
   },
   "all_eight_closed": false,
   "suffix_scope": {
@@ -1638,8 +7362,8 @@
    "Emerald": 0.01003,
    "Crimson": 0.00877,
    "Cerulean": 0.00221,
-   "the Flayed Twins Acolyte": 0.0,
-   "the Patient": 0.0
+   "the Patient": 0.0,
+   "the Flayed Twins Acolyte": 0.0
   },
   "untabled_prefix_total_extrapolation": {
    "Royal": 0.0318,

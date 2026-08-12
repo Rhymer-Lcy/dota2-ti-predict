@@ -220,8 +220,10 @@ def test_bootstrap_interval_endpoints_are_not_called_minimax_regret(art):
                    if k != "not_minimax_regret")
     # a real one exists, over a named scenario family
     sm = ex["scenario_minimax_regret"]
-    assert "leave-one-event-out" in sm["scenario_family"]
-    assert "recency weighting" in sm["scenario_family"]
+    assert sm["is_full_cartesian_product"] is False
+    full = ex["cartesian_scenario_regret"]
+    assert "event state" in full["scenario_family"]
+    assert "recency half-life" in full["scenario_family"]
     assert len(sm["scenarios"]) >= 4
     assert sm["minimax_choice"] in sm["max_regret"]
     assert sm["max_regret"][sm["minimax_choice"]] == min(sm["max_regret"].values())
@@ -322,6 +324,83 @@ def test_the_four_evidence_classes_are_reported_separately_and_never_tallied(art
         assert key in j
     assert "never tallied" in j["not_a_vote_count"]
     assert "wins 11" not in json.dumps(art, ensure_ascii=False)
+
+
+def test_the_scenario_family_is_a_real_cartesian_product(art):
+    """Appending one-factor sweeps is not a product; the corners are the whole point."""
+    ex = art["exact_pricing"]
+    c = ex["cartesian_scenario_regret"]
+    assert c["is_full_cartesian_product"] is True
+    rows = c["scenarios"]
+    levels = {f: {str(r[f]) for r in rows}
+              for f in ("stacking", "event_state", "recency_half_life_days", "membership")}
+    expected = 1
+    for v in levels.values():
+        expected *= len(v)
+    assert c["n_scenarios"] == len(rows) == expected
+    seen = {(r["stacking"], r["event_state"], str(r["recency_half_life_days"]), r["membership"])
+            for r in rows}
+    assert len(seen) == expected          # every combination present exactly once
+
+
+def test_the_partial_sweep_no_longer_claims_to_be_the_full_family(art):
+    scen = art["exact_pricing"]["scenario_minimax_regret"]
+    assert scen["is_full_cartesian_product"] is False
+    assert "PARTIAL" in scen["scenario_family"]
+
+
+def test_the_corner_scenarios_are_actually_reached(art):
+    """drop the newest event AND weight recency AND grant the worst membership, together."""
+    rows = art["exact_pricing"]["cartesian_scenario_regret"]["scenarios"]
+    corner = [r for r in rows
+              if r["event_state"].startswith("drop")
+              and r["recency_half_life_days"] == 30
+              and r["membership"].endswith("50pct")]
+    assert corner, "the compound corner was never evaluated"
+    assert len({r["stacking"] for r in corner}) == 2
+
+
+def test_the_missing_elemental_mass_is_labelled_an_estimate_not_a_bound(art):
+    c = art["exact_pricing"]["cartesian_scenario_regret"]
+    note = c["central_missing_mass_is_a_point_estimate_not_a_bound"]
+    assert "central estimate" in note["why"]
+    assert "drift" in note["why"]
+    sets = c["membership_sets"]
+    assert any(k.endswith("50pct") for k in sets)
+    assert any(k.startswith("hero_consistent") for k in sets)
+    assert any(k.startswith("game_level") for k in sets)
+    body = json.dumps({k: v for k, v in art.items() if k != "withdrawn_claims"},
+                      ensure_ascii=False)
+    assert "only 3 unseen" not in body
+
+
+def test_hero_consistent_and_game_level_stresses_are_both_present_and_distinguished(art):
+    sets = art["exact_pricing"]["cartesian_scenario_regret"]["membership_sets"]
+    hero = {k: v for k, v in sets.items() if k.startswith("hero_consistent")}
+    game = {k: v for k, v in sets.items() if k.startswith("game_level")}
+    assert len(hero) == len(game) >= 5
+    for v in hero.values():
+        assert "hero_consistent" in v["placement"]
+    for v in game.values():
+        assert "game_level" in v["placement"]
+
+
+def test_the_runner_up_wins_are_attributed_to_a_factor_rather_than_left_unexplained(art):
+    c = art["exact_pricing"]["cartesian_scenario_regret"]
+    dec = c["runner_up_win_decomposition"]
+    assert set(dec) == {"stacking", "event_state", "recency_half_life_days", "membership"}
+    for f, levels in dec.items():
+        assert sum(v["runner_up_wins"] for v in levels.values()) == \
+            c["scenarios_won_by_runner_up"], f
+        assert sum(v["scenarios"] for v in levels.values()) == c["n_scenarios"], f
+
+
+def test_no_unlabelled_common_rng_predictive_result_survives(art):
+    """The artifact may not assert a default dependence and then quietly report another."""
+    assert art["exact_pricing"]["dependence_sensitivity"]["default"] == "by_organization"
+    for stacking, block in art["exact_pricing"]["joint_closing"]["by_stacking"].items():
+        dep = block["predictive_distribution"]["dependence"]
+        assert dep == "by_organization" or "DIAGNOSTIC ONLY" in dep, stacking
 
 
 def test_the_artifact_records_how_to_regenerate_itself(art):

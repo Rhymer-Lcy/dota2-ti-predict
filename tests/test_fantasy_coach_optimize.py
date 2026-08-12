@@ -351,6 +351,50 @@ def test_a_weighted_projection_follows_the_weights():
     assert co.project_period(scores, counts, weights={"lo": 3.0, "hi": 1.0}) == pytest.approx(32.5)
 
 
+def test_the_cartesian_sweep_enumerates_every_combination():
+    """A three-factor toy: the row count must be the product, not the sum."""
+    per = {"A": {"s1": {1: {10: 10.0}, 2: {10: 12.0}}},
+           "B": {"s2": {3: {10: 40.0}, 4: {10: 44.0}}}}
+    ri = {"core": (per, 1, np.full(200, 2), co.price(per, 1, np.full(200, 2), co._zero))}
+    cats = {7: {"isaquatic": True}, 8: {"isaquatic": False}}
+    heroes = {(m, 10): (7 if m % 2 else 8) for m in (1, 2, 3, 4)}
+    table = {(m, 10): {"the Lucky": m in (2, 4), "the Clutch": m in (1, 3)}
+             for m in (1, 2, 3, 4)}
+    msets = {"none": frozenset(), "some": frozenset({(2, 10)})}
+    rows = co.cartesian_scenarios(ri, "Elemental", ("the Lucky", "the Clutch"),
+                                  heroes, cats, table, msets, draws=200)
+    assert len(rows) == len(co.STACKINGS) * 3 * len(co.HALF_LIVES) * len(msets)
+    keys = {(r["stacking"], r["event_state"], str(r["recency_half_life_days"]), r["membership"])
+            for r in rows}
+    assert len(keys) == len(rows)
+
+
+def test_the_hero_consistent_stress_flips_every_appearance_of_a_hero():
+    """A hero either is Fiery or Icy or it is not; it cannot be one only in its good games."""
+    per = {"E": {"s1": {1: {10: 10.0}, 2: {10: 20.0}}, "s2": {3: {10: 30.0}, 4: {10: 40.0}}}}
+    ri = {"core": (per, 1, np.full(200, 2), 1.0)}
+    cats = {8: {"isaquatic": False}}
+    heroes = {(m, 10): 8 for m in (1, 2, 3, 4)}     # one hero, four appearances
+    table = {(m, 10): {"the Lucky": False, "the Clutch": False} for m in (1, 2, 3, 4)}
+    ranked, eligible = co.adversarial_membership(
+        ri, "Elemental", ("the Lucky", "the Clutch"), heroes, cats, table, hero_consistent=True)
+    assert eligible == 4
+    assert len(ranked) == 1                     # one hero unit
+    assert ranked[0][1] == 4                    # carrying all four appearances together
+
+
+def test_the_adversarial_placement_is_named_as_worst_found_not_proven():
+    src = inspect.getsource(co.adversarial_membership)
+    assert "worst placement FOUND" in src
+    assert "not a proven minimum" in src
+
+
+def test_the_sweep_exposure_vector_is_resized_without_redrawing():
+    counts = np.array([4, 5, 6])
+    assert list(co.exposure_counts_from(counts, 2)) == [4, 5]
+    assert list(co.exposure_counts_from(counts, 7)) == [4, 5, 6, 4, 5, 6, 4]
+
+
 # --------------------------------------------------------- what the public numbers mean
 
 def test_the_community_categories_overlap_so_a_share_of_the_eight_is_not_a_denominator():
