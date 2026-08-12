@@ -274,20 +274,18 @@ def tormented_bound(extras, scope="all"):
             "note": "an upper bound; every zero is an exact negative"}
 
 
-def breakpoint_rate(gain_reference, bonus_percent, base, per, n_players, counts, table,
-                    probe="the Lucky"):
-    """Trigger rate at which a suffix would have to match the incumbent's delivered gain.
+def breakpoint_rate(target_gain, bonus_percent, att):
+    """Trigger rate a suffix would need, at a given attenuation, to match a target gain.
 
-    Calibrated on a suffix we CAN price, so the conversion from rate to gain carries the same
-    max-over-series attenuation instead of assuming the naive frequency times bonus.
+    Attenuation is not a fudge factor: it is measured on the suffixes that CAN be priced, and it
+    is not near one. A trigger uncorrelated with performance comes out ABOVE its naive frequency
+    times bonus, because the period keeps the best series and so selects periods where the trigger
+    happened to fire; a trigger tied to losing comes out well below. Quoting the breakpoint at
+    both ends of the measured range is the honest form of "we could not price this".
     """
-    probe_rate = sum(1 for v in table.values() if v.get(probe)) / max(1, len(table))
-    probe_gain = price(per, n_players, counts, suffix_bonus_fn(probe, table)) / base - 1.0
-    if probe_gain <= 0:
+    if not att or not bonus_percent:
         return None
-    # gain is very nearly linear in the rate at a fixed bonus, so scale off the calibrated probe
-    per_rate_per_point = probe_gain / (probe_rate * SUFFIX_BONUS[probe])
-    return gain_reference / (per_rate_per_point * bonus_percent)
+    return target_gain / (att * bonus_percent / 100.0)
 
 
 # ------------------------------------------------------- checking the public numbers
@@ -359,7 +357,9 @@ def build(state_path, titles_path=None, draws=DRAWS):
 
     roles_map = bl.roles_from_roster()
     out_roles = {}
-    priced_suffixes = [s for s in SUFFIX_BONUS if any(v.get(s) for v in table.values())]
+    # decidable, NOT "observed to fire": a suffix whose trigger can be evaluated on our data is
+    # priced even when it never fires, because a measured zero is a result and not a gap
+    priced_suffixes = [s for s in SUFFIX_BONUS if any(s in v for v in table.values())]
     for role in ROLES:
         org = state["banners"][role]["canonical_team"]
         accounts = set(roles_map.get(org, {}).get(role, []))
@@ -423,7 +423,61 @@ def build(state_path, titles_path=None, draws=DRAWS):
         if all(c for _b, c in vals):
             ceilings[p] = round(sum(b * c["gain_ceiling"] for b, c in vals) / denom, 5)
 
+    # suffix attenuation, measured on the whole account rather than per role
+    decided = {s: sum(1 for v in table.values() if s in v) for s in priced_suffixes}
+    suffix_rate = {s: sum(1 for v in table.values() if v.get(s)) / max(1, decided[s])
+                   for s in priced_suffixes}
+    suffix_att = {s: attenuation(totals[s], suffix_rate[s], SUFFIX_BONUS[s])
+                  for s in priced_suffixes if suffix_rate[s] > 0}
+    # a suffix that never fired is bounded by the rule of three rather than asserted to be zero
+    never = {s: {"player_maps_decided": decided[s], "observed_rate": 0.0,
+                 "rate_upper_95": round(3.0 / decided[s], 5),
+                 "gain_ceiling_at_that_rate": round(
+                     3.0 / decided[s] * SUFFIX_BONUS[s] / 100.0 * max(
+                         suffix_att.values() or [1.0]), 5),
+                 "classification": "CONFIRMED COMPUTABLE, measured zero"}
+             for s in priced_suffixes if suffix_rate[s] == 0 and decided[s]}
+    best_suffix = max(priced_suffixes, key=lambda s: totals[s]) if priced_suffixes else None
+    lo, hi = (min(suffix_att.values()), max(suffix_att.values())) if suffix_att else (None, None)
+    unpriced = {}
+    for s in SUFFIX_BONUS:
+        if s in priced_suffixes or best_suffix is None:
+            continue
+        b = SUFFIX_BONUS[s]
+        unpriced[s] = {
+            "bonus_percent": b,
+            "must_beat": {"suffix": best_suffix, "total_gain": totals[best_suffix]},
+            "breakpoint_rate_if_uncorrelated": round(
+                breakpoint_rate(totals[best_suffix], b, hi), 4),
+            "breakpoint_rate_if_tied_to_losing": round(
+                breakpoint_rate(totals[best_suffix], b, lo), 4),
+            "measured_attenuation_range": [round(lo, 3), round(hi, 3)]}
+    tb = tormented_bound(extras, "all")
+    if tb and "the Tormented" in unpriced:
+        u = unpriced["the Tormented"]
+        u["measured_upper_bound_rate"] = tb["upper_bound_trigger_rate"]
+        u["verdict"] = ("RULED OUT: the upper bound on its trigger rate is below the rate it "
+                        "would need even under the most favourable attenuation measured"
+                        if tb["upper_bound_trigger_rate"] < u["breakpoint_rate_if_uncorrelated"]
+                        else "LIVE: the upper bound leaves room to beat the incumbent")
+        u["classification"] = "PARTIAL-BOUNDED"
+    if "the Cruel" in unpriced:
+        unpriced["the Cruel"]["classification"] = "UNAVAILABLE"
+        unpriced["the Cruel"]["why"] = (
+            "the condition is positional -- a death at a team's own fountain -- and no field in "
+            "the match object carries a death position. killed_by names the killer, not the "
+            "place. Recovering it needs full replay parsing, not an API field.")
+        unpriced["the Cruel"]["direction_of_the_error"] = (
+            "a fountain death happens in games that are being lost badly, so its attenuation "
+            "belongs at the LOW end of the measured range, which is where its breakpoint is "
+            "least achievable")
+
     return {"state": os.path.basename(state_path), "seed": SEED, "draws": draws,
+            "suffix_trigger_rates": {k: round(v, 4) for k, v in suffix_rate.items()},
+            "suffix_attenuation": {k: round(v, 3) for k, v in suffix_att.items()},
+            "suffix_never_observed": never,
+            "match_extras_coverage": round(len(extras) / 623.0, 3),
+            "unpriced_suffixes": unpriced,
             "exposure_source": prob_src, "roles": out_roles,
             "total_gain_over_no_coach": dict(sorted(totals.items(), key=lambda kv: -kv[1])),
             "untabled_prefix_total_ceiling": ceilings,
@@ -439,13 +493,86 @@ def build(state_path, titles_path=None, draws=DRAWS):
             "community_frequencies_parsed": bool(titles_path)}
 
 
+PROVENANCE = {
+    "tier_2_independent_community": [
+        {"id": "Kadadji1/dota2-fantasy-optimizer-2026",
+         "file": "data/titles.ts",
+         "carries": "all 8 prefixes and all 8 suffixes with bonuses, an independent Russian "
+                    "restatement of each condition, and per-player category frequencies",
+         "used_for": "the definitions, and the frequencies for the three prefixes no hero table "
+                     "covers"},
+        {"id": "MyKa322/fantasy-analyzer-dota2",
+         "file": "dota2-fantasy-design-main/src/data/scoring.js",
+         "carries": "the same 8 prefixes with the same bonuses and the same conditions; no "
+                    "frequencies, and its own comment says it has no hero category data",
+         "used_for": "corroboration of the definitions only"},
+        {"id": "bydoodle/dota2fantasy",
+         "file": "heroes.json",
+         "carries": "a hand-tagged, TI2025-era hero category table (126 heroes)",
+         "used_for": "our own recomputation of the hero-conditional triggers"}],
+    "user_runtime_observation": [
+        {"id": "operator's live client Coaching Titles panel",
+         "carries": "the 8 prefixes and 8 suffixes as displayed in game, with bonuses",
+         "used_for": "confirming the community definitions; it is a separate observation and is "
+                     "NOT one of the two community sources"}],
+    "tier_1_valve": [],
+    "note": "no Valve source states the category membership of any hero, so no part of the "
+            "prefix pricing is Tier 1",
+}
+
+WITHDRAWN = {
+    "claim": "the community frequencies admit two equally admissible readings, a percentage "
+             "reading and a normalised-count reading, and the recommendation is ROBUST across "
+             "both",
+    "status": "WITHDRAWN",
+    "why": "the second reading divides a value by the sum of the eight categories, which is not a "
+           "denominator: the categories overlap, and a player's eight values routinely sum past "
+           "100. The source uses the values as percentage frequencies, and our own hero data "
+           "reproduces them player by player, so there is one reading, not two.",
+    "replaced_by": "frequency_replication, which tests the percentage reading against our own "
+                   "independently fetched hero table",
+}
+
+METHOD = {
+    "layering": ["player-game score", "role score = mean over the role's players",
+                 "series score = sum of the best two games", "period score = MAX over series",
+                 "TI exposure = expectation over the number of series played"],
+    "where_the_bonus_is_applied": "the player-game, before role averaging, so a bonus that "
+                                  "correlates with how the game went is priced with that "
+                                  "correlation intact",
+    "paired_comparison": "common random numbers across coach settings, so a reported gain is a "
+                         "paired difference and not the difference of two noisy means",
+    "why_not_frequency_times_bonus": "the period keeps a maximum, so a trigger that fires on "
+                                     "games the maximum discards is worth far less than its "
+                                     "frequency, and one that fires on the best games is worth "
+                                     "more. The measured attenuation on prefixes we can score "
+                                     "exactly ranges from 0.06 to 1.8, so the naive product is "
+                                     "not even reliable to within an order of magnitude.",
+}
+
+
+def assemble(computed, state_path):
+    """The published artifact: computed numbers plus the method and provenance that bound them."""
+    return {"generated_by": "ti_predict.fantasy.coach_optimize",
+            "regenerate": f"python -m ti_predict.fantasy.coach_optimize --state {state_path} "
+                          f"--out <this file>",
+            "label": "BEST-KNOWN PROVISIONAL -- not FINAL, not a ROBUST OPTIMUM",
+            "method": METHOD,
+            "provenance": PROVENANCE,
+            "withdrawn_claim": WITHDRAWN,
+            "exact_pricing": computed}
+
+
 def main(argv=None):
     a = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     a.add_argument("--state", required=True)
     a.add_argument("--out")
     a.add_argument("--draws", type=int, default=DRAWS)
+    a.add_argument("--raw", action="store_true", help="computed block only, without the narrative")
     a = a.parse_args(argv)
     doc = build(a.state, draws=a.draws)
+    if not a.raw:
+        doc = assemble(doc, a.state)
     text = json.dumps(doc, ensure_ascii=False, indent=1)
     if a.out:
         with open(a.out, "w", encoding="utf-8") as fh:

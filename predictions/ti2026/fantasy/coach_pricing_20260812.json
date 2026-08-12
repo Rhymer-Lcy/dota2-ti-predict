@@ -1,136 +1,433 @@
 {
-  "label": "PHASE 4B coach pricing and joint team+coach optimum",
-  "generated_at": "2026-08-12T04:30:00Z",
-  "target_account_state": "state 5: Core Xtreme Gaming, Mid Team Yandex, Support Xtreme Gaming, 38 tokens",
-  "public_evidence_audit": {
-    "prefix_and_suffix_definitions": {
-      "grade": "tier_2_independent_community x2, agreeing with user_runtime_observation",
-      "sources": [
-        "Kadadji1/dota2-fantasy-optimizer-2026 data/titles.ts (fetched and read)",
-        "operator's live client Coaching Titles panel"
-      ],
-      "finding": "All 8 prefixes and all 8 suffixes match the client panel exactly, including every bonus percentage. titles.ts also carries a Russian translation of each condition, which is an independent restatement rather than a copy of the English.",
-      "not_tier_1": "None of this is a Valve source; it is corroboration."
+ "generated_by": "ti_predict.fantasy.coach_optimize",
+ "regenerate": "python -m ti_predict.fantasy.coach_optimize --state predictions/ti2026/fantasy/account_state_target_20260812b.json --out <this file>",
+ "label": "BEST-KNOWN PROVISIONAL -- not FINAL, not a ROBUST OPTIMUM",
+ "method": {
+  "layering": [
+   "player-game score",
+   "role score = mean over the role's players",
+   "series score = sum of the best two games",
+   "period score = MAX over series",
+   "TI exposure = expectation over the number of series played"
+  ],
+  "where_the_bonus_is_applied": "the player-game, before role averaging, so a bonus that correlates with how the game went is priced with that correlation intact",
+  "paired_comparison": "common random numbers across coach settings, so a reported gain is a paired difference and not the difference of two noisy means",
+  "why_not_frequency_times_bonus": "the period keeps a maximum, so a trigger that fires on games the maximum discards is worth far less than its frequency, and one that fires on the best games is worth more. The measured attenuation on prefixes we can score exactly ranges from 0.06 to 1.8, so the naive product is not even reliable to within an order of magnitude."
+ },
+ "provenance": {
+  "tier_2_independent_community": [
+   {
+    "id": "Kadadji1/dota2-fantasy-optimizer-2026",
+    "file": "data/titles.ts",
+    "carries": "all 8 prefixes and all 8 suffixes with bonuses, an independent Russian restatement of each condition, and per-player category frequencies",
+    "used_for": "the definitions, and the frequencies for the three prefixes no hero table covers"
+   },
+   {
+    "id": "MyKa322/fantasy-analyzer-dota2",
+    "file": "dota2-fantasy-design-main/src/data/scoring.js",
+    "carries": "the same 8 prefixes with the same bonuses and the same conditions; no frequencies, and its own comment says it has no hero category data",
+    "used_for": "corroboration of the definitions only"
+   },
+   {
+    "id": "bydoodle/dota2fantasy",
+    "file": "heroes.json",
+    "carries": "a hand-tagged, TI2025-era hero category table (126 heroes)",
+    "used_for": "our own recomputation of the hero-conditional triggers"
+   }
+  ],
+  "user_runtime_observation": [
+   {
+    "id": "operator's live client Coaching Titles panel",
+    "carries": "the 8 prefixes and 8 suffixes as displayed in game, with bonuses",
+    "used_for": "confirming the community definitions; it is a separate observation and is NOT one of the two community sources"
+   }
+  ],
+  "tier_1_valve": [],
+  "note": "no Valve source states the category membership of any hero, so no part of the prefix pricing is Tier 1"
+ },
+ "withdrawn_claim": {
+  "claim": "the community frequencies admit two equally admissible readings, a percentage reading and a normalised-count reading, and the recommendation is ROBUST across both",
+  "status": "WITHDRAWN",
+  "why": "the second reading divides a value by the sum of the eight categories, which is not a denominator: the categories overlap, and a player's eight values routinely sum past 100. The source uses the values as percentage frequencies, and our own hero data reproduces them player by player, so there is one reading, not two.",
+  "replaced_by": "frequency_replication, which tests the percentage reading against our own independently fetched hero table"
+ },
+ "exact_pricing": {
+  "state": "account_state_target_20260812b.json",
+  "seed": 20260812,
+  "draws": 4000,
+  "suffix_trigger_rates": {
+   "the Underdog": 0.457,
+   "the Decisive": 0.0293,
+   "the Clutch": 0.1185,
+   "the Lucky": 0.0741,
+   "the Patient": 0.0,
+   "the Flayed Twins Acolyte": 0.0
+  },
+  "suffix_attenuation": {
+   "the Underdog": 0.459,
+   "the Decisive": 1.992,
+   "the Clutch": 0.586,
+   "the Lucky": 2.093
+  },
+  "suffix_never_observed": {
+   "the Patient": {
+    "player_maps_decided": 1426,
+    "observed_rate": 0.0,
+    "rate_upper_95": 0.0021,
+    "gain_ceiling_at_that_rate": 0.00101,
+    "classification": "CONFIRMED COMPUTABLE, measured zero"
+   },
+   "the Flayed Twins Acolyte": {
+    "player_maps_decided": 1426,
+    "observed_rate": 0.0,
+    "rate_upper_95": 0.0021,
+    "gain_ceiling_at_that_rate": 0.00132,
+    "classification": "CONFIRMED COMPUTABLE, measured zero"
+   }
+  },
+  "match_extras_coverage": 0.326,
+  "unpriced_suffixes": {
+   "the Tormented": {
+    "bonus_percent": 13,
+    "must_beat": {
+     "suffix": "the Lucky",
+     "total_gain": 0.03257
     },
-    "third_party_score_model_rejected": {
-      "finding": "Kadadji's lib/optimizer.ts composes traits MULTIPLICATIVELY (factors[i] *= 1.6 for Fractal, *= 1.3 Unique, *= 1.5 Friendly/Vampiric, *= 1.2 / *= 0.9 for adjacency).",
-      "why_rejected": "That is the rule this project used before the client falsified it. On the target account's own Core banner it would give quality x 1.2 rather than 1 + 0.60 + 0.20, and it reproduces none of the 18 observed multipliers. Their definitions are usable evidence; their scoring model is not.",
-      "our_rule": "multiplier = 1 + quality_bonus + net_trait_bonus, validated on 18 emblems across two accounts plus two predictions made before the fact."
+    "breakpoint_rate_if_uncorrelated": 0.1197,
+    "breakpoint_rate_if_tied_to_losing": 0.5461,
+    "measured_attenuation_range": [
+     0.459,
+     2.093
+    ],
+    "measured_upper_bound_rate": 0.0246,
+    "verdict": "RULED OUT: the upper bound on its trigger rate is below the rate it would need even under the most favourable attenuation measured",
+    "classification": "PARTIAL-BOUNDED"
+   },
+   "the Cruel": {
+    "bonus_percent": 19,
+    "must_beat": {
+     "suffix": "the Lucky",
+     "total_gain": 0.03257
     },
-    "hero_category_table": {
-      "source": "bydoodle/dota2fantasy heroes.json (a TI2025-era table)",
-      "fields": [
-        "isred",
-        "isblue",
-        "isgreen",
-        "isundead",
-        "isaquatic",
-        "ishorns",
-        "isbearded",
-        "attr"
-      ],
-      "coverage_against_the_2026_prefixes": {
-        "exact": [
-          "Crimson (red)",
-          "Cerulean (blue)",
-          "Emerald (green)"
-        ],
-        "strict_subset_only": [
-          "Elemental: isaquatic is a subset of 'aquatic, fiery or ice'",
-          "Otherworldly: isundead is a subset of 'undead, demon or spirit'"
-        ],
-        "absent": [
-          "Royal (purple)",
-          "Golden (yellow or brown)",
-          "Heroic (masked or cloaked)"
-        ]
-      },
-      "consequence": "Our own hero_id recomputation can verify three prefixes exactly and only LOWER-BOUND the recommended one. That limit is stated rather than papered over."
+    "breakpoint_rate_if_uncorrelated": 0.0819,
+    "breakpoint_rate_if_tied_to_losing": 0.3736,
+    "measured_attenuation_range": [
+     0.459,
+     2.093
+    ],
+    "classification": "UNAVAILABLE",
+    "why": "the condition is positional -- a death at a team's own fountain -- and no field in the match object carries a death position. killed_by names the killer, not the place. Recovering it needs full replay parsing, not an API field.",
+    "direction_of_the_error": "a fountain death happens in games that are being lost badly, so its attenuation belongs at the LOW end of the measured range, which is where its breakpoint is least achievable"
+   }
+  },
+  "exposure_source": "ti15_group_candidate_20260810T095746Z.json",
+  "roles": {
+   "core": {
+    "organization": "Xtreme Gaming",
+    "priced": true,
+    "players": 2,
+    "dropped_slots": [],
+    "player_maps_scored": 118,
+    "base_expected_period_score": 16001.672,
+    "gain": {
+     "the Lucky": 0.04319,
+     "Elemental": 0.03203,
+     "the Underdog": 0.02008,
+     "the Clutch": 0.01571,
+     "Otherworldly": 0.01475,
+     "Crimson": 0.00993,
+     "Emerald": 0.00288,
+     "Cerulean": 0.00106,
+     "the Decisive": 0.0,
+     "the Patient": 0.0,
+     "the Flayed Twins Acolyte": 0.0
+    },
+    "prefix_attenuation": {
+     "Crimson": {
+      "our_trigger_rate": 0.2034,
+      "exact_gain": 0.00993,
+      "naive_frequency_times_bonus": 0.0122,
+      "attenuation": 0.814
+     },
+     "Cerulean": {
+      "our_trigger_rate": 0.0678,
+      "exact_gain": 0.00106,
+      "naive_frequency_times_bonus": 0.00746,
+      "attenuation": 0.143
+     },
+     "Emerald": {
+      "our_trigger_rate": 0.1271,
+      "exact_gain": 0.00288,
+      "naive_frequency_times_bonus": 0.00763,
+      "attenuation": 0.377
+     },
+     "Elemental": {
+      "our_trigger_rate": 0.2458,
+      "exact_gain": 0.03203,
+      "naive_frequency_times_bonus": 0.01966,
+      "attenuation": 1.629
+     },
+     "Otherworldly": {
+      "our_trigger_rate": 0.1525,
+      "exact_gain": 0.01475,
+      "naive_frequency_times_bonus": 0.01068,
+      "attenuation": 1.382
+     }
+    },
+    "untabled_prefix_ceiling": {
+     "Royal": {
+      "community_trigger_rate": 0.225,
+      "gain_ceiling": 0.03665,
+      "basis": "community rate x bonus x 1.629, the largest attenuation measured on any prefix this role CAN be scored on"
+     },
+     "Golden": {
+      "community_trigger_rate": 0.27,
+      "gain_ceiling": 0.03519,
+      "basis": "community rate x bonus x 1.629, the largest attenuation measured on any prefix this role CAN be scored on"
+     },
+     "Heroic": {
+      "community_trigger_rate": 0.12,
+      "gain_ceiling": 0.01759,
+      "basis": "community rate x bonus x 1.629, the largest attenuation measured on any prefix this role CAN be scored on"
+     }
     }
-  },
-  "denominator_reconstruction": {
-    "question": "Are Kadadji's prefix values counts or percentages?",
-    "evidence": "The repo's own accessor names the field `frequency`, and getAveragePrefixFrequency takes a plain arithmetic mean of the two players in a pair. No denominator, match count or normalisation appears anywhere in the repository.",
-    "range_check": "All values lie in 0..62, and per-player totals across the eight categories run 142..198. Both readings fit that: percentages can exceed 100 in total because a hero can belong to several categories, and counts over roughly 100-150 matches give the same range.",
-    "resolution": "Not resolvable from the source, so BOTH readings were carried and compared. Reading A treats them as percentages; reading B treats them as counts and normalises each player by his own total, which is the proxy for unequal denominators. The two readings agree on the ranking, because the per-player totals are similar enough that normalising does not reorder the prefixes.",
-    "status": "UNRESOLVED as a fact, IRRELEVANT to the decision"
-  },
-  "prefix_pricing": {
-    "method": "expected gain = sum over roles of role_score x bonus x trigger_frequency, with the role frequency taken as the mean over that role's players",
-    "averaging_caveat": "The exact rule is a score-weighted mean of the two players' triggers, since the role score is the mean of individual scores. An arithmetic mean of the frequencies is used because per-player scores are not separated in this pipeline; with bonuses of 6-11 percent the difference is second order.",
-    "reading_A_percentages": {
-      "Elemental": 733,
-      "Royal": 622,
-      "Golden": 509,
-      "Heroic": 453,
-      "Otherworldly": 448,
-      "Crimson": 445,
-      "Cerulean": 385,
-      "Emerald": 253
+   },
+   "mid": {
+    "organization": "Team Yandex",
+    "priced": true,
+    "players": 1,
+    "dropped_slots": [],
+    "player_maps_scored": 49,
+    "base_expected_period_score": 9596.907,
+    "gain": {
+     "Elemental": 0.05218,
+     "the Decisive": 0.04296,
+     "Emerald": 0.01322,
+     "Otherworldly": 0.01044,
+     "the Clutch": 0.00577,
+     "Crimson": 0.00537,
+     "the Lucky": 0.00344,
+     "Cerulean": 0.00089,
+     "the Underdog": 2e-05,
+     "the Patient": 0.0,
+     "the Flayed Twins Acolyte": 0.0
     },
-    "reading_B_normalised_counts": {
-      "Elemental": 441,
-      "Royal": 389,
-      "Golden": 312,
-      "Otherworldly": 277,
-      "Heroic": 277,
-      "Crimson": 269,
-      "Cerulean": 232,
-      "Emerald": 153
+    "prefix_attenuation": {
+     "Crimson": {
+      "our_trigger_rate": 0.2245,
+      "exact_gain": 0.00537,
+      "naive_frequency_times_bonus": 0.01347,
+      "attenuation": 0.398
+     },
+     "Cerulean": {
+      "our_trigger_rate": 0.1429,
+      "exact_gain": 0.00089,
+      "naive_frequency_times_bonus": 0.01571,
+      "attenuation": 0.057
+     },
+     "Emerald": {
+      "our_trigger_rate": 0.1224,
+      "exact_gain": 0.01322,
+      "naive_frequency_times_bonus": 0.00735,
+      "attenuation": 1.8
+     },
+     "Elemental": {
+      "our_trigger_rate": 0.4694,
+      "exact_gain": 0.05218,
+      "naive_frequency_times_bonus": 0.03755,
+      "attenuation": 1.39
+     },
+     "Otherworldly": {
+      "our_trigger_rate": 0.3265,
+      "exact_gain": 0.01044,
+      "naive_frequency_times_bonus": 0.02286,
+      "attenuation": 0.457
+     }
     },
-    "agreement": "Elemental first and Royal second under both. Heroic, the title currently equipped, is fourth or fifth.",
-    "decision_status": "ROBUST across the two admissible readings"
-  },
-  "suffix_pricing": {
-    "empirical_trigger_rates_over_4709_player_maps": {
-      "the Underdog": 0.457,
-      "the Clutch": 0.1185,
-      "the Lucky": 0.0741,
-      "the Decisive": 0.0293
-    },
-    "simulated_gain_over_no_suffix": {
-      "the Underdog": 380,
-      "the Decisive": 412,
-      "the Clutch": 339,
-      "the Lucky": 927
-    },
-    "why_frequency_times_bonus_is_the_wrong_ranking": "A period keeps the MAXIMUM over series, so what matters is the correlation between a trigger and the game's score, not the naive product. the Underdog fires on 45.7 percent of player-maps but only on LOSSES, which are low-scoring games the maximum discards: it delivers 1.29 percent against a naive 2.74 percent. the Lucky fires on a duration digit, which is independent of performance, so the maximum picks it up: it delivers 3.14 percent against a naive 1.56 percent.",
-    "unpriced_rivals": {
-      "note": "Four suffixes have conditions this pipeline cannot evaluate. Their breakpoints against the Lucky, before amplification, are:",
-      "the Tormented": "needs above 13.7 percent",
-      "the Patient": "needs above 13.7 percent",
-      "the Cruel": "needs above 24.2 percent",
-      "the Flayed Twins Acolyte": "needs above 34.9 percent",
-      "honest_caveat": "the Tormented is uncorrelated with the fantasy player's own performance, so it would amplify like the Lucky and its effective breakpoint is lower than 13.7 percent. It is a live candidate that cannot be priced here."
+    "untabled_prefix_ceiling": {
+     "Royal": {
+      "community_trigger_rate": 0.23,
+      "gain_ceiling": 0.0414,
+      "basis": "community rate x bonus x 1.8, the largest attenuation measured on any prefix this role CAN be scored on"
+     },
+     "Golden": {
+      "community_trigger_rate": 0.06,
+      "gain_ceiling": 0.00864,
+      "basis": "community rate x bonus x 1.8, the largest attenuation measured on any prefix this role CAN be scored on"
+     },
+     "Heroic": {
+      "community_trigger_rate": 0.21,
+      "gain_ceiling": 0.03402,
+      "basis": "community rate x bonus x 1.8, the largest attenuation measured on any prefix this role CAN be scored on"
+     }
     }
-  },
-  "joint_team_and_coach": {
-    "structure": "total = sum over roles of f(team; prefix, suffix), separable GIVEN the coach, so the exact optimum is a search over coach settings with a per-role argmax inside",
-    "result": "Under ALL EIGHT prefixes the per-role argmax is the same triple: Xtreme Gaming / Team Yandex / LGD Gaming. The coach-team coupling is real in principle and does not move a single team choice in fact.",
-    "joint_optimum": {
-      "prefix": "Elemental",
-      "total": 31511,
-      "picks": {
-        "core": "Xtreme Gaming",
-        "mid": "Team Yandex",
-        "support": "LGD Gaming"
-      }
+   },
+   "support": {
+    "organization": "Xtreme Gaming",
+    "priced": true,
+    "players": 2,
+    "dropped_slots": [
+     "watchers_taken"
+    ],
+    "player_maps_scored": 118,
+    "base_expected_period_score": 3831.812,
+    "gain": {
+     "the Lucky": 0.06118,
+     "Elemental": 0.03167,
+     "Emerald": 0.0247,
+     "Crimson": 0.01638,
+     "the Underdog": 0.01272,
+     "Otherworldly": 0.00976,
+     "Cerulean": 0.0072,
+     "the Clutch": 0.00524,
+     "the Decisive": 1e-05,
+     "the Patient": 0.0,
+     "the Flayed Twins Acolyte": 0.0
     },
-    "current_triple_under_the_same_coach": 31156,
-    "gap": 354,
-    "gap_source": "entirely the Support slot, which is blocked by the unscoreable Watchers emblem"
-  },
-  "recommendation": {
-    "prefix": "Elemental",
-    "suffix": "the Lucky",
-    "gain_prefix": 286,
-    "gain_suffix": 588,
-    "gain_total": 874,
-    "cost": "free and reversible",
-    "keep": {
-      "core": "Xtreme Gaming",
-      "mid": "Team Yandex",
-      "support": "Xtreme Gaming"
+    "prefix_attenuation": {
+     "Crimson": {
+      "our_trigger_rate": 0.178,
+      "exact_gain": 0.01638,
+      "naive_frequency_times_bonus": 0.01068,
+      "attenuation": 1.534
+     },
+     "Cerulean": {
+      "our_trigger_rate": 0.1525,
+      "exact_gain": 0.0072,
+      "naive_frequency_times_bonus": 0.01678,
+      "attenuation": 0.429
+     },
+     "Emerald": {
+      "our_trigger_rate": 0.3644,
+      "exact_gain": 0.0247,
+      "naive_frequency_times_bonus": 0.02186,
+      "attenuation": 1.13
+     },
+     "Elemental": {
+      "our_trigger_rate": 0.3475,
+      "exact_gain": 0.03167,
+      "naive_frequency_times_bonus": 0.0278,
+      "attenuation": 1.14
+     },
+     "Otherworldly": {
+      "our_trigger_rate": 0.1695,
+      "exact_gain": 0.00976,
+      "naive_frequency_times_bonus": 0.01186,
+      "attenuation": 0.823
+     }
+    },
+    "untabled_prefix_ceiling": {
+     "Royal": {
+      "community_trigger_rate": 0.105,
+      "gain_ceiling": 0.01611,
+      "basis": "community rate x bonus x 1.534, the largest attenuation measured on any prefix this role CAN be scored on"
+     },
+     "Golden": {
+      "community_trigger_rate": 0.38,
+      "gain_ceiling": 0.04663,
+      "basis": "community rate x bonus x 1.534, the largest attenuation measured on any prefix this role CAN be scored on"
+     },
+     "Heroic": {
+      "community_trigger_rate": 0.285,
+      "gain_ceiling": 0.03935,
+      "basis": "community rate x bonus x 1.534, the largest attenuation measured on any prefix this role CAN be scored on"
+     }
     }
-  }
+   }
+  },
+  "total_gain_over_no_coach": {
+   "Elemental": 0.03855,
+   "the Lucky": 0.03257,
+   "the Decisive": 0.01401,
+   "Otherworldly": 0.01269,
+   "the Underdog": 0.01258,
+   "the Clutch": 0.01111,
+   "Crimson": 0.00928,
+   "Emerald": 0.00909,
+   "Cerulean": 0.0018,
+   "the Patient": 0.0,
+   "the Flayed Twins Acolyte": 0.0
+  },
+  "untabled_prefix_total_ceiling": {
+   "Royal": 0.03552,
+   "Golden": 0.02802,
+   "Heroic": 0.02578
+  },
+  "frequency_replication": {
+   "Crimson": {
+    "players": 53,
+    "our_mean_percent": 22.2,
+    "their_mean_percent": 27.2,
+    "mean_offset": -5.0,
+    "correlation": 0.797
+   },
+   "Cerulean": {
+    "players": 53,
+    "our_mean_percent": 12.3,
+    "their_mean_percent": 13.9,
+    "mean_offset": -1.7,
+    "correlation": 0.888
+   },
+   "Emerald": {
+    "players": 53,
+    "our_mean_percent": 25.0,
+    "their_mean_percent": 22.3,
+    "mean_offset": 2.8,
+    "correlation": 0.767
+   },
+   "Elemental": {
+    "players": 53,
+    "our_mean_percent": 22.2,
+    "their_mean_percent": 23.9,
+    "mean_offset": -1.7,
+    "correlation": 0.889
+   },
+   "Otherworldly": {
+    "players": 53,
+    "our_mean_percent": 21.4,
+    "their_mean_percent": 22.0,
+    "mean_offset": -0.6,
+    "correlation": 0.884
+   }
+  },
+  "priced_suffixes": [
+   "the Underdog",
+   "the Decisive",
+   "the Clutch",
+   "the Lucky",
+   "the Patient",
+   "the Flayed Twins Acolyte"
+  ],
+  "prefix_coverage": {
+   "exact": [
+    "Crimson",
+    "Cerulean",
+    "Emerald"
+   ],
+   "lower_bound": [
+    "Elemental",
+    "Otherworldly"
+   ],
+   "no_category_table": [
+    "Royal",
+    "Golden",
+    "Heroic"
+   ]
+  },
+  "tormented_bound_all_players": {
+   "matches": 203,
+   "matches_with_any_unattributed_death": 5,
+   "upper_bound_trigger_rate": 0.0246,
+   "exact_negatives": 198,
+   "note": "an upper bound; every zero is an exact negative"
+  },
+  "tormented_bound_roster_only": {
+   "matches": 203,
+   "matches_with_any_unattributed_death": 3,
+   "upper_bound_trigger_rate": 0.0148,
+   "exact_negatives": 200,
+   "note": "an upper bound; every zero is an exact negative"
+  },
+  "community_frequencies_parsed": false
+ }
 }
