@@ -454,9 +454,13 @@ def build(state_path, titles_path=None, draws=DRAWS):
             r = community_rate(community, names, p.lower())
             ceiling[p] = None if r is None else {
                 "community_trigger_rate": round(r, 4),
-                "gain_ceiling": round(r * PREFIX_BONUS[p] / 100.0 * worst, 5),
-                "basis": f"community rate x bonus x {worst}, the largest attenuation measured "
-                         f"on any prefix this role CAN be scored on"}
+                "gain_at_max_observed_attenuation": round(r * PREFIX_BONUS[p] / 100.0 * worst, 5),
+                "basis": f"community rate x bonus x {worst}, the largest attenuation observed "
+                         f"on any prefix this role CAN be scored on",
+                "not_a_ceiling": "this is an extrapolation off an observed maximum, not a proven "
+                                 "upper bound. Nothing rules out an untabled prefix attenuating "
+                                 "harder than any tabled one; the largest value SEEN is not the "
+                                 "largest value POSSIBLE."}
 
         role_matches[role] = (org, scored_matches(per, len(accounts)))
         out_roles[role] = {"organization": org, "priced": True,
@@ -466,7 +470,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
                            "gain": {k: round(v, 5) for k, v in sorted(
                                gains.items(), key=lambda kv: -kv[1])},
                            "prefix_attenuation": att,
-                           "untabled_prefix_ceiling": ceiling}
+                           "untabled_prefix_extrapolation": ceiling}
 
     # totals: the account's score is the sum over roles, so a coach is ranked on the summed gain
     totals = {}
@@ -477,10 +481,10 @@ def build(state_path, titles_path=None, draws=DRAWS):
                               for v in weighted.values()) / denom, 5)
     ceilings = {}
     for p in PREFIX_NO_TABLE:
-        vals = [(v["base_expected_period_score"], v["untabled_prefix_ceiling"].get(p))
+        vals = [(v["base_expected_period_score"], v["untabled_prefix_extrapolation"].get(p))
                 for v in weighted.values()]
         if all(c for _b, c in vals):
-            ceilings[p] = round(sum(b * c["gain_ceiling"] for b, c in vals) / denom, 5)
+            ceilings[p] = round(sum(b * c["gain_at_max_observed_attenuation"] for b, c in vals) / denom, 5)
 
     # Trigger rates on the right unit. Seven of the eight conditions are properties of the GAME,
     # so the trial is a match; only the Underdog varies between the two teams in one. Roles are
@@ -510,7 +514,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
                  "units_triggered": 0,
                  "observed_rate": 0.0,
                  "rate_upper_95_rule_of_three": round(3.0 / decided[k], 5),
-                 "gain_ceiling_at_that_rate": round(
+                 "gain_at_bound_and_max_observed_attenuation": round(
                      3.0 / decided[k] * SUFFIX_BONUS[k] / 100.0 * hi_att, 5)}
              for k in units if suffix_rate[k] == 0 and decided[k]}
     best_suffix = max(priced_suffixes, key=lambda x: totals[x]) if priced_suffixes else None
@@ -560,6 +564,21 @@ def build(state_path, titles_path=None, draws=DRAWS):
     # population, so the event rate is bounded on every match fetched -- a far tighter and equally
     # valid bound. Both are reported; the in-sample one is the conservative fallback.
     fb = [e["first_blood_time"] for e in extras.values() if e.get("first_blood_time") is not None]
+    complete_fetch = len(extras) >= 620
+    missingness = {
+        "fetch_order": "the target list is sorted by start_time and fetched in order, so a "
+                       "partial run holds the CHRONOLOGICALLY EARLIEST matches and is missing "
+                       "the latest ones",
+        "is_missingness_ignorable": complete_fetch,
+        "why_it_matters": "first-blood timing and game length move with the patch and the meta, "
+                          "so a time-ordered prefix is not a random sample of the period. A "
+                          "zero observed on it does not license a population-level claim.",
+        "consequence": ("coverage complete: the bounds below are population bounds"
+                        if complete_fetch else
+                        "coverage partial: the bounds below describe the observed prefix only. "
+                        "Further fetching raises the denominator AND may raise the numerator, so "
+                        "completion can move these numbers in either direction, not merely "
+                        "tighten them.")}
     population = {}
     if fb:
         for s_name, hit in (("the Patient", lambda x: x >= FIRST_BLOOD_LATE),
@@ -571,9 +590,11 @@ def build(state_path, titles_path=None, draws=DRAWS):
                 "unique_matches_in_population": len(fb),
                 "matches_triggered": n_hit,
                 "rate_or_rule_of_three_upper_95": round(bound, 5),
-                "gain_ceiling_at_that_bound": round(
+                "gain_at_bound_and_max_observed_attenuation": round(
                     bound * SUFFIX_BONUS[s_name] / 100.0 * hi_att, 5),
-                "basis": "all fetched matches in the same five leagues, not only the 84 scored"}
+                "basis": "all fetched matches in the same five leagues, not only the 84 scored",
+                "scope_of_validity": ("population" if complete_fetch
+                                      else "observed chronological prefix only")}
         population["first_blood_time_seconds"] = {
             "min": min(fb), "max": max(fb), "threshold_for_the_Patient": FIRST_BLOOD_LATE,
             "threshold_for_the_Acolyte": 0}
@@ -585,10 +606,12 @@ def build(state_path, titles_path=None, draws=DRAWS):
             "unique_matches_in_population": tb_pop["matches"],
             "matches_with_any_unattributed_death": tb_pop["matches_with_any_unattributed_death"],
             "rate_or_rule_of_three_upper_95": tb_pop["upper_bound_trigger_rate"],
-            "gain_ceiling_at_that_bound": round(
+            "gain_at_bound_and_max_observed_attenuation": round(
                 tb_pop["upper_bound_trigger_rate"] * SUFFIX_BONUS["the Tormented"] / 100.0
                 * hi_att, 5),
-            "basis": "all fetched matches in the same five leagues, not only the 84 scored"}
+            "basis": "all fetched matches in the same five leagues, not only the 84 scored",
+                "scope_of_validity": ("population" if complete_fetch
+                                      else "observed chronological prefix only")}
     tb = tormented_bound({m: extras[m] for m in covered}, "all")
     if tb and "the Tormented" in unpriced:
         u = unpriced["the Tormented"]
@@ -625,6 +648,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
 
     return {"state": os.path.basename(state_path), "seed": SEED, "draws": draws,
             "population_bounds": population,
+            "missingness": missingness,
             "suffix_classification": classification,
             "coverage": coverage,
             "all_eight_closed": closed,
@@ -638,7 +662,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
             "unpriced_suffixes": unpriced,
             "exposure_source": prob_src, "roles": out_roles,
             "total_gain_over_no_coach": dict(sorted(totals.items(), key=lambda kv: -kv[1])),
-            "untabled_prefix_total_ceiling": ceilings,
+            "untabled_prefix_total_extrapolation": ceilings,
             "frequency_replication": replicate_frequencies(hero_rows, cats, community),
             "priced_suffixes": priced_suffixes,
             "prefix_coverage": {"exact": [p for p, (_f, k) in PREFIX_FLAG.items()
@@ -703,6 +727,29 @@ SUFFIX_BONUS_CROSS_CHECK = {
                "so there is exactly one copy of the fact, and a test pins all eight values."},
 }
 
+WITHDRAWN_COMPLETION = {
+    "claim": "finishing the match_extras fetch can only tighten these bounds, so completion "
+             "cannot change the conclusion",
+    "status": "WITHDRAWN",
+    "why": "new matches raise the denominator AND may raise the numerator. A first blood after "
+           "ten minutes, or a Tormentor death, can appear in any match not yet fetched. Worse, "
+           "the fetch walks the target list in start_time order, so the unfetched remainder is "
+           "the LATEST part of the period rather than a random subset -- exactly the situation "
+           "in which a partial-sample bound may not be read as a population bound.",
+    "replaced_by": "a coverage-conditional statement: under the coverage actually observed, the "
+                   "reported margins hold. The population reading is licensed only when "
+                   "missingness.is_missingness_ignorable is true.",
+}
+
+WITHDRAWN_CEILING = {
+    "claim": "the untabled prefixes are capped by community rate x bonus x the largest observed "
+             "attenuation, so that figure is their ceiling",
+    "status": "WITHDRAWN as a ceiling, RETAINED as an extrapolation",
+    "why": "no argument bounds an unmeasured prefix's attenuation by the maximum attenuation "
+           "seen among measured ones. The largest value observed is not the largest possible.",
+    "replaced_by": "untabled_prefix_total_extrapolation, named and treated as an extrapolation",
+}
+
 WITHDRAWN = {
     "claim": "the community frequencies admit two equally admissible readings, a percentage "
              "reading and a normalised-count reading, and the recommendation is ROBUST across "
@@ -762,6 +809,7 @@ def assemble(computed, state_path):
             "method": METHOD,
             "provenance": PROVENANCE,
             "suffix_bonus_cross_check": SUFFIX_BONUS_CROSS_CHECK,
+            "withdrawn_claims": [WITHDRAWN, WITHDRAWN_COMPLETION, WITHDRAWN_CEILING],
             "withdrawn_claim": WITHDRAWN,
             "exact_pricing": computed}
 

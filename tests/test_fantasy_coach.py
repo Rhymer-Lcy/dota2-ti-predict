@@ -96,6 +96,42 @@ def test_a_role_that_drops_a_slot_says_which_slot_it_dropped(art):
                        for s in v["dropped_slots"]), role
 
 
+def test_a_partial_fetch_is_never_reported_as_a_population_bound(art):
+    """New matches raise the numerator too, and the unfetched remainder is the latest slice."""
+    ex = art["exact_pricing"]
+    m = ex["missingness"]
+    complete = ex["coverage"]["fingerprint"]["complete"]
+    assert m["is_missingness_ignorable"] is complete
+    for name, b in ex["population_bounds"].items():
+        if not isinstance(b, dict) or "scope_of_validity" not in b:
+            continue
+        assert b["scope_of_validity"] == ("population" if complete
+                                          else "observed chronological prefix only"), name
+    if not complete:
+        assert "either direction" in m["consequence"]
+
+
+def test_the_untabled_prefix_figures_are_named_as_extrapolations_not_ceilings(art):
+    """Nothing bounds an unmeasured prefix by the largest attenuation among measured ones."""
+    ex = art["exact_pricing"]
+    assert "untabled_prefix_total_extrapolation" in ex
+    assert "untabled_prefix_total_ceiling" not in ex
+    for role, v in ex["roles"].items():
+        if not v.get("priced"):
+            continue
+        assert "untabled_prefix_ceiling" not in v, role
+        for p, e in v["untabled_prefix_extrapolation"].items():
+            if e:
+                assert "not_a_ceiling" in e, f"{role}/{p}"
+
+
+def test_both_overclaims_are_recorded_as_withdrawn(art):
+    claims = {w["claim"]: w for w in art["withdrawn_claims"]}
+    assert any("cannot change the conclusion" in c for c in claims)
+    assert any("their ceiling" in c for c in claims)
+    assert all(w["status"].startswith("WITHDRAWN") for w in claims.values())
+
+
 def test_the_artifact_records_how_to_regenerate_itself(art):
     assert art["generated_by"] == "ti_predict.fantasy.coach_optimize"
     assert "--state" in art["regenerate"]
