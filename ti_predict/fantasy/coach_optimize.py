@@ -740,6 +740,25 @@ def assemble(computed, state_path):
             "regenerate": f"python -m ti_predict.fantasy.coach_optimize --state {state_path} "
                           f"--out <this file>",
             "label": "BEST-KNOWN PROVISIONAL -- not FINAL, not a ROBUST OPTIMUM",
+            "label_by_component": {
+                "suffix_the_Lucky": {
+                    "grade": "DECISION-ROBUST FOR CURRENT EVIDENCE",
+                    "why": "it beats every other suffix that can be scored by more than a factor "
+                           "of two, and both zero-trigger rivals and the bounded one are an order "
+                           "of magnitude short of their breakpoints",
+                    "residual": "the Cruel is unmeasured. It would have to fire on 13.5 percent "
+                                "of matches to compete if uncorrelated with performance, or 61.7 "
+                                "percent if tied to losing, which is where a fountain death "
+                                "belongs. Implausible, but not measured."},
+                "prefix_Elemental": {
+                    "grade": "BEST-KNOWN PROVISIONAL",
+                    "why": "first under every construction tried, and its own figure is a lower "
+                           "bound because the hero flag tags a subset of the condition",
+                    "residual": "Royal, Golden and Heroic have no hero category table at all. "
+                                "Their ceilings are extrapolations, not measurements, and Royal's "
+                                "sits only about eight percent below Elemental's measured value. "
+                                "That margin is too thin, and too dependent on an extrapolation, "
+                                "to call the prefix settled."}},
             "method": METHOD,
             "provenance": PROVENANCE,
             "suffix_bonus_cross_check": SUFFIX_BONUS_CROSS_CHECK,

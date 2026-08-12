@@ -2,6 +2,18 @@
  "generated_by": "ti_predict.fantasy.coach_optimize",
  "regenerate": "python -m ti_predict.fantasy.coach_optimize --state predictions/ti2026/fantasy/account_state_target_20260812b.json --out <this file>",
  "label": "BEST-KNOWN PROVISIONAL -- not FINAL, not a ROBUST OPTIMUM",
+ "label_by_component": {
+  "suffix_the_Lucky": {
+   "grade": "DECISION-ROBUST FOR CURRENT EVIDENCE",
+   "why": "it beats every other suffix that can be scored by more than a factor of two, and both zero-trigger rivals and the bounded one are an order of magnitude short of their breakpoints",
+   "residual": "the Cruel is unmeasured. It would have to fire on 13.5 percent of matches to compete if uncorrelated with performance, or 61.7 percent if tied to losing, which is where a fountain death belongs. Implausible, but not measured."
+  },
+  "prefix_Elemental": {
+   "grade": "BEST-KNOWN PROVISIONAL",
+   "why": "first under every construction tried, and its own figure is a lower bound because the hero flag tags a subset of the condition",
+   "residual": "Royal, Golden and Heroic have no hero category table at all. Their ceilings are extrapolations, not measurements, and Royal's sits only about eight percent below Elemental's measured value. That margin is too thin, and too dependent on an extrapolation, to call the prefix settled."
+  }
+ },
  "method": {
   "layering": [
    "player-game score",
@@ -72,17 +84,17 @@
   "draws": 4000,
   "population_bounds": {
    "the Patient": {
-    "unique_matches_in_population": 328,
+    "unique_matches_in_population": 353,
     "matches_triggered": 0,
-    "rate_or_rule_of_three_upper_95": 0.00915,
-    "gain_ceiling_at_that_bound": 0.00392,
+    "rate_or_rule_of_three_upper_95": 0.0085,
+    "gain_ceiling_at_that_bound": 0.00364,
     "basis": "all fetched matches in the same five leagues, not only the 84 scored"
    },
    "the Flayed Twins Acolyte": {
-    "unique_matches_in_population": 328,
+    "unique_matches_in_population": 353,
     "matches_triggered": 0,
-    "rate_or_rule_of_three_upper_95": 0.00915,
-    "gain_ceiling_at_that_bound": 0.00153,
+    "rate_or_rule_of_three_upper_95": 0.0085,
+    "gain_ceiling_at_that_bound": 0.00142,
     "basis": "all fetched matches in the same five leagues, not only the 84 scored"
    },
    "first_blood_time_seconds": {
@@ -92,10 +104,10 @@
     "threshold_for_the_Acolyte": 0
    },
    "the Tormented": {
-    "unique_matches_in_population": 328,
+    "unique_matches_in_population": 353,
     "matches_with_any_unattributed_death": 9,
-    "rate_or_rule_of_three_upper_95": 0.0274,
-    "gain_ceiling_at_that_bound": 0.01173,
+    "rate_or_rule_of_three_upper_95": 0.0255,
+    "gain_ceiling_at_that_bound": 0.01092,
     "basis": "all fetched matches in the same five leagues, not only the 84 scored"
    }
   },
@@ -112,15 +124,15 @@
   "coverage": {
    "unique_matches_scored": 84,
    "unique_matches_with_extras": 40,
-   "extras_rows_fetched": 328,
+   "extras_rows_fetched": 353,
    "extras_fetch_complete": false,
    "note": "a suffix decided on fewer units than unique_matches_scored is PARTIAL-COVERAGE",
    "fingerprint": {
-    "matches": 328,
-    "sha256_16": "28401236abc2dff5",
+    "matches": 353,
+    "sha256_16": "4346c2e72dbfedd8",
     "complete": false
    },
-   "generated_utc": "2026-08-12T09:23:01+00:00"
+   "generated_utc": "2026-08-12T09:25:11+00:00"
   },
   "all_eight_closed": false,
   "suffix_scope": {
@@ -181,7 +193,7 @@
     "gain_ceiling_at_that_rate": 0.0321
    }
   },
-  "match_extras_coverage": 0.526,
+  "match_extras_coverage": 0.567,
   "unpriced_suffixes": {
    "the Tormented": {
     "bonus_percent": 23,
@@ -196,14 +208,14 @@
      0.41,
      1.861
     ],
-    "measured_upper_bound_rate": 0.0274,
+    "measured_upper_bound_rate": 0.0255,
     "in_sample_upper_bound": 0.0,
-    "population_upper_bound": 0.0274,
+    "population_upper_bound": 0.0255,
     "unique_matches_bounded": 40,
     "exact_negatives": 40,
     "bound_method": "an upper bound; every zero is an exact negative",
     "classification": "PARTIAL-BOUNDED",
-    "verdict": "RULED OUT at +23%: the upper bound on its trigger rate (0.0274) is strictly below the rate it would need (0.0761) even under the most favourable attenuation measured on any suffix"
+    "verdict": "RULED OUT at +23%: the upper bound on its trigger rate (0.0255) is strictly below the rate it would need (0.0761) even under the most favourable attenuation measured on any suffix"
    },
    "the Cruel": {
     "bonus_percent": 13,
@@ -448,8 +460,8 @@
    "Crimson": 0.00928,
    "Emerald": 0.00909,
    "Cerulean": 0.0018,
-   "the Flayed Twins Acolyte": 0.0,
-   "the Patient": 0.0
+   "the Patient": 0.0,
+   "the Flayed Twins Acolyte": 0.0
   },
   "untabled_prefix_total_ceiling": {
    "Royal": 0.03552,
@@ -518,17 +530,17 @@
    ]
   },
   "tormented_bound_all_players": {
-   "matches": 328,
+   "matches": 353,
    "matches_with_any_unattributed_death": 9,
-   "upper_bound_trigger_rate": 0.0274,
-   "exact_negatives": 319,
+   "upper_bound_trigger_rate": 0.0255,
+   "exact_negatives": 344,
    "note": "an upper bound; every zero is an exact negative"
   },
   "tormented_bound_roster_only": {
-   "matches": 328,
+   "matches": 353,
    "matches_with_any_unattributed_death": 4,
-   "upper_bound_trigger_rate": 0.0122,
-   "exact_negatives": 324,
+   "upper_bound_trigger_rate": 0.0113,
+   "exact_negatives": 349,
    "note": "an upper bound; every zero is an exact negative"
   },
   "community_frequencies_parsed": false
