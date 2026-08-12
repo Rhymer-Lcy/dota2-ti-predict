@@ -86,11 +86,81 @@ def test_an_uncorrelated_trigger_keeps_its_full_naive_value():
     assert co.attenuation(exact, 1.0, 20) == pytest.approx(1.0, abs=1e-9)
 
 
-def test_more_series_never_lowers_the_expected_period_score():
+def test_more_series_never_lowers_the_projected_period_score():
     """The period keeps a maximum, so exposure is monotone. A team that plays more cannot lose."""
     scores = {"E": {f"s{i}": float(i) for i in range(20)}}
-    vals = [co.expected_period(scores, np.full(3000, k)) for k in (1, 3, 6)]
+    vals = [co.project_period(scores, np.full(3000, k)) for k in (1, 3, 6)]
     assert vals[0] < vals[1] < vals[2]
+
+
+# --------------------------------------------- events are blocks, not a bag of series
+
+FEW_HIGH = {f"h{i}": 100.0 for i in range(2)}
+MANY_LOW = {f"l{i}": 10.0 for i in range(40)}
+
+
+def test_an_event_is_weighted_equally_no_matter_how_many_series_it_left_behind():
+    """Two series at a big event must not be drowned by forty at a small one."""
+    counts = np.full(3000, 3)
+    both = {"few_high": dict(FEW_HIGH), "many_low": dict(MANY_LOW)}
+    block = co.project_period(both, counts)
+    pooled = co.project_period_pooled(both, counts)
+    assert block == pytest.approx((100.0 + 10.0) / 2, abs=1e-9)
+    # the withdrawn estimator lands far below, dragged down by sheer series count
+    assert pooled < block - 20.0
+
+
+def test_duplicating_every_series_inside_an_event_does_not_move_the_projection():
+    """Same distribution, twice the rows. A period estimate must not notice."""
+    counts = np.full(6000, 3)
+    once = {"A": {f"s{i}": float(i) for i in range(10)}, "B": dict(MANY_LOW)}
+    twice = {"A": {**{f"s{i}": float(i) for i in range(10)},
+                   **{f"copy{i}": float(i) for i in range(10)}}, "B": dict(MANY_LOW)}
+    a, b = co.project_period(once, counts), co.project_period(twice, counts)
+    assert a == pytest.approx(b, rel=0.02)
+
+
+def test_adding_series_to_one_event_does_not_buy_that_event_more_weight():
+    """Attendance is not evidence. Growing one event's pool must not tilt the estimate to it."""
+    counts = np.full(6000, 3)
+    small = {"A": dict(FEW_HIGH), "B": {f"l{i}": 10.0 for i in range(5)}}
+    grown = {"A": dict(FEW_HIGH), "B": {f"l{i}": 10.0 for i in range(200)}}
+    assert co.project_period(small, counts) == pytest.approx(
+        co.project_period(grown, counts), rel=1e-9)
+    # the withdrawn estimator moves a long way on exactly that change
+    assert co.project_period_pooled(small, counts) - co.project_period_pooled(
+        grown, counts) > 10.0
+
+
+def test_a_simulated_period_never_mixes_series_from_two_tournaments():
+    """A TI run happens inside one event. Its maximum cannot come from a different one."""
+    counts = np.full(4000, 5)
+    scores = {"A": {"a": 1.0}, "B": {"b": 100.0}}
+    # every A-period must score 1 and every B-period 100, so the mean is exactly their average
+    assert co.project_period(scores, counts) == pytest.approx(50.5, abs=1e-9)
+    # pooling lets an A-period pick up B's series, which lifts it far above 50.5
+    assert co.project_period_pooled(scores, counts) > 90.0
+
+
+def test_the_bootstrap_projects_through_the_same_primitive_as_production():
+    """One estimand. If these ever diverge the interval stops describing the estimate."""
+    src = inspect.getsource(co.bootstrap_gap)
+    assert "project_period(" in src
+    assert "np.concatenate" not in src and "extend(" not in src
+    assert inspect.getsource(co.price).count("projector(") == 1
+
+
+def test_the_bootstrap_keeps_series_inside_their_own_event(monkeypatch):
+    """Every replicate must hand project_period a dict still keyed by event."""
+    per = {"A": {"s1": {1: {10: 10.0}, 2: {10: 10.0}}},
+           "B": {"s2": {3: {10: 90.0}, 4: {10: 90.0}}}}
+    seen = []
+    real = co.project_period
+    monkeypatch.setattr(co, "project_period",
+                        lambda sc, c, seed=co.SEED: seen.append(sorted(sc)) or real(sc, c, seed))
+    table = {(m, 10): {"the Lucky": False, "the Underdog": False} for m in (1, 2, 3, 4)}
+    co.bootstrap_gap(per, 1, np.full(50, 2), "the Lucky", "the Underdog", table, reps=3)
+    assert seen and all(ev == ["A", "B"] for ev in seen)
 
 
 def test_a_role_scores_only_when_every_current_player_appears():

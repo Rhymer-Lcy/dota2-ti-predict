@@ -184,6 +184,42 @@ def test_the_tormentor_residual_inference_is_recorded_as_withdrawn(art):
     assert "killed_by is not hero-only" in w["why"]
 
 
+def test_the_coach_change_cost_has_exactly_one_consistent_statement(art):
+    """The ruleset held this all along; the artifact must cite it, not restate it differently."""
+    from ti_predict.fantasy import questions as fq
+    c = art["coach_change_cost"]
+    assert c["cost"] == "0 roll tokens" and c["reversible"] is True
+    assert c["grade"] == "CONFIRMED"
+    confirmed = fq.load_rules()["coach_titles"]["confirmed"]
+    assert "changed freely without spending roll tokens" in confirmed
+    # scan everything except the withdrawal records, whose job is to quote the retracted wording
+    body = json.dumps({k: v for k, v in art.items() if k != "withdrawn_claims"})
+    assert "never been verified" not in body
+    assert "cost advantage" not in body.replace("no cost advantage", "")
+
+
+def test_the_decision_rule_gives_the_incumbent_no_premium(art):
+    """Free and reversible means the saved suffix wins nothing for being saved."""
+    gap = art["exact_pricing"]["suffix_grade"].get("gap_bootstrap")
+    if not gap:
+        pytest.skip("only one scoreable suffix")
+    d = gap["decision_rule"]
+    assert "no premium" in d["switching_cost"]
+    assert d["objective_used"]
+    assert d["all_objectives_agree"] == (
+        len({d["expected_value_pick"], d["minimax_regret"]["pick"], d["upside_tail_pick"]}) == 1)
+    if d["all_objectives_agree"]:
+        assert d["operational_choice"] == d["expected_value_pick"]
+    else:
+        assert d["operational_choice"].startswith("INCONCLUSIVE")
+
+
+def test_the_cross_event_pooling_defect_is_recorded_as_withdrawn(art):
+    claims = [w["claim"] for w in art["withdrawn_claims"]]
+    assert any("never pooled across events" in c for c in claims)
+    assert any("token cost of changing a coach title" in c for c in claims)
+
+
 def test_the_artifact_records_how_to_regenerate_itself(art):
     assert art["generated_by"] == "ti_predict.fantasy.coach_optimize"
     assert "--state" in art["regenerate"]

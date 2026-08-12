@@ -239,20 +239,56 @@ def bernoulli_units(scope, matches, org):
     return {(m, org): m for m in matches}
 
 
-def expected_period(scores_by_event, counts):
-    """E[max over the series actually played], given a drawn series count per period.
+def _event_pool(scores_by_event, event):
+    """One event's series scores, in a stable order so common random numbers line up."""
+    ser = scores_by_event[event]
+    return np.array([ser[sid] for sid in sorted(ser)], dtype=float)
 
-    The pool is per event and never pooled across events: pooling would reward a team simply for
-    having attended more tournaments, which says nothing about how it will do at TI.
+
+def project_period(scores_by_event, counts, seed=SEED):
+    """Event-equal period projection. THE single primitive; production and bootstrap both call it.
+
+    A historical event is treated as one period-like block. Within an event, a simulated TI period
+    draws that team's frozen-exposure number of series FROM THAT EVENT and keeps the maximum;
+    events are then averaged with equal weight.
+
+    The estimator this replaces flattened every event into one pool and drew the period from it.
+    That was wrong in two separate ways, and the docstring claimed the opposite of what the code
+    did. First, an event where the team happened to play more series contributed proportionally
+    more series to the pool, so attendance became weight -- the exact bias the per-event
+    aggregation upstream exists to avoid. Second, a single simulated period could mix series from
+    different tournaments, which is not a period: a TI run happens inside one event, against one
+    field, on one patch, and the maximum over such a run is not the maximum over a career.
+    """
+    rng = np.random.default_rng(seed)
+    counts = np.asarray(counts)
+    width = int(counts.max()) if counts.size else 0
+    mask = np.arange(width)[None, :] < counts[:, None]
+    per_event = []
+    for event in sorted(scores_by_event):
+        pool = _event_pool(scores_by_event, event)
+        if pool.size == 0:
+            continue
+        idx = rng.integers(0, pool.size, size=(counts.size, width))
+        vals = np.where(mask, pool[idx], -np.inf)
+        per_event.append(float(vals.max(axis=1).mean()))
+    if not per_event:
+        return float("nan")
+    return float(np.mean(per_event))          # equal weight per event, never per series
+
+
+def project_period_pooled(scores_by_event, counts, seed=SEED):
+    """WITHDRAWN estimator, retained only so the correction can be attributed single-factor.
+
+    Flattens every event into one pool. Not used by any decision path.
     """
     pool = np.array([s for ev in scores_by_event.values() for s in ev.values()], dtype=float)
     if pool.size == 0:
         return float("nan")
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(seed)
     out = np.empty(len(counts))
     for i, k in enumerate(counts):
-        idx = rng.integers(0, pool.size, size=int(k))
-        out[i] = pool[idx].max()
+        out[i] = pool[rng.integers(0, pool.size, size=int(k))].max()
     return float(out.mean())
 
 
@@ -311,14 +347,15 @@ def _zero(_mid, _acct):
 
 # ------------------------------------------------------------------------- pricing
 
-def price(per, n_players, counts, bonus_fn):
-    return expected_period(series_scores(per, n_players, bonus_fn), counts)
+def price(per, n_players, counts, bonus_fn, projector=project_period):
+    """Expected TI period score under one coach setting, via the event-block projection."""
+    return projector(series_scores(per, n_players, bonus_fn), counts)
 
 
-def gain_table(per, n_players, counts, settings):
+def gain_table(per, n_players, counts, settings, projector=project_period):
     """Fractional gain of each setting over no coach, on identical draws."""
-    base = price(per, n_players, counts, _zero)
-    return base, {name: (price(per, n_players, counts, fn) / base - 1.0)
+    base = price(per, n_players, counts, _zero, projector)
+    return base, {name: (price(per, n_players, counts, fn, projector) / base - 1.0)
                   for name, fn in settings.items()}
 
 
@@ -370,35 +407,32 @@ def breakpoint_rate(target_gain, bonus_percent, att):
 
 
 def bootstrap_gap(per, n_players, counts, name_a, name_b, table, reps=400, seed=SEED):
-    """Uncertainty on the gap between two suffixes, resampling the series the period draws from.
+    """Uncertainty on the gap between two suffixes, resampling series INSIDE each event block.
 
-    Two suffixes separated by half a percentage point, each resting on a handful of triggering
-    games, are not separated by anything until this is run. The resampling unit is the series,
-    because that is what the period-level maximum draws over; matches inside a series are not
-    independent of each other.
+    Isomorphic to production by construction: a replicate resamples series within each event,
+    keeps the event identity, and is then handed to the same project_period primitive. An earlier
+    version resampled within events and then flattened them into one pool before taking the
+    period maximum, so the uncertainty estimator answered a different question from the estimator
+    it was supposed to be quantifying.
     """
     rng = np.random.default_rng(seed)
     fa, fb = suffix_bonus_fn(name_a, table), suffix_bonus_fn(name_b, table)
-    base_s = series_scores(per, n_players, _zero)
-    a_s = series_scores(per, n_players, fa)
-    b_s = series_scores(per, n_players, fb)
-    events = sorted(base_s)
+    srcs = {"base": series_scores(per, n_players, _zero),
+            "a": series_scores(per, n_players, fa),
+            "b": series_scores(per, n_players, fb)}
+    events = sorted(srcs["base"])
+    ids = {ev: sorted(srcs["base"][ev]) for ev in events}
     gaps = []
     for _ in range(reps):
-        pools = {"base": [], "a": [], "b": []}
-        for ev in events:
-            ids = sorted(base_s[ev])
-            pick = rng.integers(0, len(ids), size=len(ids))
-            for tag, src in (("base", base_s), ("a", a_s), ("b", b_s)):
-                pools[tag].extend(src[ev][ids[i]] for i in pick)
-        arr = {k: np.array(v, dtype=float) for k, v in pools.items()}
-        idx = rng.integers(0, len(arr["base"]), size=(len(counts), max(counts)))
-        out = {}
-        for tag in ("base", "a", "b"):
-            vals = arr[tag][idx]
-            mask = np.arange(max(counts))[None, :] < np.asarray(counts)[:, None]
-            out[tag] = float(np.where(mask, vals, -np.inf).max(axis=1).mean())
-        gaps.append((out["a"] / out["base"]) - (out["b"] / out["base"]))
+        pick = {ev: rng.integers(0, len(ids[ev]), size=len(ids[ev])) for ev in events}
+        rep = {}
+        for tag, src in srcs.items():
+            rep[tag] = {ev: {n: src[ev][ids[ev][i]] for n, i in enumerate(pick[ev])}
+                        for ev in events}
+        base = project_period(rep["base"], counts)
+        if not base:
+            continue
+        gaps.append((project_period(rep["a"], counts) - project_period(rep["b"], counts)) / base)
     return np.array(gaps)
 
 
@@ -718,6 +752,32 @@ def build(state_path, titles_path=None, draws=DRAWS):
             w = v["base_expected_period_score"] / denom
             gap_draws = w * d if gap_draws is None else gap_draws + w * d
         gap = summarise_gap(gap_draws, top, runner)
+        # The coach is free and reversible, so the incumbent gets NO utility bonus and there is
+        # no switching cost to trade against. Under that, three objectives are worth separating.
+        worst_if_leader = max(0.0, -gap["p05"])     # leader chosen, runner-up turns out better
+        worst_if_runner = max(0.0, gap["p95"])      # runner-up chosen, leader turns out better
+        gap["decision_rule"] = {
+            "switching_cost": "zero roll tokens, reversible, so status quo carries no premium",
+            "expected_value_pick": top if gap["mean_gap"] > 0 else runner,
+            "minimax_regret": {
+                "regret_if_" + top.replace(" ", "_"): round(worst_if_leader, 5),
+                "regret_if_" + runner.replace(" ", "_"): round(worst_if_runner, 5),
+                "pick": top if worst_if_leader <= worst_if_runner else runner},
+            "upside_tail_pick": top if gap["p95"] > -gap["p05"] else runner,
+            "objective_used": "expected period score",
+            "why_that_objective": (
+                "the choice is free and reversible, so there is nothing to be risk-averse about "
+                "and no incumbency to protect. Expected score is the default; minimax regret and "
+                "the upside tail are reported alongside because a 95 percent separation was not "
+                "reached, and a recommendation that only one of the three supports would be worth "
+                "flagging as fragile.")}
+        picks = {gap["decision_rule"]["expected_value_pick"],
+                 gap["decision_rule"]["minimax_regret"]["pick"],
+                 gap["decision_rule"]["upside_tail_pick"]}
+        gap["decision_rule"]["all_objectives_agree"] = len(picks) == 1
+        gap["decision_rule"]["operational_choice"] = (
+            picks.pop() if len(picks) == 1 else
+            "INCONCLUSIVE: the three objectives disagree")
     # A freeze needs two things, and an earlier revision only checked the first: every rival
     # scoreable, AND the leader actually separated from the runner-up. Two suffixes resting on a
     # handful of triggering games can differ by half a point and not be distinguishable at all.
@@ -842,6 +902,46 @@ WITHDRAWN_CEILING = {
     "replaced_by": "untabled_prefix_total_extrapolation, named and treated as an extrapolation",
 }
 
+WITHDRAWN_POOLING = {
+    "claim": "the historical pool is per event and never pooled across events",
+    "status": "WITHDRAWN -- the docstring said this, the code did the opposite",
+    "why": "expected_period flattened every event's series into one array and drew the TI period "
+           "from it. Two defects. An event where the team played more series contributed more "
+           "series to the pool, so attendance silently became weight. And a simulated period "
+           "could take its maximum from a series played at a different tournament, which is not "
+           "a period: a TI run happens inside one event, one field, one patch. The bootstrap "
+           "repeated the same flatten, so the interval was quantifying a different estimand from "
+           "the estimate.",
+    "replaced_by": "project_period, an event-equal block estimator that both production and the "
+                   "bootstrap call, with regression tests that duplicating or growing one event's "
+                   "series pool cannot change the projection",
+}
+
+WITHDRAWN_COACH_COST = {
+    "claim": "the token cost of changing a coach title has never been verified, so keeping the "
+             "incumbent suffix has a cost advantage",
+    "status": "WITHDRAWN",
+    "why": "the ruleset already recorded the answer, from the shipped help string "
+           "DOTA_FantasyCraftHelp_CoachDetails: titles may be changed freely without spending "
+           "roll tokens. The operator's own client rules panel says the same. The claim was "
+           "asserted from memory against a fact this repository already held -- the same failure "
+           "as the hand-typed suffix bonuses.",
+    "replaced_by": "coach_change_cost, recorded as free and reversible, and a decision rule that "
+                   "gives the incumbent no premium",
+}
+
+COACH_CHANGE_COST = {
+    "cost": "0 roll tokens",
+    "reversible": True,
+    "grade": "CONFIRMED",
+    "sources": ["shipped client string DOTA_FantasyCraftHelp_CoachDetails, recorded in "
+                "fantasy_rules.json coach_titles.confirmed: 'Titles may be changed freely "
+                "without spending roll tokens.'",
+                "user_runtime_observation: the operator's client rules panel states the same"],
+    "consequence": "the status quo has no cost advantage, so a suffix must be chosen on its "
+                   "merits alone and never kept merely because it is already saved",
+}
+
 WITHDRAWN_TORMENTOR = {
     "claim": "deaths that killed_by does not account for are deaths to something that is not a "
              "hero, so their rate is an upper bound on the Tormented's trigger rate (5.78 percent "
@@ -931,8 +1031,10 @@ def assemble(computed, state_path):
             "method": METHOD,
             "provenance": PROVENANCE,
             "suffix_bonus_cross_check": SUFFIX_BONUS_CROSS_CHECK,
+            "coach_change_cost": COACH_CHANGE_COST,
             "withdrawn_claims": [WITHDRAWN, WITHDRAWN_COMPLETION, WITHDRAWN_CEILING,
-                                 WITHDRAWN_TORMENTOR],
+                                 WITHDRAWN_TORMENTOR, WITHDRAWN_POOLING,
+                                 WITHDRAWN_COACH_COST],
             "withdrawn_claim": WITHDRAWN,
             "exact_pricing": computed}
 

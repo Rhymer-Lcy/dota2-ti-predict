@@ -1441,8 +1441,8 @@
    "decision_status": "ROBUST",
    "blocking_for": [],
    "measured_by": "sensitivity.coach_titles",
-   "note": "Withdraws the previous BLOCKING grade. Also withdraws the frequency-times-bonus pricing: measured attenuation on titles that can be scored exactly spans {'the Underdog': 0.459, 'the Decisive': 1.992, 'the Clutch': 0.586, 'the Lucky': 2.093} for suffixes, so the naive product is not reliable.",
-   "measured": "Every title the live panel offers carries a number (8 prefixes 6-11 percent, 8 suffixes 6-30 percent), corroborated by two independent community sources. The bonuses are no longer the unknown. Trigger rates are now computed exactly through the official layering for 5 prefixes and 6 suffixes on our own 4785 player-maps, rather than approximated by frequency times bonus."
+   "note": "Withdraws the previous BLOCKING grade and the frequency-times-bonus pricing. Measured attenuation on exactly scored suffixes spans {'the Tormented': 2.27, 'the Underdog': 0.459, 'the Decisive': 1.23, 'the Clutch': 0.614, 'the Lucky': 1.476}, so the naive product is not reliable. Changing a title is free (see coach_titles.confirmed), so the choice carries no switching cost and the incumbent gets no premium.",
+   "measured": "Every title the live panel offers carries a number, agreeing exactly across the client, both community sources and this ruleset: 8 prefixes 6-11 percent, 8 suffixes 6-24 percent. Trigger rates are computed through the official layering for 5 prefixes and 7 suffixes, on an event-block estimator, not by frequency times bonus."
   },
   {
    "id": "title_stacking",
@@ -1575,7 +1575,7 @@
    "blocking_for": [],
    "measured_by": "coach_optimize.build.untabled_prefix_ceiling",
    "note": "No Valve source states category membership. The only table available is a hand-tagged community one covering red, blue, green, undead and aquatic; Royal, Golden and Heroic have no table at all, and a search over every single flag and every pair found no usable proxy for them. The figure quoted for those three is an EXTRAPOLATION off the largest attenuation observed on a scoreable prefix, not a proven ceiling: nothing rules out an untabled prefix attenuating harder than any tabled one.",
-   "measured": "The three untabled prefixes were priced at their community trigger rate times bonus times the LARGEST attenuation measured on any prefix the same role can be scored on. Even at that ceiling they reach {'Royal': 0.03552, 'Golden': 0.02802, 'Heroic': 0.02578}, all below the 0.03855 that Elemental delivers on measured data -- and Elemental is itself a lower bound, since its flag tags a subset of its condition. The gap is therefore SCALE_ONLY, not BLOCKING."
+   "measured": "The three untabled prefixes are extrapolated at their community trigger rate times bonus times the largest attenuation observed on a scoreable prefix for the same role -- an extrapolation, not a ceiling. Even so they reach {'Royal': 0.0318, 'Golden': 0.0269, 'Heroic': 0.02246}, below the 0.03413 that Elemental delivers on measured data, and Elemental is itself a lower bound. SCALE_ONLY, not BLOCKING."
   },
   {
    "id": "fountain_death_positions",
@@ -1608,7 +1608,18 @@
    "blocking_for": [],
    "measured_by": "coach_optimize.tormented_bound",
    "note": "RESOLVED by direct attribution. killed_by is NOT hero-only: the 623-match inventory holds 197 distinct killer keys of which 74 are non-hero (creeps, towers, neutrals, Roshan, siege, the fountain), and npc_dota_miniboss appears among them. The previous 'upper bound' built from deaths killed_by did not account for is withdrawn: 18 of the 20 matches containing a real Tormentor death carry no such residual at all, so the residual never contained the event set it claimed to bound. The fact is resolved; what remains is that the Lucky and the Tormented are not separated, which moves the account total by about half a point and blocks a freeze, not any role or team decision.",
-   "measured": "20/623 matches = 0.0321 carry a Tormentor death, counted off npc_dota_miniboss in killed_by. Exactly scored through the same layering as every other suffix, the Tormented reaches 0.03872 against the Lucky's 0.03257. The two are NOT separated: a series-level bootstrap puts P(Tormented ahead) at 0.6575, with a 90 percent interval of [-0.01259, 0.02710] on the gap. The point-estimate lead comes entirely from Core; the Lucky leads Mid and Support."
+   "measured": "20/623 matches = 0.0321 carry a Tormentor death, counted off npc_dota_miniboss in killed_by. Scored through the same event-block layering as every other suffix, the Tormented reaches 0.03730 against the Lucky's 0.02583. Not separated at 95 percent: P(Tormented ahead) = 0.7675, gap interval [-0.01103, 0.04283]. The lead comes from Core; the Lucky leads Mid, and Support is a tie. Expected value, minimax regret and the upside tail all select the Tormented."
+  },
+  {
+   "id": "historical_event_aggregation",
+   "scope": "generic",
+   "question": "How should historical events be combined into one period-level estimate?",
+   "fact_status": "CONFIRMED",
+   "decision_status": "SCALE_ONLY",
+   "blocking_for": [],
+   "measured_by": "coach_optimize.project_period",
+   "note": "Settled as event-equal blocks. The withdrawn estimator flattened every event into one series pool, which made attendance into weight and let a simulated period draw its maximum from a different tournament. The bootstrap repeated the same flatten, so the interval described a different estimand from the estimate.",
+   "measured": "Single-factor switch, everything else held: the Tormented moved 0.03872 -> 0.03730 and the Lucky 0.03257 -> 0.02583, so the gap widened from 0.00615 to 0.01199 and P(Tormented ahead) rose from 0.657 to 0.7675. Core separates at 0.955 in the Tormented's favour, Mid favours the Lucky outright, Support is a coin flip."
   }
  ],
  "readiness_note": "This register is the ONLY source of readiness. There is no second hand-written blocker list: a blocker is any entry whose decision_status is BLOCKING, plus any CONDITIONAL entry whose condition currently holds. ti_predict/fantasy/questions.py derives it and refuses a register that carries an unmeasured decision_status.",
