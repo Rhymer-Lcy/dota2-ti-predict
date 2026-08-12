@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "account": "TARGET ACCOUNT (the friend). Never the operator's test account.",
+  "observed_at": "2026-08-11T01:40:00Z",
+  "provenance": {
+    "source": "full-resolution client screenshot of the Fantasy page supplied by the operator",
+    "tier": "user_runtime_observation",
+    "reconciliation": "every field below was read from the image and cross-checked against the operator's transcription; the nine displayed multipliers are reproduced exactly by banner_model"
+  },
+  "compendium_player_title": "盖世英雄 Alice in Chains, 关键之人",
+  "lock_countdown_observed": "22h32m54s to Group Stage roster lock",
+  "group_stage_lock_utc": "2026-08-13T02:00:00Z",
+  "roll_tokens": 39,
+  "future_stage_tokens": 30,
+  "selected_banner_for_crafting": "core",
+  "coach": {
+    "prefix": "Heroic",
+    "prefix_zh": "盖世英雄",
+    "prefix_bonus_percent": 9,
+    "suffix": "the Clutch",
+    "suffix_zh": "关键之人",
+    "suffix_bonus_percent": 16
+  },
+  "roll_board": [
+    {
+      "id": "A2",
+      "label_zh": "重新生成最后一枚蓝色徽标的特性",
+      "label_en": "reroll trait of the LAST blue emblem",
+      "kind": "trait",
+      "colour": "blue",
+      "which": "last"
+    },
+    {
+      "id": "B2",
+      "label_zh": "重新生成随机一枚蓝色徽标的特性",
+      "label_en": "reroll trait of a RANDOM blue emblem",
+      "kind": "trait",
+      "colour": "blue",
+      "which": "random"
+    },
+    {
+      "id": "C2",
+      "label_zh": "重新生成第一枚红色徽标的品质",
+      "label_en": "reroll quality of the FIRST red emblem",
+      "kind": "quality",
+      "colour": "red",
+      "which": "first"
+    }
+  ],
+  "board_reroll_available": {
+    "label_zh": "重新生成操作选项",
+    "cost_tokens": null,
+    "cost_status": "UNRESOLVED - the panel names it but the price was not read"
+  },
+  "banners": {
+    "core": {
+      "client_team": "TEAM VISION",
+      "canonical_team": "PARIVISION",
+      "players": [
+        "Noticed",
+        "Satanic"
+      ],
+      "slots": [
+        {
+          "colour": "red",
+          "stat": "gpm",
+          "stat_zh": "GPM",
+          "quality_tier": "III",
+          "trait": "Benevolent",
+          "trait_zh": "仁爱",
+          "displayed_multiplier": 1.8,
+          "displayed_quality_bonus": 0.6,
+          "displayed_trait_bonus": 0.2
+        },
+        {
+          "colour": "green",
+          "stat": "roshan_kills",
+          "stat_zh": "肉山击杀数",
+          "quality_tier": "I",
+          "trait": "Benevolent",
+          "trait_zh": "仁爱",
+          "displayed_multiplier": 1.2,
+          "displayed_quality_bonus": 0.1,
+          "displayed_trait_bonus": 0.1
+        },
+        {
+          "colour": "red",
+          "stat": "creep_score",
+          "stat_zh": "正反补得分",
+          "quality_tier": "I",
+          "trait": "Vampiric",
+          "trait_zh": "吸血鬼",
+          "displayed_multiplier": 1.8,
+          "displayed_quality_bonus": 0.1,
+          "displayed_trait_bonus": 0.7
+        }
+      ]
+    },
+    "mid": {
+      "client_team": "Team Falcons",
+      "canonical_team": "Team Falcons",
+      "players": [
+        "Malr1ne"
+      ],
+      "slots": [
+        {
+          "colour": "red",
+          "stat": "deaths",
+          "stat_zh": "死亡数",
+          "quality_tier": "I",
+          "trait": "Vampiric",
+          "trait_zh": "吸血鬼",
+          "displayed_multiplier": 1.6,
+          "displayed_quality_bonus": 0.1,
+          "displayed_trait_bonus": 0.5
+        },
+        {
+          "colour": "blue",
+          "stat": "wards_placed",
+          "stat_zh": "放置侦察守卫数",
+          "quality_tier": "III",
+          "trait": "Fractal",
+          "trait_zh": "分形",
+          "displayed_multiplier": 1.5,
+          "displayed_quality_bonus": 0.6,
+          "displayed_trait_bonus": -0.1
+        },
+        {
+          "colour": "green",
+          "stat": "stuns",
+          "stat_zh": "眩晕时间",
+          "quality_tier": "I",
+          "trait": "Unique",
+          "trait_zh": "唯一",
+          "displayed_multiplier": 1.4,
+          "displayed_quality_bonus": 0.1,
+          "displayed_trait_bonus": 0.3
+        }
+      ]
+    },
+    "support": {
+      "client_team": "Xtreme Gaming",
+      "canonical_team": "Xtreme Gaming",
+      "players": [
+        "xNova",
+        "fy"
+      ],
+      "slots": [
+        {
+          "colour": "blue",
+          "stat": "runes_grabbed",
+          "stat_zh": "激活神符数",
+          "quality_tier": "II",
+          "trait": "Vampiric",
+          "trait_zh": "吸血鬼",
+          "displayed_multiplier": 1.8,
+          "displayed_quality_bonus": 0.3,
+          "displayed_trait_bonus": 0.5
+        },
+        {
+          "colour": "green",
+          "stat": "first_blood",
+          "stat_zh": "第一滴血",
+          "quality_tier": "I",
+          "trait": "Unique",
+          "trait_zh": "唯一",
+          "displayed_multiplier": 1.3,
+          "displayed_quality_bonus": 0.1,
+          "displayed_trait_bonus": 0.2
+        },
+        {
+          "colour": "blue",
+          "stat": "watchers_taken",
+          "stat_zh": "占领观察者次数",
+          "quality_tier": "II",
+          "trait": "Friendly",
+          "trait_zh": "友好",
+          "displayed_multiplier": 1.3,
+          "displayed_quality_bonus": 0.3,
+          "displayed_trait_bonus": 0.0,
+          "data_status": "NO PUBLIC PLAYER-LEVEL SOURCE - decision-relevant now"
+        }
+      ]
+    }
+  },
+  "model_correction_this_round": {
+    "what": "the composition of quality and trait bonuses",
+    "old": "multiplier = quality_factor * (1 + trait_bonus), so a Tier I emblem scored 0.10 of its stat",
+    "new": "multiplier = 1 + quality_bonus + net_trait_bonus, exactly as the client prints it",
+    "evidence": "all nine observed emblems reproduce to the digit; the old rule reproduced none",
+    "consequence": "the real multiplier range is about 1.1 to 2.6 rather than 0.09 to 3.15, so a banner reweights the stats far less violently than the pre-banner model assumed"
+  },
+  "state_index": 2,
+  "previous_state": "account_state_target_20260811.json (state 1)",
+  "action_taken_since": {
+    "action": "USE ROLL OPTION A (reroll trait of the red emblem, Mid banner)",
+    "tokens_spent": 1,
+    "outcome": "the Mid red emblem's trait rolled from Unique to Vampiric"
+  },
+  "resolved_this_round": {
+    "operation_targeting": {
+      "status": "CONFIRMED",
+      "tier": 1,
+      "finding": "The operation labels name their target position explicitly: 第一枚 (first), 最后一枚 (last), 随机一枚 (random). The previous round's open question about which emblem of a colour an operation hits is answered by the client's own wording.",
+      "consequence": "An operation on a colour the banner holds twice is now well defined, and a 'random' variant is distinguishable from a positional one."
+    },
+    "duplicate_team_across_roles": {
+      "status": "PARTIAL",
+      "tier": "user_runtime_observation",
+      "finding": "With Support assigned to Xtreme Gaming, the Core 'Change Team' chooser lists Xtreme Gaming normally: no grey-out, no lock, no duplicate warning. All 16 teams appear.",
+      "caveat": "No team was clicked and no submission was made, so this is strong UI evidence and not a confirmed successful duplicate submission.",
+      "consequence": "The distinct-team constraint is very likely slack. It no longer gates the order of moves. It was never binding at the optimum anyway: the joint optimum Xtreme / Yandex / LGD already uses three different organisations."
+    },
+    "counterfactual_model_validation": {
+      "status": "CONFIRMED",
+      "finding": "Before the reroll, the model enumerated the Vampiric branch as producing weights [1.60, 1.50, 1.40]. The client now displays 160% / 150% / 140% with trait lines +50% / -10% / +30%. The prediction was made in advance and matched exactly.",
+      "why_it_matters": "The nine-emblem check could in principle have been a fit. This one could not: it predicted a state that did not exist yet."
+    }
+  },
+  "open_mechanics": {
+    "team_change_regenerates_banner": {
+      "status": "UNRESOLVED",
+      "decision_status": "BLOCKING for any Change Team",
+      "why": "If changing a team also regenerates the War Banner, switching Core would put the current banner at risk. That banner is in the top 4 percent of random Core banners (12088 versus a random mean of 6729), so the expected loss from regeneration is about -5360 against a +1334 gain from the better team.",
+      "breakeven_probability": 0.199,
+      "resolution": "one token on the operator's TEST account: change any team there and see whether its banner survives. The target account must not be used for this."
+    }
+  }
+}

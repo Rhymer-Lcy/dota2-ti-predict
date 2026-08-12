@@ -115,3 +115,65 @@ def test_the_state_records_which_account_it_is():
     assert "TARGET ACCOUNT" in STATE["account"]
     assert "Never the operator's test account" in STATE["account"]
     assert STATE["roll_tokens"] == 40
+
+
+# ---- state 2: after the first reroll ---------------------------------------------------------
+import os as _os
+STATE2_PATH = _os.path.join("predictions", "ti2026", "fantasy",
+                            "account_state_target_20260811b.json")
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE2_PATH), reason="state 2 not recorded")
+def test_state_two_also_reproduces_the_client_exactly():
+    s2 = acc.load_state(STATE2_PATH)
+    for role in acc.ROLES:
+        w = acc.banner_weights(s2, role)
+        for i, slot in enumerate(s2["banners"][role]["slots"]):
+            assert w[i] == pytest.approx(slot["displayed_multiplier"]), f"{role} slot {i + 1}"
+
+
+def test_the_vampiric_branch_was_predicted_before_it_happened():
+    """The strongest check available: a state that did not exist when the prediction was made.
+
+    Before the reroll the model enumerated the Vampiric outcome as [1.60, 1.50, 1.40]. The client
+    then produced exactly that, including the negative trait line on the neighbour.
+    """
+    q, t = (0, 2, 0), ("Vampiric", "Fractal", "Unique")
+    assert bm.slot_weights(q, t) == pytest.approx([1.60, 1.50, 1.40])
+    assert bm.trait_bonus(q, t) == pytest.approx([0.50, -0.10, 0.30])
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE2_PATH), reason="state 2 not recorded")
+def test_operations_now_name_their_target_position():
+    """The client's own labels answer last round's ambiguity: first / last / random."""
+    s2 = acc.load_state(STATE2_PATH)
+    which = {o["id"]: o["which"] for o in s2["roll_board"]}
+    assert which == {"A2": "last", "B2": "random", "C2": "first"}
+    assert s2["resolved_this_round"]["operation_targeting"]["status"] == "CONFIRMED"
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE2_PATH), reason="state 2 not recorded")
+def test_the_duplicate_team_finding_is_not_overstated():
+    """Seeing a team offered is not the same as having submitted it."""
+    d = acc.load_state(STATE2_PATH)["resolved_this_round"]["duplicate_team_across_roles"]
+    assert d["status"] == "PARTIAL" and d["tier"] == "user_runtime_observation"
+    assert "not a confirmed successful duplicate submission" in d["caveat"]
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE2_PATH), reason="state 2 not recorded")
+def test_change_team_stays_blocked_while_regeneration_is_unknown():
+    """The downside is four times the upside, so the unknown is decision-blocking, not cosmetic."""
+    m = acc.load_state(STATE2_PATH)["open_mechanics"]["team_change_regenerates_banner"]
+    assert m["status"] == "UNRESOLVED"
+    assert m["decision_status"].startswith("BLOCKING")
+    assert 0.0 < m["breakeven_probability"] < 1.0
+    assert "TEST account" in m["resolution"]
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE2_PATH), reason="state 2 not recorded")
+def test_one_token_was_spent_and_the_trait_actually_changed():
+    s1, s2 = acc.load_state(), acc.load_state(STATE2_PATH)
+    assert s1["roll_tokens"] - s2["roll_tokens"] == 1
+    before = s1["banners"]["mid"]["slots"][0]["trait"]
+    after = s2["banners"]["mid"]["slots"][0]["trait"]
+    assert before == "Unique" and after == "Vampiric" and before != after
