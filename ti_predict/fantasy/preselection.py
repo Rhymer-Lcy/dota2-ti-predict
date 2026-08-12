@@ -257,6 +257,64 @@ def minimax_regret(orgs, score):
             "argmin": orgs[int(order[0])]}
 
 
+# The coach is chosen freely in stage B and applies to every player, so it cannot be optimised per
+# role in stage A. Its eight prefixes are hero-conditional, and Valve's hero-category lists are
+# rendered by a client tooltip that does not exist before the first team selection: the per-team
+# trigger rates are STRUCTURALLY unobtainable now, not merely missing.
+#
+# What can still be done is bound it. A title multiplies a team's game score by (1 + b * p_T), with
+# b at most 0.24 among the offered titles. Two teams differ only through (p_A - p_B), so the entire
+# coach effect on a comparison is a per-team multiplicative perturbation of at most b. Sampling that
+# perturbation and asking whether the decision survives is strictly more useful than refusing to
+# decide on a fact that cannot be obtained.
+MAX_COACH_BONUS = 0.24
+
+
+def coach_perturbation(rng, n_teams, spread):
+    """A per-team multiplicative factor standing in for an unknown coach trigger-rate differential.
+
+    spread is the fraction of MAX_COACH_BONUS that the differential could reach. spread=1.0 is the
+    pathological case where one team triggers the best title on every game and another on none.
+    """
+    return 1.0 + rng.uniform(0.0, MAX_COACH_BONUS * spread, size=n_teams)
+
+
+def expected_regret(score):
+    """Mean relative shortfall against the best team on the same draw."""
+    best = score.max(axis=1)
+    return (1.0 - score / best[:, None]).mean(axis=0)
+
+
+def minimax_expected_regret(role, pools, stat_names, rules, probs, draws, families,
+                            coach_spread=0.0, seed=SEED):
+    """argmin over candidates of the WORST expected regret across the declared prior families.
+
+    This is the criterion to use once the expected-value differences are smaller than the model
+    error, which is where this problem ended up: the top candidates sit within about 0.1 percent of
+    each other, so the argmax of expected value is not identifiable, while the team that is never
+    badly wrong across the whole prior family is.
+    """
+    per_family = {}
+    orgs = None
+    for fam in families:
+        o, score = simulate(role, pools, stat_names, rules, probs, draws, fam, seed)
+        orgs = o
+        if coach_spread:
+            rng = np.random.default_rng(seed + 977)
+            score = score * coach_perturbation(rng, score.shape[1], coach_spread)[None, :]
+        per_family[fam] = expected_regret(score)
+    worst = np.max(np.vstack([per_family[f] for f in families]), axis=0)
+    order = np.argsort(worst)
+    return {"teams": orgs,
+            "by_family": {f: [round(float(x), 5) for x in per_family[f]] for f in families},
+            "worst_expected_regret": [round(float(x), 5) for x in worst],
+            "ranking": [{"organization": orgs[i],
+                         "worst_expected_regret": round(float(worst[i]), 5)} for i in order],
+            "argmin": orgs[int(order[0])],
+            "runner_up": orgs[int(order[1])] if len(order) > 1 else None,
+            "margin": round(float(worst[order[1]] - worst[order[0]]), 5) if len(order) > 1 else None}
+
+
 def build(draws=4000, seed=SEED, families=("uniform",), banner="exact", exposure="ti"):
     rules = bl.load_rules()
     rows, _dropped, _inactive = bl.load_stats()

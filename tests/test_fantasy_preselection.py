@@ -158,3 +158,62 @@ def test_banner_generation_is_confirmed_independent_of_the_team():
     bi = fq.load_rules()["banner_generation_independence"]
     assert bi["status"] == "CONFIRMED" and bi["tier"] == 1
     assert "carries no team field" in bi["evidence"]
+
+
+# ---- the final decision -----------------------------------------------------------------------
+GO = os.path.join("predictions", "ti2026", "fantasy", "preselection_20260811_go.json")
+
+
+@pytest.mark.skipif(not os.path.exists(GO), reason="decision not generated")
+def test_the_final_pick_is_three_distinct_client_visible_names():
+    art = json.load(open(GO, encoding="utf-8"))
+    from ti_predict.fantasy import build_roster_positions as brp
+    assert art["status"] == "GO"
+    names, canon = [], []
+    for role in ("core", "mid", "support"):
+        s = art["selection"][role]
+        assert s["client_name"] == brp.client_name(s["canonical"])
+        names.append(s["client_name"])
+        canon.append(s["canonical"])
+    assert len(set(canon)) == 3 and art["distinct_team_constraint"]["satisfied"]
+    assert len(set(names)) == 3
+
+
+@pytest.mark.skipif(not os.path.exists(GO), reason="decision not generated")
+def test_the_decision_criterion_is_minimax_expected_regret_not_expected_value():
+    """With candidates 0.1 percent apart, the argmax of expected value is not identifiable."""
+    art = json.load(open(GO, encoding="utf-8"))
+    c = art["decision_criterion"]
+    assert c["name"] == "prior-family minimax expected regret"
+    assert len(c["families"]) == 5
+    assert "not identifiable" in c["why_not_expected_value"]
+
+
+@pytest.mark.skipif(not os.path.exists(GO), reason="decision not generated")
+def test_unobtainable_facts_are_not_treated_as_blockers():
+    art = json.load(open(GO, encoding="utf-8"))
+    s = art["structurally_unavailable_not_missing"]
+    assert "does not exist yet" in s["consequence"]
+    assert "after the decision" in s["consequence"]
+
+
+def test_the_coach_perturbation_is_bounded_by_the_largest_offered_title():
+    """The bound has to come from the real pool, not from a number chosen for convenience."""
+    pool = fq.load_rules()["coach_titles"]["selectable_pool_2026"]
+    biggest = max(t["bonus_percent"] for t in pool["prefixes"] + pool["suffixes"]) / 100.0
+    assert ps.MAX_COACH_BONUS == pytest.approx(biggest)
+
+
+def test_the_coach_perturbation_is_a_per_team_multiplier():
+    rng = np.random.default_rng(0)
+    f = ps.coach_perturbation(rng, 6, 0.5)
+    assert f.shape == (6,)
+    assert (f >= 1.0).all() and (f <= 1.0 + ps.MAX_COACH_BONUS * 0.5 + 1e-9).all()
+
+
+def test_minimax_expected_regret_picks_the_never_badly_wrong_candidate():
+    """Not the one with the best average: the one whose WORST family expectation is smallest."""
+    import numpy as _np
+    score = _np.array([[10.0, 9.5], [1.0, 9.4], [10.0, 9.6]])
+    reg = ps.expected_regret(score)
+    assert reg[1] < reg[0]          # B is never far off; A is sometimes catastrophic
