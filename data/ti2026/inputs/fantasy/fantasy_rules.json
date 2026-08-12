@@ -1604,12 +1604,11 @@
    "scope": "generic",
    "question": "Did a roster player die to a Tormentor in a given match?",
    "fact_status": "CONFIRMED",
-   "decision_status": "CONDITIONAL",
+   "decision_status": "SCALE_ONLY",
    "blocking_for": [],
    "measured_by": "coach_optimize.tormented_bound",
-   "note": "RESOLVED by direct attribution. killed_by is NOT hero-only: the 623-match inventory holds 197 distinct killer keys of which 74 are non-hero (creeps, towers, neutrals, Roshan, siege, the fountain), and npc_dota_miniboss appears among them. The previous 'upper bound' built from deaths killed_by did not account for is withdrawn: 18 of the 20 matches containing a real Tormentor death carry no such residual at all, so the residual never contained the event set it claimed to bound.",
-   "measured": "20/623 matches = 0.0321 carry a Tormentor death, counted off npc_dota_miniboss in killed_by. Exactly scored through the same layering as every other suffix, the Tormented reaches 0.03872 against the Lucky's 0.03257. The two are NOT separated: a series-level bootstrap puts P(Tormented ahead) at 0.6575, with a 90 percent interval of [-0.01259, 0.02710] on the gap. The point-estimate lead comes entirely from Core; the Lucky leads Mid and Support.",
-   "condition": "Blocks a freeze, not the choice. Either suffix is defensible; neither is demonstrably better."
+   "note": "RESOLVED by direct attribution. killed_by is NOT hero-only: the 623-match inventory holds 197 distinct killer keys of which 74 are non-hero (creeps, towers, neutrals, Roshan, siege, the fountain), and npc_dota_miniboss appears among them. The previous 'upper bound' built from deaths killed_by did not account for is withdrawn: 18 of the 20 matches containing a real Tormentor death carry no such residual at all, so the residual never contained the event set it claimed to bound. The fact is resolved; what remains is that the Lucky and the Tormented are not separated, which moves the account total by about half a point and blocks a freeze, not any role or team decision.",
+   "measured": "20/623 matches = 0.0321 carry a Tormentor death, counted off npc_dota_miniboss in killed_by. Exactly scored through the same layering as every other suffix, the Tormented reaches 0.03872 against the Lucky's 0.03257. The two are NOT separated: a series-level bootstrap puts P(Tormented ahead) at 0.6575, with a 90 percent interval of [-0.01259, 0.02710] on the gap. The point-estimate lead comes entirely from Core; the Lucky leads Mid and Support."
   }
  ],
  "readiness_note": "This register is the ONLY source of readiness. There is no second hand-written blocker list: a blocker is any entry whose decision_status is BLOCKING, plus any CONDITIONAL entry whose condition currently holds. ti_predict/fantasy/questions.py derives it and refuses a register that carries an unmeasured decision_status.",
