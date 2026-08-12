@@ -1,0 +1,799 @@
+{
+ "source": "Kadadji1/dota2-fantasy-optimizer-2026 data/titles.ts, parsed not transcribed",
+ "tier": "tier_2_independent_community",
+ "semantics": "per-player percentage of that player recent games spent on a hero in the category",
+ "overlap_warning": "the eight categories overlap; per-player sums run past 100, so value/sum(8) is not a denominator",
+ "corroborating_source": "MyKa322/fantasy-analyzer-dota2 dota2-fantasy-design-main/src/data/scoring.js carries the same 8 prefixes and the same bonuses, but no frequencies",
+ "players": {
+  "YSR-04E": {
+   "crimson": 0.0,
+   "cerulean": 15.0,
+   "emerald": 23.0,
+   "royal": 8.0,
+   "golden": 23.0,
+   "elemental": 0.0,
+   "otherworldly": 31.0,
+   "heroic": 23.0
+  },
+  "niu": {
+   "crimson": 31.0,
+   "cerulean": 0.0,
+   "emerald": 31.0,
+   "royal": 23.0,
+   "golden": 38.0,
+   "elemental": 38.0,
+   "otherworldly": 23.0,
+   "heroic": 23.0
+  },
+  "Satanic": {
+   "crimson": 12.0,
+   "cerulean": 14.0,
+   "emerald": 19.0,
+   "royal": 16.0,
+   "golden": 15.0,
+   "elemental": 10.0,
+   "otherworldly": 24.0,
+   "heroic": 24.0
+  },
+  "Noticed": {
+   "crimson": 37.0,
+   "cerulean": 3.0,
+   "emerald": 23.0,
+   "royal": 22.0,
+   "golden": 25.0,
+   "elemental": 39.0,
+   "otherworldly": 15.0,
+   "heroic": 4.0
+  },
+  "Yuma": {
+   "crimson": 11.0,
+   "cerulean": 12.0,
+   "emerald": 22.0,
+   "royal": 23.0,
+   "golden": 25.0,
+   "elemental": 11.0,
+   "otherworldly": 26.0,
+   "heroic": 22.0
+  },
+  "Wisper": {
+   "crimson": 44.0,
+   "cerulean": 4.0,
+   "emerald": 21.0,
+   "royal": 23.0,
+   "golden": 30.0,
+   "elemental": 31.0,
+   "otherworldly": 15.0,
+   "heroic": 14.0
+  },
+  "watson": {
+   "crimson": 17.0,
+   "cerulean": 12.0,
+   "emerald": 13.0,
+   "royal": 28.0,
+   "golden": 14.0,
+   "elemental": 12.0,
+   "otherworldly": 21.0,
+   "heroic": 17.0
+  },
+  "DM": {
+   "crimson": 37.0,
+   "cerulean": 8.0,
+   "emerald": 14.0,
+   "royal": 15.0,
+   "golden": 43.0,
+   "elemental": 33.0,
+   "otherworldly": 20.0,
+   "heroic": 5.0
+  },
+  "Kiritych": {
+   "crimson": 6.0,
+   "cerulean": 16.0,
+   "emerald": 23.0,
+   "royal": 21.0,
+   "golden": 20.0,
+   "elemental": 10.0,
+   "otherworldly": 24.0,
+   "heroic": 35.0
+  },
+  "MieRo": {
+   "crimson": 31.0,
+   "cerulean": 6.0,
+   "emerald": 30.0,
+   "royal": 14.0,
+   "golden": 34.0,
+   "elemental": 26.0,
+   "otherworldly": 14.0,
+   "heroic": 7.0
+  },
+  "skiter": {
+   "crimson": 14.0,
+   "cerulean": 7.0,
+   "emerald": 13.0,
+   "royal": 13.0,
+   "golden": 35.0,
+   "elemental": 14.0,
+   "otherworldly": 21.0,
+   "heroic": 25.0
+  },
+  "ATF": {
+   "crimson": 34.0,
+   "cerulean": 9.0,
+   "emerald": 24.0,
+   "royal": 16.0,
+   "golden": 17.0,
+   "elemental": 25.0,
+   "otherworldly": 20.0,
+   "heroic": 2.0
+  },
+  "Ame": {
+   "crimson": 15.0,
+   "cerulean": 10.0,
+   "emerald": 12.0,
+   "royal": 24.0,
+   "golden": 21.0,
+   "elemental": 17.0,
+   "otherworldly": 24.0,
+   "heroic": 19.0
+  },
+  "Xxs": {
+   "crimson": 44.0,
+   "cerulean": 3.0,
+   "emerald": 13.0,
+   "royal": 21.0,
+   "golden": 33.0,
+   "elemental": 35.0,
+   "otherworldly": 10.0,
+   "heroic": 5.0
+  },
+  "Nightfall": {
+   "crimson": 14.0,
+   "cerulean": 11.0,
+   "emerald": 24.0,
+   "royal": 25.0,
+   "golden": 19.0,
+   "elemental": 8.0,
+   "otherworldly": 14.0,
+   "heroic": 36.0
+  },
+  "Ws": {
+   "crimson": 41.0,
+   "cerulean": 1.0,
+   "emerald": 24.0,
+   "royal": 18.0,
+   "golden": 37.0,
+   "elemental": 24.0,
+   "otherworldly": 10.0,
+   "heroic": 0.0
+  },
+  "Pure": {
+   "crimson": 19.0,
+   "cerulean": 18.0,
+   "emerald": 22.0,
+   "royal": 18.0,
+   "golden": 13.0,
+   "elemental": 16.0,
+   "otherworldly": 33.0,
+   "heroic": 36.0
+  },
+  "33": {
+   "crimson": 40.0,
+   "cerulean": 1.0,
+   "emerald": 30.0,
+   "royal": 15.0,
+   "golden": 36.0,
+   "elemental": 43.0,
+   "otherworldly": 18.0,
+   "heroic": 9.0
+  },
+  "Yatoro": {
+   "crimson": 15.0,
+   "cerulean": 11.0,
+   "emerald": 14.0,
+   "royal": 24.0,
+   "golden": 21.0,
+   "elemental": 17.0,
+   "otherworldly": 21.0,
+   "heroic": 24.0
+  },
+  "Collapse": {
+   "crimson": 50.0,
+   "cerulean": 1.0,
+   "emerald": 24.0,
+   "royal": 12.0,
+   "golden": 35.0,
+   "elemental": 32.0,
+   "otherworldly": 15.0,
+   "heroic": 9.0
+  },
+  "shiro": {
+   "crimson": 11.0,
+   "cerulean": 7.0,
+   "emerald": 28.0,
+   "royal": 20.0,
+   "golden": 23.0,
+   "elemental": 9.0,
+   "otherworldly": 24.0,
+   "heroic": 40.0
+  },
+  "Bach": {
+   "crimson": 49.0,
+   "cerulean": 4.0,
+   "emerald": 17.0,
+   "royal": 16.0,
+   "golden": 33.0,
+   "elemental": 21.0,
+   "otherworldly": 17.0,
+   "heroic": 7.0
+  },
+  "Ghost": {
+   "crimson": 18.0,
+   "cerulean": 18.0,
+   "emerald": 31.0,
+   "royal": 18.0,
+   "golden": 23.0,
+   "elemental": 18.0,
+   "otherworldly": 42.0,
+   "heroic": 28.0
+  },
+  "Fayde": {
+   "crimson": 24.0,
+   "cerulean": 17.0,
+   "emerald": 22.0,
+   "royal": 24.0,
+   "golden": 29.0,
+   "elemental": 27.0,
+   "otherworldly": 18.0,
+   "heroic": 2.0
+  },
+  "miCKe": {
+   "crimson": 18.0,
+   "cerulean": 13.0,
+   "emerald": 29.0,
+   "royal": 8.0,
+   "golden": 20.0,
+   "elemental": 12.0,
+   "otherworldly": 22.0,
+   "heroic": 38.0
+  },
+  "Ace": {
+   "crimson": 37.0,
+   "cerulean": 5.0,
+   "emerald": 27.0,
+   "royal": 8.0,
+   "golden": 34.0,
+   "elemental": 34.0,
+   "otherworldly": 19.0,
+   "heroic": 8.0
+  },
+  "ssnovv1": {
+   "crimson": 9.0,
+   "cerulean": 21.0,
+   "emerald": 20.0,
+   "royal": 21.0,
+   "golden": 11.0,
+   "elemental": 5.0,
+   "otherworldly": 31.0,
+   "heroic": 31.0
+  },
+  "Corrupted": {
+   "crimson": 29.0,
+   "cerulean": 3.0,
+   "emerald": 36.0,
+   "royal": 13.0,
+   "golden": 31.0,
+   "elemental": 35.0,
+   "otherworldly": 21.0,
+   "heroic": 5.0
+  },
+  "Natsumi": {
+   "crimson": 13.0,
+   "cerulean": 16.0,
+   "emerald": 18.0,
+   "royal": 18.0,
+   "golden": 22.0,
+   "elemental": 19.0,
+   "otherworldly": 30.0,
+   "heroic": 28.0
+  },
+  "Raven": {
+   "crimson": 50.0,
+   "cerulean": 0.0,
+   "emerald": 30.0,
+   "royal": 10.0,
+   "golden": 20.0,
+   "elemental": 20.0,
+   "otherworldly": 30.0,
+   "heroic": 0.0
+  },
+  "SumaiL": {
+   "crimson": 25.0,
+   "cerulean": 17.0,
+   "emerald": 12.0,
+   "royal": 20.0,
+   "golden": 19.0,
+   "elemental": 27.0,
+   "otherworldly": 56.0,
+   "heroic": 12.0
+  },
+  "Davai": {
+   "crimson": 32.0,
+   "cerulean": 0.0,
+   "emerald": 37.0,
+   "royal": 14.0,
+   "golden": 24.0,
+   "elemental": 32.0,
+   "otherworldly": 22.0,
+   "heroic": 2.0
+  },
+  "Nisha": {
+   "crimson": 28.0,
+   "cerulean": 31.0,
+   "emerald": 6.0,
+   "royal": 16.0,
+   "golden": 6.0,
+   "elemental": 29.0,
+   "otherworldly": 53.0,
+   "heroic": 9.0
+  },
+  "Malr1ne": {
+   "crimson": 50.0,
+   "cerulean": 9.0,
+   "emerald": 10.0,
+   "royal": 7.0,
+   "golden": 34.0,
+   "elemental": 20.0,
+   "otherworldly": 21.0,
+   "heroic": 12.0
+  },
+  "gpk": {
+   "crimson": 34.0,
+   "cerulean": 27.0,
+   "emerald": 7.0,
+   "royal": 16.0,
+   "golden": 2.0,
+   "elemental": 32.0,
+   "otherworldly": 45.0,
+   "heroic": 6.0
+  },
+  "lorenof": {
+   "crimson": 36.0,
+   "cerulean": 34.0,
+   "emerald": 19.0,
+   "royal": 2.0,
+   "golden": 1.0,
+   "elemental": 29.0,
+   "otherworldly": 55.0,
+   "heroic": 5.0
+  },
+  "Echozz": {
+   "crimson": 38.0,
+   "cerulean": 15.0,
+   "emerald": 0.0,
+   "royal": 15.0,
+   "golden": 15.0,
+   "elemental": 23.0,
+   "otherworldly": 31.0,
+   "heroic": 0.0
+  },
+  "Mikoto": {
+   "crimson": 25.0,
+   "cerulean": 40.0,
+   "emerald": 11.0,
+   "royal": 9.0,
+   "golden": 0.0,
+   "elemental": 17.0,
+   "otherworldly": 52.0,
+   "heroic": 12.0
+  },
+  "bzm": {
+   "crimson": 32.0,
+   "cerulean": 15.0,
+   "emerald": 4.0,
+   "royal": 12.0,
+   "golden": 19.0,
+   "elemental": 29.0,
+   "otherworldly": 38.0,
+   "heroic": 19.0
+  },
+  "No[o]ne": {
+   "crimson": 37.0,
+   "cerulean": 21.0,
+   "emerald": 8.0,
+   "royal": 10.0,
+   "golden": 8.0,
+   "elemental": 27.0,
+   "otherworldly": 37.0,
+   "heroic": 14.0
+  },
+  "Xm": {
+   "crimson": 28.0,
+   "cerulean": 34.0,
+   "emerald": 12.0,
+   "royal": 6.0,
+   "golden": 9.0,
+   "elemental": 20.0,
+   "otherworldly": 44.0,
+   "heroic": 6.0
+  },
+  "Larl": {
+   "crimson": 27.0,
+   "cerulean": 28.0,
+   "emerald": 6.0,
+   "royal": 9.0,
+   "golden": 13.0,
+   "elemental": 21.0,
+   "otherworldly": 36.0,
+   "heroic": 14.0
+  },
+  "CHIRA_JUNIOR": {
+   "crimson": 16.0,
+   "cerulean": 20.0,
+   "emerald": 12.0,
+   "royal": 23.0,
+   "golden": 6.0,
+   "elemental": 40.0,
+   "otherworldly": 33.0,
+   "heroic": 21.0
+  },
+  "RCY": {
+   "crimson": 24.0,
+   "cerulean": 25.0,
+   "emerald": 12.0,
+   "royal": 5.0,
+   "golden": 7.0,
+   "elemental": 21.0,
+   "otherworldly": 51.0,
+   "heroic": 10.0
+  },
+  "NothingToSay": {
+   "crimson": 31.0,
+   "cerulean": 31.0,
+   "emerald": 4.0,
+   "royal": 4.0,
+   "golden": 28.0,
+   "elemental": 11.0,
+   "otherworldly": 33.0,
+   "heroic": 10.0
+  },
+  "Mirage`": {
+   "crimson": 37.0,
+   "cerulean": 20.0,
+   "emerald": 8.0,
+   "royal": 12.0,
+   "golden": 8.0,
+   "elemental": 40.0,
+   "otherworldly": 53.0,
+   "heroic": 7.0
+  },
+  "Yopaj": {
+   "crimson": 29.0,
+   "cerulean": 28.0,
+   "emerald": 10.0,
+   "royal": 13.0,
+   "golden": 13.0,
+   "elemental": 15.0,
+   "otherworldly": 39.0,
+   "heroic": 6.0
+  },
+  "Thiolicor": {
+   "crimson": 18.0,
+   "cerulean": 14.0,
+   "emerald": 35.0,
+   "royal": 5.0,
+   "golden": 26.0,
+   "elemental": 24.0,
+   "otherworldly": 15.0,
+   "heroic": 41.0
+  },
+  "KJ": {
+   "crimson": 30.0,
+   "cerulean": 17.0,
+   "emerald": 24.0,
+   "royal": 17.0,
+   "golden": 26.0,
+   "elemental": 21.0,
+   "otherworldly": 8.0,
+   "heroic": 34.0
+  },
+  "Saksa": {
+   "crimson": 17.0,
+   "cerulean": 5.0,
+   "emerald": 30.0,
+   "royal": 3.0,
+   "golden": 44.0,
+   "elemental": 12.0,
+   "otherworldly": 16.0,
+   "heroic": 48.0
+  },
+  "Malady": {
+   "crimson": 44.0,
+   "cerulean": 31.0,
+   "emerald": 16.0,
+   "royal": 9.0,
+   "golden": 26.0,
+   "elemental": 43.0,
+   "otherworldly": 9.0,
+   "heroic": 21.0
+  },
+  "Tims": {
+   "crimson": 23.0,
+   "cerulean": 9.0,
+   "emerald": 25.0,
+   "royal": 15.0,
+   "golden": 25.0,
+   "elemental": 13.0,
+   "otherworldly": 15.0,
+   "heroic": 43.0
+  },
+  "skem": {
+   "crimson": 25.0,
+   "cerulean": 16.0,
+   "emerald": 13.0,
+   "royal": 14.0,
+   "golden": 32.0,
+   "elemental": 23.0,
+   "otherworldly": 4.0,
+   "heroic": 16.0
+  },
+  "Cr1t-": {
+   "crimson": 28.0,
+   "cerulean": 7.0,
+   "emerald": 39.0,
+   "royal": 12.0,
+   "golden": 33.0,
+   "elemental": 5.0,
+   "otherworldly": 29.0,
+   "heroic": 59.0
+  },
+  "Sneyking": {
+   "crimson": 33.0,
+   "cerulean": 25.0,
+   "emerald": 16.0,
+   "royal": 9.0,
+   "golden": 42.0,
+   "elemental": 42.0,
+   "otherworldly": 16.0,
+   "heroic": 18.0
+  },
+  "fy": {
+   "crimson": 15.0,
+   "cerulean": 6.0,
+   "emerald": 40.0,
+   "royal": 11.0,
+   "golden": 39.0,
+   "elemental": 17.0,
+   "otherworldly": 16.0,
+   "heroic": 41.0
+  },
+  "xNova": {
+   "crimson": 45.0,
+   "cerulean": 22.0,
+   "emerald": 15.0,
+   "royal": 10.0,
+   "golden": 37.0,
+   "elemental": 43.0,
+   "otherworldly": 10.0,
+   "heroic": 16.0
+  },
+  "Ari": {
+   "crimson": 8.0,
+   "cerulean": 1.0,
+   "emerald": 29.0,
+   "royal": 10.0,
+   "golden": 49.0,
+   "elemental": 11.0,
+   "otherworldly": 9.0,
+   "heroic": 48.0
+  },
+  "Whitemon": {
+   "crimson": 44.0,
+   "cerulean": 21.0,
+   "emerald": 11.0,
+   "royal": 13.0,
+   "golden": 41.0,
+   "elemental": 52.0,
+   "otherworldly": 12.0,
+   "heroic": 15.0
+  },
+  "Mira": {
+   "crimson": 12.0,
+   "cerulean": 1.0,
+   "emerald": 40.0,
+   "royal": 29.0,
+   "golden": 23.0,
+   "elemental": 7.0,
+   "otherworldly": 24.0,
+   "heroic": 43.0
+  },
+  "kaori": {
+   "crimson": 76.0,
+   "cerulean": 27.0,
+   "emerald": 13.0,
+   "royal": 4.0,
+   "golden": 29.0,
+   "elemental": 53.0,
+   "otherworldly": 9.0,
+   "heroic": 33.0
+  },
+  "OmaR": {
+   "crimson": 14.0,
+   "cerulean": 4.0,
+   "emerald": 42.0,
+   "royal": 3.0,
+   "golden": 38.0,
+   "elemental": 13.0,
+   "otherworldly": 1.0,
+   "heroic": 42.0
+  },
+  "GH": {
+   "crimson": 25.0,
+   "cerulean": 27.0,
+   "emerald": 6.0,
+   "royal": 23.0,
+   "golden": 37.0,
+   "elemental": 37.0,
+   "otherworldly": 3.0,
+   "heroic": 7.0
+  },
+  "Boxi": {
+   "crimson": 18.0,
+   "cerulean": 5.0,
+   "emerald": 29.0,
+   "royal": 5.0,
+   "golden": 29.0,
+   "elemental": 26.0,
+   "otherworldly": 17.0,
+   "heroic": 32.0
+  },
+  "tofu": {
+   "crimson": 38.0,
+   "cerulean": 20.0,
+   "emerald": 22.0,
+   "royal": 12.0,
+   "golden": 29.0,
+   "elemental": 27.0,
+   "otherworldly": 11.0,
+   "heroic": 35.0
+  },
+  "rue": {
+   "crimson": 13.0,
+   "cerulean": 8.0,
+   "emerald": 34.0,
+   "royal": 14.0,
+   "golden": 36.0,
+   "elemental": 20.0,
+   "otherworldly": 19.0,
+   "heroic": 35.0
+  },
+  "not me": {
+   "crimson": 24.0,
+   "cerulean": 5.0,
+   "emerald": 43.0,
+   "royal": 9.0,
+   "golden": 37.0,
+   "elemental": 23.0,
+   "otherworldly": 11.0,
+   "heroic": 50.0
+  },
+  "XinQ": {
+   "crimson": 13.0,
+   "cerulean": 16.0,
+   "emerald": 48.0,
+   "royal": 5.0,
+   "golden": 37.0,
+   "elemental": 8.0,
+   "otherworldly": 11.0,
+   "heroic": 52.0
+  },
+  "y`": {
+   "crimson": 34.0,
+   "cerulean": 34.0,
+   "emerald": 27.0,
+   "royal": 10.0,
+   "golden": 22.0,
+   "elemental": 45.0,
+   "otherworldly": 17.0,
+   "heroic": 15.0
+  },
+  "9Class": {
+   "crimson": 7.0,
+   "cerulean": 10.0,
+   "emerald": 36.0,
+   "royal": 10.0,
+   "golden": 45.0,
+   "elemental": 8.0,
+   "otherworldly": 13.0,
+   "heroic": 37.0
+  },
+  "Dukalis": {
+   "crimson": 35.0,
+   "cerulean": 24.0,
+   "emerald": 14.0,
+   "royal": 10.0,
+   "golden": 30.0,
+   "elemental": 37.0,
+   "otherworldly": 11.0,
+   "heroic": 17.0
+  },
+  "planet": {
+   "crimson": 9.0,
+   "cerulean": 9.0,
+   "emerald": 47.0,
+   "royal": 22.0,
+   "golden": 38.0,
+   "elemental": 9.0,
+   "otherworldly": 16.0,
+   "heroic": 31.0
+  },
+  "zzq": {
+   "crimson": 23.0,
+   "cerulean": 46.0,
+   "emerald": 8.0,
+   "royal": 23.0,
+   "golden": 23.0,
+   "elemental": 54.0,
+   "otherworldly": 0.0,
+   "heroic": 8.0
+  },
+  "Save-": {
+   "crimson": 15.0,
+   "cerulean": 6.0,
+   "emerald": 42.0,
+   "royal": 12.0,
+   "golden": 42.0,
+   "elemental": 6.0,
+   "otherworldly": 20.0,
+   "heroic": 51.0
+  },
+  "Kataomi": {
+   "crimson": 32.0,
+   "cerulean": 38.0,
+   "emerald": 10.0,
+   "royal": 17.0,
+   "golden": 11.0,
+   "elemental": 50.0,
+   "otherworldly": 9.0,
+   "heroic": 17.0
+  },
+  "Bignum": {
+   "crimson": 20.0,
+   "cerulean": 6.0,
+   "emerald": 40.0,
+   "royal": 20.0,
+   "golden": 31.0,
+   "elemental": 21.0,
+   "otherworldly": 15.0,
+   "heroic": 35.0
+  },
+  "Speeed": {
+   "crimson": 49.0,
+   "cerulean": 15.0,
+   "emerald": 21.0,
+   "royal": 5.0,
+   "golden": 38.0,
+   "elemental": 42.0,
+   "otherworldly": 9.0,
+   "heroic": 33.0
+  },
+  "sayuw": {
+   "crimson": 16.0,
+   "cerulean": 4.0,
+   "emerald": 62.0,
+   "royal": 10.0,
+   "golden": 34.0,
+   "elemental": 12.0,
+   "otherworldly": 14.0,
+   "heroic": 40.0
+  },
+  "RESPECT": {
+   "crimson": 32.0,
+   "cerulean": 8.0,
+   "emerald": 34.0,
+   "royal": 11.0,
+   "golden": 46.0,
+   "elemental": 32.0,
+   "otherworldly": 12.0,
+   "heroic": 20.0
+  }
+ }
+}
