@@ -220,7 +220,8 @@ def test_bootstrap_interval_endpoints_are_not_called_minimax_regret(art):
                    if k != "not_minimax_regret")
     # a real one exists, over a named scenario family
     sm = ex["scenario_minimax_regret"]
-    assert "stacking hypothesis x leave-one-event-out" in sm["scenario_family"]
+    assert "leave-one-event-out" in sm["scenario_family"]
+    assert "recency weighting" in sm["scenario_family"]
     assert len(sm["scenarios"]) >= 4
     assert sm["minimax_choice"] in sm["max_regret"]
     assert sm["max_regret"][sm["minimax_choice"]] == min(sm["max_regret"].values())
@@ -267,6 +268,60 @@ def test_the_cross_event_pooling_defect_is_recorded_as_withdrawn(art):
     claims = [w["claim"] for w in art["withdrawn_claims"]]
     assert any("never pooled across events" in c for c in claims)
     assert any("token cost of changing a coach title" in c for c in claims)
+
+
+def test_no_superseded_prose_survives_outside_the_withdrawal_records(art):
+    """Every number in the live body must come from this run, not from a previous conclusion."""
+    withdrawn = json.dumps(art["withdrawn_claims"], ensure_ascii=False)
+    body = json.dumps(art, ensure_ascii=False).replace(withdrawn, "")
+    for stale in ("factor of 2.3", "5.78", "bounded at 5", "Two residuals",
+                  "residual_the_Tormented", "beats the next scoreable suffix",
+                  "bounded from above", "upside_tail_pick"):
+        assert stale not in body, stale
+
+
+def test_the_incomplete_elemental_predicate_is_declared_and_stress_tested(art):
+    m = art["exact_pricing"]["prefix_membership_sensitivity"]
+    assert m["predicate_status"].startswith("INCOMPLETE")
+    names = {r["assignment"] for r in m["rows"]}
+    assert "adversarial_to_leader" in names and "random" in names
+    assert m["winner_flips_under_any_assignment"] == (len({r["winner"] for r in m["rows"]}) > 1)
+
+
+def test_the_recency_family_is_pre_registered_and_enters_the_scenario_regret(art):
+    w = art["exact_pricing"]["weighting_sensitivity"]
+    lives = {f["half_life_days"] for f in w["folds"]}
+    assert lives == {None, 180, 90, 60, 30}
+    names = {sc["scenario"] for sc in art["exact_pricing"]["scenario_minimax_regret"]["scenarios"]}
+    assert any("recency half-life" in n for n in names)
+    assert any("Elemental" in n for n in names)
+
+
+def test_the_predictive_tail_is_only_used_when_it_is_stable(art):
+    d = art["exact_pricing"]["suffix_grade"]["joint_decision"]["D_predictive_utility"]
+    stable = (d["p90_winner_stable_across_dependence"]
+              and d["p95_winner_stable_across_dependence"]
+              and d["median_winner_stable_across_dependence"])
+    assert d["usable_as_evidence"] == stable
+    if not stable:
+        assert "NOT a usable discriminator" in \
+            art["exact_pricing"]["dependence_sensitivity"]["verdict"]
+
+
+def test_the_cruel_breakpoint_is_against_the_joint_leader_not_a_bare_suffix(art):
+    c = art["exact_pricing"]["cruel_joint_breakpoint"]
+    assert c["leader"].startswith("Elemental + ")
+    assert "not_a_mathematical_exclusion" in c
+    assert {r["placement"] for r in c["rows"]} == {"random", "best_games"}
+
+
+def test_the_four_evidence_classes_are_reported_separately_and_never_tallied(art):
+    j = art["exact_pricing"]["suffix_grade"]["joint_decision"]
+    for key in ("A_point_estimate", "B_estimator_uncertainty",
+                "C_modelling_scenario_robustness", "D_predictive_utility"):
+        assert key in j
+    assert "never tallied" in j["not_a_vote_count"]
+    assert "wins 11" not in json.dumps(art, ensure_ascii=False)
 
 
 def test_the_artifact_records_how_to_regenerate_itself(art):

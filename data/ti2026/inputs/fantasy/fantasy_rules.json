@@ -1601,7 +1601,7 @@
    "blocking_for": [],
    "measured_by": "coach_optimize.tormented_bound",
    "note": "RESOLVED by direct attribution. killed_by is NOT hero-only: the 623-match inventory holds 197 distinct killer keys of which 74 are non-hero (creeps, towers, neutrals, Roshan, siege, the fountain), and npc_dota_miniboss appears among them. The previous 'upper bound' built from deaths killed_by did not account for is withdrawn: 18 of the 20 matches containing a real Tormentor death carry no such residual at all, so the residual never contained the event set it claimed to bound. The fact is resolved; what remains is that the Lucky and the Tormented are not separated, which moves the account total by about half a point and blocks a freeze, not any role or team decision.",
-   "measured": "20/623 matches = 0.0321 carry a Tormentor death, counted off npc_dota_miniboss in killed_by. Scored through the same event-block layering as every other suffix, the Tormented reaches 0.03730 against the Lucky's 0.02583. Not separated at 95 percent: P(Tormented ahead) = 0.7675, gap interval [-0.01103, 0.04283]. The lead comes from Core; the Lucky leads Mid, and Support is a tie. Expected value, minimax regret and the upside tail all select the Tormented."
+   "measured": "Scored exactly off npc_dota_miniboss in killed_by, then compared JOINTLY with the prefix: Elemental + the Tormented against Elemental + the Lucky. Point estimate favours the Tormented by 0.00941 (additive) and 0.00930 (multiplicative). Not separated: a hierarchical bootstrap gives P(leader ahead) = 0.6525. Robust to recency weighting and to every assignment of the unseen Elemental mass, including an adversarial one; it flips only when event 19785 is dropped. Minimax regret over the full scenario family selects the Tormented. The predictive tail is NOT usable evidence here -- which candidate owns it depends on the quantile and on the cross-role dependence assumption."
   },
   {
    "id": "historical_event_aggregation",
@@ -1618,6 +1618,39 @@
    "model_status": "SELECTED",
    "is_estimator_choice_not_a_rule": true,
    "condition": "Applies whenever two coach settings are within the spread that dropping one historical event can produce. It does not touch team or banner choices."
+  },
+  {
+   "id": "elemental_predicate_completeness",
+   "scope": "generic",
+   "question": "Which heroes satisfy Aquatic, Fiery or Icy, beyond the ones our flag marks?",
+   "fact_status": "PARTIAL",
+   "decision_status": "SCALE_ONLY",
+   "blocking_for": [],
+   "measured_by": "coach_optimize.prefix_membership_sensitivity",
+   "note": "The only flag any source carries is isaquatic, which is a strict subset of the client's condition. Scores computed with it are therefore lower bounds, and calling them exact was an overstatement that has been withdrawn. No source recovers the full membership: Kadadji carries frequencies but no hero table, MyKa322's hero config has names only, and bydoodle's flags stop at isaquatic.",
+   "measured": "The shortfall is small and does not decide anything. Against 93 observed trigger player-games, the community frequency implies only 3 unseen ones. Assigning them at random, to either suffix's games, to the highest-scoring games, and adversarially to the rival, under both stacking rules -- the winner never changes."
+  },
+  {
+   "id": "cross_role_predictive_dependence",
+   "scope": "generic",
+   "question": "How are the three roles' period outcomes dependent on each other?",
+   "fact_status": "PARTIAL",
+   "decision_status": "SCALE_ONLY",
+   "blocking_for": [],
+   "measured_by": "coach_optimize.dependence_sensitivity",
+   "note": "Previously imposed by accident: every role drew from the same default seed, which forced all three to pick the same historical event and the same series. That leaves the mean alone but drives every quantile and the whole threshold grid. The default is now by_organization, which is not a compromise but a requirement -- Core and Support are both Xtreme Gaming and play the same series at TI, while Mid is a different organisation. A shared-macro construction is not identifiable.",
+   "measured": "the predictive tail is NOT a usable discriminator here: which candidate owns the upper tail depends on the quantile chosen and on the cross-role dependence assumption, and the earlier apparent dominance came from every role sharing one random stream, which compressed the spread"
+  },
+  {
+   "id": "historical_event_recency_weighting",
+   "scope": "generic",
+   "question": "Should older historical events count as much as recent ones?",
+   "fact_status": "PARTIAL",
+   "decision_status": "SCALE_ONLY",
+   "blocking_for": [],
+   "measured_by": "coach_optimize.weighting_sensitivity",
+   "note": "A modelling choice, like the event-equal aggregation it extends. Half-lives were pre-registered at 180 / 90 / 60 / 30 days and the weights are generated from each event's own end date, so nothing can be tuned toward a winner.",
+   "measured": "The winner does not flip across the family (stable); the gap widens monotonically as weighting favours recent events, from 0.00941 at equal weight to 0.02955 at a 30-day half-life. That direction is consistent with leave-one-event-out, where the single flip comes from dropping 19785, the most recent event in the pools."
   }
  ],
  "readiness_note": "This register is the ONLY source of readiness. There is no second hand-written blocker list: a blocker is any entry whose decision_status is BLOCKING, plus any CONDITIONAL entry whose condition currently holds. ti_predict/fantasy/questions.py derives it and refuses a register that carries an unmeasured decision_status.",

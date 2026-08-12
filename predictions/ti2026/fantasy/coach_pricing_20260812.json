@@ -34,19 +34,41 @@
     "why": "every rival is scoreable, but the leader is NOT separated from the runner-up: P(leader ahead) = 0.7675",
     "joint_decision": {
      "compared": "Elemental + the Tormented vs Elemental + the Lucky",
-     "additive_winner": "the Tormented",
-     "multiplicative_winner": "the Tormented",
-     "stacking_robust": true,
-     "leave_one_event_out_robust": false,
-     "minimax_choice": "the Tormented",
-     "hierarchical_p_leader_ahead": 0.6525
+     "A_point_estimate": {
+      "additive": 0.00941,
+      "multiplicative": 0.0093,
+      "winner": "the Tormented",
+      "stacking_robust": true
+     },
+     "B_estimator_uncertainty": {
+      "within_event_p_leader_ahead": 0.7675,
+      "hierarchical_p_leader_ahead": 0.6525,
+      "separated_at_95": false
+     },
+     "C_modelling_scenario_robustness": {
+      "leave_one_event_out_robust": false,
+      "recency_robust": true,
+      "elemental_membership_robust": true,
+      "minimax_choice": "the Tormented",
+      "max_regret": {
+       "the Tormented": 0.01182,
+       "the Lucky": 0.02955
+      }
+     },
+     "D_predictive_utility": {
+      "mean_winner": "the Tormented",
+      "p95_winner_stable_across_dependence": true,
+      "p90_winner_stable_across_dependence": false,
+      "median_winner_stable_across_dependence": false,
+      "quantiles_agree_within_default": false,
+      "threshold_grid_consistent": false,
+      "usable_as_evidence": false,
+      "default_dependence": "by_organization"
+     },
+     "not_a_vote_count": "these four are different KINDS of evidence, not independent votes. They are stated separately and never tallied."
     }
    },
-   "why": "every match in the five-league window has been fetched, so the first-blood bounds are population bounds rather than prefix bounds. the Lucky beats the next scoreable suffix by a factor of 2.3, and the Patient and the Flayed Twins Acolyte are ruled out on zero triggers in 623 matches.",
-   "not_claimed": "this is not a proven optimum over all eight. Two residuals are named below and neither is closed by measurement.",
-   "residual_the_Cruel": "unmeasured. It would have to fire on 13.5 percent of matches to compete if uncorrelated with performance, or 61.2 percent if tied to losing, which is where a fountain death belongs.",
-   "residual_the_Tormented": "bounded at 5.78 percent on complete coverage, which leaves it needing an attenuation about a third above the largest ever measured. Excluded under that assumption, not by proof.",
-   "what_would_reopen_it": "a measured fountain-death rate above 13.5 percent, or a demonstration that a rare trigger can attenuate past 2.4"
+   "note": "every figure in this block is generated; nothing here is carried over from an earlier round"
   },
   "prefix_Elemental": {
    "grade": "BEST-KNOWN PROVISIONAL",
@@ -218,12 +240,38 @@
    "why": "every rival is scoreable, but the leader is NOT separated from the runner-up: P(leader ahead) = 0.7675",
    "joint_decision": {
     "compared": "Elemental + the Tormented vs Elemental + the Lucky",
-    "additive_winner": "the Tormented",
-    "multiplicative_winner": "the Tormented",
-    "stacking_robust": true,
-    "leave_one_event_out_robust": false,
-    "minimax_choice": "the Tormented",
-    "hierarchical_p_leader_ahead": 0.6525
+    "A_point_estimate": {
+     "additive": 0.00941,
+     "multiplicative": 0.0093,
+     "winner": "the Tormented",
+     "stacking_robust": true
+    },
+    "B_estimator_uncertainty": {
+     "within_event_p_leader_ahead": 0.7675,
+     "hierarchical_p_leader_ahead": 0.6525,
+     "separated_at_95": false
+    },
+    "C_modelling_scenario_robustness": {
+     "leave_one_event_out_robust": false,
+     "recency_robust": true,
+     "elemental_membership_robust": true,
+     "minimax_choice": "the Tormented",
+     "max_regret": {
+      "the Tormented": 0.01182,
+      "the Lucky": 0.02955
+     }
+    },
+    "D_predictive_utility": {
+     "mean_winner": "the Tormented",
+     "p95_winner_stable_across_dependence": true,
+     "p90_winner_stable_across_dependence": false,
+     "median_winner_stable_across_dependence": false,
+     "quantiles_agree_within_default": false,
+     "threshold_grid_consistent": false,
+     "usable_as_evidence": false,
+     "default_dependence": "by_organization"
+    },
+    "not_a_vote_count": "these four are different KINDS of evidence, not independent votes. They are stated separately and never tallied."
    }
   },
   "joint_closing": {
@@ -491,9 +539,474 @@
     }
    }
   },
+  "weighting_sensitivity": {
+   "labels": {
+    "a": "the Tormented",
+    "b": "the Lucky"
+   },
+   "stacking": "additive",
+   "family": "exponential decay on event end date; half-lives pre-registered",
+   "folds": [
+    {
+     "half_life_days": null,
+     "weights": {
+      "19101": 1.0,
+      "19543": 1.0,
+      "19696": 1.0,
+      "19785": 1.0
+     },
+     "a": 0.07121,
+     "b": 0.0618,
+     "gap": 0.00941,
+     "winner": "the Tormented",
+     "by_role_gap": {
+      "core": 0.02078,
+      "mid": -0.00829,
+      "support": 0.00386
+     }
+    },
+    {
+     "half_life_days": 180,
+     "weights": {
+      "19101": 0.8508,
+      "19543": 0.7232,
+      "19696": 0.8062,
+      "19785": 1.0
+     },
+     "a": 0.07342,
+     "b": 0.06065,
+     "gap": 0.01278,
+     "winner": "the Tormented",
+     "by_role_gap": {
+      "core": 0.02407,
+      "mid": -0.00771,
+      "support": 0.01436
+     }
+    },
+    {
+     "half_life_days": 90,
+     "weights": {
+      "19101": 0.7238,
+      "19543": 0.523,
+      "19696": 0.65,
+      "19785": 1.0
+     },
+     "a": 0.07554,
+     "b": 0.05925,
+     "gap": 0.01628,
+     "winner": "the Tormented",
+     "by_role_gap": {
+      "core": 0.02755,
+      "mid": -0.00711,
+      "support": 0.02553
+     }
+    },
+    {
+     "half_life_days": 60,
+     "weights": {
+      "19101": 0.6158,
+      "19543": 0.3783,
+      "19696": 0.524,
+      "19785": 1.0
+     },
+     "a": 0.0775,
+     "b": 0.05769,
+     "gap": 0.01981,
+     "winner": "the Tormented",
+     "by_role_gap": {
+      "core": 0.0311,
+      "mid": -0.00649,
+      "support": 0.03705
+     }
+    },
+    {
+     "half_life_days": 30,
+     "weights": {
+      "19101": 0.3792,
+      "19543": 0.1431,
+      "19696": 0.2746,
+      "19785": 1.0
+     },
+     "a": 0.08225,
+     "b": 0.0527,
+     "gap": 0.02955,
+     "winner": "the Tormented",
+     "by_role_gap": {
+      "core": 0.04099,
+      "mid": -0.00472,
+      "support": 0.07024
+     }
+    }
+   ],
+   "winner_flips_under_recency": false
+  },
+  "prefix_membership_sensitivity": {
+   "labels": {
+    "a": "the Tormented",
+    "b": "the Lucky"
+   },
+   "predicate_status": "INCOMPLETE -- the flag available is isaquatic; the client condition is Aquatic, Fiery or Icy, and no source recovers the full membership",
+   "observed_trigger_player_games": 93,
+   "estimated_missing_trigger_player_games": 3,
+   "how_missing_mass_was_estimated": "per player, community Elemental frequency minus our own isaquatic rate, times that player's games",
+   "rows": [
+    {
+     "assignment": "none_observed_flag_only",
+     "stacking": "additive",
+     "a": 0.07121,
+     "b": 0.0618,
+     "gap": 0.00941,
+     "winner": "the Tormented"
+    },
+    {
+     "assignment": "none_observed_flag_only",
+     "stacking": "multiplicative",
+     "a": 0.07214,
+     "b": 0.06284,
+     "gap": 0.0093,
+     "winner": "the Tormented"
+    },
+    {
+     "assignment": "random",
+     "stacking": "additive",
+     "a": 0.07263,
+     "b": 0.06249,
+     "gap": 0.01014,
+     "winner": "the Tormented"
+    },
+    {
+     "assignment": "random",
+     "stacking": "multiplicative",
+     "a": 0.07403,
+     "b": 0.06354,
+     "gap": 0.01049,
+     "winner": "the Tormented"
+    },
+    {
+     "assignment": "favour_the_Tormented",
+     "stacking": "additive",
+     "a": 0.07405,
+     "b": 0.06391,
+     "gap": 0.01014,
+     "winner": "the Tormented"
+    },
+    {
+     "assignment": "favour_the_Tormented",
+     "stacking": "multiplicative",
+     "a": 0.07577,
+     "b": 0.06495,
+     "gap": 0.01082,
+     "winner": "the Tormented"
+    },
+    {
+     "assignment": "favour_the_Lucky",
+     "stacking": "additive",
+     "a": 0.07188,
+     "b": 0.06223,
+     "gap": 0.00964,
+     "winner": "the Tormented"
+    },
+    {
+     "assignment": "favour_the_Lucky",
+     "stacking": "multiplicative",
+     "a": 0.07281,
+     "b": 0.06337,
+     "gap": 0.00944,
+     "winner": "the Tormented"
+    },
+    {
+     "assignment": "adversarial_to_leader",
+     "stacking": "additive",
+     "a": 0.07188,
+     "b": 0.06223,
+     "gap": 0.00964,
+     "winner": "the Tormented"
+    },
+    {
+     "assignment": "adversarial_to_leader",
+     "stacking": "multiplicative",
+     "a": 0.07281,
+     "b": 0.06337,
+     "gap": 0.00944,
+     "winner": "the Tormented"
+    },
+    {
+     "assignment": "high_scoring_games",
+     "stacking": "additive",
+     "a": 0.07331,
+     "b": 0.06304,
+     "gap": 0.01027,
+     "winner": "the Tormented"
+    },
+    {
+     "assignment": "high_scoring_games",
+     "stacking": "multiplicative",
+     "a": 0.07424,
+     "b": 0.06408,
+     "gap": 0.01016,
+     "winner": "the Tormented"
+    }
+   ],
+   "winner_flips_under_any_assignment": false
+  },
+  "dependence_sensitivity": {
+   "labels": {
+    "a": "the Tormented",
+    "b": "the Lucky"
+   },
+   "default": "by_organization",
+   "why_default": "Core and Support are the same organisation, so at TI they play the same series and must share a stream; Mid is a different organisation and has no reason to be coupled to them",
+   "shared_macro_event": "NOT IDENTIFIABLE: the historical events of Xtreme Gaming and Team Yandex only partly overlap, and nothing aligns a Xtreme series with a Yandex series inside an event, so a shared-macro construction cannot be built without inventing the alignment",
+   "modes": {
+    "by_organization": {
+     "the Tormented": {
+      "mean": 28092.63,
+      "p10": 20754.26,
+      "p25": 25067.57,
+      "median": 27388.73,
+      "p75": 31113.8,
+      "p90": 33988.04,
+      "p95": 35442.17
+     },
+     "the Lucky": {
+      "mean": 27854.93,
+      "p10": 21151.5,
+      "p25": 24934.8,
+      "median": 27362.4,
+      "p75": 30851.12,
+      "p90": 34518.15,
+      "p95": 35193.76
+     },
+     "paired": {
+      "mean": 237.7,
+      "median": 0.0,
+      "P_a_higher": 0.4933,
+      "P_tie": 0.1648
+     },
+     "threshold_grid": {
+      "score>=29785": {
+       "a": 0.4113,
+       "b": 0.396
+      },
+      "score>=30811": {
+       "a": 0.313,
+       "b": 0.31
+      },
+      "score>=31683": {
+       "a": 0.1983,
+       "b": 0.2062
+      },
+      "score>=34004": {
+       "a": 0.0975,
+       "b": 0.1232
+      },
+      "score>=35372": {
+       "a": 0.0742,
+       "b": 0.0345
+      }
+     },
+     "p95_winner": "the Tormented",
+     "p90_winner": "the Lucky",
+     "median_winner": "the Tormented",
+     "threshold_grid_all_same_sign": false
+    },
+    "independent": {
+     "the Tormented": {
+      "mean": 28120.01,
+      "p10": 21737.32,
+      "p25": 25110.48,
+      "median": 27581.72,
+      "p75": 31485.62,
+      "p90": 33741.87,
+      "p95": 35223.61
+     },
+     "the Lucky": {
+      "mean": 27903.12,
+      "p10": 21151.5,
+      "p25": 24928.43,
+      "median": 27740.36,
+      "p75": 31669.1,
+      "p90": 34094.31,
+      "p95": 34973.21
+     },
+     "paired": {
+      "mean": 216.89,
+      "median": 38.07,
+      "P_a_higher": 0.514,
+      "P_tie": 0.101
+     },
+     "threshold_grid": {
+      "score>=29359": {
+       "a": 0.4215,
+       "b": 0.3875
+      },
+      "score>=30722": {
+       "a": 0.3063,
+       "b": 0.2938
+      },
+      "score>=32325": {
+       "a": 0.1965,
+       "b": 0.2035
+      },
+      "score>=34000": {
+       "a": 0.0963,
+       "b": 0.1042
+      },
+      "score>=35124": {
+       "a": 0.0515,
+       "b": 0.049
+      }
+     },
+     "p95_winner": "the Tormented",
+     "p90_winner": "the Lucky",
+     "median_winner": "the Lucky",
+     "threshold_grid_all_same_sign": false
+    },
+    "common": {
+     "the Tormented": {
+      "mean": 28082.83,
+      "p10": 24020.01,
+      "p25": 26224.11,
+      "median": 27388.73,
+      "p75": 31059.62,
+      "p90": 31183.04,
+      "p95": 31326.92
+     },
+     "the Lucky": {
+      "mean": 27866.63,
+      "p10": 24238.35,
+      "p25": 26192.66,
+      "median": 27785.97,
+      "p75": 30713.99,
+      "p90": 30811.21,
+      "p95": 30920.36
+     },
+     "paired": {
+      "mean": 216.2,
+      "median": 0.0,
+      "P_a_higher": 0.4502,
+      "P_tie": 0.1842
+     },
+     "threshold_grid": {
+      "score>=29716": {
+       "a": 0.438,
+       "b": 0.3715
+      },
+      "score>=30639": {
+       "a": 0.3285,
+       "b": 0.3058
+      },
+      "score>=30811": {
+       "a": 0.2958,
+       "b": 0.2228
+      },
+      "score>=31059": {
+       "a": 0.2838,
+       "b": 0.0
+      },
+      "score>=31183": {
+       "a": 0.1225,
+       "b": 0.0
+      }
+     },
+     "p95_winner": "the Tormented",
+     "p90_winner": "the Tormented",
+     "median_winner": "the Lucky",
+     "threshold_grid_all_same_sign": true
+    }
+   },
+   "p95_winner_stable": true,
+   "p90_winner_stable": false,
+   "median_winner_stable": false,
+   "quantiles_agree_within_default": false,
+   "threshold_grid_consistent_within_default": false,
+   "verdict": "the predictive tail is NOT a usable discriminator here: which candidate owns the upper tail depends on the quantile chosen and on the cross-role dependence assumption, and the earlier apparent dominance came from every role sharing one random stream, which compressed the spread"
+  },
+  "cruel_joint_breakpoint": {
+   "leader": "Elemental + the Tormented",
+   "leader_joint_gain": 0.07121,
+   "stacking": "additive",
+   "rows": [
+    {
+     "assumed_match_rate": 0.02,
+     "placement": "random",
+     "joint_gain": 0.03418,
+     "beats_leader": false
+    },
+    {
+     "assumed_match_rate": 0.02,
+     "placement": "best_games",
+     "joint_gain": 0.04633,
+     "beats_leader": false
+    },
+    {
+     "assumed_match_rate": 0.05,
+     "placement": "random",
+     "joint_gain": 0.04223,
+     "beats_leader": false
+    },
+    {
+     "assumed_match_rate": 0.05,
+     "placement": "best_games",
+     "joint_gain": 0.06864,
+     "beats_leader": false
+    },
+    {
+     "assumed_match_rate": 0.1,
+     "placement": "random",
+     "joint_gain": 0.05219,
+     "beats_leader": false
+    },
+    {
+     "assumed_match_rate": 0.1,
+     "placement": "best_games",
+     "joint_gain": 0.08027,
+     "beats_leader": true
+    },
+    {
+     "assumed_match_rate": 0.2,
+     "placement": "random",
+     "joint_gain": 0.06449,
+     "beats_leader": false
+    },
+    {
+     "assumed_match_rate": 0.2,
+     "placement": "best_games",
+     "joint_gain": 0.0932,
+     "beats_leader": true
+    },
+    {
+     "assumed_match_rate": 0.35,
+     "placement": "random",
+     "joint_gain": 0.07749,
+     "beats_leader": true
+    },
+    {
+     "assumed_match_rate": 0.35,
+     "placement": "best_games",
+     "joint_gain": 0.11832,
+     "beats_leader": true
+    },
+    {
+     "assumed_match_rate": 0.5,
+     "placement": "random",
+     "joint_gain": 0.09583,
+     "beats_leader": true
+    },
+    {
+     "assumed_match_rate": 0.5,
+     "placement": "best_games",
+     "joint_gain": 0.1378,
+     "beats_leader": true
+    }
+   ],
+   "lowest_rate_that_beats_leader": 0.1,
+   "decision_relevant": true,
+   "not_a_mathematical_exclusion": "no bound on the fountain-death rate exists, so this is a breakpoint, not a proof. What it shows is how implausible the required rate is."
+  },
   "scenario_minimax_regret": {
    "definition": "max over scenarios of (best action in that scenario minus this action)",
-   "scenario_family": "stacking hypothesis x leave-one-event-out",
+   "scenario_family": "stacking x leave-one-event-out x recency weighting x unseen Elemental membership assignment",
    "scenarios": [
     {
      "scenario": "additive / all events",
@@ -544,11 +1057,81 @@
      "scenario": "multiplicative / drop 19785",
      "the Tormented": 0.06255,
      "the Lucky": 0.07437
+    },
+    {
+     "scenario": "recency half-life 180d",
+     "the Tormented": 0.07342,
+     "the Lucky": 0.06065
+    },
+    {
+     "scenario": "recency half-life 90d",
+     "the Tormented": 0.07554,
+     "the Lucky": 0.05925
+    },
+    {
+     "scenario": "recency half-life 60d",
+     "the Tormented": 0.0775,
+     "the Lucky": 0.05769
+    },
+    {
+     "scenario": "recency half-life 30d",
+     "the Tormented": 0.08225,
+     "the Lucky": 0.0527
+    },
+    {
+     "scenario": "additive / Elemental random",
+     "the Tormented": 0.07263,
+     "the Lucky": 0.06249
+    },
+    {
+     "scenario": "multiplicative / Elemental random",
+     "the Tormented": 0.07403,
+     "the Lucky": 0.06354
+    },
+    {
+     "scenario": "additive / Elemental favour_the_Tormented",
+     "the Tormented": 0.07405,
+     "the Lucky": 0.06391
+    },
+    {
+     "scenario": "multiplicative / Elemental favour_the_Tormented",
+     "the Tormented": 0.07577,
+     "the Lucky": 0.06495
+    },
+    {
+     "scenario": "additive / Elemental favour_the_Lucky",
+     "the Tormented": 0.07188,
+     "the Lucky": 0.06223
+    },
+    {
+     "scenario": "multiplicative / Elemental favour_the_Lucky",
+     "the Tormented": 0.07281,
+     "the Lucky": 0.06337
+    },
+    {
+     "scenario": "additive / Elemental adversarial_to_leader",
+     "the Tormented": 0.07188,
+     "the Lucky": 0.06223
+    },
+    {
+     "scenario": "multiplicative / Elemental adversarial_to_leader",
+     "the Tormented": 0.07281,
+     "the Lucky": 0.06337
+    },
+    {
+     "scenario": "additive / Elemental high_scoring_games",
+     "the Tormented": 0.07331,
+     "the Lucky": 0.06304
+    },
+    {
+     "scenario": "multiplicative / Elemental high_scoring_games",
+     "the Tormented": 0.07424,
+     "the Lucky": 0.06408
     }
    ],
    "max_regret": {
     "the Tormented": 0.01182,
-    "the Lucky": 0.02128
+    "the Lucky": 0.02955
    },
    "minimax_choice": "the Tormented"
   },
@@ -731,7 +1314,7 @@
     "sha256": "507264727f41d993fe61b6155de1b404c2741658b0ffe99bf09d3b89f3f3e412",
     "coverage_complete": true
    },
-   "generated_utc": "2026-08-12T14:48:12+00:00"
+   "generated_utc": "2026-08-12T16:09:25+00:00"
   },
   "all_eight_closed": false,
   "suffix_scope": {

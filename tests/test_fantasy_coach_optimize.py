@@ -281,6 +281,76 @@ def test_the_hierarchical_bootstrap_resamples_events_as_well_as_series(monkeypat
     assert len({s for s in seen}) > 1
 
 
+# ---------------------------------------------- incomplete predicates and dependence
+
+def test_elemental_is_not_recorded_as_an_exact_predicate():
+    """The flag is isaquatic; the condition is Aquatic, Fiery or Icy. Those are not the same."""
+    assert co.PREFIX_FLAG["Elemental"] == ("isaquatic", "lower_bound")
+    assert co.PREFIX_FLAG["Otherworldly"][1] == "lower_bound"
+    assert co.PREFIX_FLAG["Crimson"][1] == "exact"
+    src = inspect.getsource(co)
+    assert "exact Elemental" not in src
+
+
+def test_unseen_prefix_triggers_can_be_forced_onto_chosen_games():
+    """The whole point of the sensitivity: place the unseen mass where it hurts most."""
+    cats = {7: {"isaquatic": True}, 8: {"isaquatic": False}}
+    heroes = {(1, 10): 8, (2, 10): 8}
+    fn = co.joint_bonus_fn("Elemental", None, "additive", heroes, cats, {})
+    assert fn(1, 10) == 0.0
+    forced = co.joint_bonus_fn("Elemental", None, "additive", heroes, cats, {},
+                               extra_prefix=frozenset({(1, 10)}))
+    assert forced(1, 10) == pytest.approx(co.PREFIX_BONUS["Elemental"] / 100)
+    assert forced(2, 10) == 0.0
+
+
+def test_the_adversarial_assignment_targets_the_rival_suffix_games():
+    plan = {10: {"games": [1, 2, 3, 4], "already": set(), "n_extra": 2}}
+    table = {(m, 10): {"the Lucky": m in (3, 4)} for m in (1, 2, 3, 4)}
+    got = co.assign_missing(plan, "adversarial_to_leader", table, "the Lucky")
+    assert got == frozenset({(3, 10), (4, 10)})
+
+
+def test_role_random_streams_are_controllable_and_couple_by_organisation():
+    """Core and Support are the same club, so at TI they play the same series."""
+    orgs = {"core": "Xtreme Gaming", "mid": "Team Yandex", "support": "Xtreme Gaming"}
+    by_org = co.role_streams(orgs, "by_organization")
+    assert by_org["core"] == by_org["support"] != by_org["mid"]
+    indep = co.role_streams(orgs, "independent")
+    assert len(set(indep.values())) == 3
+    common = co.role_streams(orgs, "common")
+    assert len(set(common.values())) == 1
+
+
+def test_dependence_changes_the_quantiles_but_not_the_mean():
+    """A dependence assumption is not neutral: it drives every tail it touches."""
+    per = {"E": {f"s{i}": {2 * i: {10: float(i)}, 2 * i + 1: {10: float(i)}}
+                 for i in range(1, 40)}}
+    ri = {"a": (per, 1, np.full(6000, 1), 1.0), "b": (per, 1, np.full(6000, 1), 1.0)}
+    zero = lambda _r: co._zero        # noqa: E731
+    common = co.account_period_draws(ri, zero, {"a": 1, "b": 1})
+    indep = co.account_period_draws(ri, zero, {"a": 1, "b": 2})
+    assert common.mean() == pytest.approx(indep.mean(), rel=0.06)
+    assert np.percentile(common, 95) > np.percentile(indep, 95)     # perfect coupling fattens it
+
+
+def test_recency_weights_come_from_dates_and_are_deterministic():
+    dates = {"old": 0, "new": 90 * 86400}
+    w = co.recency_weights(["old", "new"], 90, dates)
+    assert w["new"] == pytest.approx(1.0)
+    assert w["old"] == pytest.approx(0.5)          # exactly one half-life older
+    assert co.recency_weights(["old", "new"], None, dates) == {"old": 1.0, "new": 1.0}
+    assert w == co.recency_weights(["old", "new"], 90, dates)
+
+
+def test_a_weighted_projection_follows_the_weights():
+    scores = {"lo": {"s": 10.0}, "hi": {"s": 100.0}}
+    counts = np.full(500, 1)
+    assert co.project_period(scores, counts) == pytest.approx(55.0)
+    assert co.project_period(scores, counts, weights={"lo": 0.0, "hi": 1.0}) == pytest.approx(100.0)
+    assert co.project_period(scores, counts, weights={"lo": 3.0, "hi": 1.0}) == pytest.approx(32.5)
+
+
 # --------------------------------------------------------- what the public numbers mean
 
 def test_the_community_categories_overlap_so_a_share_of_the_eight_is_not_a_denominator():

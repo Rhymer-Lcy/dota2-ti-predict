@@ -20,11 +20,13 @@ the reported gain is a paired comparison rather than the difference of two noisy
 
 What can and cannot be priced is a property of the evidence, not of convenience:
 
-  prefixes  three are exact (red / blue / green), two are LOWER BOUNDS (the community hero table
-            tags a strict subset of each condition), and three have no category table at all.
-  suffixes  six are exact. the Tormented is bounded from above by deaths that no enemy hero is
-            credited with, which is an exact zero whenever that count is zero. the Cruel needs
-            positions and is genuinely unavailable.
+  prefixes  three are exact (red / blue / green). Elemental and Otherworldly are INCOMPLETE
+            PREDICATES -- the community table tags a strict subset of each condition, so their
+            scores are lower bounds and the unseen mass is handled by an assignment sensitivity,
+            not by calling the result exact. Three prefixes have no category table at all.
+  suffixes  seven are scored exactly, the Tormented among them: its trigger is read straight off
+            npc_dota_miniboss in killed_by. Only the Cruel is unavailable, because its condition
+            is positional and no field carries a death position.
 """
 import argparse
 import csv
@@ -245,7 +247,7 @@ def _event_pool(scores_by_event, event):
     return np.array([ser[sid] for sid in sorted(ser)], dtype=float)
 
 
-def project_period(scores_by_event, counts, seed=SEED):
+def project_period(scores_by_event, counts, seed=SEED, weights=None):
     """Event-equal period projection. THE single primitive; production and bootstrap both call it.
 
     A historical event is treated as one period-like block. Within an event, a simulated TI period
@@ -264,7 +266,7 @@ def project_period(scores_by_event, counts, seed=SEED):
     counts = np.asarray(counts)
     width = int(counts.max()) if counts.size else 0
     mask = np.arange(width)[None, :] < counts[:, None]
-    per_event = []
+    per_event, wts = [], []
     for event in sorted(scores_by_event):
         pool = _event_pool(scores_by_event, event)
         if pool.size == 0:
@@ -272,9 +274,36 @@ def project_period(scores_by_event, counts, seed=SEED):
         idx = rng.integers(0, pool.size, size=(counts.size, width))
         vals = np.where(mask, pool[idx], -np.inf)
         per_event.append(float(vals.max(axis=1).mean()))
-    if not per_event:
+        wts.append(1.0 if weights is None else float(weights.get(event, 0.0)))
+    if not per_event or not sum(wts):
         return float("nan")
-    return float(np.mean(per_event))          # equal weight per event, never per series
+    # weight per EVENT, never per series. Equal weights are the default, but they are a modelling
+    # choice, so the door is left open to a recency family rather than hard-coded shut.
+    return float(np.average(per_event, weights=wts))
+
+
+def event_end_dates():
+    """Unix time of each event's last match, straight from the fetched match list."""
+    out = {}
+    for _mid, lg, ts in fp.target_matches(fp.DEFAULT_LEAGUES):
+        key = str(lg)
+        out[key] = max(out.get(key, 0), int(ts))
+    return out
+
+
+def recency_weights(events, half_life_days, dates=None):
+    """Exponential decay on event age, anchored at the most recent event in the window.
+
+    Pre-registered family: the half-lives are stated before the results are looked at, and the
+    weights come from the event's own end date, so nothing here can be tuned to produce a winner.
+    A half-life of None means equal weights.
+    """
+    if half_life_days is None:
+        return {e: 1.0 for e in events}
+    dates = dates or event_end_dates()
+    anchor = max(dates[e] for e in events if e in dates)
+    return {e: 0.5 ** (((anchor - dates[e]) / 86400.0) / half_life_days)
+            for e in events if e in dates}
 
 
 def project_period_pooled(scores_by_event, counts, seed=SEED):
@@ -452,7 +481,71 @@ def summarise_gap(draws, name_a, name_b):
 STACKINGS = ("additive", "multiplicative")
 
 
-def joint_bonus_fn(prefix, suffix, stacking, heroes, cats, table):
+def missing_prefix_mass(role_inputs, prefix, heroes, cats, community, name_of, key=None):
+    """Player-games the Elemental predicate should fire on but our hero flag cannot see.
+
+    The flag available to us is isaquatic; the client's condition is Aquatic, Fiery OR Icy. No
+    source recovers the full membership, so the shortfall is estimated per player as the community
+    frequency for that prefix minus our own observed flag rate, and converted to a whole number of
+    that player's games. It is an estimate of a COUNT, deliberately, so it can be assigned to
+    specific games and pushed through the layering rather than smeared as an average.
+    """
+    key = key or prefix.lower()
+    flag = PREFIX_FLAG[prefix][0]
+    out = {}
+    for _role, (per, _n, _c, _b) in role_inputs.items():
+        for ev in per.values():
+            for by_match in ev.values():
+                for mid, by_acct in by_match.items():
+                    for acct in by_acct:
+                        out.setdefault(acct, []).append(mid)
+    plan = {}
+    for acct, mids in out.items():
+        mids = sorted(set(mids))
+        name = name_of.get(acct)
+        comm = community.get(name, {}).get(key)
+        if comm is None:
+            continue
+        fires = [m for m in mids if cats.get(heroes.get((m, acct)), {}).get(flag)]
+        ours = len(fires) / len(mids)
+        short = max(0.0, comm / 100.0 - ours)
+        plan[acct] = {"games": mids, "already": set(fires),
+                      "n_extra": int(round(short * len(mids)))}
+    return plan
+
+
+def assign_missing(plan, policy, table, favour_suffix=None, scores=None):
+    """Which player-games the unseen Fiery/Icy triggers are placed on, under a stated policy.
+
+    'adversarial_to_leader' is the one that matters: it hands every unseen trigger to the games
+    where the RIVAL suffix fires, maximising the rival's prefix-by-suffix interaction and its
+    reordering advantage. If the leader survives that, the missing membership cannot be what is
+    carrying it.
+    """
+    rng = np.random.default_rng(SEED)
+    chosen = set()
+    for acct, info in sorted(plan.items()):
+        pool = [m for m in info["games"] if m not in info["already"]]
+        if not pool or not info["n_extra"]:
+            continue
+        k = min(info["n_extra"], len(pool))
+        if policy == "random":
+            pick = rng.choice(len(pool), size=k, replace=False)
+            chosen.update((pool[i], acct) for i in pick)
+            continue
+        if policy in ("favour_suffix", "adversarial_to_leader"):
+            hot = [m for m in pool if table.get((m, acct), {}).get(favour_suffix)]
+            cold = [m for m in pool if m not in set(hot)]
+            order = hot + cold
+        elif policy == "high_scoring":
+            order = sorted(pool, key=lambda m: -(scores or {}).get((m, acct), 0.0))
+        else:
+            order = pool
+        chosen.update((m, acct) for m in order[:k])
+    return frozenset(chosen)
+
+
+def joint_bonus_fn(prefix, suffix, stacking, heroes, cats, table, extra_prefix=frozenset()):
     """One player-game multiplier for a prefix AND a suffix together.
 
     A coach is one prefix plus one suffix, always both. Pricing them separately against no-coach
@@ -466,7 +559,8 @@ def joint_bonus_fn(prefix, suffix, stacking, heroes, cats, table):
     flag = PREFIX_FLAG[prefix][0] if prefix else None
 
     def fn(mid, acct):
-        ip = 1.0 if flag and cats.get(heroes.get((mid, acct)), {}).get(flag) else 0.0
+        ip = 1.0 if flag and (cats.get(heroes.get((mid, acct)), {}).get(flag)
+                              or (mid, acct) in extra_prefix) else 0.0
         i_s = 1.0 if suffix and table.get((mid, acct), {}).get(suffix) else 0.0
         if stacking == "multiplicative":
             return (1.0 + p * ip) * (1.0 + sfx * i_s) - 1.0
@@ -483,7 +577,7 @@ def account_gain(role_inputs, bonus_for):
     return num / den if den else float("nan")
 
 
-def period_draws(scores_by_event, counts, seed=SEED):
+def period_draws(scores_by_event, counts, seed=SEED, weights=None):
     """Per-draw period scores, not just their mean. The predictive distribution, event-equal.
 
     Each draw picks one historical event uniformly, then plays a TI-length period inside it. The
@@ -496,7 +590,11 @@ def period_draws(scores_by_event, counts, seed=SEED):
     pools = [_event_pool(scores_by_event, e) for e in events]
     counts = np.asarray(counts)
     n, width = counts.size, int(counts.max()) if counts.size else 0
-    pick = rng.integers(0, len(pools), size=n)
+    if weights is None:
+        pick = rng.integers(0, len(pools), size=n)
+    else:
+        wv = np.array([max(0.0, weights.get(e, 0.0)) for e in events], dtype=float)
+        pick = rng.choice(len(pools), size=n, p=wv / wv.sum())
     u = rng.random((n, width))
     mask = np.arange(width)[None, :] < counts[:, None]
     out = np.empty(n)
@@ -509,11 +607,33 @@ def period_draws(scores_by_event, counts, seed=SEED):
     return out
 
 
-def account_period_draws(role_inputs, bonus_for):
+def role_streams(role_orgs, dependence):
+    """Which roles share a random stream in the predictive simulation.
+
+    This is a modelling assumption and was previously made by accident: every role called
+    period_draws with the same default seed, which forced all three to pick the same historical
+    event and the same series indices. That is not neutral -- it leaves the mean untouched but
+    drives every quantile, the paired difference and the whole threshold grid.
+
+    by_organization is the defensible default and is not merely a compromise: Core and Support are
+    both Xtreme Gaming, so at TI they play the SAME series, and coupling them is required rather
+    than optional. Mid is a different organisation and has no reason to be coupled to them.
+    """
+    if dependence == "common":
+        return {role: SEED for role in role_orgs}
+    if dependence == "independent":
+        return {role: SEED + 1009 * i for i, role in enumerate(sorted(role_orgs))}
+    orgs = sorted(set(role_orgs.values()))
+    return {role: SEED + 1009 * orgs.index(org) for role, org in role_orgs.items()}
+
+
+def account_period_draws(role_inputs, bonus_for, streams=None, weights_for=None):
     """Account-level period score per draw: the three roles are summed, not averaged."""
     total = None
     for role, (per, n, counts, _base) in role_inputs.items():
-        d = period_draws(series_scores(per, n, bonus_for(role)), counts)
+        seed = SEED if streams is None else streams[role]
+        d = period_draws(series_scores(per, n, bonus_for(role)), counts, seed,
+                         None if weights_for is None else weights_for(role))
         total = d if total is None else total + d
     return total
 
@@ -677,7 +797,185 @@ def joint_closing(role_inputs, prefix, contenders, heroes, cats, table, priced_s
     return out
 
 
-def scenario_minimax_regret(role_inputs, prefix, contenders, heroes, cats, table):
+HALF_LIVES = (None, 180, 90, 60, 30)      # pre-registered, equal weight first
+
+
+def weighting_sensitivity(role_inputs, prefix, contenders, heroes, cats, table,
+                          stacking="additive"):
+    """The same joint comparison under an exponential recency family keyed to event dates."""
+    a, b = contenders
+    events = sorted({e for _r, (per, n, _c, _bs) in role_inputs.items()
+                     for e in series_scores(per, n, _zero)})
+    dates = event_end_dates()
+    out = []
+    for hl in HALF_LIVES:
+        w = recency_weights(events, hl, dates)
+        num_a = num_b = den = 0.0
+        roles = {}
+        for role, (per, n, counts, _base) in role_inputs.items():
+            base = project_period(series_scores(per, n, _zero), counts, weights=w)
+            if not base:
+                continue
+            ga = project_period(series_scores(per, n, joint_bonus_fn(
+                prefix, a, stacking, heroes, cats, table)), counts, weights=w) / base - 1.0
+            gb = project_period(series_scores(per, n, joint_bonus_fn(
+                prefix, b, stacking, heroes, cats, table)), counts, weights=w) / base - 1.0
+            roles[role] = round(ga - gb, 5)
+            num_a += base * ga
+            num_b += base * gb
+            den += base
+        out.append({"half_life_days": hl, "weights": {e: round(v, 4) for e, v in w.items()},
+                    "a": round(num_a / den, 5), "b": round(num_b / den, 5),
+                    "gap": round((num_a - num_b) / den, 5),
+                    "winner": a if num_a > num_b else b, "by_role_gap": roles})
+    return {"labels": {"a": a, "b": b}, "stacking": stacking,
+            "family": "exponential decay on event end date; half-lives pre-registered",
+            "folds": out,
+            "winner_flips_under_recency": len({f["winner"] for f in out}) > 1}
+
+
+def prefix_membership_sensitivity(role_inputs, prefix, contenders, heroes, cats, table,
+                                  community, name_of):
+    """Does the unseen part of the Elemental predicate decide the suffix comparison?"""
+    a, b = contenders
+    plan = missing_prefix_mass(role_inputs, prefix, heroes, cats, community, name_of)
+    total_extra = sum(v["n_extra"] for v in plan.values())
+    observed = sum(len(v["already"]) for v in plan.values())
+    scores = {}
+    for _role, (per, _n, _c, _bs) in role_inputs.items():
+        for ev in per.values():
+            for by_match in ev.values():
+                for mid, by_acct in by_match.items():
+                    for acct, val in by_acct.items():
+                        scores[(mid, acct)] = val
+    policies = {
+        "none_observed_flag_only": frozenset(),
+        "random": assign_missing(plan, "random", table),
+        "favour_" + a.replace(" ", "_"): assign_missing(plan, "favour_suffix", table, a),
+        "favour_" + b.replace(" ", "_"): assign_missing(plan, "favour_suffix", table, b),
+        "adversarial_to_leader": assign_missing(plan, "adversarial_to_leader", table, b),
+        "high_scoring_games": assign_missing(plan, "high_scoring", table, None, scores),
+    }
+    rows = []
+    for name, extra in policies.items():
+        for stacking in STACKINGS:
+            ga = account_gain(role_inputs, lambda _r, st=stacking, e=extra: joint_bonus_fn(
+                prefix, a, st, heroes, cats, table, e))
+            gb = account_gain(role_inputs, lambda _r, st=stacking, e=extra: joint_bonus_fn(
+                prefix, b, st, heroes, cats, table, e))
+            rows.append({"assignment": name, "stacking": stacking,
+                         "a": round(ga, 5), "b": round(gb, 5), "gap": round(ga - gb, 5),
+                         "winner": a if ga > gb else b})
+    return {"labels": {"a": a, "b": b},
+            "predicate_status": "INCOMPLETE -- the flag available is isaquatic; the client "
+                                "condition is Aquatic, Fiery or Icy, and no source recovers the "
+                                "full membership",
+            "observed_trigger_player_games": observed,
+            "estimated_missing_trigger_player_games": total_extra,
+            "how_missing_mass_was_estimated": "per player, community Elemental frequency minus "
+                                              "our own isaquatic rate, times that player's games",
+            "rows": rows,
+            "winner_flips_under_any_assignment": len({r["winner"] for r in rows}) > 1}
+
+
+def dependence_sensitivity(role_inputs, role_orgs, prefix, contenders, heroes, cats, table,
+                           stacking="additive"):
+    """Quantiles and tails under three cross-role dependence assumptions."""
+    a, b = contenders
+    out = {}
+    for mode in ("by_organization", "independent", "common"):
+        streams = role_streams(role_orgs, mode)
+        da = account_period_draws(role_inputs, lambda _r: joint_bonus_fn(
+            prefix, a, stacking, heroes, cats, table), streams)
+        db = account_period_draws(role_inputs, lambda _r: joint_bonus_fn(
+            prefix, b, stacking, heroes, cats, table), streams)
+        diff = da - db
+        grid = np.percentile(np.concatenate([da, db]), [60, 70, 80, 90, 95])
+        out[mode] = {a: describe_predictive(da), b: describe_predictive(db),
+                     "paired": {"mean": round(float(diff.mean()), 2),
+                                "median": round(float(np.median(diff)), 2),
+                                "P_a_higher": round(float((diff > 0).mean()), 4),
+                                "P_tie": round(float((diff == 0).mean()), 4)},
+                     "threshold_grid": {f"score>={int(t)}":
+                                        {"a": round(float((da >= t).mean()), 4),
+                                         "b": round(float((db >= t).mean()), 4)} for t in grid},
+                     "p95_winner": a if np.percentile(da, 95) > np.percentile(db, 95) else b,
+                     "p90_winner": a if np.percentile(da, 90) > np.percentile(db, 90) else b,
+                     "median_winner": a if np.median(da) > np.median(db) else b,
+                     "threshold_grid_all_same_sign": bool(
+                         len({np.sign(round(float((da >= t).mean() - (db >= t).mean()), 4))
+                              for t in grid} - {0.0}) <= 1)}
+    return {"labels": {"a": a, "b": b},
+            "default": "by_organization",
+            "why_default": "Core and Support are the same organisation, so at TI they play the "
+                           "same series and must share a stream; Mid is a different organisation "
+                           "and has no reason to be coupled to them",
+            "shared_macro_event": "NOT IDENTIFIABLE: the historical events of Xtreme Gaming and "
+                                  "Team Yandex only partly overlap, and nothing aligns a Xtreme "
+                                  "series with a Yandex series inside an event, so a shared-macro "
+                                  "construction cannot be built without inventing the alignment",
+            "modes": out,
+            "p95_winner_stable": len({v["p95_winner"] for v in out.values()}) == 1,
+            "p90_winner_stable": len({v["p90_winner"] for v in out.values()}) == 1,
+            "median_winner_stable": len({v["median_winner"] for v in out.values()}) == 1,
+            "quantiles_agree_within_default": (
+                out["by_organization"]["p90_winner"] == out["by_organization"]["p95_winner"]
+                == out["by_organization"]["median_winner"]),
+            "threshold_grid_consistent_within_default":
+                out["by_organization"]["threshold_grid_all_same_sign"],
+            "verdict": "the predictive tail is NOT a usable discriminator here: which candidate "
+                       "owns the upper tail depends on the quantile chosen and on the cross-role "
+                       "dependence assumption, and the earlier apparent dominance came from every "
+                       "role sharing one random stream, which compressed the spread"}
+
+
+def cruel_joint_breakpoint(role_inputs, prefix, leader, heroes, cats, table,
+                           stacking="additive", rates=(0.02, 0.05, 0.10, 0.20, 0.35, 0.50)):
+    """What match rate the Cruel would need to beat the joint leader, priced the same way.
+
+    The old breakpoint compared a bare suffix against a bare suffix with no prefix in play. The
+    account never faces that: the comparison is Elemental plus the Cruel against Elemental plus
+    the leader. Rates are simulated rather than converted through an attenuation constant, and
+    each is run twice -- triggers scattered at random, and triggers placed on the best games,
+    which is the most generous placement the Cruel could possibly have.
+    """
+    rng = np.random.default_rng(SEED)
+    matches = sorted({m for _r, (per, _n, _c, _b) in role_inputs.items()
+                      for ev in per.values() for ser in ev.values() for m in ser})
+    scores = {}
+    for _role, (per, _n, _c, _b) in role_inputs.items():
+        for ev in per.values():
+            for ser in ev.values():
+                for mid, by_acct in ser.items():
+                    scores[mid] = max(scores.get(mid, 0.0), max(by_acct.values()))
+    target = account_gain(role_inputs, lambda _r: joint_bonus_fn(
+        prefix, leader, stacking, heroes, cats, table))
+    rows = []
+    for rate in rates:
+        k = max(1, int(round(rate * len(matches))))
+        for placement in ("random", "best_games"):
+            if placement == "random":
+                hot = {matches[i] for i in rng.choice(len(matches), size=k, replace=False)}
+            else:
+                hot = set(sorted(matches, key=lambda m: -scores.get(m, 0.0))[:k])
+            fake = {key: {**v, "the Cruel": key[0] in hot} for key, v in table.items()}
+            g = account_gain(role_inputs, lambda _r, f=fake: joint_bonus_fn(
+                prefix, "the Cruel", stacking, heroes, cats, f))
+            rows.append({"assumed_match_rate": rate, "placement": placement,
+                         "joint_gain": round(g, 5), "beats_leader": bool(g > target)})
+    crossing = [r for r in rows if r["beats_leader"]]
+    return {"leader": f"{prefix} + {leader}", "leader_joint_gain": round(target, 5),
+            "stacking": stacking, "rows": rows,
+            "lowest_rate_that_beats_leader": (min(r["assumed_match_rate"] for r in crossing)
+                                              if crossing else None),
+            "decision_relevant": bool(crossing),
+            "not_a_mathematical_exclusion": "no bound on the fountain-death rate exists, so this "
+                                            "is a breakpoint, not a proof. What it shows is how "
+                                            "implausible the required rate is."}
+
+
+def scenario_minimax_regret(role_inputs, prefix, contenders, heroes, cats, table,
+                            weighting=None, membership=None):
     """Real minimax regret over a named scenario family, not the endpoints of an interval.
 
     A bootstrap percentile is not a regret. Regret needs scenarios in which an action can be
@@ -695,13 +993,22 @@ def scenario_minimax_regret(role_inputs, prefix, contenders, heroes, cats, table
         for fold in leave_one_event_out(role_inputs, mk(a), mk(b)):
             scenarios.append({"scenario": f"{stacking} / drop {fold['dropped_event']}",
                               a: fold["a"], b: fold["b"]})
+    for fold in (weighting or {}).get("folds", []):
+        if fold["half_life_days"] is not None:
+            scenarios.append({"scenario": f"recency half-life {fold['half_life_days']}d",
+                              a: fold["a"], b: fold["b"]})
+    for row in (membership or {}).get("rows", []):
+        if row["assignment"] != "none_observed_flag_only":
+            scenarios.append({"scenario": f"{row['stacking']} / Elemental {row['assignment']}",
+                              a: row["a"], b: row["b"]})
     regret = {a: 0.0, b: 0.0}
     for sc in scenarios:
         best = max(sc[a], sc[b])
         for act in (a, b):
             regret[act] = max(regret[act], best - sc[act])
     return {"definition": "max over scenarios of (best action in that scenario minus this action)",
-            "scenario_family": "stacking hypothesis x leave-one-event-out",
+            "scenario_family": "stacking x leave-one-event-out x recency weighting x "
+                               "unseen Elemental membership assignment",
             "scenarios": [{k: (round(v, 5) if isinstance(v, float) else v)
                            for k, v in sc.items()} for sc in scenarios],
             "max_regret": {k: round(v, 5) for k, v in regret.items()},
@@ -779,6 +1086,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
     out_roles = {}
     role_matches = {}
     role_inputs = {}
+    role_orgs = {}
     # decidable, NOT "observed to fire": a suffix whose trigger can be evaluated on our data is
     # priced even when it never fires, because a measured zero is a result and not a gap
     priced_suffixes = [s for s in SUFFIX_BONUS if any(s in v for v in table.values())]
@@ -828,6 +1136,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
 
         role_matches[role] = (org, scored_matches(per, len(accounts)))
         role_inputs[role] = (per, len(accounts), counts, base)
+        role_orgs[role] = org
         out_roles[role] = {"organization": org, "priced": True,
                            "players": len(accounts), "dropped_slots": drop,
                            "player_maps_scored": len(maps),
@@ -1044,14 +1353,22 @@ def build(state_path, titles_path=None, draws=DRAWS):
                 "every rival is scoreable, but the leader is NOT separated from the runner-up: "
                 f"P(leader ahead) = {gap['p_a_ahead'] if gap else 'n/a'}")}
 
-    joint = scen = hier = loo = None
+    joint = scen = hier = loo = weighting = membership = dependence = None
+    cruel = None
     current_prefix = "Elemental"
     if role_inputs and top and runner and current_prefix in PREFIX_FLAG:
         contenders = (top, runner)
         joint = joint_closing(role_inputs, current_prefix, contenders, heroes, cats, table,
                               priced_suffixes)
+        weighting = weighting_sensitivity(role_inputs, current_prefix, contenders, heroes, cats,
+                                          table)
+        membership = prefix_membership_sensitivity(role_inputs, current_prefix, contenders,
+                                                   heroes, cats, table, community, name_of)
+        dependence = dependence_sensitivity(role_inputs, role_orgs, current_prefix, contenders,
+                                            heroes, cats, table)
+        cruel = cruel_joint_breakpoint(role_inputs, current_prefix, top, heroes, cats, table)
         scen = scenario_minimax_regret(role_inputs, current_prefix, contenders, heroes, cats,
-                                       table)
+                                       table, weighting, membership)
 
         def mk(suf, st="additive"):
             return lambda _r: joint_bonus_fn(current_prefix, suf, st, heroes, cats, table)
@@ -1067,19 +1384,52 @@ def build(state_path, titles_path=None, draws=DRAWS):
         loo = {"folds": loo, "winner_flips_when_an_event_is_dropped": flips,
                "labels": {"a": top, "b": runner},
                "event_sensitive": flips}
+        # Four DIFFERENT kinds of evidence, reported separately. They are not votes to be
+        # counted: the quantiles, the threshold grid and the stacking rules are computed off the
+        # same series and move together, so tallying them would dress correlation up as
+        # corroboration.
         suffix_grade["joint_decision"] = {
             "compared": f"{current_prefix} + {top} vs {current_prefix} + {runner}",
-            "additive_winner": joint["by_stacking"]["additive"]["winner"],
-            "multiplicative_winner": joint["by_stacking"]["multiplicative"]["winner"],
-            "stacking_robust": (joint["by_stacking"]["additive"]["winner"]
-                                == joint["by_stacking"]["multiplicative"]["winner"]),
-            "leave_one_event_out_robust": not flips,
-            "minimax_choice": scen["minimax_choice"],
-            "hierarchical_p_leader_ahead": hier["p_a_ahead"]}
+            "A_point_estimate": {
+                "additive": joint["by_stacking"]["additive"]["gap"],
+                "multiplicative": joint["by_stacking"]["multiplicative"]["gap"],
+                "winner": joint["by_stacking"]["additive"]["winner"],
+                "stacking_robust": (joint["by_stacking"]["additive"]["winner"]
+                                    == joint["by_stacking"]["multiplicative"]["winner"])},
+            "B_estimator_uncertainty": {
+                "within_event_p_leader_ahead": gap["p_a_ahead"],
+                "hierarchical_p_leader_ahead": hier["p_a_ahead"],
+                "separated_at_95": hier["separated_at_95"]},
+            "C_modelling_scenario_robustness": {
+                "leave_one_event_out_robust": not flips,
+                "recency_robust": not weighting["winner_flips_under_recency"],
+                "elemental_membership_robust": not membership[
+                    "winner_flips_under_any_assignment"],
+                "minimax_choice": scen["minimax_choice"],
+                "max_regret": scen["max_regret"]},
+            "D_predictive_utility": {
+                "mean_winner": top if dependence["modes"]["by_organization"][
+                    "paired"]["mean"] > 0 else runner,
+                "p95_winner_stable_across_dependence": dependence["p95_winner_stable"],
+                "p90_winner_stable_across_dependence": dependence["p90_winner_stable"],
+                "median_winner_stable_across_dependence": dependence["median_winner_stable"],
+                "quantiles_agree_within_default": dependence["quantiles_agree_within_default"],
+                "threshold_grid_consistent": dependence[
+                    "threshold_grid_consistent_within_default"],
+                "usable_as_evidence": (dependence["p90_winner_stable"]
+                                       and dependence["p95_winner_stable"]
+                                       and dependence["median_winner_stable"]),
+                "default_dependence": dependence["default"]},
+            "not_a_vote_count": "these four are different KINDS of evidence, not independent "
+                                "votes. They are stated separately and never tallied."}
 
     return {"state": os.path.basename(state_path), "seed": SEED, "draws": draws,
             "suffix_grade": suffix_grade,
             "joint_closing": joint,
+            "weighting_sensitivity": weighting,
+            "prefix_membership_sensitivity": membership,
+            "dependence_sensitivity": dependence,
+            "cruel_joint_breakpoint": cruel,
             "scenario_minimax_regret": scen,
             "hierarchical_bootstrap": hier,
             "leave_one_event_out": loo,
@@ -1323,24 +1673,8 @@ def assemble(computed, state_path):
                 "suffix_choice": {
                     "grade": computed["suffix_grade"]["grade"],
                     "grade_basis": computed["suffix_grade"],
-                    "why": "every match in the five-league window has been fetched, so the "
-                           "first-blood bounds are population bounds rather than prefix bounds. "
-                           "the Lucky beats the next scoreable suffix by a factor of 2.3, and "
-                           "the Patient and the Flayed Twins Acolyte are ruled out on zero "
-                           "triggers in 623 matches.",
-                    "not_claimed": "this is not a proven optimum over all eight. Two residuals "
-                                   "are named below and neither is closed by measurement.",
-                    "residual_the_Cruel": "unmeasured. It would have to fire on 13.5 percent of "
-                                          "matches to compete if uncorrelated with performance, "
-                                          "or 61.2 percent if tied to losing, which is where a "
-                                          "fountain death belongs.",
-                    "residual_the_Tormented": "bounded at 5.78 percent on complete coverage, "
-                                              "which leaves it needing an attenuation about a "
-                                              "third above the largest ever measured. Excluded "
-                                              "under that assumption, not by proof.",
-                    "what_would_reopen_it": "a measured fountain-death rate above 13.5 percent, "
-                                            "or a demonstration that a rare trigger can attenuate "
-                                            "past 2.4"},
+                    "note": "every figure in this block is generated; nothing here is carried "
+                            "over from an earlier round"},
                 "prefix_Elemental": {
                     "grade": "BEST-KNOWN PROVISIONAL",
                     "why": "first under every construction tried, and its own figure is a lower "
