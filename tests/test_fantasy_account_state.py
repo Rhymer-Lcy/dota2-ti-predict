@@ -280,3 +280,47 @@ def test_the_ruleset_no_longer_charges_a_distinctness_constraint():
     assert r["structure"]["distinct_teams_status"] == "CONFIRMED"
     u = {x["id"]: x for x in r["unknowns"]}["distinct_teams_required"]
     assert u["decision_status"] == "IRRELEVANT" and u["answer"] is False
+
+
+# ---- state 5: after the mid team change --------------------------------------------------------
+STATE5_PATH = _os.path.join("predictions", "ti2026", "fantasy",
+                            "account_state_target_20260812b.json")
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE5_PATH), reason="state 5 not recorded")
+def test_state_five_reproduces_the_client_and_kept_its_banner():
+    s5, s4 = acc.load_state(STATE5_PATH), acc.load_state(STATE4_PATH)
+    for role in acc.ROLES:
+        w = acc.banner_weights(s5, role)
+        for i, slot in enumerate(s5["banners"][role]["slots"]):
+            assert w[i] == pytest.approx(slot["displayed_multiplier"]), f"{role} slot {i + 1}"
+    assert s4["banners"]["mid"]["client_team"] != s5["banners"]["mid"]["client_team"]
+    assert s4["banners"]["mid"]["slots"] == s5["banners"]["mid"]["slots"]
+    assert s4["roll_tokens"] == s5["roll_tokens"] == 38
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE5_PATH), reason="state 5 not recorded")
+def test_dropping_distinctness_does_not_make_the_roles_independent():
+    """The coach is shared, so the objective is joint; it is separable only GIVEN the coach."""
+    f = acc.load_state(STATE5_PATH)["resolved_this_round"][
+        "roles_are_not_independent_but_the_problem_factorises"]
+    assert "does NOT make the three roles independent" in f["claim"]
+    assert "separable GIVEN the coach" in f["claim"]
+    assert "16^3" in f["claim"]
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE5_PATH), reason="state 5 not recorded")
+def test_the_support_switch_is_blocked_by_an_unscoreable_slot():
+    """One of Support's three slots has no public source, and the breakpoint sits inside it."""
+    m = acc.load_state(STATE5_PATH)["open_mechanics"]["support_watchers_gap"]
+    assert m["status"] == "UNRESOLVED"
+    assert m["decision_status"].startswith("BLOCKING")
+    assert "1.95" in m["breakpoint"] and "3.38" in m["breakpoint"]
+
+
+@pytest.mark.skipif(not _os.path.exists(STATE5_PATH), reason="state 5 not recorded")
+def test_the_coach_suffix_gain_is_recorded_with_its_extreme_value_reason():
+    c = acc.load_state(STATE5_PATH)["resolved_this_round"]["coach_suffix_is_the_live_lever"]
+    assert c["current"].startswith("the Clutch") and c["best_computable"].startswith("the Lucky")
+    assert c["gain"] > 0 and 0 < c["relative_gain"] < 0.10
+    assert "MAXIMUM over series" in c["why"]
