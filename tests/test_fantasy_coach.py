@@ -147,6 +147,28 @@ def test_an_exclusion_that_rests_on_an_assumption_says_so(art):
         assert "under a stated assumption" in t["verdict"] or "LIVE" in t["verdict"]
 
 
+def test_the_freeze_is_derived_from_rival_status_and_not_asserted(art):
+    """No suffix may be frozen while a rival sits in an unresolved evidence class."""
+    g = art["exact_pricing"]["suffix_grade"]
+    cls = art["exact_pricing"]["suffix_classification"]
+    unresolved = [s for s, c in cls.items() if c not in ("COMPLETE", "UNAVAILABLE")]
+    assert g["unresolved_rivals"] == unresolved
+    if unresolved:
+        assert not g["grade"].startswith("FROZEN"), unresolved
+        assert g["grade"].startswith("DECISION-PREFERRED")
+    else:
+        assert g["grade"].startswith("FROZEN")
+    assert art["label_by_component"]["suffix_the_Lucky"]["grade"] == g["grade"]
+
+
+def test_the_tormentor_residual_inference_is_recorded_as_withdrawn(art):
+    claims = [w["claim"] for w in art["withdrawn_claims"]]
+    assert any("upper bound on the Tormented" in c for c in claims)
+    w = next(w for w in art["withdrawn_claims"] if "upper bound on the Tormented" in w["claim"])
+    assert w["status"] == "WITHDRAWN"
+    assert "killed_by is not hero-only" in w["why"]
+
+
 def test_the_artifact_records_how_to_regenerate_itself(art):
     assert art["generated_by"] == "ti_predict.fantasy.coach_optimize"
     assert "--state" in art["regenerate"]

@@ -290,6 +290,9 @@ def suffix_trigger_table(rows, extras):
         if fb is not None:
             t["the Patient"] = fb >= FIRST_BLOOD_LATE
             t["the Flayed Twins Acolyte"] = fb < 0
+        if e is not None and e.get("all_tormentor_deaths") is not None:
+            # counted off the recorded killer, not inferred from a residual
+            t["the Tormented"] = e["all_tormentor_deaths"] > 0
         out[key] = t
     return out
 
@@ -319,23 +322,37 @@ def gain_table(per, n_players, counts, settings):
                   for name, fn in settings.items()}
 
 
-def tormented_bound(extras, scope="all"):
-    """Upper bound on the Tormented's trigger rate.
+def tormented_rate(extras, scope="all"):
+    """the Tormented's trigger rate, counted directly off the recorded killer.
 
-    killed_by credits enemy heroes only. A death it does not account for is a death to something
-    that is not a hero -- a creep, Roshan, a tower, or a Tormentor. That is a genuine upper bound,
-    and where the count is zero it is an exact negative: nobody in that game died to a Tormentor.
+    This replaces a withdrawn heuristic. The old code took deaths that `killed_by` did not account
+    for and called them "deaths to something that is not a hero", then used that as an upper bound
+    on Tormentor deaths. `killed_by` is not hero-only -- OpenDota documents it only as who killed
+    the player, and this window's own inventory contains creep and building killers -- so the
+    residual was never the quantity it was named after, and a Tormentor death recorded IN
+    `killed_by` contributes nothing to it. The residual is therefore not an upper bound on
+    anything; it is counted here only to show how small it is.
     """
-    key = f"{scope}_unattributed_deaths"
+    key = f"{scope}_tormentor_deaths"
     vals = [e[key] for e in extras.values() if e.get(key) is not None]
     if not vals:
         return None
     n = len(vals)
+    fired = sum(1 for v in vals if v)
+    unrec = [e.get(f"{scope}_deaths_with_no_recorded_killer") or 0 for e in extras.values()]
     return {"matches": n,
-            "matches_with_any_unattributed_death": sum(1 for v in vals if v),
-            "upper_bound_trigger_rate": round(sum(1 for v in vals if v) / n, 4),
-            "exact_negatives": sum(1 for v in vals if not v),
-            "note": "an upper bound; every zero is an exact negative"}
+            "matches_with_a_tormentor_death": fired,
+            "trigger_rate": round(fired / n, 5),
+            "rate_upper_95_rule_of_three": round(3.0 / n, 5) if not fired else None,
+            "attribution": "direct: the killer recorded for the death is the Tormentor",
+            "deaths_with_no_recorded_killer": sum(unrec),
+            "residual_share_of_all_deaths": round(
+                sum(unrec) / max(1, sum(e.get(f"{scope}_deaths") or 0
+                                        for e in extras.values())), 6),
+            "why_the_residual_is_not_a_bound":
+                "killed_by carries creep and building killers, so an unrecorded-killer death is "
+                "a parser gap, not a non-hero death; and a Tormentor death that IS recorded never "
+                "enters it. It bounds neither direction."}
 
 
 def breakpoint_rate(target_gain, bonus_percent, att):
@@ -553,8 +570,6 @@ def build(state_path, titles_path=None, draws=DRAWS):
     for s_name in SUFFIX_BONUS:
         if s_name == "the Cruel":
             classification[s_name] = "UNAVAILABLE"
-        elif s_name == "the Tormented":
-            classification[s_name] = "BOUNDED"
         elif s_name not in priced_suffixes:
             classification[s_name] = "UNAVAILABLE"
         elif decided.get(s_name, 0) >= len(all_scored):
@@ -611,48 +626,20 @@ def build(state_path, titles_path=None, draws=DRAWS):
             "min": min(fb), "max": max(fb), "threshold_for_the_Patient": FIRST_BLOOD_LATE,
             "threshold_for_the_Acolyte": 0}
 
-    covered = all_scored & set(extras)
-    tb_pop = tormented_bound(extras, "all")
-    if tb_pop:
+    tr = tormented_rate(extras, "all")
+    if tr:
         population["the Tormented"] = {
-            "unique_matches_in_population": tb_pop["matches"],
-            "matches_with_any_unattributed_death": tb_pop["matches_with_any_unattributed_death"],
-            "rate_or_rule_of_three_upper_95": tb_pop["upper_bound_trigger_rate"],
+            "unique_matches_in_population": tr["matches"],
+            "matches_triggered": tr["matches_with_a_tormentor_death"],
+            "rate_or_rule_of_three_upper_95": (tr["trigger_rate"] if tr["trigger_rate"]
+                                               else tr["rate_upper_95_rule_of_three"]),
             "gain_at_bound_and_max_observed_attenuation": round(
-                tb_pop["upper_bound_trigger_rate"] * SUFFIX_BONUS["the Tormented"] / 100.0
-                * hi_att, 5),
+                (tr["trigger_rate"] or tr["rate_upper_95_rule_of_three"] or 0.0)
+                * SUFFIX_BONUS["the Tormented"] / 100.0 * hi_att, 5),
+            "attribution": tr["attribution"],
             "basis": "all fetched matches in the same five leagues, not only the 84 scored",
-                "scope_of_validity": ("population" if complete_fetch
-                                      else "observed chronological prefix only")}
-    tb = tormented_bound({m: extras[m] for m in covered}, "all")
-    if tb and "the Tormented" in unpriced:
-        u = unpriced["the Tormented"]
-        # the conservative of the two bounds: the 84-match in-sample one is often zero purely
-        # because so few scored matches have extras yet, and a zero on 40 trials is not evidence
-        pop = population.get("the Tormented", {}).get("rate_or_rule_of_three_upper_95", 0.0)
-        conservative = max(tb["upper_bound_trigger_rate"], pop)
-        u.update({"measured_upper_bound_rate": conservative,
-                  "in_sample_upper_bound": tb["upper_bound_trigger_rate"],
-                  "population_upper_bound": pop,
-                  "unique_matches_bounded": tb["matches"],
-                  "exact_negatives": tb["exact_negatives"],
-                  "bound_method": tb["note"],
-                  "classification": "PARTIAL-BOUNDED"})
-        need = (totals[best_suffix] / (conservative * SUFFIX_BONUS["the Tormented"] / 100.0)
-                if conservative else None)
-        u["required_attenuation_to_compete"] = round(need, 3) if need else None
-        u["largest_attenuation_measured"] = round(hi, 3)
-        u["verdict"] = (
-            f"EXCLUDED at +{SUFFIX_BONUS['the Tormented']}% under a stated assumption: its "
-            f"trigger rate is at most {conservative:.4f} on complete coverage, so to match the "
-            f"Lucky it would need an attenuation of {need:.2f} -- "
-            f"{need / hi - 1:.0%} above the largest value ({hi:.2f}) measured on any suffix that "
-            f"can be scored. Nothing proves that is impossible; there is simply no mechanism for "
-            f"it, since a Tormentor death is at most weakly related to how the game went."
-            if conservative < u["breakpoint_rate_if_uncorrelated"]
-            else f"LIVE at +{SUFFIX_BONUS['the Tormented']}%: the upper bound "
-                 f"({conservative:.4f}) leaves room to reach the breakpoint "
-                 f"({u['breakpoint_rate_if_uncorrelated']:.4f})")
+            "scope_of_validity": ("population" if complete_fetch
+                                  else "observed chronological prefix only")}
     if "the Cruel" in unpriced:
         unpriced["the Cruel"]["classification"] = "UNAVAILABLE"
         unpriced["the Cruel"]["why"] = (
@@ -664,7 +651,28 @@ def build(state_path, titles_path=None, draws=DRAWS):
             "belongs at the LOW end of the measured range, which is where its breakpoint is "
             "least achievable")
 
+    # The suffix grade is DERIVED, never asserted. A freeze requires that the best suffix is
+    # ranked ahead of every rival that can actually be scored, and that no rival is sitting in an
+    # unresolved state. While the Tormented was priced off a withdrawn heuristic, it was such a
+    # rival, and the freeze it supported had to come off with it.
+    scoreable = [x for x in priced_suffixes if classification[x] == "COMPLETE"]
+    unresolved = [x for x, c in classification.items()
+                  if c not in ("COMPLETE", "UNAVAILABLE")]
+    top = max(scoreable, key=lambda x: totals[x]) if scoreable else None
+    frozen = bool(top) and not unresolved
+    suffix_grade = {
+        "best": top,
+        "grade": ("FROZEN FOR PERIOD 0 ON COMPLETE OBSERVED COVERAGE" if frozen
+                  else "DECISION-PREFERRED / BEST-KNOWN ON CURRENT EVIDENCE"),
+        "every_rival_scoreable": not unresolved,
+        "unresolved_rivals": unresolved,
+        "unavailable_rivals": [x for x, c in classification.items() if c == "UNAVAILABLE"],
+        "why": ("every rival is either scored exactly or structurally unavailable, and the best "
+                "is ranked ahead of all of them" if frozen else
+                f"cannot freeze while these are unresolved: {unresolved}")}
+
     return {"state": os.path.basename(state_path), "seed": SEED, "draws": draws,
+            "suffix_grade": suffix_grade,
             "population_bounds": population,
             "missingness": missingness,
             "suffix_classification": classification,
@@ -688,8 +696,8 @@ def build(state_path, titles_path=None, draws=DRAWS):
                                 "lower_bound": [p for p, (_f, k) in PREFIX_FLAG.items()
                                                 if k == "lower_bound"],
                                 "no_category_table": list(PREFIX_NO_TABLE)},
-            "tormented_bound_all_players": tormented_bound(extras, "all"),
-            "tormented_bound_roster_only": tormented_bound(extras, "roster"),
+            "tormented_attribution_all_players": tormented_rate(extras, "all"),
+            "tormented_attribution_roster_only": tormented_rate(extras, "roster"),
             "community_frequencies_parsed": bool(titles_path)}
 
 
@@ -768,6 +776,24 @@ WITHDRAWN_CEILING = {
     "replaced_by": "untabled_prefix_total_extrapolation, named and treated as an extrapolation",
 }
 
+WITHDRAWN_TORMENTOR = {
+    "claim": "deaths that killed_by does not account for are deaths to something that is not a "
+             "hero, so their rate is an upper bound on the Tormented's trigger rate (5.78 percent "
+             "on this window)",
+    "status": "WITHDRAWN",
+    "why": "killed_by is not hero-only. OpenDota documents it only as who killed the player, and "
+           "this window's own killer inventory contains creep and building entities. Two "
+           "consequences, both fatal to the old reading: the residual is not 'non-hero deaths', "
+           "and a Tormentor death that IS recorded in killed_by contributes nothing to it, so the "
+           "residual does not bound Tormentor deaths from above at all. The residual's size "
+           "confirms this independently -- 53 of 33,128 deaths, 0.16 percent, far too few to be "
+           "every death to a tower, creep, Roshan or deny in 623 professional games.",
+    "replaced_by": "direct attribution: the Tormented is counted off the recorded killer, which "
+                   "makes it exactly scoreable rather than bounded",
+    "consequence_at_the_time": "the freeze that rested on that bound was withdrawn with it, and "
+                               "is restored only if direct counting leaves the Lucky ahead",
+}
+
 WITHDRAWN = {
     "claim": "the community frequencies admit two equally admissible readings, a percentage "
              "reading and a normalised-count reading, and the recommendation is ROBUST across "
@@ -807,7 +833,8 @@ def assemble(computed, state_path):
             "label": "BEST-KNOWN PROVISIONAL -- not FINAL, not a ROBUST OPTIMUM",
             "label_by_component": {
                 "suffix_the_Lucky": {
-                    "grade": "FROZEN FOR PERIOD 0 ON COMPLETE OBSERVED COVERAGE",
+                    "grade": computed["suffix_grade"]["grade"],
+                    "grade_basis": computed["suffix_grade"],
                     "why": "every match in the five-league window has been fetched, so the "
                            "first-blood bounds are population bounds rather than prefix bounds. "
                            "the Lucky beats the next scoreable suffix by a factor of 2.3, and "
@@ -838,7 +865,8 @@ def assemble(computed, state_path):
             "method": METHOD,
             "provenance": PROVENANCE,
             "suffix_bonus_cross_check": SUFFIX_BONUS_CROSS_CHECK,
-            "withdrawn_claims": [WITHDRAWN, WITHDRAWN_COMPLETION, WITHDRAWN_CEILING],
+            "withdrawn_claims": [WITHDRAWN, WITHDRAWN_COMPLETION, WITHDRAWN_CEILING,
+                                 WITHDRAWN_TORMENTOR],
             "withdrawn_claim": WITHDRAWN,
             "exact_pricing": computed}
 

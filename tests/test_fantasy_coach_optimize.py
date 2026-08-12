@@ -8,6 +8,7 @@ that a trigger uncorrelated with anything is worth exactly its frequency implies
 """
 import inspect
 import json
+from collections import Counter
 import math
 import os
 
@@ -15,6 +16,7 @@ import numpy as np
 import pytest
 
 from ti_predict.fantasy import coach_optimize as co
+from ti_predict.fantasy import fetch_match_extras as fme
 from ti_predict.fantasy import questions as fq
 
 
@@ -145,13 +147,89 @@ def test_a_slot_with_no_public_source_is_dropped_loudly_not_zeroed_quietly():
     assert drop == ["watchers_taken"]
 
 
-def test_the_tormentor_bound_treats_a_zero_as_an_exact_negative():
-    """killed_by credits heroes only, so no unaccounted death means no Tormentor death."""
-    extras = {1: {"all_unattributed_deaths": 0}, 2: {"all_unattributed_deaths": 0},
-              3: {"all_unattributed_deaths": 2}, 4: {"all_unattributed_deaths": 0}}
-    got = co.tormented_bound(extras, "all")
-    assert got["exact_negatives"] == 3
-    assert got["upper_bound_trigger_rate"] == pytest.approx(0.25)
+def test_killed_by_is_not_read_as_hero_only():
+    """A killed_by carrying a creep and a tower must be recognised as carrying them."""
+    kb = {"npc_dota_hero_lina": 3, "npc_dota_creep_badguys_melee": 1,
+          "npc_dota_badguys_tower2_mid": 1}
+    non_hero = [k for k in kb if not fme.is_hero(k)]
+    assert sorted(non_hero) == ["npc_dota_badguys_tower2_mid", "npc_dota_creep_badguys_melee"]
+    assert fme.is_hero("npc_dota_hero_lina")
+
+
+def test_the_unrecorded_killer_residual_is_not_treated_as_non_hero_deaths():
+    """Five deaths, four with a killer -- one is a parser gap, not four non-hero deaths."""
+    match = {"match_id": 1, "first_blood_time": 100, "duration": 1800,
+             "players": [{"account_id": 7, "deaths": 5,
+                          "killed_by": {"npc_dota_hero_lina": 2,
+                                        "npc_dota_creep_badguys_melee": 1,
+                                        "npc_dota_badguys_tower2_mid": 1}}]}
+    got = fme.extract(match, {7})
+    assert got["all_deaths_with_no_recorded_killer"] == 1     # 5 - 4, not 5 - 2
+    assert got["all_tormentor_deaths"] == 0
+
+
+def test_no_field_or_helper_claims_the_residual_bounds_the_tormentor():
+    """The withdrawn inference must not survive as a name."""
+    for mod in (co, fme):
+        src = inspect.getsource(mod)
+        for banned in ("nonhero_deaths", "non_hero_deaths", "tormentor_upper_bound",
+                       "unattributed_deaths"):
+            assert banned not in src, f"{mod.__name__} still uses {banned}"
+    assert not hasattr(co, "tormented_bound")
+    assert any(f.endswith("deaths_with_no_recorded_killer") for f in fme.FIELDS)
+
+
+def test_a_tormentor_death_is_counted_off_the_recorded_killer():
+    match = {"match_id": 1, "first_blood_time": 10, "duration": 1800,
+             "players": [{"account_id": 7, "deaths": 2,
+                          "killed_by": {"npc_dota_hero_lina": 1, "npc_dota_miniboss": 1}},
+                         {"account_id": 9, "deaths": 1,
+                          "killed_by": {"npc_dota_hero_lina": 1}}]}
+    got = fme.extract(match, {7})
+    assert got["roster_tormentor_deaths"] == 1
+    assert got["all_tormentor_deaths"] == 1
+    assert got["roster_deaths_with_no_recorded_killer"] == 0
+
+
+def test_the_tormentor_rate_is_direct_and_never_calls_itself_a_bound():
+    extras = {1: {"all_tormentor_deaths": 0, "all_deaths": 50,
+                  "all_deaths_with_no_recorded_killer": 0},
+              2: {"all_tormentor_deaths": 1, "all_deaths": 50,
+                  "all_deaths_with_no_recorded_killer": 1},
+              3: {"all_tormentor_deaths": 0, "all_deaths": 50,
+                  "all_deaths_with_no_recorded_killer": 0},
+              4: {"all_tormentor_deaths": 0, "all_deaths": 50,
+                  "all_deaths_with_no_recorded_killer": 0}}
+    got = co.tormented_rate(extras, "all")
+    assert got["matches_with_a_tormentor_death"] == 1
+    assert got["trigger_rate"] == pytest.approx(0.25)
+    assert got["attribution"].startswith("direct")
+    assert "bounds neither direction" in got["why_the_residual_is_not_a_bound"]
+
+
+def test_the_killer_inventory_separates_hero_from_non_hero_keys(tmp_path):
+    keys = Counter({"npc_dota_hero_lina": 5, "npc_dota_creep_goodguys_melee": 2,
+                    "npc_dota_miniboss": 1})
+    out = tmp_path / "inv.json"
+    original, fme.OUT_KILLERS = fme.OUT_KILLERS, str(out)
+    try:
+        fme.write_killers(keys)
+    finally:
+        fme.OUT_KILLERS = original
+    doc = json.loads(out.read_text(encoding="utf-8"))
+    assert doc["hero_keys"] == 1 and doc["non_hero_keys"] == 2
+    assert doc["tormentor_keys"] == ["npc_dota_miniboss"]
+
+
+def test_the_tormented_is_decided_from_extras_when_the_field_is_present():
+    """Classification must follow attribution capability, not a hand-set label."""
+    rows = [{"match_id": "1", "account_id": "10", "duration": "2000", "win": "1",
+             "start_time": "1000", "_series": "s", "_league": "L"}]
+    without = co.suffix_trigger_table(rows, {})
+    assert "the Tormented" not in without[(1, 10)]
+    with_ = co.suffix_trigger_table(rows, {1: {"first_blood_time": 10,
+                                               "all_tormentor_deaths": 2}})
+    assert with_[(1, 10)]["the Tormented"] is True
 
 
 def test_the_suffix_bonuses_are_exactly_what_the_client_displays():
