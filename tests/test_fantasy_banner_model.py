@@ -19,59 +19,60 @@ def test_quality_tiers_are_the_exact_client_ladder():
     assert bm.QUALITY == (0.10, 0.30, 0.60, 1.00, 1.50)
 
 
-def test_a_plain_banner_is_just_its_quality_tiers():
-    assert bm.slot_weights((0, 2, 4), BASE3) == pytest.approx([0.10, 0.60, 1.50])
+def test_a_plain_banner_is_one_plus_its_quality_bonus():
+    """Corrected against the live client: quality is a bonus on a 100 percent base, not a factor."""
+    assert bm.slot_weights((0, 2, 4), BASE3) == pytest.approx([1.10, 1.60, 2.50])
 
 
 # ---- each trait, exactly ---------------------------------------------------------------------------
 def test_incorruptible_floors_low_quality_at_tier_three():
     w = bm.slot_weights((0, 0, 0), ("Incorruptible", "Base", "Base"))
-    assert w[0] == pytest.approx(0.60)          # Tier I lifted to Tier III
-    assert w[1] == pytest.approx(0.10)
+    assert w[0] == pytest.approx(1.60)          # Tier I lifted to Tier III
+    assert w[1] == pytest.approx(1.10)
     # and it never lowers a quality that is already above the floor
-    assert bm.slot_weights((4, 0, 0), ("Incorruptible", "Base", "Base"))[0] == pytest.approx(1.50)
+    assert bm.slot_weights((4, 0, 0), ("Incorruptible", "Base", "Base"))[0] == pytest.approx(2.50)
 
 
 def test_benevolent_pays_its_neighbours_and_not_itself():
     w = bm.slot_weights((3, 3, 3), ("Base", "Benevolent", "Base"))
-    assert w[0] == pytest.approx(1.00 * 1.20)
-    assert w[2] == pytest.approx(1.00 * 1.20)
-    assert w[1] == pytest.approx(1.00)          # the middle slot gains nothing from itself
+    assert w[0] == pytest.approx(2.20)          # 1 + 1.00 quality + 0.20 from the neighbour
+    assert w[2] == pytest.approx(2.20)
+    assert w[1] == pytest.approx(2.00)          # the middle slot gains nothing from itself
 
 
 def test_vampiric_pays_itself_and_taxes_its_neighbours():
     w = bm.slot_weights((3, 3, 3), ("Base", "Vampiric", "Base"))
-    assert w[1] == pytest.approx(1.00 * 1.50)
-    assert w[0] == pytest.approx(1.00 * 0.90)
-    assert w[2] == pytest.approx(1.00 * 0.90)
+    assert w[1] == pytest.approx(2.50)          # 1 + 1.00 + 0.50
+    assert w[0] == pytest.approx(1.90)          # 1 + 1.00 - 0.10
+    assert w[2] == pytest.approx(1.90)
 
 
 def test_adjacency_is_a_line_not_a_ring():
     """Slot 0 and slot 2 are not neighbours; order is real state, not a set."""
     w = bm.slot_weights((3, 3, 3), ("Benevolent", "Base", "Base"))
-    assert w[1] == pytest.approx(1.20)
-    assert w[2] == pytest.approx(1.00)
+    assert w[1] == pytest.approx(2.20)
+    assert w[2] == pytest.approx(2.00)
 
 
 def test_unique_pays_only_when_it_is_the_only_one():
     alone = bm.slot_weights((3, 3, 3), ("Unique", "Base", "Base"))
-    assert alone[0] == pytest.approx(1.30)
+    assert alone[0] == pytest.approx(2.30)
     pair = bm.slot_weights((3, 3, 3), ("Unique", "Unique", "Base"))
-    assert pair[0] == pytest.approx(1.00) and pair[1] == pytest.approx(1.00)
+    assert pair[0] == pytest.approx(2.00) and pair[1] == pytest.approx(2.00)
 
 
 def test_friendly_pays_only_at_three_or_more():
     two = bm.slot_weights((3, 3, 3), ("Friendly", "Friendly", "Base"))
-    assert two[0] == pytest.approx(1.00)
+    assert two[0] == pytest.approx(2.00)
     three = bm.slot_weights((3, 3, 3), ("Friendly", "Friendly", "Friendly"))
-    assert all(x == pytest.approx(1.50) for x in three)
+    assert all(x == pytest.approx(2.50) for x in three)
 
 
 def test_fractal_pays_only_when_every_quality_differs():
     same = bm.slot_weights((3, 3, 3), ("Fractal", "Base", "Base"))
-    assert same[0] == pytest.approx(1.00)
+    assert same[0] == pytest.approx(2.00)
     diff = bm.slot_weights((0, 2, 4), ("Fractal", "Base", "Base"))
-    assert diff[0] == pytest.approx(0.10 * 1.60)
+    assert diff[0] == pytest.approx(1.70)       # 1 + 0.10 quality + 0.60 Fractal
 
 
 def test_the_withdrawn_uniform_shortcut_is_not_in_the_production_path():

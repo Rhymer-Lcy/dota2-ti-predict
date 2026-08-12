@@ -29,27 +29,20 @@ SELF_BONUS = {"Vampiric": 0.50, "Unique": 0.30, "Friendly": 0.50, "Fractal": 0.6
 ADJACENT_BONUS = {"Benevolent": 0.20, "Vampiric": -0.10}
 
 
-def slot_weights(qualities, traits):
-    """Per-slot multiplier for a three-emblem banner, applying every trait exactly.
+def trait_bonus(qualities, traits):
+    """Net trait bonus each slot receives, as a fraction. Validated against the live client.
 
-    qualities: three indices into QUALITY. traits: three names from TRAITS, in slot order.
+    A slot's own trait pays it only when that trait's condition holds; neighbours pay it through
+    Benevolent (+20 percent) and Vampiric (-10 percent). Benevolent pays its neighbours and never
+    itself, which is what makes the observed Core banner add up.
     """
     n = len(qualities)
-    eff = []
-    for i in range(n):
-        q = QUALITY[qualities[i]]
-        if traits[i] == "Incorruptible":
-            q = max(q, MIN_QUALITY_FLOOR)
-        eff.append(q)
-
     n_unique = sum(1 for t in traits if t == "Unique")
     n_friendly = sum(1 for t in traits if t == "Friendly")
     all_qualities_differ = len(set(qualities)) == n
-
     out = []
     for i in range(n):
-        bonus = 0.0
-        t = traits[i]
+        bonus, t = 0.0, traits[i]
         if t == "Vampiric":
             bonus += SELF_BONUS["Vampiric"]
         elif t == "Unique" and n_unique == 1:
@@ -61,7 +54,33 @@ def slot_weights(qualities, traits):
         for j in (i - 1, i + 1):
             if 0 <= j < n:
                 bonus += ADJACENT_BONUS.get(traits[j], 0.0)
-        out.append(eff[i] * (1.0 + bonus))
+        out.append(bonus)
+    return out
+
+
+def slot_weights(qualities, traits):
+    """Per-slot multiplier for a three-emblem banner, applying every trait exactly.
+
+    COMPOSITION, corrected against the live client. The client prints, per emblem, a total percentage
+    together with its two components: a quality line ("Tier III +60%") and a trait line
+    ("Benevolent +20%"). The total is their SUM on a 100 percent base:
+
+        multiplier = 1 + quality_bonus + net_trait_bonus
+
+    An earlier version of this file treated quality as a MULTIPLIER and traits as a factor on top of
+    it, so a Tier I emblem scored 0.10 of its stat rather than 1.10. That is withdrawn. It mattered:
+    the true multiplier range is roughly 1.1 to 2.6, not 0.09 to 3.15, so a banner reweights the
+    stats far less violently than the old model implied.
+
+    qualities: three indices into QUALITY. traits: three names from TRAITS, in slot order.
+    """
+    bonuses = trait_bonus(qualities, traits)
+    out = []
+    for i, qi in enumerate(qualities):
+        q = QUALITY[qi]
+        if traits[i] == "Incorruptible":
+            q = max(q, MIN_QUALITY_FLOOR)
+        out.append(1.0 + q + bonuses[i])
     return out
 
 
