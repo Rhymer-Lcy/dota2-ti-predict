@@ -6,18 +6,24 @@
   "suffix_the_Lucky": {
    "grade": "DECISION-PREFERRED / BEST-KNOWN ON CURRENT EVIDENCE",
    "grade_basis": {
-    "best": "the Lucky",
+    "best_point_estimate": "the Tormented",
+    "runner_up": "the Lucky",
+    "gap_bootstrap": {
+     "comparison": "the Tormented minus the Lucky",
+     "reps": 400,
+     "mean_gap": 0.00512,
+     "p05": -0.01259,
+     "p95": 0.0271,
+     "p_a_ahead": 0.6575,
+     "separated_at_95": false
+    },
     "grade": "DECISION-PREFERRED / BEST-KNOWN ON CURRENT EVIDENCE",
-    "every_rival_scoreable": false,
-    "unresolved_rivals": [
-     "the Tormented",
-     "the Flayed Twins Acolyte",
-     "the Patient"
-    ],
+    "every_rival_scoreable": true,
+    "unresolved_rivals": [],
     "unavailable_rivals": [
      "the Cruel"
     ],
-    "why": "cannot freeze while these are unresolved: ['the Tormented', 'the Flayed Twins Acolyte', 'the Patient']"
+    "why": "every rival is scoreable, but the leader is NOT separated from the runner-up: P(leader ahead) = 0.6575"
    },
    "why": "every match in the five-league window has been fetched, so the first-blood bounds are population bounds rather than prefix bounds. the Lucky beats the next scoreable suffix by a factor of 2.3, and the Patient and the Flayed Twins Acolyte are ruled out on zero triggers in 623 matches.",
    "not_claimed": "this is not a proven optimum over all eight. Two residuals are named below and neither is closed by measurement.",
@@ -125,64 +131,70 @@
  "exact_pricing": {
   "state": "account_state_target_20260812b.json",
   "seed": 20260812,
-  "draws": 600,
+  "draws": 4000,
   "suffix_grade": {
-   "best": "the Lucky",
+   "best_point_estimate": "the Tormented",
+   "runner_up": "the Lucky",
+   "gap_bootstrap": {
+    "comparison": "the Tormented minus the Lucky",
+    "reps": 400,
+    "mean_gap": 0.00512,
+    "p05": -0.01259,
+    "p95": 0.0271,
+    "p_a_ahead": 0.6575,
+    "separated_at_95": false
+   },
    "grade": "DECISION-PREFERRED / BEST-KNOWN ON CURRENT EVIDENCE",
-   "every_rival_scoreable": false,
-   "unresolved_rivals": [
-    "the Tormented",
-    "the Flayed Twins Acolyte",
-    "the Patient"
-   ],
+   "every_rival_scoreable": true,
+   "unresolved_rivals": [],
    "unavailable_rivals": [
     "the Cruel"
    ],
-   "why": "cannot freeze while these are unresolved: ['the Tormented', 'the Flayed Twins Acolyte', 'the Patient']"
+   "why": "every rival is scoreable, but the leader is NOT separated from the runner-up: P(leader ahead) = 0.6575"
   },
   "population_bounds": {
    "the Patient": {
-    "unique_matches_in_population": 29,
+    "unique_matches_in_population": 623,
     "matches_triggered": 0,
-    "rate_or_rule_of_three_upper_95": 0.10345,
-    "gain_at_bound_and_max_observed_attenuation": 0.04351,
+    "rate_or_rule_of_three_upper_95": 0.00482,
+    "gain_at_bound_and_max_observed_attenuation": 0.00261,
     "basis": "all fetched matches in the same five leagues, not only the 84 scored",
-    "scope_of_validity": "observed chronological prefix only"
+    "scope_of_validity": "population"
    },
    "the Flayed Twins Acolyte": {
-    "unique_matches_in_population": 29,
+    "unique_matches_in_population": 623,
     "matches_triggered": 0,
-    "rate_or_rule_of_three_upper_95": 0.10345,
-    "gain_at_bound_and_max_observed_attenuation": 0.01702,
+    "rate_or_rule_of_three_upper_95": 0.00482,
+    "gain_at_bound_and_max_observed_attenuation": 0.00102,
     "basis": "all fetched matches in the same five leagues, not only the 84 scored",
-    "scope_of_validity": "observed chronological prefix only"
+    "scope_of_validity": "population"
    },
    "first_blood_time_seconds": {
-    "min": 4,
-    "max": 420,
+    "min": 0,
+    "max": 546,
     "threshold_for_the_Patient": 600,
     "threshold_for_the_Acolyte": 0
    },
    "the Tormented": {
-    "unique_matches_in_population": 29,
-    "matches_triggered": 1,
-    "rate_or_rule_of_three_upper_95": 0.03448,
-    "gain_at_bound_and_max_observed_attenuation": 0.0145,
+    "unique_matches_in_population": 623,
+    "matches_triggered": 20,
+    "rate_or_rule_of_three_upper_95": 0.0321,
+    "gain_at_bound_and_max_observed_attenuation": 0.0174,
     "attribution": "direct: the killer recorded for the death is the Tormentor",
     "basis": "all fetched matches in the same five leagues, not only the 84 scored",
-    "scope_of_validity": "observed chronological prefix only"
+    "scope_of_validity": "population"
    }
   },
   "missingness": {
    "fetch_order": "the target list is sorted by start_time and fetched in order, so a partial run holds the CHRONOLOGICALLY EARLIEST matches and is missing the latest ones",
-   "is_missingness_ignorable": false,
+   "is_missingness_ignorable": true,
    "why_it_matters": "first-blood timing and game length move with the patch and the meta, so a time-ordered prefix is not a random sample of the period. A zero observed on it does not license a population-level claim.",
-   "consequence": "coverage partial: the bounds below describe the observed prefix only. Further fetching raises the denominator AND may raise the numerator, so completion can move these numbers in either direction, not merely tighten them."
+   "consequence": "coverage complete: the bounds below are population bounds"
   },
   "suffix_classification": {
-   "the Tormented": "PARTIAL-COVERAGE",
-   "the Flayed Twins Acolyte": "PARTIAL-COVERAGE",
-   "the Patient": "PARTIAL-COVERAGE",
+   "the Tormented": "COMPLETE",
+   "the Flayed Twins Acolyte": "COMPLETE",
+   "the Patient": "COMPLETE",
    "the Underdog": "COMPLETE",
    "the Decisive": "COMPLETE",
    "the Clutch": "COMPLETE",
@@ -191,19 +203,19 @@
   },
   "coverage": {
    "unique_matches_scored": 84,
-   "unique_matches_with_extras": 7,
-   "extras_rows_fetched": 29,
-   "extras_fetch_complete": false,
+   "unique_matches_with_extras": 84,
+   "extras_rows_fetched": 623,
+   "extras_fetch_complete": true,
    "note": "a suffix decided on fewer units than unique_matches_scored is PARTIAL-COVERAGE",
    "fingerprint": {
     "expected_matches": 623,
-    "fetched_matches": 29,
-    "unique_matches": 29,
-    "missing_matches": 594,
-    "sha256": "7bc84c46962d5292250b70498116ed6efb3373fb16eb724099232fc8df863e33",
-    "coverage_complete": false
+    "fetched_matches": 623,
+    "unique_matches": 623,
+    "missing_matches": 0,
+    "sha256": "507264727f41d993fe61b6155de1b404c2741658b0ffe99bf09d3b89f3f3e412",
+    "coverage_complete": true
    },
-   "generated_utc": "2026-08-12T10:11:56+00:00"
+   "generated_utc": "2026-08-12T11:10:18+00:00"
   },
   "all_eight_closed": false,
   "suffix_scope": {
@@ -217,16 +229,16 @@
    "the Underdog": "team_game"
   },
   "suffix_units_decided": {
-   "the Tormented": 7,
-   "the Flayed Twins Acolyte": 7,
-   "the Patient": 7,
+   "the Tormented": 84,
+   "the Flayed Twins Acolyte": 84,
+   "the Patient": 84,
    "the Underdog": 84,
    "the Decisive": 84,
    "the Clutch": 84,
    "the Lucky": 84
   },
   "suffix_units_triggered": {
-   "the Tormented": 1,
+   "the Tormented": 6,
    "the Flayed Twins Acolyte": 0,
    "the Patient": 0,
    "the Underdog": 43,
@@ -235,7 +247,7 @@
    "the Lucky": 7
   },
   "suffix_trigger_rates": {
-   "the Tormented": 0.1429,
+   "the Tormented": 0.0714,
    "the Flayed Twins Acolyte": 0.0,
    "the Patient": 0.0,
    "the Underdog": 0.5119,
@@ -244,44 +256,44 @@
    "the Lucky": 0.0833
   },
   "suffix_attenuation": {
-   "the Tormented": 0.02,
-   "the Underdog": 0.404,
-   "the Decisive": 1.624,
-   "the Clutch": 0.575,
-   "the Lucky": 1.829
+   "the Tormented": 2.357,
+   "the Underdog": 0.41,
+   "the Decisive": 1.635,
+   "the Clutch": 0.53,
+   "the Lucky": 1.861
   },
   "suffix_never_observed": {
    "the Flayed Twins Acolyte": {
     "scope": "match",
-    "unique_units_decided": 7,
+    "unique_units_decided": 84,
     "units_triggered": 0,
     "observed_rate": 0.0,
-    "rate_upper_95_rule_of_three": 0.42857,
-    "gain_at_bound_and_max_observed_attenuation": 0.07053
+    "rate_upper_95_rule_of_three": 0.03571,
+    "gain_at_bound_and_max_observed_attenuation": 0.00758
    },
    "the Patient": {
     "scope": "match",
-    "unique_units_decided": 7,
+    "unique_units_decided": 84,
     "units_triggered": 0,
     "observed_rate": 0.0,
-    "rate_upper_95_rule_of_three": 0.42857,
-    "gain_at_bound_and_max_observed_attenuation": 0.18024
+    "rate_upper_95_rule_of_three": 0.03571,
+    "gain_at_bound_and_max_observed_attenuation": 0.01936
    }
   },
-  "match_extras_coverage": 0.047,
+  "match_extras_coverage": 1.0,
   "unpriced_suffixes": {
    "the Cruel": {
     "bonus_percent": 13,
     "scope": "match",
     "must_beat": {
-     "suffix": "the Lucky",
-     "total_gain": 0.032
+     "suffix": "the Tormented",
+     "total_gain": 0.03872
     },
-    "breakpoint_rate_if_uncorrelated": 0.1346,
-    "breakpoint_rate_if_tied_to_losing": 12.4429,
+    "breakpoint_rate_if_uncorrelated": 0.1264,
+    "breakpoint_rate_if_tied_to_losing": 0.7272,
     "measured_attenuation_range": [
-     0.02,
-     1.829
+     0.41,
+     2.357
     ],
     "not_a_proven_exclusion": "the breakpoints below use the largest attenuation OBSERVED on a scoreable suffix. That is not a proven maximum, so a rival is excluded only under the assumption that it does not attenuate harder than anything measured.",
     "classification": "UNAVAILABLE",
@@ -297,17 +309,17 @@
     "players": 2,
     "dropped_slots": [],
     "player_maps_scored": 118,
-    "base_expected_period_score": 15924.716,
+    "base_expected_period_score": 16001.672,
     "gain": {
-     "the Lucky": 0.04204,
-     "Elemental": 0.03171,
-     "the Underdog": 0.01969,
-     "the Clutch": 0.01743,
-     "Otherworldly": 0.01407,
-     "Crimson": 0.00938,
-     "Emerald": 0.00273,
-     "Cerulean": 0.00115,
-     "the Tormented": 0.00029,
+     "the Tormented": 0.0605,
+     "the Lucky": 0.04319,
+     "Elemental": 0.03203,
+     "the Underdog": 0.02008,
+     "the Clutch": 0.01571,
+     "Otherworldly": 0.01475,
+     "Crimson": 0.00993,
+     "Emerald": 0.00288,
+     "Cerulean": 0.00106,
      "the Flayed Twins Acolyte": 0.0,
      "the Patient": 0.0,
      "the Decisive": 0.0
@@ -315,52 +327,52 @@
     "prefix_attenuation": {
      "Crimson": {
       "our_trigger_rate": 0.2034,
-      "exact_gain": 0.00938,
+      "exact_gain": 0.00993,
       "naive_frequency_times_bonus": 0.0122,
-      "attenuation": 0.769
+      "attenuation": 0.814
      },
      "Cerulean": {
       "our_trigger_rate": 0.0678,
-      "exact_gain": 0.00115,
+      "exact_gain": 0.00106,
       "naive_frequency_times_bonus": 0.00746,
-      "attenuation": 0.155
+      "attenuation": 0.143
      },
      "Emerald": {
       "our_trigger_rate": 0.1271,
-      "exact_gain": 0.00273,
+      "exact_gain": 0.00288,
       "naive_frequency_times_bonus": 0.00763,
-      "attenuation": 0.358
+      "attenuation": 0.377
      },
      "Elemental": {
       "our_trigger_rate": 0.2458,
-      "exact_gain": 0.03171,
+      "exact_gain": 0.03203,
       "naive_frequency_times_bonus": 0.01966,
-      "attenuation": 1.613
+      "attenuation": 1.629
      },
      "Otherworldly": {
       "our_trigger_rate": 0.1525,
-      "exact_gain": 0.01407,
+      "exact_gain": 0.01475,
       "naive_frequency_times_bonus": 0.01068,
-      "attenuation": 1.318
+      "attenuation": 1.382
      }
     },
     "untabled_prefix_extrapolation": {
      "Royal": {
       "community_trigger_rate": 0.225,
-      "gain_at_max_observed_attenuation": 0.03629,
-      "basis": "community rate x bonus x 1.613, the largest attenuation observed on any prefix this role CAN be scored on",
+      "gain_at_max_observed_attenuation": 0.03665,
+      "basis": "community rate x bonus x 1.629, the largest attenuation observed on any prefix this role CAN be scored on",
       "not_a_ceiling": "this is an extrapolation off an observed maximum, not a proven upper bound. Nothing rules out an untabled prefix attenuating harder than any tabled one; the largest value SEEN is not the largest value POSSIBLE."
      },
      "Golden": {
       "community_trigger_rate": 0.27,
-      "gain_at_max_observed_attenuation": 0.03484,
-      "basis": "community rate x bonus x 1.613, the largest attenuation observed on any prefix this role CAN be scored on",
+      "gain_at_max_observed_attenuation": 0.03519,
+      "basis": "community rate x bonus x 1.629, the largest attenuation observed on any prefix this role CAN be scored on",
       "not_a_ceiling": "this is an extrapolation off an observed maximum, not a proven upper bound. Nothing rules out an untabled prefix attenuating harder than any tabled one; the largest value SEEN is not the largest value POSSIBLE."
      },
      "Heroic": {
       "community_trigger_rate": 0.12,
-      "gain_at_max_observed_attenuation": 0.01742,
-      "basis": "community rate x bonus x 1.613, the largest attenuation observed on any prefix this role CAN be scored on",
+      "gain_at_max_observed_attenuation": 0.01759,
+      "basis": "community rate x bonus x 1.629, the largest attenuation observed on any prefix this role CAN be scored on",
       "not_a_ceiling": "this is an extrapolation off an observed maximum, not a proven upper bound. Nothing rules out an untabled prefix attenuating harder than any tabled one; the largest value SEEN is not the largest value POSSIBLE."
      }
     }
@@ -371,16 +383,16 @@
     "players": 1,
     "dropped_slots": [],
     "player_maps_scored": 49,
-    "base_expected_period_score": 9580.451,
+    "base_expected_period_score": 9596.907,
     "gain": {
-     "Elemental": 0.05227,
-     "the Decisive": 0.04262,
-     "Emerald": 0.01326,
-     "Otherworldly": 0.01053,
-     "the Clutch": 0.00606,
-     "Crimson": 0.00525,
-     "the Lucky": 0.00338,
-     "Cerulean": 0.00079,
+     "Elemental": 0.05218,
+     "the Decisive": 0.04296,
+     "Emerald": 0.01322,
+     "Otherworldly": 0.01044,
+     "the Clutch": 0.00577,
+     "Crimson": 0.00537,
+     "the Lucky": 0.00344,
+     "Cerulean": 0.00089,
      "the Underdog": 2e-05,
      "the Tormented": 0.0,
      "the Flayed Twins Acolyte": 0.0,
@@ -389,52 +401,52 @@
     "prefix_attenuation": {
      "Crimson": {
       "our_trigger_rate": 0.2245,
-      "exact_gain": 0.00525,
+      "exact_gain": 0.00537,
       "naive_frequency_times_bonus": 0.01347,
-      "attenuation": 0.389
+      "attenuation": 0.398
      },
      "Cerulean": {
       "our_trigger_rate": 0.1429,
-      "exact_gain": 0.00079,
+      "exact_gain": 0.00089,
       "naive_frequency_times_bonus": 0.01571,
-      "attenuation": 0.05
+      "attenuation": 0.057
      },
      "Emerald": {
       "our_trigger_rate": 0.1224,
-      "exact_gain": 0.01326,
+      "exact_gain": 0.01322,
       "naive_frequency_times_bonus": 0.00735,
-      "attenuation": 1.804
+      "attenuation": 1.8
      },
      "Elemental": {
       "our_trigger_rate": 0.4694,
-      "exact_gain": 0.05227,
+      "exact_gain": 0.05218,
       "naive_frequency_times_bonus": 0.03755,
-      "attenuation": 1.392
+      "attenuation": 1.39
      },
      "Otherworldly": {
       "our_trigger_rate": 0.3265,
-      "exact_gain": 0.01053,
+      "exact_gain": 0.01044,
       "naive_frequency_times_bonus": 0.02286,
-      "attenuation": 0.461
+      "attenuation": 0.457
      }
     },
     "untabled_prefix_extrapolation": {
      "Royal": {
       "community_trigger_rate": 0.23,
-      "gain_at_max_observed_attenuation": 0.04149,
-      "basis": "community rate x bonus x 1.804, the largest attenuation observed on any prefix this role CAN be scored on",
+      "gain_at_max_observed_attenuation": 0.0414,
+      "basis": "community rate x bonus x 1.8, the largest attenuation observed on any prefix this role CAN be scored on",
       "not_a_ceiling": "this is an extrapolation off an observed maximum, not a proven upper bound. Nothing rules out an untabled prefix attenuating harder than any tabled one; the largest value SEEN is not the largest value POSSIBLE."
      },
      "Golden": {
       "community_trigger_rate": 0.06,
-      "gain_at_max_observed_attenuation": 0.00866,
-      "basis": "community rate x bonus x 1.804, the largest attenuation observed on any prefix this role CAN be scored on",
+      "gain_at_max_observed_attenuation": 0.00864,
+      "basis": "community rate x bonus x 1.8, the largest attenuation observed on any prefix this role CAN be scored on",
       "not_a_ceiling": "this is an extrapolation off an observed maximum, not a proven upper bound. Nothing rules out an untabled prefix attenuating harder than any tabled one; the largest value SEEN is not the largest value POSSIBLE."
      },
      "Heroic": {
       "community_trigger_rate": 0.21,
-      "gain_at_max_observed_attenuation": 0.0341,
-      "basis": "community rate x bonus x 1.804, the largest attenuation observed on any prefix this role CAN be scored on",
+      "gain_at_max_observed_attenuation": 0.03402,
+      "basis": "community rate x bonus x 1.8, the largest attenuation observed on any prefix this role CAN be scored on",
       "not_a_ceiling": "this is an extrapolation off an observed maximum, not a proven upper bound. Nothing rules out an untabled prefix attenuating harder than any tabled one; the largest value SEEN is not the largest value POSSIBLE."
      }
     }
@@ -447,93 +459,93 @@
      "watchers_taken"
     ],
     "player_maps_scored": 118,
-    "base_expected_period_score": 3818.787,
+    "base_expected_period_score": 3831.812,
     "gain": {
-     "the Lucky": 0.06192,
-     "Elemental": 0.0309,
-     "Emerald": 0.02537,
-     "Crimson": 0.01557,
-     "the Underdog": 0.01317,
-     "Otherworldly": 0.0108,
-     "Cerulean": 0.0081,
-     "the Clutch": 0.00467,
-     "the Tormented": 0.00381,
+     "the Lucky": 0.06118,
+     "the Tormented": 0.04475,
+     "Elemental": 0.03167,
+     "Emerald": 0.0247,
+     "Crimson": 0.01638,
+     "the Underdog": 0.01272,
+     "Otherworldly": 0.00976,
+     "Cerulean": 0.0072,
+     "the Clutch": 0.00524,
+     "the Decisive": 1e-05,
      "the Flayed Twins Acolyte": 0.0,
-     "the Patient": 0.0,
-     "the Decisive": 0.0
+     "the Patient": 0.0
     },
     "prefix_attenuation": {
      "Crimson": {
       "our_trigger_rate": 0.178,
-      "exact_gain": 0.01557,
+      "exact_gain": 0.01638,
       "naive_frequency_times_bonus": 0.01068,
-      "attenuation": 1.458
+      "attenuation": 1.534
      },
      "Cerulean": {
       "our_trigger_rate": 0.1525,
-      "exact_gain": 0.0081,
+      "exact_gain": 0.0072,
       "naive_frequency_times_bonus": 0.01678,
-      "attenuation": 0.483
+      "attenuation": 0.429
      },
      "Emerald": {
       "our_trigger_rate": 0.3644,
-      "exact_gain": 0.02537,
+      "exact_gain": 0.0247,
       "naive_frequency_times_bonus": 0.02186,
-      "attenuation": 1.16
+      "attenuation": 1.13
      },
      "Elemental": {
       "our_trigger_rate": 0.3475,
-      "exact_gain": 0.0309,
+      "exact_gain": 0.03167,
       "naive_frequency_times_bonus": 0.0278,
-      "attenuation": 1.111
+      "attenuation": 1.14
      },
      "Otherworldly": {
       "our_trigger_rate": 0.1695,
-      "exact_gain": 0.0108,
+      "exact_gain": 0.00976,
       "naive_frequency_times_bonus": 0.01186,
-      "attenuation": 0.911
+      "attenuation": 0.823
      }
     },
     "untabled_prefix_extrapolation": {
      "Royal": {
       "community_trigger_rate": 0.105,
-      "gain_at_max_observed_attenuation": 0.01531,
-      "basis": "community rate x bonus x 1.458, the largest attenuation observed on any prefix this role CAN be scored on",
+      "gain_at_max_observed_attenuation": 0.01611,
+      "basis": "community rate x bonus x 1.534, the largest attenuation observed on any prefix this role CAN be scored on",
       "not_a_ceiling": "this is an extrapolation off an observed maximum, not a proven upper bound. Nothing rules out an untabled prefix attenuating harder than any tabled one; the largest value SEEN is not the largest value POSSIBLE."
      },
      "Golden": {
       "community_trigger_rate": 0.38,
-      "gain_at_max_observed_attenuation": 0.04432,
-      "basis": "community rate x bonus x 1.458, the largest attenuation observed on any prefix this role CAN be scored on",
+      "gain_at_max_observed_attenuation": 0.04663,
+      "basis": "community rate x bonus x 1.534, the largest attenuation observed on any prefix this role CAN be scored on",
       "not_a_ceiling": "this is an extrapolation off an observed maximum, not a proven upper bound. Nothing rules out an untabled prefix attenuating harder than any tabled one; the largest value SEEN is not the largest value POSSIBLE."
      },
      "Heroic": {
       "community_trigger_rate": 0.285,
-      "gain_at_max_observed_attenuation": 0.0374,
-      "basis": "community rate x bonus x 1.458, the largest attenuation observed on any prefix this role CAN be scored on",
+      "gain_at_max_observed_attenuation": 0.03935,
+      "basis": "community rate x bonus x 1.534, the largest attenuation observed on any prefix this role CAN be scored on",
       "not_a_ceiling": "this is an extrapolation off an observed maximum, not a proven upper bound. Nothing rules out an untabled prefix attenuating harder than any tabled one; the largest value SEEN is not the largest value POSSIBLE."
      }
     }
    }
   },
   "total_gain_over_no_coach": {
-   "Elemental": 0.03832,
-   "the Lucky": 0.032,
-   "the Decisive": 0.01392,
-   "Otherworldly": 0.01249,
-   "the Underdog": 0.01241,
-   "the Clutch": 0.01205,
-   "Emerald": 0.00912,
-   "Crimson": 0.00884,
-   "Cerulean": 0.00194,
-   "the Tormented": 0.00065,
+   "the Tormented": 0.03872,
+   "Elemental": 0.03855,
+   "the Lucky": 0.03257,
+   "the Decisive": 0.01401,
+   "Otherworldly": 0.01269,
+   "the Underdog": 0.01258,
+   "the Clutch": 0.01111,
+   "Crimson": 0.00928,
+   "Emerald": 0.00909,
+   "Cerulean": 0.0018,
    "the Patient": 0.0,
    "the Flayed Twins Acolyte": 0.0
   },
   "untabled_prefix_total_extrapolation": {
-   "Royal": 0.03526,
-   "Golden": 0.02752,
-   "Heroic": 0.02547
+   "Royal": 0.03552,
+   "Golden": 0.02802,
+   "Heroic": 0.02578
   },
   "frequency_replication": {
    "Crimson": {
@@ -598,23 +610,23 @@
    ]
   },
   "tormented_attribution_all_players": {
-   "matches": 29,
-   "matches_with_a_tormentor_death": 1,
-   "trigger_rate": 0.03448,
+   "matches": 623,
+   "matches_with_a_tormentor_death": 20,
+   "trigger_rate": 0.0321,
    "rate_upper_95_rule_of_three": null,
    "attribution": "direct: the killer recorded for the death is the Tormentor",
-   "deaths_with_no_recorded_killer": 2,
-   "residual_share_of_all_deaths": 0.001475,
+   "deaths_with_no_recorded_killer": 53,
+   "residual_share_of_all_deaths": 0.0016,
    "why_the_residual_is_not_a_bound": "killed_by carries creep and building killers, so an unrecorded-killer death is a parser gap, not a non-hero death; and a Tormentor death that IS recorded never enters it. It bounds neither direction."
   },
   "tormented_attribution_roster_only": {
-   "matches": 29,
-   "matches_with_a_tormentor_death": 1,
-   "trigger_rate": 0.03448,
+   "matches": 623,
+   "matches_with_a_tormentor_death": 16,
+   "trigger_rate": 0.02568,
    "rate_upper_95_rule_of_three": null,
    "attribution": "direct: the killer recorded for the death is the Tormentor",
-   "deaths_with_no_recorded_killer": 1,
-   "residual_share_of_all_deaths": 0.001088,
+   "deaths_with_no_recorded_killer": 31,
+   "residual_share_of_all_deaths": 0.001251,
    "why_the_residual_is_not_a_bound": "killed_by carries creep and building killers, so an unrecorded-killer death is a parser gap, not a non-hero death; and a Tormentor death that IS recorded never enters it. It bounds neither direction."
   },
   "community_frequencies_parsed": false

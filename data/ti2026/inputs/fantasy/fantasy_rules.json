@@ -1603,12 +1603,13 @@
    "id": "tormentor_death_attribution",
    "scope": "generic",
    "question": "Did a roster player die to a Tormentor in a given match?",
-   "fact_status": "PARTIAL",
-   "decision_status": "IRRELEVANT",
+   "fact_status": "CONFIRMED",
+   "decision_status": "CONDITIONAL",
    "blocking_for": [],
    "measured_by": "coach_optimize.tormented_bound",
-   "note": "killed_by credits enemy heroes only, so a death it does not account for is a death to something that is not a hero. A true upper bound, and a zero is an exact negative. On complete coverage the bound rose from 2.74 percent at 328 matches to 0.0578 at 623 -- more than double -- which is exactly why a partial-sample bound may not be read as a population bound.",
-   "measured": "EXCLUDED at +23% under a stated assumption: its trigger rate is at most 0.0578 on complete coverage, so to match the Lucky it would need an attenuation of 2.45 -- 32% above the largest value (1.86) measured on any suffix that can be scored. Nothing proves that is impossible; there is simply no mechanism for it, since a Tormentor death is at most weakly related to how the game went."
+   "note": "RESOLVED by direct attribution. killed_by is NOT hero-only: the 623-match inventory holds 197 distinct killer keys of which 74 are non-hero (creeps, towers, neutrals, Roshan, siege, the fountain), and npc_dota_miniboss appears among them. The previous 'upper bound' built from deaths killed_by did not account for is withdrawn: 18 of the 20 matches containing a real Tormentor death carry no such residual at all, so the residual never contained the event set it claimed to bound.",
+   "measured": "20/623 matches = 0.0321 carry a Tormentor death, counted off npc_dota_miniboss in killed_by. Exactly scored through the same layering as every other suffix, the Tormented reaches 0.03872 against the Lucky's 0.03257. The two are NOT separated: a series-level bootstrap puts P(Tormented ahead) at 0.6575, with a 90 percent interval of [-0.01259, 0.02710] on the gap. The point-estimate lead comes entirely from Core; the Lucky leads Mid and Support.",
+   "condition": "Blocks a freeze, not the choice. Either suffix is defensible; neither is demonstrably better."
   }
  ],
  "readiness_note": "This register is the ONLY source of readiness. There is no second hand-written blocker list: a blocker is any entry whose decision_status is BLOCKING, plus any CONDITIONAL entry whose condition currently holds. ti_predict/fantasy/questions.py derives it and refuses a register that carries an unmeasured decision_status.",

@@ -153,12 +153,27 @@ def test_the_freeze_is_derived_from_rival_status_and_not_asserted(art):
     cls = art["exact_pricing"]["suffix_classification"]
     unresolved = [s for s, c in cls.items() if c not in ("COMPLETE", "UNAVAILABLE")]
     assert g["unresolved_rivals"] == unresolved
-    if unresolved:
-        assert not g["grade"].startswith("FROZEN"), unresolved
+    gap = g.get("gap_bootstrap")
+    separated = bool(gap and gap["separated_at_95"])
+    # a freeze needs BOTH: no unresolved rival, and the leader separated from the runner-up
+    if unresolved or not separated:
+        assert not g["grade"].startswith("FROZEN"), (unresolved, gap)
         assert g["grade"].startswith("DECISION-PREFERRED")
     else:
         assert g["grade"].startswith("FROZEN")
     assert art["label_by_component"]["suffix_the_Lucky"]["grade"] == g["grade"]
+
+
+def test_a_leader_inside_the_bootstrap_interval_is_not_called_settled(art):
+    """Half a point between two suffixes resting on a handful of games is not a difference."""
+    gap = art["exact_pricing"]["suffix_grade"].get("gap_bootstrap")
+    if not gap:
+        pytest.skip("only one scoreable suffix")
+    assert gap["p05"] <= gap["mean_gap"] <= gap["p95"]
+    straddles = gap["p05"] < 0 < gap["p95"]
+    assert gap["separated_at_95"] is not straddles
+    if straddles:
+        assert 0.05 < gap["p_a_ahead"] < 0.95
 
 
 def test_the_tormentor_residual_inference_is_recorded_as_withdrawn(art):

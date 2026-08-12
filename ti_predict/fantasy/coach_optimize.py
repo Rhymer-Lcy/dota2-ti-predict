@@ -369,6 +369,50 @@ def breakpoint_rate(target_gain, bonus_percent, att):
     return target_gain / (att * bonus_percent / 100.0)
 
 
+def bootstrap_gap(per, n_players, counts, name_a, name_b, table, reps=400, seed=SEED):
+    """Uncertainty on the gap between two suffixes, resampling the series the period draws from.
+
+    Two suffixes separated by half a percentage point, each resting on a handful of triggering
+    games, are not separated by anything until this is run. The resampling unit is the series,
+    because that is what the period-level maximum draws over; matches inside a series are not
+    independent of each other.
+    """
+    rng = np.random.default_rng(seed)
+    fa, fb = suffix_bonus_fn(name_a, table), suffix_bonus_fn(name_b, table)
+    base_s = series_scores(per, n_players, _zero)
+    a_s = series_scores(per, n_players, fa)
+    b_s = series_scores(per, n_players, fb)
+    events = sorted(base_s)
+    gaps = []
+    for _ in range(reps):
+        pools = {"base": [], "a": [], "b": []}
+        for ev in events:
+            ids = sorted(base_s[ev])
+            pick = rng.integers(0, len(ids), size=len(ids))
+            for tag, src in (("base", base_s), ("a", a_s), ("b", b_s)):
+                pools[tag].extend(src[ev][ids[i]] for i in pick)
+        arr = {k: np.array(v, dtype=float) for k, v in pools.items()}
+        idx = rng.integers(0, len(arr["base"]), size=(len(counts), max(counts)))
+        out = {}
+        for tag in ("base", "a", "b"):
+            vals = arr[tag][idx]
+            mask = np.arange(max(counts))[None, :] < np.asarray(counts)[:, None]
+            out[tag] = float(np.where(mask, vals, -np.inf).max(axis=1).mean())
+        gaps.append((out["a"] / out["base"]) - (out["b"] / out["base"]))
+    return np.array(gaps)
+
+
+def summarise_gap(draws, name_a, name_b):
+    return {"comparison": f"{name_a} minus {name_b}",
+            "reps": int(draws.size),
+            "mean_gap": round(float(draws.mean()), 5),
+            "p05": round(float(np.percentile(draws, 5)), 5),
+            "p95": round(float(np.percentile(draws, 95)), 5),
+            "p_a_ahead": round(float((draws > 0).mean()), 4),
+            "separated_at_95": bool((draws > 0).mean() >= 0.95
+                                    or (draws < 0).mean() >= 0.95)}
+
+
 # ------------------------------------------------------- checking the public numbers
 
 def replicate_frequencies(hero_rows, cats, community, min_maps=15):
@@ -658,18 +702,40 @@ def build(state_path, titles_path=None, draws=DRAWS):
     scoreable = [x for x in priced_suffixes if classification[x] == "COMPLETE"]
     unresolved = [x for x, c in classification.items()
                   if c not in ("COMPLETE", "UNAVAILABLE")]
-    top = max(scoreable, key=lambda x: totals[x]) if scoreable else None
-    frozen = bool(top) and not unresolved
+    ranked = sorted(scoreable, key=lambda x: -totals[x])
+    top = ranked[0] if ranked else None
+    runner = ranked[1] if len(ranked) > 1 else None
+    gap = None
+    if top and runner:
+        gap_draws = None
+        for role, v in weighted.items():
+            org = v["organization"]
+            accounts = set(roles_map.get(org, {}).get(role, []))
+            keep, _drop = weights[role]
+            per_r = player_map_totals(rows, accounts, keep, rules)
+            d = bootstrap_gap(per_r, len(accounts), exposure_counts(org, probs, 3000),
+                              top, runner, table)
+            w = v["base_expected_period_score"] / denom
+            gap_draws = w * d if gap_draws is None else gap_draws + w * d
+        gap = summarise_gap(gap_draws, top, runner)
+    # A freeze needs two things, and an earlier revision only checked the first: every rival
+    # scoreable, AND the leader actually separated from the runner-up. Two suffixes resting on a
+    # handful of triggering games can differ by half a point and not be distinguishable at all.
+    frozen = bool(top) and not unresolved and bool(gap and gap["separated_at_95"])
     suffix_grade = {
-        "best": top,
+        "best_point_estimate": top,
+        "runner_up": runner,
+        "gap_bootstrap": gap,
         "grade": ("FROZEN FOR PERIOD 0 ON COMPLETE OBSERVED COVERAGE" if frozen
                   else "DECISION-PREFERRED / BEST-KNOWN ON CURRENT EVIDENCE"),
         "every_rival_scoreable": not unresolved,
         "unresolved_rivals": unresolved,
         "unavailable_rivals": [x for x, c in classification.items() if c == "UNAVAILABLE"],
-        "why": ("every rival is either scored exactly or structurally unavailable, and the best "
-                "is ranked ahead of all of them" if frozen else
-                f"cannot freeze while these are unresolved: {unresolved}")}
+        "why": ("every rival is scored exactly or is structurally unavailable, and the leader is "
+                "separated from the runner-up at 95 percent" if frozen else
+                f"cannot freeze while these are unresolved: {unresolved}" if unresolved else
+                "every rival is scoreable, but the leader is NOT separated from the runner-up: "
+                f"P(leader ahead) = {gap['p_a_ahead'] if gap else 'n/a'}")}
 
     return {"state": os.path.basename(state_path), "seed": SEED, "draws": draws,
             "suffix_grade": suffix_grade,
