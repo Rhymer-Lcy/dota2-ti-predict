@@ -41,6 +41,7 @@ from collections import defaultdict
 import numpy as np
 
 from ti_predict.fantasy import baseline as bl
+from ti_predict.fantasy import cruel_bound as cbd
 from ti_predict.fantasy import exposure as ex
 from ti_predict.fantasy import fetch_player_stats as fp
 from ti_predict.fantasy import preselection as pre
@@ -1179,6 +1180,146 @@ def cartesian_regret(rows, contenders):
                                          if wins_b else None)}
 
 
+NESTED_MASS_FRACTIONS = (0.20, 0.50)
+NESTED_HALF_LIVES = (None, 60, 30)
+
+
+def _scenario_gap(role_inputs, prefix, contenders, stacking, heroes, cats, table, extra,
+                  drop=None, weights=None, draws=1000):
+    """The joint gap inside one specific scenario, so the adversary optimises against THAT."""
+    a, b = contenders
+    num_a = num_b = den = 0.0
+    for _role, (per, n, counts, _base) in role_inputs.items():
+        counts = exposure_counts_from(counts, draws)
+        base_sc = {e: v for e, v in series_scores(per, n, _zero).items() if e != drop}
+        if not base_sc:
+            continue
+        base = project_period(base_sc, counts, weights=weights)
+        if not base:
+            continue
+        for who, sign in ((a, 1), (b, -1)):
+            sc = {e: v for e, v in series_scores(per, n, joint_bonus_fn(
+                prefix, who, stacking, heroes, cats, table, extra)).items() if e != drop}
+            g = project_period(sc, counts, weights=weights) / base - 1.0
+            if sign > 0:
+                num_a += base * g
+            else:
+                num_b += base * g
+        den += base
+    return (num_a - num_b) / den if den else float("nan")
+
+
+def nested_adversarial_membership(role_inputs, prefix, contenders, heroes, cats, table,
+                                  stacking, drop, weights, mass, hero_consistent,
+                                  hill_climb_rounds=2, candidate_cap=48):
+    """Search for the membership placement that most hurts the leader IN THIS SCENARIO.
+
+    Three differences from the fixed family it replaces. The gap is evaluated under this
+    scenario's own stacking, event state and recency weights rather than under one canonical
+    setting. The greedy recomputes after every pick instead of ranking single-flip marginals once.
+    And a swap phase then tries to trade each chosen unit against each unchosen one.
+
+    It is still only the worst placement FOUND. Nothing here is an exhaustive search, and the
+    number it produces must never be quoted as a proven worst case.
+    """
+    def gap(extra):
+        return _scenario_gap(role_inputs, prefix, contenders, stacking, heroes, cats, table,
+                             extra, drop, weights)
+
+    games, by_hero = _eligible_games(role_inputs, heroes, cats)
+    units = ([(h, tuple(sorted(g))) for h, g in sorted(by_hero.items(), key=lambda kv: str(kv[0]))]
+             if hero_consistent else [(g, (g,)) for g in sorted(games)])
+    evals = 0
+    # hero units are few enough to search exhaustively, and that is the physically coherent case,
+    # so only the loose game-level envelope is ever pre-screened
+    cap = None if hero_consistent else candidate_cap
+    if cap and len(units) > cap:
+        # Pre-screen single games down to the most damaging candidates before the greedy runs.
+        # Hero units are never capped -- there are only 55 of them and each carries several games,
+        # so the search that matters most stays exhaustive at every step.
+        marginal = []
+        for i, (_key, members) in enumerate(units):
+            marginal.append((gap(frozenset(members)), i))
+            evals += 1
+        marginal.sort()
+        units = [units[i] for _g, i in marginal[:cap]]
+    chosen, used = [], 0
+    while True:
+        best = None
+        for i, (_key, members) in enumerate(units):
+            if i in {c for c, _ in chosen} or used + len(members) > mass:
+                continue
+            trial = frozenset(m for c, _ in chosen for m in units[c][1]) | set(members)
+            g = gap(trial)
+            evals += 1
+            if best is None or g < best[0]:
+                best = (g, i, len(members))
+        if best is None:
+            break
+        chosen.append((best[1], best[2]))
+        used += best[2]
+    current = frozenset(m for c, _ in chosen for m in units[c][1])
+    best_gap = gap(current)
+    for _ in range(hill_climb_rounds):
+        improved = False
+        for pos, (ci, cn) in enumerate(list(chosen)):
+            for j, (_key, members) in enumerate(units):
+                if j in {c for c, _ in chosen} or used - cn + len(members) > mass:
+                    continue
+                swapped = [(c, n) for c, n in chosen if c != ci] + [(j, len(members))]
+                trial = frozenset(m for c, _ in swapped for m in units[c][1])
+                g = gap(trial)
+                evals += 1
+                if g < best_gap - 1e-9:
+                    chosen, used, best_gap, current = (
+                        swapped, used - cn + len(members), g, trial)
+                    improved = True
+                    break
+            if improved:
+                break
+        if not improved:
+            break
+    return {"gap": round(float(best_gap), 5), "player_games_flipped": used,
+            "candidate_pool": len(units), "pool_capped": bool(cap) and len(units) >= cap,
+            "units_selected": len(chosen), "evaluations": evals,
+            "placement": ("hero_consistent" if hero_consistent else "game_level"),
+            "search": "greedy with recomputation after every pick, then swap hill-climbing",
+            "caveat": "worst placement FOUND, not a proven worst case"}
+
+
+def nested_membership_sweep(role_inputs, prefix, contenders, heroes, cats, table, focus_event):
+    """Scenario-specific searches over the corners that matter for the leader."""
+    events = sorted({e for _r, (per, n, _c, _bs) in role_inputs.items()
+                     for e in series_scores(per, n, _zero)})
+    _games, by_hero = _eligible_games(role_inputs, heroes, cats)
+    eligible = sum(len(v) for v in by_hero.values())
+    dates = event_end_dates()
+    rows = []
+    for drop in (focus_event, None):
+        keep = [e for e in events if e != drop]
+        for hl in NESTED_HALF_LIVES:
+            w = recency_weights(keep, hl, dates)
+            for stacking in STACKINGS:
+                for frac in NESTED_MASS_FRACTIONS:
+                    for consistent in (True, False):
+                        r = nested_adversarial_membership(
+                            role_inputs, prefix, contenders, heroes, cats, table, stacking,
+                            drop, w, int(round(frac * eligible)), consistent)
+                        r.update({"event_state": "all" if drop is None else f"drop {drop}",
+                                  "recency_half_life_days": hl, "stacking": stacking,
+                                  "mass_fraction": frac})
+                        rows.append(r)
+    worst = min(rows, key=lambda r: r["gap"])
+    return {"labels": {"a": contenders[0], "b": contenders[1]},
+            "eligible_player_games": eligible,
+            "rows": rows,
+            "worst_found": worst,
+            "is_nested_scenario_specific": True,
+            "note": "the fixed-family sweep ranks placements once under one canonical setting and "
+                    "reuses them everywhere. This re-searches inside each scenario, so its worst "
+                    "case is at least as bad as the fixed family's by construction."}
+
+
 def scenario_minimax_regret(role_inputs, prefix, contenders, heroes, cats, table,
                             weighting=None, membership=None):
     """Real minimax regret over a named scenario family, not the endpoints of an interval.
@@ -1424,10 +1565,14 @@ def build(state_path, titles_path=None, draws=DRAWS):
     all_scored = {m for _r, (_o, ms) in role_matches.items() for m in ms}
     target_ids = {m for m, _lg, _ts in fp.target_matches(fp.DEFAULT_LEAGUES)}
     complete_fetch = not (target_ids - set(extras))
+    cruel_evidence = cbd.build() if os.path.exists(cbd.POS_CSV) else None
     classification = {}
     for s_name in SUFFIX_BONUS:
         if s_name == "the Cruel":
-            classification[s_name] = "UNAVAILABLE"
+            # re-graded: death positions DO exist, so this is no longer "no evidence". It is a
+            # bound, because the positions cannot be attributed to a killer and the fountain
+            # region therefore cannot be calibrated.
+            classification[s_name] = ("PARTIAL-BOUNDED" if cruel_evidence else "UNAVAILABLE")
         elif s_name not in priced_suffixes:
             classification[s_name] = "UNAVAILABLE"
         elif decided.get(s_name, 0) >= len(all_scored):
@@ -1499,11 +1644,18 @@ def build(state_path, titles_path=None, draws=DRAWS):
             "scope_of_validity": ("population" if complete_fetch
                                   else "observed chronological prefix only")}
     if "the Cruel" in unpriced:
-        unpriced["the Cruel"]["classification"] = "UNAVAILABLE"
+        unpriced["the Cruel"]["classification"] = classification["the Cruel"]
         unpriced["the Cruel"]["why"] = (
-            "the condition is positional -- a death at a team's own fountain -- and no field in "
-            "the match object carries a death position. killed_by names the killer, not the "
-            "place. Recovering it needs full replay parsing, not an API field.")
+            "the condition is positional. Death positions DO exist -- in "
+            "teamfights[].players[].deaths_pos -- so the earlier claim that the source has none "
+            "is withdrawn. Two limits remain: they cover only deaths inside a detected teamfight, "
+            "and within a fight a player's positions are a histogram over all their deaths, so no "
+            "death can be tied to the killer that caused it. That kills the calibration route, "
+            "because the fountain cannot be located from deaths credited to dota_fountain."
+            if cruel_evidence else
+            "no death-position data has been fetched for this window")
+        if cruel_evidence:
+            unpriced["the Cruel"]["death_position_evidence"] = cruel_evidence
         unpriced["the Cruel"]["direction_of_the_error"] = (
             "a fountain death happens in games that are being lost badly, so its attenuation "
             "belongs at the LOW end of the measured range, which is where its breakpoint is "
@@ -1545,19 +1697,26 @@ def build(state_path, titles_path=None, draws=DRAWS):
     # A freeze needs two things, and an earlier revision only checked the first: every rival
     # scoreable, AND the leader actually separated from the runner-up. Two suffixes resting on a
     # handful of triggering games can differ by half a point and not be distinguishable at all.
-    frozen = bool(top) and not unresolved and bool(gap and gap["separated_at_95"])
+    unavailable = [x for x, c in classification.items() if c == "UNAVAILABLE"]
+    # an UNAVAILABLE rival is not a scoreable one. Reporting every_rival_scoreable as true while
+    # listing an unavailable rival was a straight contradiction, and it let a freeze look closer
+    # than it was.
+    every_scoreable = not unresolved and not unavailable
+    frozen = bool(top) and every_scoreable and bool(gap and gap["separated_at_95"])
     suffix_grade = {
         "best_point_estimate": top,
         "runner_up": runner,
         "gap_bootstrap": gap,
         "grade": ("FROZEN FOR PERIOD 0 ON COMPLETE OBSERVED COVERAGE" if frozen
                   else "DECISION-PREFERRED / BEST-KNOWN ON CURRENT EVIDENCE"),
-        "every_rival_scoreable": not unresolved,
+        "every_rival_scoreable": every_scoreable,
         "unresolved_rivals": unresolved,
-        "unavailable_rivals": [x for x, c in classification.items() if c == "UNAVAILABLE"],
-        "why": ("every rival is scored exactly or is structurally unavailable, and the leader is "
-                "separated from the runner-up at 95 percent" if frozen else
+        "unavailable_rivals": unavailable,
+        "why": ("every rival is scored exactly and the leader is separated from the runner-up at "
+                "95 percent" if frozen else
                 f"cannot freeze while these are unresolved: {unresolved}" if unresolved else
+                f"cannot freeze while these cannot be scored at all: {unavailable}"
+                if unavailable else
                 "every rival is scoreable, but the leader is NOT separated from the runner-up: "
                 f"P(leader ahead) = {gap['p_a_ahead'] if gap else 'n/a'}")}
 
@@ -1589,6 +1748,27 @@ def build(state_path, titles_path=None, draws=DRAWS):
                    "hero-pool drift as well as genuine missing Fiery/Icy membership. It is a "
                    "central estimate; the stress family above brackets it."}
         cartesian["scenarios"] = cart_rows
+        cartesian["placement_search"] = (
+            "FIXED candidate family: placements are ranked once under additive / all events / "
+            "equal weight and reused in every scenario. This is a Cartesian product over a fixed "
+            "membership family, NOT a nested scenario-specific worst case.")
+        nested = nested_membership_sweep(role_inputs, current_prefix, contenders, heroes, cats,
+                                         table, "19785")
+        fixed_worst = min(r["gap"] for r in cart_rows)
+        nested["fixed_family_worst_gap"] = round(fixed_worst, 5)
+        nested["widens_worst_case"] = bool(nested["worst_found"]["gap"] < fixed_worst - 1e-9)
+        cartesian["nested_scenario_specific_search"] = nested
+        # the nested search can only find scenarios at least as bad, so the reported regret must
+        # absorb it rather than quoting the fixed family's milder number
+        a_name, b_name = contenders
+        nested_worst = nested["worst_found"]["gap"]
+        combined = dict(cartesian["max_regret"])
+        if nested_worst < 0:
+            combined[a_name] = round(max(combined[a_name], -nested_worst), 5)
+        else:
+            combined[b_name] = round(max(combined[b_name], nested_worst), 5)
+        cartesian["max_regret_including_nested_search"] = combined
+        cartesian["minimax_choice_including_nested_search"] = min(combined, key=combined.get)
         scen = scenario_minimax_regret(role_inputs, current_prefix, contenders, heroes, cats,
                                        table, weighting, membership)
 
@@ -1628,8 +1808,11 @@ def build(state_path, titles_path=None, draws=DRAWS):
                 "elemental_membership_robust": not membership[
                     "winner_flips_under_any_assignment"],
                 "partial_family_minimax_choice": scen["minimax_choice"],
-                "full_cartesian_minimax_choice": cartesian["minimax_choice"],
-                "full_cartesian_max_regret": cartesian["max_regret"],
+                "full_cartesian_minimax_choice": cartesian.get(
+                    "minimax_choice_including_nested_search", cartesian["minimax_choice"]),
+                "full_cartesian_max_regret": cartesian.get(
+                    "max_regret_including_nested_search", cartesian["max_regret"]),
+                "fixed_family_max_regret": cartesian["max_regret"],
                 "full_cartesian_scenarios": cartesian["n_scenarios"]},
             "D_predictive_utility": {
                 "mean_winner": top if dependence["modes"]["by_organization"][
@@ -1759,6 +1942,30 @@ WITHDRAWN_CEILING = {
     "why": "no argument bounds an unmeasured prefix's attenuation by the maximum attenuation "
            "seen among measured ones. The largest value observed is not the largest possible.",
     "replaced_by": "untabled_prefix_total_extrapolation, named and treated as an extrapolation",
+}
+
+WITHDRAWN_CONTRADICTION = {
+    "claim": "dropping event 19785 while weighting the remainder by a 30-day half-life is a "
+             "self-contradictory pair of assumptions",
+    "status": "WITHDRAWN",
+    "why": "there is nothing contradictory about it. Deleting one event asks what the conclusion "
+           "rests on; weighting what remains by recency asks how to read the rest. They compose "
+           "perfectly well, and dismissing the corner as incoherent was a way of not engaging "
+           "with the scenario that is worst for the leader.",
+    "replaced_by": "the corner is reported on its merits as the worst scenario for the leader",
+}
+
+WITHDRAWN_NO_DEATH_POSITIONS = {
+    "claim": "no field in the match object carries a death position, so the Cruel needs full "
+             "replay parsing and is UNAVAILABLE",
+    "status": "WITHDRAWN",
+    "why": "OpenDota does expose deaths_pos. It is not on the player object, which is where it "
+           "was looked for, but inside teamfights[].players[]. That is a partial view rather than "
+           "no view, and the difference is measurable coverage instead of an assumption.",
+    "replaced_by": "fetch_death_positions, which collects teamfight death positions across the "
+                   "window, measures what fraction of deaths they cover, and calibrates the "
+                   "fountain regions from deaths credited to dota_fountain rather than from "
+                   "remembered coordinates",
 }
 
 WITHDRAWN_STANDALONE = {
@@ -1916,7 +2123,9 @@ def assemble(computed, state_path):
             "withdrawn_claims": [WITHDRAWN, WITHDRAWN_COMPLETION, WITHDRAWN_CEILING,
                                  WITHDRAWN_TORMENTOR, WITHDRAWN_POOLING,
                                  WITHDRAWN_COACH_COST, WITHDRAWN_STANDALONE,
-                                 WITHDRAWN_OBJECTIVE, WITHDRAWN_ENDPOINTS],
+                                 WITHDRAWN_OBJECTIVE, WITHDRAWN_ENDPOINTS,
+                                 WITHDRAWN_CONTRADICTION,
+                                 WITHDRAWN_NO_DEATH_POSITIONS],
             "withdrawn_claim": WITHDRAWN,
             "exact_pricing": computed}
 

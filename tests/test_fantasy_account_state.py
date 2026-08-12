@@ -324,3 +324,23 @@ def test_the_coach_suffix_gain_is_recorded_with_its_extreme_value_reason():
     assert c["current"].startswith("the Clutch") and c["best_computable"].startswith("the Lucky")
     assert c["gain"] > 0 and 0 < c["relative_gain"] < 0.10
     assert "MAXIMUM over series" in c["why"]
+
+def test_a_reported_coach_change_is_not_graded_as_an_observation():
+    """A recommendation must not launder itself into evidence by being acted on."""
+    import json as _json
+    import os as _os
+    path = _os.path.join("predictions", "ti2026", "fantasy",
+                         "account_state_target_20260812c.json")
+    if not _os.path.exists(path):
+        return
+    with open(path, encoding="utf-8") as fh:
+        doc = _json.load(fh)
+    assert doc["provenance"]["tier"] == "reported_by_operator"
+    assert doc["provenance"]["tier"] != "user_runtime_observation"
+    assert doc["observed_at"] is None
+    assert "NOT observed" in doc["coach"]["status"]
+    assert doc["provenance"]["what_would_upgrade_it"]
+    # nothing else may have moved
+    assert doc["roll_tokens"] == 38
+    assert {k: v["canonical_team"] for k, v in doc["banners"].items()} == {
+        "core": "Xtreme Gaming", "mid": "Team Yandex", "support": "Xtreme Gaming"}

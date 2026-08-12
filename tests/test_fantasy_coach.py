@@ -71,12 +71,14 @@ def test_every_suffix_is_either_priced_or_carries_a_breakpoint(art):
         assert u["breakpoint_rate_if_tied_to_losing"] >= u["breakpoint_rate_if_uncorrelated"], name
 
 
-def test_an_unavailable_suffix_says_what_would_be_needed_rather_than_just_unavailable(art):
+def test_an_unpriced_suffix_says_what_would_be_needed_rather_than_just_naming_a_grade(art):
     cruel = art["exact_pricing"]["unpriced_suffixes"].get("the Cruel")
     if cruel is None:
         pytest.skip("the Cruel was priced")
-    assert cruel["classification"] == "UNAVAILABLE"
-    assert "replay" in cruel["why"]
+    assert cruel["classification"] in ("UNAVAILABLE", "PARTIAL-BOUNDED")
+    # it must say what specifically is missing, not merely that something is
+    assert any(t in cruel["why"] for t in ("attribut", "histogram", "teamfight", "replay"))
+    assert cruel["breakpoint_rate_if_uncorrelated"] > 0
 
 
 def test_the_frequency_reading_is_backed_by_replication_not_by_assertion(art):
@@ -401,6 +403,61 @@ def test_no_unlabelled_common_rng_predictive_result_survives(art):
     for stacking, block in art["exact_pricing"]["joint_closing"]["by_stacking"].items():
         dep = block["predictive_distribution"]["dependence"]
         assert dep == "by_organization" or "DIAGNOSTIC ONLY" in dep, stacking
+
+
+def test_the_cruel_is_graded_on_evidence_that_actually_exists(art):
+    """Death positions exist; the blocker is attribution, not absence."""
+    ex = art["exact_pricing"]
+    assert ex["suffix_classification"]["the Cruel"] in ("PARTIAL-BOUNDED", "UNAVAILABLE")
+    cruel = ex["unpriced_suffixes"]["the Cruel"]
+    assert "no field in the match object carries a death position" not in cruel["why"]
+    ev = cruel.get("death_position_evidence")
+    if ev is None:
+        pytest.skip("no death positions fetched")
+    assert ev["coverage"]["position_coverage"] > 0
+    assert ev["fountain_calibration"]["verdict"].startswith("FAILED")
+    assert ev["corner_upper_bound"]["rows"]
+
+
+def test_the_corner_bound_is_monotone_and_declared_an_upper_bound(art):
+    ev = art["exact_pricing"]["unpriced_suffixes"]["the Cruel"].get("death_position_evidence")
+    if ev is None:
+        pytest.skip("no death positions fetched")
+    rows = ev["corner_upper_bound"]["rows"]
+    rates = [r["upper_bound_match_rate"] for r in sorted(rows, key=lambda r: r["corner_radius"])]
+    assert rates == sorted(rates)          # a wider corner cannot catch fewer deaths
+    assert "over-counts" in ev["corner_upper_bound"]["why_it_is_an_upper_bound"]
+
+
+def test_an_unresolved_rival_keeps_every_rival_scoreable_false(art):
+    g = art["exact_pricing"]["suffix_grade"]
+    cls = art["exact_pricing"]["suffix_classification"]
+    unscoreable = [k for k, v in cls.items() if v != "COMPLETE"]
+    assert g["every_rival_scoreable"] == (not unscoreable)
+    if unscoreable:
+        assert not g["grade"].startswith("FROZEN")
+    # the contradiction this guards: claiming all rivals scoreable while listing one that is not
+    assert not (g["every_rival_scoreable"]
+                and (g["unavailable_rivals"] or g["unresolved_rivals"]))
+
+
+def test_the_nested_search_is_labelled_and_absorbed_into_the_regret(art):
+    c = art["exact_pricing"]["cartesian_scenario_regret"]
+    assert "FIXED candidate family" in c["placement_search"]
+    n = c["nested_scenario_specific_search"]
+    assert n["is_nested_scenario_specific"] is True
+    assert "worst placement FOUND" in n["worst_found"]["caveat"]
+    # a nested search can only find scenarios at least as bad as the fixed family's
+    assert n["worst_found"]["gap"] <= n["fixed_family_worst_gap"] + 1e-9
+    combined = c["max_regret_including_nested_search"]
+    for k, v in c["max_regret"].items():
+        assert combined[k] >= v - 1e-9
+
+
+def test_the_two_new_withdrawals_are_recorded(art):
+    claims = [w["claim"] for w in art["withdrawn_claims"]]
+    assert any("self-contradictory pair of assumptions" in c for c in claims)
+    assert any("no field in the match object carries a death position" in c for c in claims)
 
 
 def test_the_artifact_records_how_to_regenerate_itself(art):

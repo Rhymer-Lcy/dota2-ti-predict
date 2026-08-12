@@ -1574,12 +1574,12 @@
    "id": "fountain_death_positions",
    "scope": "generic",
    "question": "Did any player die at their own fountain in a given game?",
-   "fact_status": "UNRESOLVED",
-   "decision_status": "IRRELEVANT",
+   "fact_status": "PARTIAL",
+   "decision_status": "SCALE_ONLY",
    "blocking_for": [],
    "measured_by": "coach_optimize.build.unpriced_suffixes",
-   "note": "the Cruel's condition is positional and no match-object field carries a death position; killed_by names the killer, not the place. Only full replay parsing would recover it.",
-   "measured": "Priced by breakpoint at the CORRECT +13% (an earlier revision used +19% from a hand-typed constant). To match the best priced suffix it would have to fire on 13.5% of MATCHES if uncorrelated with performance, or 61.2% if tied to losing -- and a fountain death is tied to losing, so the higher figure governs. Neither is achievable in professional play."
+   "note": "REOPENED and re-graded. The earlier claim that no field carries a death position is withdrawn: OpenDota exposes deaths_pos inside teamfights[].players[]. Two limits remain. Coverage: only deaths inside a detected teamfight have a position, 13588/33128 = 0.4102. Attribution: within a fight a player's deaths_pos is a histogram over ALL their deaths, so no death can be tied to its killer.",
+   "measured": "The calibration route failed. 25 players in the window were killed by dota_fountain, 18 of them have positions, but only 1 is cleanly isolable; the rest mix the fountain death with their ordinary deaths, and their histograms span nearly the whole map. Since hard-coding fountain coordinates is not permitted, the region cannot be defined. What survives is a calibration-free upper bound assuming only that fountains sit in the map's extreme corners: radius 5 -> 0.0000; radius 10 -> 0.0000; radius 15 -> 0.0016; radius 20 -> 0.0405; radius 30 -> 0.2443. At any radius consistent with a fountain's actual size the bound is at or below 0.0016, far under the rate the Cruel would need to beat the joint leader."
   },
   {
    "id": "first_blood_extras_coverage",
@@ -1651,6 +1651,17 @@
    "measured_by": "coach_optimize.weighting_sensitivity",
    "note": "A modelling choice, like the event-equal aggregation it extends. Half-lives were pre-registered at 180 / 90 / 60 / 30 days and the weights are generated from each event's own end date, so nothing can be tuned toward a winner.",
    "measured": "The winner does not flip across the family (stable); the gap widens monotonically as weighting favours recent events, from 0.00941 at equal weight to 0.02955 at a 30-day half-life. That direction is consistent with leave-one-event-out, where the single flip comes from dropping 19785, the most recent event in the pools. In the full Cartesian family (550 scenarios) the runner-up wins 110, and every single one requires drop 19785 -- no recency level, stacking rule or membership assumption flips it on its own."
+  },
+  {
+   "id": "nested_adversarial_membership_search",
+   "scope": "generic",
+   "question": "Is the reported worst case a nested scenario-specific minimum or a fixed family?",
+   "fact_status": "PARTIAL",
+   "decision_status": "SCALE_ONLY",
+   "blocking_for": [],
+   "measured_by": "coach_optimize.nested_membership_sweep",
+   "note": "The 550-cell Cartesian product is a genuine product, but its membership placements were ranked once under one canonical setting and reused everywhere, so its regret was a fixed-membership-family regret, not a nested worst case. That is now stated on the artifact, and a scenario-specific search was run alongside it.",
+   "measured": "Re-searching inside each scenario -- greedy with recomputation after every pick, then swap hill-climbing, hero units searched exhaustively -- widens the worst case for the leader from -0.01812 to -0.01931. Max regret absorbing it: {'the Tormented': 0.01931, 'the Lucky': 0.04316}, minimax still the Tormented. Every widened corner still requires dropping event 19785. Still only the worst placement FOUND, never a proven worst case."
   }
  ],
  "readiness_note": "This register is the ONLY source of readiness. There is no second hand-written blocker list: a blocker is any entry whose decision_status is BLOCKING, plus any CONDITIONAL entry whose condition currently holds. ti_predict/fantasy/questions.py derives it and refuses a register that carries an unmeasured decision_status.",

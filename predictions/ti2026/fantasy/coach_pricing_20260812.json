@@ -1,6 +1,6 @@
 {
  "generated_by": "ti_predict.fantasy.coach_optimize",
- "regenerate": "python -m ti_predict.fantasy.coach_optimize --state predictions/ti2026/fantasy/account_state_target_20260812b.json --out <this file>",
+ "regenerate": "python -m ti_predict.fantasy.coach_optimize --state predictions/ti2026/fantasy/account_state_target_20260812c.json --out <this file>",
  "label": "BEST-KNOWN PROVISIONAL -- not FINAL, not a ROBUST OPTIMUM",
  "label_by_component": {
   "suffix_choice": {
@@ -26,12 +26,12 @@
      }
     },
     "grade": "DECISION-PREFERRED / BEST-KNOWN ON CURRENT EVIDENCE",
-    "every_rival_scoreable": true,
-    "unresolved_rivals": [],
-    "unavailable_rivals": [
+    "every_rival_scoreable": false,
+    "unresolved_rivals": [
      "the Cruel"
     ],
-    "why": "every rival is scoreable, but the leader is NOT separated from the runner-up: P(leader ahead) = 0.7675",
+    "unavailable_rivals": [],
+    "why": "cannot freeze while these are unresolved: ['the Cruel']",
     "joint_decision": {
      "compared": "Elemental + the Tormented vs Elemental + the Lucky",
      "A_point_estimate": {
@@ -52,6 +52,10 @@
       "partial_family_minimax_choice": "the Tormented",
       "full_cartesian_minimax_choice": "the Tormented",
       "full_cartesian_max_regret": {
+       "the Tormented": 0.01931,
+       "the Lucky": 0.04316
+      },
+      "fixed_family_max_regret": {
        "the Tormented": 0.01812,
        "the Lucky": 0.04316
       },
@@ -201,6 +205,18 @@
    "status": "WITHDRAWN",
    "why": "those are endpoints of an estimator-uncertainty interval. A regret needs a scenario in which an action is wrong and a best action to compare it against.",
    "replaced_by": "scenario_minimax_regret over a named family: stacking hypothesis crossed with leave-one-event-out"
+  },
+  {
+   "claim": "dropping event 19785 while weighting the remainder by a 30-day half-life is a self-contradictory pair of assumptions",
+   "status": "WITHDRAWN",
+   "why": "there is nothing contradictory about it. Deleting one event asks what the conclusion rests on; weighting what remains by recency asks how to read the rest. They compose perfectly well, and dismissing the corner as incoherent was a way of not engaging with the scenario that is worst for the leader.",
+   "replaced_by": "the corner is reported on its merits as the worst scenario for the leader"
+  },
+  {
+   "claim": "no field in the match object carries a death position, so the Cruel needs full replay parsing and is UNAVAILABLE",
+   "status": "WITHDRAWN",
+   "why": "OpenDota does expose deaths_pos. It is not on the player object, which is where it was looked for, but inside teamfights[].players[]. That is a partial view rather than no view, and the difference is measurable coverage instead of an assumption.",
+   "replaced_by": "fetch_death_positions, which collects teamfight death positions across the window, measures what fraction of deaths they cover, and calibrates the fountain regions from deaths credited to dota_fountain rather than from remembered coordinates"
   }
  ],
  "withdrawn_claim": {
@@ -210,7 +226,7 @@
   "replaced_by": "frequency_replication, which tests the percentage reading against our own independently fetched hero table"
  },
  "exact_pricing": {
-  "state": "account_state_target_20260812b.json",
+  "state": "account_state_target_20260812c.json",
   "seed": 20260812,
   "draws": 4000,
   "suffix_grade": {
@@ -234,12 +250,12 @@
     }
    },
    "grade": "DECISION-PREFERRED / BEST-KNOWN ON CURRENT EVIDENCE",
-   "every_rival_scoreable": true,
-   "unresolved_rivals": [],
-   "unavailable_rivals": [
+   "every_rival_scoreable": false,
+   "unresolved_rivals": [
     "the Cruel"
    ],
-   "why": "every rival is scoreable, but the leader is NOT separated from the runner-up: P(leader ahead) = 0.7675",
+   "unavailable_rivals": [],
+   "why": "cannot freeze while these are unresolved: ['the Cruel']",
    "joint_decision": {
     "compared": "Elemental + the Tormented vs Elemental + the Lucky",
     "A_point_estimate": {
@@ -260,6 +276,10 @@
      "partial_family_minimax_choice": "the Tormented",
      "full_cartesian_minimax_choice": "the Tormented",
      "full_cartesian_max_regret": {
+      "the Tormented": 0.01931,
+      "the Lucky": 0.04316
+     },
+     "fixed_family_max_regret": {
       "the Tormented": 0.01812,
       "the Lucky": 0.04316
      },
@@ -6725,7 +6745,761 @@
      "gap": -0.01812,
      "winner": "the Lucky"
     }
-   ]
+   ],
+   "placement_search": "FIXED candidate family: placements are ranked once under additive / all events / equal weight and reused in every scenario. This is a Cartesian product over a fixed membership family, NOT a nested scenario-specific worst case.",
+   "nested_scenario_specific_search": {
+    "labels": {
+     "a": "the Tormented",
+     "b": "the Lucky"
+    },
+    "eligible_player_games": 192,
+    "rows": [
+     {
+      "gap": -0.01607,
+      "player_games_flipped": 38,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 11,
+      "evaluations": 711,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": null,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.01635,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1693,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": null,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.01689,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 28,
+      "evaluations": 1466,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": null,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": -0.01453,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": null,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": -0.01867,
+      "player_games_flipped": 38,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 8,
+      "evaluations": 605,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": null,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.01871,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1693,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": null,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.01911,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 28,
+      "evaluations": 1537,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": null,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": -0.01816,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": null,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": -0.01562,
+      "player_games_flipped": 38,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 8,
+      "evaluations": 617,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 60,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.01529,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1693,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 60,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.01565,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 27,
+      "evaluations": 1474,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 60,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": -0.01469,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 60,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": -0.01861,
+      "player_games_flipped": 38,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 9,
+      "evaluations": 663,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 60,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.01892,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1693,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 60,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.01872,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 33,
+      "evaluations": 1507,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 60,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": -0.01707,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 60,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": -0.01693,
+      "player_games_flipped": 38,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 8,
+      "evaluations": 664,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 30,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.016,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1693,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 30,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.01695,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 28,
+      "evaluations": 1452,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 30,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": -0.01553,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 30,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": -0.01908,
+      "player_games_flipped": 38,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 8,
+      "evaluations": 779,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 30,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.0191,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1693,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 30,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": -0.01931,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 30,
+      "evaluations": 1552,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 30,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": -0.01874,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "drop 19785",
+      "recency_half_life_days": 30,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.00642,
+      "player_games_flipped": 25,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 8,
+      "evaluations": 368,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": null,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.00688,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1693,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": null,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.00583,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 30,
+      "evaluations": 1450,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": null,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.0068,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": null,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.00569,
+      "player_games_flipped": 25,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 6,
+      "evaluations": 300,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": null,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.00442,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1693,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": null,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.00468,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 27,
+      "evaluations": 1456,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": null,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.00646,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": null,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.01819,
+      "player_games_flipped": 38,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 5,
+      "evaluations": 410,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 60,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.01751,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1693,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 60,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.0167,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 27,
+      "evaluations": 1469,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 60,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.01774,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 60,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.01688,
+      "player_games_flipped": 38,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 8,
+      "evaluations": 611,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 60,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.01599,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1724,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 60,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.01651,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 27,
+      "evaluations": 1425,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 60,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.01613,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 60,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.02816,
+      "player_games_flipped": 38,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 5,
+      "evaluations": 408,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 30,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.0273,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1693,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 30,
+      "stacking": "additive",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.02726,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 27,
+      "evaluations": 1480,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 30,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.02775,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 30,
+      "stacking": "additive",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.0285,
+      "player_games_flipped": 38,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 5,
+      "evaluations": 410,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 30,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.02718,
+      "player_games_flipped": 38,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 38,
+      "evaluations": 1714,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 30,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.2
+     },
+     {
+      "gap": 0.02739,
+      "player_games_flipped": 96,
+      "candidate_pool": 55,
+      "pool_capped": false,
+      "units_selected": 26,
+      "evaluations": 1634,
+      "placement": "hero_consistent",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 30,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     },
+     {
+      "gap": 0.02784,
+      "player_games_flipped": 48,
+      "candidate_pool": 48,
+      "pool_capped": true,
+      "units_selected": 48,
+      "evaluations": 1368,
+      "placement": "game_level",
+      "search": "greedy with recomputation after every pick, then swap hill-climbing",
+      "caveat": "worst placement FOUND, not a proven worst case",
+      "event_state": "all",
+      "recency_half_life_days": 30,
+      "stacking": "multiplicative",
+      "mass_fraction": 0.5
+     }
+    ],
+    "worst_found": {
+     "gap": -0.01931,
+     "player_games_flipped": 96,
+     "candidate_pool": 55,
+     "pool_capped": false,
+     "units_selected": 30,
+     "evaluations": 1552,
+     "placement": "hero_consistent",
+     "search": "greedy with recomputation after every pick, then swap hill-climbing",
+     "caveat": "worst placement FOUND, not a proven worst case",
+     "event_state": "drop 19785",
+     "recency_half_life_days": 30,
+     "stacking": "multiplicative",
+     "mass_fraction": 0.5
+    },
+    "is_nested_scenario_specific": true,
+    "note": "the fixed-family sweep ranks placements once under one canonical setting and reuses them everywhere. This re-searches inside each scenario, so its worst case is at least as bad as the fixed family's by construction.",
+    "fixed_family_worst_gap": -0.01812,
+    "widens_worst_case": true
+   },
+   "max_regret_including_nested_search": {
+    "the Tormented": 0.01931,
+    "the Lucky": 0.04316
+   },
+   "minimax_choice_including_nested_search": "the Tormented"
   },
   "scenario_minimax_regret": {
    "definition": "max over scenarios of (best action in that scenario minus this action)",
@@ -7022,7 +7796,7 @@
    "the Decisive": "COMPLETE",
    "the Clutch": "COMPLETE",
    "the Lucky": "COMPLETE",
-   "the Cruel": "UNAVAILABLE"
+   "the Cruel": "PARTIAL-BOUNDED"
   },
   "coverage": {
    "unique_matches_scored": 84,
@@ -7038,7 +7812,7 @@
     "sha256": "507264727f41d993fe61b6155de1b404c2741658b0ffe99bf09d3b89f3f3e412",
     "coverage_complete": true
    },
-   "generated_utc": "2026-08-12T16:24:23+00:00"
+   "generated_utc": "2026-08-12T17:34:05+00:00"
   },
   "all_eight_closed": false,
   "suffix_scope": {
@@ -7119,8 +7893,95 @@
      2.27
     ],
     "not_a_proven_exclusion": "the breakpoints below use the largest attenuation OBSERVED on a scoreable suffix. That is not a proven maximum, so a rival is excluded only under the assumption that it does not attenuate harder than anything measured.",
-    "classification": "UNAVAILABLE",
-    "why": "the condition is positional -- a death at a team's own fountain -- and no field in the match object carries a death position. killed_by names the killer, not the place. Recovering it needs full replay parsing, not an API field.",
+    "classification": "PARTIAL-BOUNDED",
+    "why": "the condition is positional. Death positions DO exist -- in teamfights[].players[].deaths_pos -- so the earlier claim that the source has none is withdrawn. Two limits remain: they cover only deaths inside a detected teamfight, and within a fight a player's positions are a histogram over all their deaths, so no death can be tied to the killer that caused it. That kills the calibration route, because the fountain cannot be located from deaths credited to dota_fountain.",
+    "death_position_evidence": {
+     "coverage": {
+      "matches": 623,
+      "player_rows": 6230,
+      "total_deaths": 33128,
+      "deaths_with_a_position": 13588,
+      "position_coverage": 0.4102,
+      "rows_with_no_position": 1172,
+      "structure": "teamfights[].players[].deaths_pos, a per-fight histogram over that player's deaths; not attributable to an individual death or killer"
+     },
+     "fountain_calibration": {
+      "players_with_a_fountain_death": 25,
+      "of_those_with_positions": 18,
+      "cleanly_isolable": 1,
+      "spread_of_their_death_histograms": {
+       "radiant_victim": {
+        "positioned_deaths": 16,
+        "x_range": [
+         87,
+         192
+        ],
+        "y_range": [
+         74,
+         191
+        ]
+       },
+       "dire_victim": {
+        "positioned_deaths": 27,
+        "x_range": [
+         72,
+         177
+        ],
+        "y_range": [
+         71,
+         181
+        ]
+       }
+      },
+      "verdict": "FAILED. A victim's histogram mixes the fountain death with every other death they took in the same fight, so the fountain cannot be located from it. The spreads above cover most of the map, which is what that mixing looks like.",
+      "what_would_fix_it": "a per-death record carrying both position and killer, which this endpoint does not provide"
+     },
+     "corner_upper_bound": {
+      "map_extent_observed": {
+       "x_min": 59,
+       "x_max": 197,
+       "y_min": 60,
+       "y_max": 196
+      },
+      "assumption": "a fountain lies within `corner_radius` of an observed map extreme; nothing else about its location is assumed",
+      "why_it_is_an_upper_bound": "it counts deaths near EITHER corner and does not check whose fountain it is, so it necessarily over-counts",
+      "further_over_counts": "it also ignores that only deaths inside a teamfight are visible, so the true rate could be higher than the covered subset shows; the bound is on the covered subset",
+      "rows": [
+       {
+        "corner_radius": 5,
+        "matches_with_a_corner_death": 0,
+        "matches": 618,
+        "upper_bound_match_rate": 0.0
+       },
+       {
+        "corner_radius": 10,
+        "matches_with_a_corner_death": 0,
+        "matches": 618,
+        "upper_bound_match_rate": 0.0
+       },
+       {
+        "corner_radius": 15,
+        "matches_with_a_corner_death": 1,
+        "matches": 618,
+        "upper_bound_match_rate": 0.0016
+       },
+       {
+        "corner_radius": 20,
+        "matches_with_a_corner_death": 25,
+        "matches": 618,
+        "upper_bound_match_rate": 0.0405
+       },
+       {
+        "corner_radius": 30,
+        "matches_with_a_corner_death": 151,
+        "matches": 618,
+        "upper_bound_match_rate": 0.2443
+       }
+      ]
+     },
+     "classification": "PARTIAL / BOUNDED -- positions exist but cannot be attributed to a killer, so the fountain region cannot be calibrated from data and hard-coding it is not permitted",
+     "withdrawn": "the earlier claim that the source has no death positions"
+    },
     "direction_of_the_error": "a fountain death happens in games that are being lost badly, so its attenuation belongs at the LOW end of the measured range, which is where its breakpoint is least achievable"
    }
   },
