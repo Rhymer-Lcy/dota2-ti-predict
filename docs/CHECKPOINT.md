@@ -1,17 +1,24 @@
-# AUTHORITATIVE PROJECT CHECKPOINT (frozen 2026-08-10, pre-lock-day)
+# AUTHORITATIVE PROJECT CHECKPOINT (group stage LOCKED 2026-08-12)
 
 Single source of truth for the frozen state. Do not reinterpret, reopen, or silently modify a frozen
 decision. Git history and committed documents govern.
 
-## Status
-The repository is FROZEN until the lock-day final run. A submission-grade candidate has passed every
-production gate, and the only work left is the lock-day re-verification listed at the bottom.
+## Status at a glance
+| Track | State | Artifact |
+|---|---|---|
+| Group-stage prediction (16 slots) | **LOCKED** | `predictions/ti2026/group-stage/ti15_group_prediction.{json,md}` |
+| Fantasy period 0 | **OPERATIONALLY SET / BEST-KNOWN PROVISIONAL** | `predictions/ti2026/fantasy/coach_pricing_20260812.json` |
+| Main event / period 1 | **NOT STARTED** - next phase, deliberately not opened | - |
+
+---
+
+# 1. Group stage - LOCKED
 
 ## Frozen production specification
 - Model: identity side-neutral Bradley-Terry (B-bt); ridge lambda = 1.
 - Time-decay half-life: 90 days (`contest_rules.PRODUCTION_HALF_LIFE_DAYS`), applied explicitly.
 - Map probability: side-neutral `0.5*(sigmoid(d+c) + sigmoid(d-c))`, `d = strength_a - strength_b`,
-  `c` = train-only radiant coefficient at the cutoff (currently +0.0932).
+  `c` = train-only radiant coefficient at the cutoff (+0.0932).
 - Calibration: none (no Platt, no temperature).
 - Solver: Hungarian max-expected-correct, then the independently verified `points_refinement`
   (adopted only if a separate verification archive shows a paired gain > 2 bootstrap se).
@@ -22,90 +29,151 @@ production gate, and the only work left is the lock-day re-verification listed a
 - Selection evidence and the closed challenger rounds: `docs/validation-plan-v2.md`,
   `backtest2/results-adversarial.md`, `backtest2/results-post-r1.md`.
 
-## Event facts as of the freeze
-- **Round 1: OFFICIAL.** All eight pairings from Valve's league feed (league_id 19719), every team id
-  resolved through `canonical_identity.csv` `source_team_ids`; parsed into
-  `data/ti2026/inputs/draw.json` by `ti_predict/league_feed.py`.
-- **Lock time: 2026-08-13T02:00:00Z** (10:00 UTC+8), Tier-1 from two independent Valve channels
-  (blog wording and the feed's `scheduled_time` on every round-1 node). The in-client countdown is
-  still the final check on the day.
-- **Two-pod structure: CONFIRMED** by the official TI15 rules page (round 1 splits the field into two
-  initial groups and pairs within them; rounds 2-3 pair inside a team's group; round 4 pairs across).
-- **Pod membership: UNRESOLVED.** No source publishes the eight-team split; the feed's lack of a pod
-  field is a gap in the feed, not evidence about the format. The official run marginalizes over the
-  35 memberships compatible with round 1. `open-16` is a sensitivity comparator and is refused in
-  official mode.
-- **LGD Gaming position 2: TaiLung (banned for tournament integrity) -> Topson**, recorded with full
-  provenance in `data/ti2026/inputs/roster_events.csv` (account ids 1026694469 -> 94054712). The
-  other 15 lineups are CONFIRMED unchanged; the Team Liquid Nisha / Miracle! source conflict is
-  resolved (Nisha, from match data). Note `canonical_identity.csv` is the OBSERVED five from match
-  data, so it still lists TaiLung by construction - `roster_events.csv` is the roster of record.
+## The locked run
+- `predictions/ti2026/group-stage/ti15_group_prediction.{json,md}` - JSON is the fact source, the
+  Markdown is rendered from it.
+- Mode `official`, generated from a clean tree at commit `db16aa9`
+  (`git_dirty_at_start = false`), cutoff 2026-08-13T02:00:00Z, seed 20260813,
+  **280000 simulations** over 35 admissible pod memberships, E[correct] **5.249**.
+- **Slate:** 4-0 PARIVISION; 4-1 Team Yandex, BetBoom Team; decider_win Team Falcons, Aurora Gaming,
+  Team Spirit, Team Liquid, Nigma Galaxy; decider_loss Xtreme Gaming, Vici Gaming, Tundra Esports,
+  LGD Gaming, Team Resilience; 1-4 HULIGANI, GamerLegion; 0-4 OG.
+- Client display names differ from canonical organisations: PARIVISION = TEAM VISION,
+  BetBoom Team = BOOMBOYS, Tundra Esports = **IRON WING**. `teams.csv` still records Tundra's
+  `ti_alias` as `1w Team`, which is stale against both the official feed and the client. The field is
+  display-only (`build_canonical`, `resolve_identity`, manifest) and never enters strength
+  estimation, so it was deliberately NOT edited on lock day. Fix it in the next phase.
 
-## Current submission-grade candidate
-- Artifact: `predictions/ti2026/group-stage/candidates/ti15_group_candidate_20260810T095746Z.{json,md}`
-  (JSON is the fact source; the Markdown is rendered from it).
-- Generated at commit `7a767c7`, cutoff 2026-08-13T02:00:00Z, seed 20260813, **280000 simulations**
-  over 35 admissible pod memberships, E[correct] 5.249.
-- Gates: all passed. Membership agreement 14/35 identical slates, max held-out regret 0.0199 against
-  the 0.05 limit; `points_refinement` proposed no move (Hungarian stands); D4 zero slot changes.
-- **Slate (0 slot changes from the post-round-1 provisional):** 4-0 PARIVISION; 4-1 Team Yandex,
-  BetBoom Team; decider_win Team Falcons, Aurora Gaming, Team Spirit, Team Liquid, Nigma Galaxy;
-  decider_loss Xtreme Gaming, Vici Gaming, Tundra Esports, LGD Gaming, Team Resilience; 1-4 HULIGANI,
-  GamerLegion; 0-4 OG.
-- The candidate is NOT the final run and never occupies the official path or label.
+## Lock-day audit (2026-08-12), all negative
+Re-ran the full input audit and the production pipeline; **NO MATERIAL INPUT CHANGE**.
+- `teams_sha256`, `canonical_identity_sha256`, `universe_sha256`, `draw_sha256`: all four identical
+  to the 2026-08-10 submission-grade candidate.
+- A complete re-scan (92 pages, 9200 pro matches, `coverage_complete = true`, latest
+  2026-08-12T15:40Z) found 26 matches newer than the universe's last map, **all** in EPL Masters 2026
+  (league 19944) between eight non-TI organisations. Rebuilding produced a **byte-identical**
+  `universe_maps.csv`. The earlier override note ("no professional match exists before the cutoff")
+  was therefore corrected to "matches exist, none within the universe's scope".
+- Official feed `sha256` changed (`41b53f0e` -> `dd129ecd`) from `prize_pool` only; the eight round-1
+  pairings, `scheduled_time`, `advancing`, and `win_loss_limit` are unchanged.
+- The feed carries TI-branded team ids (`10150413` Iron Wing, `9572001` TEAM VISION, `5017210`,
+  `8261500`) where `teams.csv` deliberately uses the re-resolved ids that carry the recent maps.
+  Same organisations, verified individually.
+- Pod membership **still unpublished**: no `node_group` carries a team list. Marginalisation over 35
+  memberships stands.
+- Rosters: no change since the LGD position-2 TaiLung -> Topson substitution
+  (`data/ti2026/inputs/roster_events.csv`).
+- Result: every bucket identical to the 2026-08-10 candidate, E[correct] identical to four decimals.
+  **KEEP CURRENT SUBMISSION - NO CHANGES.**
+
+## Event facts
+- **Round 1: OFFICIAL**, eight pairings from Valve's league feed (league_id 19719), parsed into
+  `data/ti2026/inputs/draw.json` by `ti_predict/league_feed.py`.
+- **Lock time: 2026-08-13T02:00:00Z** (10:00 UTC+8). The in-client countdown is the final authority.
+- **Two-pod structure: CONFIRMED** by the official rules page. **Pod membership: UNRESOLVED.**
+  `open-16` is a sensitivity comparator and is refused in official mode.
 
 ## Simulation count doctrine (not a model constant, not a gate)
-- Pod membership CONFIRMED: `--sims 120000` (the floor set by points-refinement gate power).
-- Pod membership UNRESOLVED: **140000 is the calibrated minimum** (4000 per membership; below that
-  the membership gate blocks on Monte-Carlo noise) and **280000 is the recommended lock-day value**
-  (8000 per membership). `POD_MEMBERSHIP_REGRET_MAX` and the refinement threshold are unchanged.
+- Pod membership CONFIRMED: `--sims 120000`. UNRESOLVED: 140000 calibrated minimum, **280000
+  recommended and used**.
 
 ## Freshness override: strict conditions
-`--allow-stale` is a request to check, not a claim. In gated modes the run reads
-`processed/scan_provenance.json` (written by `scan_promatches`) and refuses the override unless it is
-present, well-formed, `coverage_complete = true`, no older than `STALE_MAX_DAYS`, and describing at
-least the data the universe holds. The manifest then records `stale_override_used` plus a reason
-built from those facts, and keeps **data-coverage freshness** and **latest-eligible-match recency**
-as separate fields.
+`--allow-stale` is a request to check, not a claim. Gated modes read
+`processed/scan_provenance.json` and refuse unless it is present, well-formed,
+`coverage_complete = true`, no older than `STALE_MAX_DAYS`, and describes at least the data the
+universe holds. Data-coverage freshness and latest-eligible-match recency stay separate fields.
 
 ## Provenance semantics
-`provenance.git_commit_at_start` / `git_dirty_at_start` are sampled BEFORE any work: they describe
-the tree the run started from, and nothing the run writes can change them. Start the final official
-run from a clean tree so the emitted manifest carries `git_dirty_at_start = false`. A dirty start is
-a warning, not a hard block - that policy is unchanged.
+`provenance.git_commit_at_start` / `git_dirty_at_start` are sampled BEFORE any work. The locked
+official run carries `git_dirty_at_start = false`.
 
-## Code state
-- `ti_predict/`: `swiss.py` (rules-based Swiss + decider; admissible-membership enumeration; the
-  open-16 comparator), `assign.py` (Hungarian), `predict_ti15.py` (three gated modes: dry-run /
-  candidate / official), `league_feed.py` (official draw ingest), `rosters.py` (roster audit),
-  `contest_rules.py` (all official constants), plus the data layer.
-- `backtest2/`: `post_r1.py` (membership-marginalized research), `roster_sensitivity.py`,
-  `market_check.py`, and the closed study modules.
-- Pipeline defects found and fixed during the lock-period rounds, all of the same class (a partial
-  result being written silently): `resolve_identity` overwriting the deep pro-match scan;
-  `resolve_identity` overwriting the tracked canonical identity table on a partial run;
-  `roster_coverage` dropping organizations on transient API errors; a stale fold table; and a
-  cross-drive `relpath` crash after a successful `--out` run. Each now fails closed, with tests.
+---
 
-## Tests
-`python -m pytest -q` -> **85 passed** (data-dependent tests auto-skip on a clean clone). Coverage
-includes: official constants; simulator structure and both pod structures; assignment; the three
-gated modes; draw structure / membership semantics; roster audit; scan provenance and the freshness
-override (missing, malformed, incomplete-coverage, stale); git provenance field naming; membership
-marginalization and its regret measurement; failure modes.
-Also: `python -m ti_predict.swiss`, `... .assign`, `... .league_feed`, `... .rosters`,
-`... .predict_ti15 --dry-run`.
+# 2. Fantasy period 0 - OPERATIONALLY SET
 
-## Lock-day final run - the only remaining work
-1. Confirm the exact in-client lock countdown (expected 2026-08-13T02:00:00Z).
-2. Re-check whether the pod membership has been published; if so fill `podA`/`podB` and set
-   `pod_membership_status = confirmed`.
-3. Run the full fail-closed data refresh (`docs/lockday-runbook.md` step 1) so any 2026-08-10..13
-   matches are included and the scan provenance is current.
-4. Re-verify all 16 rosters and update `roster_events.csv`.
-5. Run `--official` from a clean tree with the sims count for the membership state, then submit the
-   slate exactly as printed, at least an hour before the lock.
+## Two accounts, never interchangeable
+| File | Account | Coach | Tokens |
+|---|---|---|---|
+| `account_state_operator_20260812.json` | **operator's own** | Elemental + the Tormented | 10 |
+| `account_state_target_20260812c.json` | friend's TARGET ACCOUNT | Elemental + the Tormented | 38 |
 
-## Discipline
-Conventional Commits, subject <= 72 characters and ASCII (hook-enforced). Production is never updated
-from crowd percentages, odds, or results, and is not re-tuned on TI2024/TI2025 outcomes.
+`account_state_target_*` a..c form a validated sequential chain (states 1-6); every file is
+referenced by `tests/test_fantasy_account_state.py` and none may be moved or deleted. The operator
+file is graded `user_runtime_observation` (all nine multipliers reproduced by
+`banner_model.slot_weights` at write time); the friend's state-6 coach is graded
+`reported_by_operator` because no screenshot of the change was supplied.
+
+## Frozen scoring chain
+player-game -> role mean -> top two maps in a series -> best series in the period -> **event-equal
+block estimator** -> frozen TI exposure. Banner composition is
+`multiplier = 1 + quality_bonus + net_trait_bonus`, validated on 18 emblems across two accounts plus
+two before-the-fact predictions, and re-validated on all nine of the operator's slots.
+
+## Settled facts
+- Coach titles change for **0 roll tokens** and reversibly (`coach_titles.confirmed`).
+- Team change via the War Banner button is free and preserves the banner; duplicate teams across
+  roles are allowed.
+- All eight suffix bonuses agree four ways (client, Kadadji, MyKa322, ruleset). Seven suffixes are
+  scored exactly; the Tormented is counted directly off `npc_dota_miniboss` in `killed_by`.
+- Data coverage: `match_extras.csv` and `death_positions.csv` are both 623/623, 0 failed.
+
+## Current operator recommendation (issued, not confirmed applied)
+Core Xtreme Gaming (keep) - Mid **change Team Yandex -> Team Falcons** (+4.03% over Aurora; the held
+team ranks 13th at 0.649 relative) - Support Xtreme Gaming (keep, +14.08%) - Coach keep
+Elemental + the Tormented.
+
+## Remaining unknowns (all SCALE_ONLY or bounded; none blocks period 0)
+- `elemental_predicate_completeness` - our flag is `isaquatic`, the condition is Aquatic/Fiery/Icy;
+  no source recovers the rest. Stressed to 50% of eligible player-games under adversarial placement
+  without flipping the winner.
+- `fountain_death_positions` - `deaths_pos` exists in `teamfights[].players[]` (41.0% of deaths) but
+  is a per-fight histogram, so no death can be tied to its killer and the fountain cannot be
+  calibrated. Corner upper bound 0.0000-0.0016 at any fountain-sized radius.
+- `historical_event_aggregation` / `historical_event_recency_weighting` - estimator choices, not
+  facts. Event-equal is selected; recency half-lives 180/90/60/30 do not flip the winner.
+- `cross_role_predictive_dependence` - default `by_organization` (Core and Support are the same club
+  and play the same series). The predictive tail is NOT a usable discriminator.
+- `title_stacking` - still UNRESOLVED as a fact, ROBUST for the decision.
+- `stat_reroll_outcome_distribution` - still BLOCKING; green stat rerolls stay untouched.
+- Scoring coverage gaps: Watchers Taken, Lotuses Gained, Tormentor Kills have no public per-map
+  source. On the operator's Support banner this leaves only Wards Planted scoreable, 1.20 of 6.30.
+
+## Withdrawn claims - traceable, never live
+Ten superseded conclusions are recorded under `withdrawn_claims` in
+`coach_pricing_20260812.json` with the reason each failed. They must not reappear in any live
+recommendation. A regression test asserts no superseded prose survives outside that block.
+
+---
+
+# 3. Code and tests
+
+- `ti_predict/`: `swiss.py`, `assign.py`, `predict_ti15.py` (dry-run / candidate / official),
+  `league_feed.py`, `rosters.py`, `contest_rules.py`, plus the data layer.
+- `ti_predict/fantasy/`: `banner_model.py` (exact three-slot evaluator), `account_state.py`,
+  `baseline.py`, `preselection.py`, `coach_optimize.py` (joint pricing, Cartesian scenario family,
+  nested adversarial search), `cruel_bound.py`, and the four fetchers.
+- `backtest2/`: closed study modules.
+- Tests: `python -m pytest -q` -> **349 passed**. The suite takes ~4 minutes because the artifact
+  rebuild test re-runs the full nested adversarial search; that is deliberate.
+- Pipeline defects found and fixed, all of the same class (a partial or duplicated fact written
+  silently): `resolve_identity` overwriting the deep scan and the canonical table; `roster_coverage`
+  dropping organisations on transient errors; a stale fold table; a cross-drive `relpath` crash;
+  a hand-typed `SUFFIX_BONUS` copy that had three wrong values; cross-event pooling behind a
+  docstring that claimed the opposite; a player-map denominator on match-level events; a shared RNG
+  stream across roles; and a hardcoded coach prefix in the generator.
+
+# 4. Where the next phase starts
+
+Main event / period 1. Nothing below has been opened, and none of it should be started before the
+group stage resolves:
+1. Bracket predictions (14 slots, ids 801-814) - the second out-of-game prediction set.
+2. Fantasy period 1 - new roster lock, new banner, tokens carry over
+   (`future_stage_tokens = 30` on the friend's account).
+3. Carry-forward chores: fix Tundra's stale `ti_alias`; re-grade the friend's state-6 coach to
+   `user_runtime_observation` if a screenshot arrives; resolve `stat_reroll_outcome_distribution`
+   before spending roll tokens.
+
+# 5. Discipline
+
+Conventional Commits, subject <= 72 characters and ASCII (hook-enforced). Production is never
+updated from crowd percentages, odds, or results, and is not re-tuned on TI2024/TI2025 outcomes.
+JSON is the machine fact source; Markdown is rendered from it. One fact, one place.

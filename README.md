@@ -7,7 +7,7 @@ at risk). Goal: place in the top reward tier of the global leaderboard.
 Method reuses the calibrated-probability approach from the archived soccer `odds-pipeline`
 (market de-vig via Shin, cross-checked by an independent model), adapted to esports series.
 
-## Status (2026-08-10) — round 1 posted and ingested; pod membership marginalized
+## Status (2026-08-12) — **GROUP STAGE LOCKED**; Fantasy period 0 operationally set
 - **Contest rules: verified** (official Valve in-client TI15 activity, not a third-party game). The
   group prediction is a full **16-slot classification** — 4-0 x1, 4-1 x2, decider-win x5,
   decider-loss x5, 1-4 x2, 0-4 x1 — scored by number correct (convex `f(K)`, no penalty, no underdog
@@ -16,7 +16,8 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
   `scheduled_time` on every round-1 node, not just by the blog wording (the in-client countdown stays
   the final check). Full write-up: [`docs/contest-official-ti15.md`](docs/contest-official-ti15.md).
 - **Field: confirmed 16** in [`data/ti2026/inputs/teams.csv`](data/ti2026/inputs/teams.csv), matching
-  the official field (BetBoom/BoomBoys, PARIVISION/Team Vision, Tundra roster → 1w Team, etc.).
+  the official field (BetBoom/BoomBoys, PARIVISION/TEAM VISION, Tundra roster/**IRON WING** — note `teams.csv` still carries the stale `ti_alias` `1w Team`; the field is display-only and never enters strength estimation).
+- **Locked slate:** `predictions/ti2026/group-stage/ti15_group_prediction.json` (mode `official`, clean tree, 280000 sims over 35 pod memberships, E[correct] 5.249). The lock-day audit found **no material input change**: all four input fingerprints identical to the 2026-08-10 candidate and every bucket unchanged. Full state: [`docs/CHECKPOINT.md`](docs/CHECKPOINT.md).
 - **Model: FROZEN.** Production = identity **side-neutral B-bt**, half-life **90**, map prob
   `0.5*(sigmoid(d+c)+sigmoid(d-c))` with train-only radiant `c`; **no Platt/temperature layer**.
   Selected via event-frozen rolling backtest (B-bt beats plain Elo **17/23** folds). The D2 nested
