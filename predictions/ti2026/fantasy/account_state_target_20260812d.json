@@ -1,0 +1,197 @@
+{
+ "schema_version": 1,
+ "account": "TARGET ACCOUNT (the friend). Never the operator's test account.",
+ "observed_at": "2026-08-12T16:00:00Z",
+ "provenance": {
+  "source": "client screenshots of the three War Banners and the Coaching Titles panel",
+  "tier": "user_runtime_observation",
+  "upgrade_note": "state 6 recorded the Coach as reported_by_operator because no screenshot existed. A screenshot now exists, so Elemental + the Tormented is graded user_runtime_observation here.",
+  "reconciliation_limit": "only the stat and the displayed multiplier were transcribed for each slot, so the nine multipliers are NOT re-derived by banner_model in this state, unlike states 1-6. Supply tier/trait/colour to restore that check."
+ },
+ "compendium_player_title": "盖世英雄 Alice in Chains, 关键之人",
+ "lock_countdown_observed": "18h48m11s to Group Stage roster lock",
+ "group_stage_lock_utc": "2026-08-13T02:00:00Z",
+ "roll_tokens": 6,
+ "future_stage_tokens": 30,
+ "selected_banner_for_crafting": "mid",
+ "coach": {
+  "prefix": "Elemental",
+  "prefix_bonus_percent": 8,
+  "suffix": "the Tormented",
+  "suffix_bonus_percent": 23,
+  "status": "observed in client"
+ },
+ "roll_board": [
+  {
+   "id": "A3",
+   "label_zh": "重新生成最后一枚绿色徽标的统计数据",
+   "label_en": "reroll STAT of the LAST green emblem",
+   "kind": "stat",
+   "colour": "green",
+   "which": "last"
+  },
+  {
+   "id": "B3",
+   "label_zh": "重新生成绿色徽标的统计数据",
+   "label_en": "reroll STAT of the green emblems (no positional qualifier)",
+   "kind": "stat",
+   "colour": "green",
+   "which": "all",
+   "note": "matches DOTA_FantasyCraft_Operation_Target_Emerald ('Green Emblems'), the all-of-colour target, as distinct from the first/last/random variants"
+  },
+  {
+   "id": "C3",
+   "label_zh": "重新生成第一枚绿色徽标的统计数据",
+   "label_en": "reroll STAT of the FIRST green emblem",
+   "kind": "stat",
+   "colour": "green",
+   "which": "first"
+  }
+ ],
+ "board_reroll_available": {
+  "label_zh": "重新生成操作选项",
+  "cost_tokens": null,
+  "cost_status": "UNRESOLVED - the panel names it but the price was not read"
+ },
+ "banners": {
+  "core": {
+   "client_team": "Xtreme Gaming",
+   "canonical_team": "Xtreme Gaming",
+   "players": [
+    "Xxs",
+    "Ame"
+   ],
+   "slots": [
+    {
+     "stat": "gpm",
+     "displayed_multiplier": 1.5,
+     "quality_tier": null,
+     "trait": null,
+     "colour": null,
+     "detail_not_supplied": "the screenshot gave the stat and the displayed multiplier; quality tier, trait and colour were not transcribed, so banner_model cannot re-derive this slot. Recorded as observed, not reconstructed."
+    },
+    {
+     "stat": "roshan_kills",
+     "displayed_multiplier": 2.1,
+     "quality_tier": null,
+     "trait": null,
+     "colour": null,
+     "detail_not_supplied": "the screenshot gave the stat and the displayed multiplier; quality tier, trait and colour were not transcribed, so banner_model cannot re-derive this slot. Recorded as observed, not reconstructed."
+    },
+    {
+     "stat": "creep_score",
+     "displayed_multiplier": 3.2,
+     "quality_tier": null,
+     "trait": null,
+     "colour": null,
+     "detail_not_supplied": "the screenshot gave the stat and the displayed multiplier; quality tier, trait and colour were not transcribed, so banner_model cannot re-derive this slot. Recorded as observed, not reconstructed."
+    }
+   ]
+  },
+  "mid": {
+   "client_team": "Team Yandex",
+   "canonical_team": "Team Yandex",
+   "players": [
+    "CHIRA_JUNIOR"
+   ],
+   "slots": [
+    {
+     "stat": "deaths",
+     "displayed_multiplier": 1.8,
+     "quality_tier": null,
+     "trait": null,
+     "colour": null,
+     "detail_not_supplied": "the screenshot gave the stat and the displayed multiplier; quality tier, trait and colour were not transcribed, so banner_model cannot re-derive this slot. Recorded as observed, not reconstructed."
+    },
+    {
+     "stat": "wards_placed",
+     "displayed_multiplier": 2.1,
+     "quality_tier": null,
+     "trait": null,
+     "colour": null,
+     "detail_not_supplied": "the screenshot gave the stat and the displayed multiplier; quality tier, trait and colour were not transcribed, so banner_model cannot re-derive this slot. Recorded as observed, not reconstructed."
+    },
+    {
+     "stat": "stuns",
+     "displayed_multiplier": 1.7,
+     "quality_tier": null,
+     "trait": null,
+     "colour": null,
+     "detail_not_supplied": "the screenshot gave the stat and the displayed multiplier; quality tier, trait and colour were not transcribed, so banner_model cannot re-derive this slot. Recorded as observed, not reconstructed."
+    }
+   ]
+  },
+  "support": {
+   "client_team": "Xtreme Gaming",
+   "canonical_team": "Xtreme Gaming",
+   "players": [
+    "xNova",
+    "fy"
+   ],
+   "slots": [
+    {
+     "stat": "runes_grabbed",
+     "displayed_multiplier": 2.9,
+     "quality_tier": null,
+     "trait": null,
+     "colour": null,
+     "detail_not_supplied": "the screenshot gave the stat and the displayed multiplier; quality tier, trait and colour were not transcribed, so banner_model cannot re-derive this slot. Recorded as observed, not reconstructed."
+    },
+    {
+     "stat": "first_blood",
+     "displayed_multiplier": 1.5,
+     "quality_tier": null,
+     "trait": null,
+     "colour": null,
+     "detail_not_supplied": "the screenshot gave the stat and the displayed multiplier; quality tier, trait and colour were not transcribed, so banner_model cannot re-derive this slot. Recorded as observed, not reconstructed."
+    },
+    {
+     "stat": "watchers_taken",
+     "displayed_multiplier": 1.8,
+     "quality_tier": null,
+     "trait": null,
+     "colour": null,
+     "detail_not_supplied": "the screenshot gave the stat and the displayed multiplier; quality tier, trait and colour were not transcribed, so banner_model cannot re-derive this slot. Recorded as observed, not reconstructed."
+    }
+   ]
+  }
+ },
+ "model_correction_this_round": {
+  "what": "the composition of quality and trait bonuses",
+  "old": "multiplier = quality_factor * (1 + trait_bonus), so a Tier I emblem scored 0.10 of its stat",
+  "new": "multiplier = 1 + quality_bonus + net_trait_bonus, exactly as the client prints it",
+  "evidence": "all nine observed emblems reproduce to the digit; the old rule reproduced none",
+  "consequence": "the real multiplier range is about 1.1 to 2.6 rather than 0.09 to 3.15, so a banner reweights the stats far less violently than the pre-banner model assumed"
+ },
+ "state_index": 7,
+ "previous_state": "account_state_target_20260812c.json",
+ "action_taken_since": "Roll tokens spent from 38 to 6 rerolling the Core and Support banners and one Mid slot. Stats are unchanged on all nine slots; only qualities and traits moved. Teams and Coach unchanged.",
+ "resolved_this_round": [
+  "Coach provenance upgraded to user_runtime_observation.",
+  "Banner and token balance re-synced from screenshots."
+ ],
+ "open_mechanics": {
+  "stat_reroll_outcome_distribution": {
+   "status": "UNRESOLVED",
+   "decision_status": "BLOCKING for any stat reroll",
+   "why": "Tier-1 guarantees only that a reroll produces a NEW stat and that a banner carries no duplicate stats. It says nothing about the probabilities. Every stat-reroll EV computed so far assumed a uniform draw, which is an assumption, not evidence.",
+   "note": "The three green-stat operations currently on the board are therefore not recommended."
+  },
+  "support_watchers_gap": {
+   "status": "UNRESOLVED",
+   "decision_status": "BLOCKING for the Support switch",
+   "breakpoint": "Xtreme's support pair would need between 1.95 and 3.38 MORE watchers per series than LGD's (depending on the coach suffix) for KEEP to beat CHANGE.",
+   "why_it_blocks": "That range sits inside the plausible spread of team behaviour, and there is no public player-level source for Watchers Taken, so the sign of the comparison cannot be established. The switch is not recommended on a model that cannot see one of the three slots it is scoring."
+  }
+ },
+ "banner_changes_since_previous_state": [
+  "core.gpm 1.8 -> 1.5",
+  "core.roshan_kills 1.2 -> 2.1",
+  "core.creep_score 1.8 -> 3.2",
+  "mid.stuns 1.4 -> 1.7",
+  "support.runes_grabbed 1.8 -> 2.9",
+  "support.first_blood 1.3 -> 1.5",
+  "support.watchers_taken 1.3 -> 1.8"
+ ],
+ "scoring_impact_notice": "coach_pricing_20260812.json was computed on the state-6 banner. Eight of the nine slots have since changed, so that artifact's joint gains describe a SUPERSEDED banner. The Coach choice was NOT re-derived in this sync, by instruction. Re-run the generator against this state before relying on those numbers again."
+}

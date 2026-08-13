@@ -18,6 +18,7 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
 - **Field: confirmed 16** in [`data/ti2026/inputs/teams.csv`](data/ti2026/inputs/teams.csv), matching
   the official field (BetBoom/BoomBoys, PARIVISION/TEAM VISION, Tundra roster/**IRON WING** — note `teams.csv` still carries the stale `ti_alias` `1w Team`; the field is display-only and never enters strength estimation).
 - **Locked slate:** `predictions/ti2026/group-stage/ti15_group_prediction.json` (mode `official`, clean tree, 280000 sims over 35 pod memberships, E[correct] 5.249). The lock-day audit found **no material input change**: all four input fingerprints identical to the 2026-08-10 candidate and every bucket unchanged. Full state: [`docs/CHECKPOINT.md`](docs/CHECKPOINT.md).
+- **Fantasy period 0:** operationally set on both accounts, latest observed states `predictions/ti2026/fantasy/account_state_operator_20260812b.json` (Xtreme / Team Falcons / Xtreme, 10 tokens) and `..._target_20260812d.json` (Xtreme / Team Yandex / Xtreme, 6 tokens); Coach Elemental + the Tormented on both. `coach_pricing_20260812.json` was computed on the friend's previous banner and must be re-run against state 7 before reuse.
 - **Model: FROZEN.** Production = identity **side-neutral B-bt**, half-life **90**, map prob
   `0.5*(sigmoid(d+c)+sigmoid(d-c))` with train-only radiant `c`; **no Platt/temperature layer**.
   Selected via event-frozen rolling backtest (B-bt beats plain Elo **17/23** folds). The D2 nested

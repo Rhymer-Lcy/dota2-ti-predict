@@ -7,7 +7,7 @@ decision. Git history and committed documents govern.
 | Track | State | Artifact |
 |---|---|---|
 | Group-stage prediction (16 slots) | **LOCKED** | `predictions/ti2026/group-stage/ti15_group_prediction.{json,md}` |
-| Fantasy period 0 | **OPERATIONALLY SET / BEST-KNOWN PROVISIONAL** | `predictions/ti2026/fantasy/coach_pricing_20260812.json` |
+| Fantasy period 0 | **OPERATIONALLY SET / BEST-KNOWN PROVISIONAL** | states: `account_state_operator_20260812b.json`, `account_state_target_20260812d.json` |
 | Main event / period 1 | **NOT STARTED** - next phase, deliberately not opened | - |
 
 ---
@@ -91,16 +91,36 @@ official run carries `git_dirty_at_start = false`.
 # 2. Fantasy period 0 - OPERATIONALLY SET
 
 ## Two accounts, never interchangeable
-| File | Account | Coach | Tokens |
-|---|---|---|---|
-| `account_state_operator_20260812.json` | **operator's own** | Elemental + the Tormented | 10 |
-| `account_state_target_20260812c.json` | friend's TARGET ACCOUNT | Elemental + the Tormented | 38 |
+**Current operational state - these two files, nothing earlier:**
 
-`account_state_target_*` a..c form a validated sequential chain (states 1-6); every file is
-referenced by `tests/test_fantasy_account_state.py` and none may be moved or deleted. The operator
-file is graded `user_runtime_observation` (all nine multipliers reproduced by
-`banner_model.slot_weights` at write time); the friend's state-6 coach is graded
-`reported_by_operator` because no screenshot of the change was supplied.
+| File | Account | Teams (core / mid / support) | Coach | Tokens |
+|---|---|---|---|---|
+| `account_state_operator_20260812b.json` | **operator's own** | Xtreme / **Team Falcons** / Xtreme | Elemental + the Tormented | 10 |
+| `account_state_target_20260812d.json` | friend's TARGET ACCOUNT | Xtreme / Team Yandex / Xtreme | Elemental + the Tormented | 6 |
+
+Both are graded `user_runtime_observation` from client screenshots (2026-08-12T16:00Z).
+
+History is append-only and complete: `account_state_target_*` runs states 1-7 and
+`account_state_operator_*` states 1-2. Every earlier file is referenced by
+`tests/test_fantasy_account_state.py`; none may be moved or deleted, and none is a current pointer.
+
+Changes captured in this sync:
+- Friend: roll tokens 38 -> 6, spent rerolling. **Seven of nine slots changed** (all nine stats are
+  the same; only qualities and traits moved): core gpm 1.8->1.5, roshan 1.2->2.1, cs 1.8->3.2;
+  mid stuns 1.4->1.7; support runes 1.8->2.9, first blood 1.3->1.5, watchers 1.3->1.8. The state-6
+  coach grading is upgraded from `reported_by_operator` to `user_runtime_observation`.
+- Operator: **Mid changed Team Yandex -> Team Falcons**, which was the standing recommendation, so
+  it is now recorded as applied rather than issued. Free and banner-preserving: all nine multipliers
+  re-verified unchanged against `banner_model.slot_weights` at write time.
+
+**Known staleness, deliberately not resolved in this sync.** `coach_pricing_20260812.json` was
+computed on the state-6 banner. Seven of the friend's nine slots have since changed, so its joint
+gains describe a superseded banner. The Coach choice was NOT re-derived here, by instruction. Before
+those numbers are used again, re-run:
+`python -m ti_predict.fantasy.coach_optimize --state predictions/ti2026/fantasy/account_state_target_20260812d.json --draws 4000 --out <path>`.
+The generator has no default state - `--state` is required - so nothing silently reads an old one.
+The friend's state-7 slots record only stat and displayed multiplier, so `banner_model` cannot
+re-derive them; supply tier/trait/colour to restore that check.
 
 ## Frozen scoring chain
 player-game -> role mean -> top two maps in a series -> best series in the period -> **event-equal
@@ -116,10 +136,11 @@ two before-the-fact predictions, and re-validated on all nine of the operator's 
   scored exactly; the Tormented is counted directly off `npc_dota_miniboss` in `killed_by`.
 - Data coverage: `match_extras.csv` and `death_positions.csv` are both 623/623, 0 failed.
 
-## Current operator recommendation (issued, not confirmed applied)
-Core Xtreme Gaming (keep) - Mid **change Team Yandex -> Team Falcons** (+4.03% over Aurora; the held
-team ranks 13th at 0.649 relative) - Support Xtreme Gaming (keep, +14.08%) - Coach keep
-Elemental + the Tormented.
+## Operator recommendation - APPLIED
+Core Xtreme Gaming (kept) - Mid **Team Yandex -> Team Falcons, executed** (+4.03% over Aurora; the
+previously held team ranked 13th at 0.649 relative) - Support Xtreme Gaming (kept, +14.08%) - Coach
+kept Elemental + the Tormented. Computed on the operator's banner, which this sync confirms
+unchanged.
 
 ## Remaining unknowns (all SCALE_ONLY or bounded; none blocks period 0)
 - `elemental_predicate_completeness` - our flag is `isaquatic`, the condition is Aquatic/Fiery/Icy;
@@ -168,9 +189,9 @@ group stage resolves:
 1. Bracket predictions (14 slots, ids 801-814) - the second out-of-game prediction set.
 2. Fantasy period 1 - new roster lock, new banner, tokens carry over
    (`future_stage_tokens = 30` on the friend's account).
-3. Carry-forward chores: fix Tundra's stale `ti_alias`; re-grade the friend's state-6 coach to
-   `user_runtime_observation` if a screenshot arrives; resolve `stat_reroll_outcome_distribution`
-   before spending roll tokens.
+3. Carry-forward chores: fix Tundra's stale `ti_alias`; resolve
+   `stat_reroll_outcome_distribution` (the friend has spent 32 tokens against it
+   unmodelled, and 6 remain).
 
 # 5. Discipline
 

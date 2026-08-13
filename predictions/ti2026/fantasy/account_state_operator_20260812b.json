@@ -1,0 +1,167 @@
+{
+ "schema_version": 1,
+ "account": "OPERATOR'S OWN account. NOT the friend's TARGET ACCOUNT; the two have different banners, different token balances and must never be substituted for each other.",
+ "observed_at": "2026-08-12T16:00:00Z",
+ "provenance": {
+  "source": "client screenshots of the three War Banners and the Coaching Titles panel",
+  "tier": "user_runtime_observation",
+  "reconciliation": "all nine displayed multipliers re-verified against banner_model.slot_weights at write time; unchanged by the team switch, as expected"
+ },
+ "period": 0,
+ "roll_tokens": 10,
+ "coach": {
+  "prefix": "Elemental",
+  "prefix_bonus_percent": 8,
+  "suffix": "the Tormented",
+  "suffix_bonus_percent": 23,
+  "status": "saved in client"
+ },
+ "banners": {
+  "core": {
+   "client_team": "Xtreme Gaming",
+   "canonical_team": "Xtreme Gaming",
+   "players": [
+    "Ame",
+    "Xxs"
+   ],
+   "slots": [
+    {
+     "colour": "red",
+     "stat": "tower_kills",
+     "quality_tier": "III",
+     "trait": "Benevolent",
+     "displayed_multiplier": 1.6,
+     "displayed_quality_bonus": 0.6,
+     "displayed_trait_bonus": 0.0
+    },
+    {
+     "colour": "green",
+     "stat": "teamfight_participation",
+     "quality_tier": "II",
+     "trait": "Fractal",
+     "displayed_multiplier": 2.1,
+     "displayed_quality_bonus": 0.3,
+     "displayed_trait_bonus": 0.8
+    },
+    {
+     "colour": "red",
+     "stat": "deaths",
+     "quality_tier": "I",
+     "trait": "Friendly",
+     "displayed_multiplier": 1.1,
+     "displayed_quality_bonus": 0.1,
+     "displayed_trait_bonus": 0.0
+    }
+   ]
+  },
+  "mid": {
+   "client_team": "TEAM FALCONS",
+   "canonical_team": "Team Falcons",
+   "players": [],
+   "slots": [
+    {
+     "colour": "red",
+     "stat": "madstone",
+     "quality_tier": "I",
+     "trait": "Fractal",
+     "displayed_multiplier": 1.7,
+     "displayed_quality_bonus": 0.1,
+     "displayed_trait_bonus": 0.6
+    },
+    {
+     "colour": "blue",
+     "stat": "runes_grabbed",
+     "quality_tier": "II",
+     "trait": "Unique",
+     "displayed_multiplier": 1.8,
+     "displayed_quality_bonus": 0.3,
+     "displayed_trait_bonus": 0.5
+    },
+    {
+     "colour": "green",
+     "stat": "tormentor_kills",
+     "quality_tier": "III",
+     "trait": "Benevolent",
+     "displayed_multiplier": 1.6,
+     "displayed_quality_bonus": 0.6,
+     "displayed_trait_bonus": 0.0
+    }
+   ],
+   "players_note": "not transcribed from the screenshot"
+  },
+  "support": {
+   "client_team": "Xtreme Gaming",
+   "canonical_team": "Xtreme Gaming",
+   "players": [
+    "fy",
+    "xNova"
+   ],
+   "slots": [
+    {
+     "colour": "blue",
+     "stat": "lotuses_gained",
+     "quality_tier": "III",
+     "trait": "Fractal",
+     "displayed_multiplier": 2.1,
+     "displayed_quality_bonus": 0.6,
+     "displayed_trait_bonus": 0.5
+    },
+    {
+     "colour": "green",
+     "stat": "tormentor_kills",
+     "quality_tier": "V",
+     "trait": "Vampiric",
+     "displayed_multiplier": 3.0,
+     "displayed_quality_bonus": 1.5,
+     "displayed_trait_bonus": 0.5
+    },
+    {
+     "colour": "blue",
+     "stat": "wards_placed",
+     "quality_tier": "II",
+     "trait": "Friendly",
+     "displayed_multiplier": 1.2,
+     "displayed_quality_bonus": 0.3,
+     "displayed_trait_bonus": -0.1
+    }
+   ]
+  }
+ },
+ "scoring_coverage_limits": {
+  "mid": "Tormentor Kills has no public per-map source; 1.60 of 5.10 banner weight dropped",
+  "support": "Lotuses Gained and Tormentor Kills have no public per-map source; only Wards Planted is scoreable, 1.20 of 6.30 banner weight, so the Support ranking rests on one slot"
+ },
+ "state_index": 2,
+ "previous_state": "account_state_operator_20260812.json",
+ "action_taken_since": "Mid team changed from Team Yandex to Team Falcons, as recommended. Free and banner-preserving: all nine multipliers are unchanged.",
+ "team_argmax_at_this_banner": {
+  "computed_at": "2026-08-12T14:00:00Z",
+  "generator": "ti_predict.fantasy.coach_optimize primitives over the frozen exposure",
+  "core": {
+   "best": "Xtreme Gaming",
+   "runner_up": "PARIVISION",
+   "margin": 0.0022
+  },
+  "mid": {
+   "best": "Team Falcons",
+   "runner_up": "Aurora Gaming",
+   "margin": 0.0403,
+   "held_team_rank": 13,
+   "held_team_relative": 0.6489
+  },
+  "support": {
+   "best": "Xtreme Gaming",
+   "runner_up": "Aurora Gaming",
+   "margin": 0.1408
+  },
+  "coach": {
+   "kept": "Elemental + the Tormented",
+   "runner_up": "Crimson + the Tormented",
+   "margin_against_kept": -0.00144,
+   "why_kept": "the 0.14pp edge sits inside the known downward bias on Elemental, whose flag (isaquatic) is a strict subset of its condition"
+  },
+  "recommendation_issued": "change Mid from Team Yandex to Team Falcons; leave Core, Support and Coach unchanged",
+  "recommendation_confirmed_applied": true,
+  "applied_note": "Mid -> Team Falcons executed. Core, Support and Coach left unchanged, which was also the recommendation."
+ }
+}
