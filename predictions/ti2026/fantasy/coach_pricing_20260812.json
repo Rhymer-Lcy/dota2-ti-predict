@@ -1242,7 +1242,7 @@
    },
    "central_missing_mass_is_a_point_estimate_not_a_bound": {
     "central": 3,
-    "why": "it is community Elemental frequency minus our own isaquatic rate measured on a DIFFERENT window, so the difference carries sampling noise, patch drift and hero-pool drift as well as genuine missing Fiery/Icy membership. It is a central estimate; the stress family above brackets it."
+    "why": "it is the community Elemental frequency minus our own isaquatic rate measured on a DIFFERENT window, so the difference carries sampling noise, patch drift and hero-pool drift as well as genuine missing membership. It is a central estimate; the stress family above brackets it."
    },
    "scenarios": [
     {
@@ -7492,6 +7492,8 @@
     },
     "is_nested_scenario_specific": true,
     "note": "the fixed-family sweep ranks placements once under one canonical setting and reuses them everywhere. This re-searches inside each scenario, so its worst case is at least as bad as the fixed family's by construction.",
+    "focus_event": "19785",
+    "focus_chosen_because": "its removal flips the winner in leave-one-event-out",
     "fixed_family_worst_gap": -0.01812,
     "widens_worst_case": true
    },
@@ -7812,7 +7814,7 @@
     "sha256": "507264727f41d993fe61b6155de1b404c2741658b0ffe99bf09d3b89f3f3e412",
     "coverage_complete": true
    },
-   "generated_utc": "2026-08-12T17:34:05+00:00"
+   "generated_utc": "2026-08-13T02:07:10+00:00"
   },
   "all_eight_closed": false,
   "suffix_scope": {
@@ -7985,7 +7987,7 @@
     "direction_of_the_error": "a fountain death happens in games that are being lost badly, so its attenuation belongs at the LOW end of the measured range, which is where its breakpoint is least achievable"
    }
   },
-  "exposure_source": "ti15_group_candidate_20260810T095746Z.json",
+  "exposure_source": "ti15_group_candidate_20260812T182736Z.json",
   "roles": {
    "core": {
     "organization": "Xtreme Gaming",

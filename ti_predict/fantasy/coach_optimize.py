@@ -1722,7 +1722,7 @@ def build(state_path, titles_path=None, draws=DRAWS):
 
     joint = scen = hier = loo = weighting = membership = dependence = None
     cruel = cartesian = None
-    current_prefix = "Elemental"
+    current_prefix = (state.get("coach") or {}).get("prefix")
     if role_inputs and top and runner and current_prefix in PREFIX_FLAG:
         contenders = (top, runner)
         streams = role_streams(role_orgs, "by_organization")
@@ -1743,32 +1743,16 @@ def build(state_path, titles_path=None, draws=DRAWS):
         cartesian["membership_sets"] = mmeta
         cartesian["central_missing_mass_is_a_point_estimate_not_a_bound"] = {
             "central": mcentral,
-            "why": "it is community Elemental frequency minus our own isaquatic rate measured on "
-                   "a DIFFERENT window, so the difference carries sampling noise, patch drift and "
-                   "hero-pool drift as well as genuine missing Fiery/Icy membership. It is a "
-                   "central estimate; the stress family above brackets it."}
+            "why": f"it is the community {current_prefix} frequency minus our own "
+                   f"{PREFIX_FLAG[current_prefix][0]} rate measured on a DIFFERENT window, so the "
+                   "difference carries sampling noise, patch drift and hero-pool drift as well as "
+                   "genuine missing membership. It is a central estimate; the stress family "
+                   "above brackets it."}
         cartesian["scenarios"] = cart_rows
         cartesian["placement_search"] = (
             "FIXED candidate family: placements are ranked once under additive / all events / "
             "equal weight and reused in every scenario. This is a Cartesian product over a fixed "
             "membership family, NOT a nested scenario-specific worst case.")
-        nested = nested_membership_sweep(role_inputs, current_prefix, contenders, heroes, cats,
-                                         table, "19785")
-        fixed_worst = min(r["gap"] for r in cart_rows)
-        nested["fixed_family_worst_gap"] = round(fixed_worst, 5)
-        nested["widens_worst_case"] = bool(nested["worst_found"]["gap"] < fixed_worst - 1e-9)
-        cartesian["nested_scenario_specific_search"] = nested
-        # the nested search can only find scenarios at least as bad, so the reported regret must
-        # absorb it rather than quoting the fixed family's milder number
-        a_name, b_name = contenders
-        nested_worst = nested["worst_found"]["gap"]
-        combined = dict(cartesian["max_regret"])
-        if nested_worst < 0:
-            combined[a_name] = round(max(combined[a_name], -nested_worst), 5)
-        else:
-            combined[b_name] = round(max(combined[b_name], nested_worst), 5)
-        cartesian["max_regret_including_nested_search"] = combined
-        cartesian["minimax_choice_including_nested_search"] = min(combined, key=combined.get)
         scen = scenario_minimax_regret(role_inputs, current_prefix, contenders, heroes, cats,
                                        table, weighting, membership)
 
@@ -1786,6 +1770,32 @@ def build(state_path, titles_path=None, draws=DRAWS):
         loo = {"folds": loo, "winner_flips_when_an_event_is_dropped": flips,
                "labels": {"a": top, "b": runner},
                "event_sensitive": flips}
+
+        flip_events = [f["dropped_event"] for f in loo["folds"] if f["winner"] == "b"]
+        focus = flip_events[0] if flip_events else max(
+            (f["dropped_event"] for f in loo["folds"]),
+            key=lambda e: event_end_dates().get(e, 0))
+        nested = nested_membership_sweep(role_inputs, current_prefix, contenders, heroes, cats,
+                                         table, focus)
+        nested["focus_event"] = focus
+        nested["focus_chosen_because"] = ("its removal flips the winner in leave-one-event-out"
+                                          if flip_events else
+                                          "no fold flips, so the most recent event is used")
+        fixed_worst = min(r["gap"] for r in cart_rows)
+        nested["fixed_family_worst_gap"] = round(fixed_worst, 5)
+        nested["widens_worst_case"] = bool(nested["worst_found"]["gap"] < fixed_worst - 1e-9)
+        cartesian["nested_scenario_specific_search"] = nested
+        # the nested search can only find scenarios at least as bad, so the reported regret must
+        # absorb it rather than quoting the fixed family's milder number
+        a_name, b_name = contenders
+        nested_worst = nested["worst_found"]["gap"]
+        combined = dict(cartesian["max_regret"])
+        if nested_worst < 0:
+            combined[a_name] = round(max(combined[a_name], -nested_worst), 5)
+        else:
+            combined[b_name] = round(max(combined[b_name], nested_worst), 5)
+        cartesian["max_regret_including_nested_search"] = combined
+        cartesian["minimax_choice_including_nested_search"] = min(combined, key=combined.get)
         # Four DIFFERENT kinds of evidence, reported separately. They are not votes to be
         # counted: the quantiles, the threshold grid and the stacking rules are computed off the
         # same series and move together, so tallying them would dress correlation up as
