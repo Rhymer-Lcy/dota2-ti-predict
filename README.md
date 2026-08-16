@@ -7,7 +7,7 @@ at risk). Goal: place in the top reward tier of the global leaderboard.
 Method reuses the calibrated-probability approach from the archived soccer `odds-pipeline`
 (market de-vig via Shin, cross-checked by an independent model), adapted to esports series.
 
-## Status (2026-08-12) — **GROUP STAGE LOCKED**; Fantasy period 0 operationally set
+## Status (2026-08-16) — **GROUP STAGE LOCKED**; **MAIN-EVENT BRACKET READY**; Fantasy period 0 operationally set
 - **Contest rules: verified** (official Valve in-client TI15 activity, not a third-party game). The
   group prediction is a full **16-slot classification** — 4-0 x1, 4-1 x2, decider-win x5,
   decider-loss x5, 1-4 x2, 0-4 x1 — scored by number correct (convex `f(K)`, no penalty, no underdog
@@ -18,6 +18,15 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
 - **Field: confirmed 16** in [`data/ti2026/inputs/teams.csv`](data/ti2026/inputs/teams.csv), matching
   the official field (BetBoom/BoomBoys, PARIVISION/TEAM VISION, Tundra roster/**IRON WING** — note `teams.csv` still carries the stale `ti_alias` `1w Team`; the field is display-only and never enters strength estimation).
 - **Locked slate:** `predictions/ti2026/group-stage/ti15_group_prediction.json` (mode `official`, clean tree, 280000 sims over 35 pod memberships, E[correct] 5.249). The lock-day audit found **no material input change**: all four input fingerprints identical to the 2026-08-10 candidate and every bucket unchanged. Full state: [`docs/CHECKPOINT.md`](docs/CHECKPOINT.md).
+- **Main-event bracket (14 slots, ids 801-814): READY TO SUBMIT**, lock 2026-08-20T02:00Z.
+  `predictions/ti2026/playoffs/ti15_main_event_prediction.json`. The same frozen estimator, refit on
+  the 39 completed Swiss series plus the 5 Elimination Round series (pipeline identity vs the locked
+  group run is asserted in the artifact's gates). The bracket topology is read out of the saved
+  official league feed and fails closed if it does not verify. Because a coherent 14-slot slate is
+  itself one of the 2^14 bracket outcomes, the optimization is **exact**: all 16,384 candidate slates
+  scored against all 16,384 outcomes, with parameter uncertainty integrated over 1000 series-blocked
+  bootstrap draws. Primary slate E[official score] **2287.5** (greedy favourite 2221.3); champion
+  PARIVISION 0.348. Slot 810 is a **decision-theoretic tie**, resolved by a 40,000-draw paired bootstrap rather than left as an assertion (`research/slot810_tiebreak_20260816.json`).
 - **Fantasy period 0:** operationally set on both accounts, latest observed states `predictions/ti2026/fantasy/account_state_operator_20260812b.json` (Xtreme / Team Falcons / Xtreme, 10 tokens) and `..._target_20260812d.json` (Xtreme / Team Yandex / Xtreme, 6 tokens); Coach Elemental + the Tormented on both. `coach_pricing_20260812.json` was computed on the friend's previous banner and must be re-run against state 7 before reuse.
 - **Model: FROZEN.** Production = identity **side-neutral B-bt**, half-life **90**, map prob
   `0.5*(sigmoid(d+c)+sigmoid(d-c))` with train-only radiant `c`; **no Platt/temperature layer**.
@@ -72,6 +81,9 @@ docs/            write-ups: official contest rules, validation plan, lock-day ru
 ti_predict/      package: swiss.py (group-stage sim), assign.py (16-slot solver),
                  predict_ti15.py (gated entry), fantasy/questions.py (inventory readiness gate),
                  series.py / devig.py (reused), backtest/calibrate
+                 main event: ti15_results.py (44 verified series), bracket.py (feed-verified
+                 topology + exact 2^14 enumeration), sequential_assimilation.py,
+                 slate_compare.py, predict_main_event.py
 backtest2/       historical rolling-origin validation framework (plan, manifests, Phase-3 compare)
 data/            gitignored except inputs/ — see data/README.md
   ti2026/
@@ -91,6 +103,12 @@ pip install -r requirements.txt
 python -m ti_predict.swiss                 # simulator self-test (structural invariants)
 python -m ti_predict.assign                # solver self-test (synthetic)
 python -m ti_predict.predict_ti15 --dry-run   # end-to-end rehearsal (writes .dryrun/, NOT OFFICIAL)
+
+python -m ti_predict.ti15_results          # reconcile the 44 completed TI15 series vs the standings
+python -m ti_predict.bracket               # verify the 14-node topology against the league feed
+python -m ti_predict.sequential_assimilation --sweep   # within-league early->late diagnostic
+python -m ti_predict.slate_compare --node 810 --draws 40000  # paired near-tie resolution
+python -m ti_predict.predict_main_event --draws 1000   # the 14-slot bracket slate (~5 min)
 ```
 The official slate is produced only at the cutoff via `predict_ti15 --official` — see
 [`docs/lockday-runbook.md`](docs/lockday-runbook.md). OpenDota needs no key; STRATZ token (optional)
