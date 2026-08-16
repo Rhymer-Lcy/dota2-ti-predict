@@ -125,7 +125,16 @@ UBQF = {14: ("Iron Wing", "Team Spirit"), 15: ("TEAM VISION", "BoomBoys"),
 ROUND_DAY = {1: "2026-08-13", 2: "2026-08-14", 3: "2026-08-14",
              4: "2026-08-15", 5: "2026-08-15", 6: "2026-08-16"}
 ROUND_BLOCK_HOURS = (2, 8)      # two broadcast blocks per day, four series each
-SERVE_CUTOFF = "2026-08-16T18:00:00Z"     # snapshot boundary: after the last Elimination series
+# Knowledge cutoff for the serve state. This is NOT a label: it is the reference point of the h90
+# decay AND the upper bound of the training filter (start_time < cutoff), so it has to be a time we
+# had actually reached. It sits strictly after the final Elimination Round map (2026-08-16T08:00Z,
+# the Team Yandex 2-1 LGD series) and strictly before the production run, so nothing in the fit is
+# dated in the future. An earlier value of 18:00Z was wrong on the second count -- it post-dated the
+# run that consumed it by about 75 minutes. Both bounds are now asserted rather than trusted:
+# verify_standings checks the lower one, and the production run refuses to start if any state cutoff
+# is later than its own start time. A fixed constant is used rather than "now" so the artifact stays
+# byte-reproducible.
+SERVE_CUTOFF = "2026-08-16T12:00:00Z"
 SWISS_LOCK = "2026-08-13T02:00:00Z"       # pre-TI production cutoff (first Swiss map)
 
 # Synthetic series ids for the 44 TI15 series. Offset far above every id in the scanned universe so
@@ -227,12 +236,29 @@ def verify_standings():
     seated = [t for pair in UBQF.values() for t in pair]
     if sorted(seated) != sorted(FINAL_EIGHT):
         problems.append("the fixed opening bracket does not seat exactly the final eight")
+    # The serve cutoff drives the h90 decay and the training filter, so a value that predates the
+    # last result would silently drop it from the fit. Checked here; the upper bound (the cutoff must
+    # not post-date the run consuming it) is checked by the production run, which alone knows when
+    # it started.
+    rows, _ = build_rows()
+    last_map = max(r["start_time"] for r in rows)
+    serve_ts = int(datetime.fromisoformat(SERVE_CUTOFF.replace("Z", "+00:00")).timestamp())
+    if serve_ts <= last_map:
+        problems.append(f"SERVE_CUTOFF {SERVE_CUTOFF} is not after the final TI15 map "
+                        f"({datetime.fromtimestamp(last_map, timezone.utc).isoformat()}); the "
+                        "last results would be excluded from their own serve state")
+    swiss_ts = int(datetime.fromisoformat(SWISS_LOCK.replace("Z", "+00:00")).timestamp())
+    if swiss_ts > min(r["start_time"] for r in rows):
+        problems.append("SWISS_LOCK must not post-date the first TI15 map")
     if problems:
         raise SystemExit("TI15 RESULT RECONCILIATION FAILED:\n  - " + "\n  - ".join(problems))
     return {"swiss_series": len(SWISS), "elimination_series": len(ELIMINATION),
             "total_series": len(SWISS) + len(ELIMINATION),
             "standings_reproduced": True, "unique_surviving_orgs": len(orgs),
-            "swiss_round_sizes": dict(per_round)}
+            "swiss_round_sizes": dict(per_round),
+            "serve_cutoff": SERVE_CUTOFF,
+            "last_ti15_map_utc": datetime.fromtimestamp(last_map, timezone.utc).isoformat(),
+            "cutoff_is_after_last_result": True}
 
 
 def build_rows(collapse_to=None, use_feed_times=True):

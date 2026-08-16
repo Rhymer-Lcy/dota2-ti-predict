@@ -127,6 +127,27 @@ def test_the_kappa_candidate_set_is_not_called_preregistered(art):
         "preregistered v1 model validation", "").replace("preregistered set", "")
 
 
+def test_the_cutoff_is_not_dated_after_the_run_that_used_it(art):
+    """The original defect: a cutoff 75 minutes ahead of its own run, feeding the decay."""
+    from datetime import datetime
+    m = art["manifest"]
+    cp = m["cutoff_provenance"]
+    started = datetime.fromisoformat(m["generated_at"])
+    cutoff = datetime.fromisoformat(m["data_cutoff"])
+    last = datetime.fromisoformat(cp["last_ti15_map_utc"])
+    assert last < cutoff <= started, (cp["last_ti15_map_utc"], m["data_cutoff"], m["generated_at"])
+    assert cp["cutoff_is_after_last_result"] and cp["cutoff_is_not_in_the_future"]
+    assert cp["margin_after_last_result_hours"] > 0
+    assert cp["margin_before_run_start_hours"] >= 0
+
+
+def test_every_state_cutoff_is_in_the_past_relative_to_the_run(art):
+    from datetime import datetime
+    started = datetime.fromisoformat(art["manifest"]["generated_at"])
+    for name, st in art["states"].items():
+        assert datetime.fromisoformat(st["cutoff"]) <= started, name
+
+
 def test_the_slate_has_fourteen_slots_with_the_client_selection_ids(art):
     ids = sorted(r["selection_id"] for r in art["primary_slate"])
     assert ids == list(range(801, 815))

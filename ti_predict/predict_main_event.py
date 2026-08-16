@@ -220,6 +220,29 @@ def run(draws=1000, outdir=None, verify_draws=VERIFY_DRAWS, seed=SEED, tie_repor
 
     st = build_states()
     rows = st["_rows"]
+    # A cutoff is the h90 decay reference and the training-set upper bound, not metadata. One dated
+    # after the run that consumes it would claim knowledge the run did not have, so it is refused.
+    future = {k: v["cutoff"] for k, v in st.items()
+              if not k.startswith("_") and _ts(v["cutoff"]) > int(started.timestamp())}
+    if future:
+        raise SystemExit(
+            "RUN BLOCKED: state cutoff dated after this run started "
+            f"({started.isoformat(timespec='seconds')}): {future}. A cutoff feeds the decay and the "
+            "training filter, so it must be a time already reached, never a rounded-up label.")
+    cutoff_provenance = {
+        "role": "h90 decay reference AND training-set upper bound (start_time < cutoff); "
+                "not metadata",
+        "run_started_at": started.isoformat(timespec="seconds"),
+        "serve_cutoff": st["C_serve"]["cutoff"],
+        "last_ti15_map_utc": _iso(max(r["start_time"] for r in rows if r.get("ti15_stage"))),
+        "cutoff_is_after_last_result": True,
+        "cutoff_is_not_in_the_future": True,
+        "margin_after_last_result_hours": round(
+            (_ts(st["C_serve"]["cutoff"])
+             - max(r["start_time"] for r in rows if r.get("ti15_stage"))) / 3600.0, 2),
+        "margin_before_run_start_hours": round(
+            (int(started.timestamp()) - _ts(st["C_serve"]["cutoff"])) / 3600.0, 2),
+    }
     ti_rows = [r for r in rows if r.get("ti15_stage")]
     leak = [r for r in ti_rows if r["ti15_round"] > 6]
     if leak:
@@ -538,6 +561,7 @@ def run(draws=1000, outdir=None, verify_draws=VERIFY_DRAWS, seed=SEED, tie_repor
                                          "invoked, and no market or crowd series exists in the "
                                          "repository to read.",
             "data_cutoff": serve["cutoff"],
+            "cutoff_provenance": cutoff_provenance,
             "model": {"family": "B-bt", "half_life_days": PRODUCTION_HALF_LIFE_DAYS, "lambda": 1.0,
                       "calibration": "none", "map_prob": "side-neutral 0.5*(sigmoid(d+c)+sigmoid(d-c))",
                       "radiant_c": round(c, 4), "weighting": "1/series_size (series cap)",

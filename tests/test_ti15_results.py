@@ -120,6 +120,26 @@ def test_collapsing_timestamps_changes_only_the_timestamps():
     assert len({r["start_time"] // 1000 for r in b}) == 1
 
 
+def test_serve_cutoff_is_after_the_last_result_and_is_not_a_rounded_label():
+    """The cutoff feeds the h90 decay and the training filter, so it must be a real reached time."""
+    from datetime import datetime
+    rows, _ = tr.build_rows()
+    last = max(r["start_time"] for r in rows)
+    serve = datetime.fromisoformat(tr.SERVE_CUTOFF.replace("Z", "+00:00")).timestamp()
+    assert serve > last
+    assert (serve - last) / 3600.0 < 24, "a cutoff far past the last result overstates the snapshot"
+
+
+def test_a_cutoff_dated_before_the_last_result_trips_the_gate():
+    orig, tr.SERVE_CUTOFF = tr.SERVE_CUTOFF, "2026-08-16T06:00:00Z"
+    try:
+        with pytest.raises(SystemExit):
+            tr.verify_standings()
+    finally:
+        tr.SERVE_CUTOFF = orig
+    tr.verify_standings()
+
+
 def test_the_fixed_bracket_seats_exactly_the_survivors():
     seated = [t for pair in tr.UBQF.values() for t in pair]
     assert sorted(seated) == sorted(tr.FINAL_EIGHT)

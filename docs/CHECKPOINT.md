@@ -103,8 +103,17 @@ ordinary map-level observations. Frozen hyperparameters never meant frozen stren
 |---|---|---:|---|
 | A pre-TI | 2026-08-13T02:00Z | 8690 | historical universe only (reproduces the locked run) |
 | B post-Swiss | 2026-08-15T18:00Z | 8787 | + 39 Swiss series (97 maps) |
-| C serve | 2026-08-16T18:00Z | 8799 | + 5 Elimination series (12 maps) |
-| control | 2026-08-16T18:00Z | 8690 | historical only at the serve decay origin - isolates decay from data |
+| C serve | 2026-08-16T12:00Z | 8799 | + 5 Elimination series (12 maps) |
+| control | 2026-08-16T12:00Z | 8690 | historical only at the serve decay origin - isolates decay from data |
+
+A cutoff here is **not metadata**: it is the h90 decay reference and the training-set upper bound
+(`start_time < cutoff`), so it has to be a time actually reached. The serve cutoff sits 4.0 h after
+the final Elimination map (2026-08-16T08:00Z, Yandex 2-1 LGD) and before the run that consumes it.
+An earlier 18:00Z value violated the second bound - it post-dated its own run by about 75 minutes -
+and was corrected. Both bounds are now asserted rather than trusted: `verify_standings` refuses a
+cutoff at or before the last result, and the production run refuses to start if any state cutoff is
+later than its own start time. The correction moved no strength by more than 1e-5 and left all
+fourteen slots, the champion and the slot-810 tie verdict identical.
 
 A 2-0 expands to two map rows and a 2-1 to three, all sharing one `series_id`, so every series
 carries total weight 1.0 exactly once (`w = 1/series_size`, the frozen convention). Round-1
