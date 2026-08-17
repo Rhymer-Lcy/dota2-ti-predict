@@ -24,9 +24,21 @@ Method reuses the calibrated-probability approach from the archived soccer `odds
   group run is asserted in the artifact's gates). The bracket topology is read out of the saved
   official league feed and fails closed if it does not verify. Because a coherent 14-slot slate is
   itself one of the 2^14 bracket outcomes, the optimization is **exact**: all 16,384 candidate slates
-  scored against all 16,384 outcomes, with parameter uncertainty integrated over 1000 series-blocked
-  bootstrap draws. Primary slate E[official score] **2287.5** (greedy favourite 2221.3); champion
-  PARIVISION 0.348. Slot 810 is a **decision-theoretic tie**, resolved by a 40,000-draw paired bootstrap rather than left as an assertion (`research/slot810_tiebreak_20260816.json`).
+  scored against all 16,384 outcomes, with parameter uncertainty integrated over a fixed-seed
+  1000-draw series-blocked bootstrap. Champion **TEAM VISION** (canonical PARIVISION). Read the
+  numbers from the JSON, not from prose: expected score, regret and per-node costs are estimates
+  under that finite approximation. Slot 810 is a **decision-theoretic tie** against Team Liquid -
+  a 40,000-draw paired bootstrap does not resolve the sign, and the pick is retained because the
+  production decision procedure takes the numerical argmax, not because Nigma is shown to be better
+  (`research/slot810_tiebreak_20260816.json`).
+- **Seeded participants are evidence-gated.** The four opening Main Event participants are
+  hash-gated against a privacy-preserving crop of an operator-captured screenshot from the
+  logged-in Dota 2 client, archived under
+  [`data/ti2026/inputs/evidence/main_event_seating/`](data/ti2026/inputs/evidence/main_event_seating/)
+  and enforced by
+  [`ti_predict/seating_evidence.py`](ti_predict/seating_evidence.py), which aborts the run on any
+  mismatch. The bracket graph and winner/loser routing are independently verified from the saved
+  Valve league feed. Two separate questions, two separate sources.
 - **Fantasy period 0:** operationally set on both accounts, latest observed states `predictions/ti2026/fantasy/account_state_operator_20260812b.json` (Xtreme / Team Falcons / Xtreme, 10 tokens) and `..._target_20260812d.json` (Xtreme / Team Yandex / Xtreme, 6 tokens); Coach Elemental + the Tormented on both. `coach_pricing_20260812.json` was computed on the friend's previous banner and must be re-run against state 7 before reuse.
 - **Model: FROZEN.** Production = identity **side-neutral B-bt**, half-life **90**, map prob
   `0.5*(sigmoid(d+c)+sigmoid(d-c))` with train-only radiant `c`; **no Platt/temperature layer**.
@@ -82,8 +94,9 @@ ti_predict/      package: swiss.py (group-stage sim), assign.py (16-slot solver)
                  predict_ti15.py (gated entry), fantasy/questions.py (inventory readiness gate),
                  series.py / devig.py (reused), backtest/calibrate
                  main event: ti15_results.py (44 verified series), bracket.py (feed-verified
-                 topology + exact 2^14 enumeration), sequential_assimilation.py,
-                 slate_compare.py, predict_main_event.py
+                 topology + exact 2^14 enumeration), seating_evidence.py (hash-pinned
+                 seeded-participant gate), sequential_assimilation.py, slate_compare.py,
+                 predict_main_event.py
 backtest2/       historical rolling-origin validation framework (plan, manifests, Phase-3 compare)
 data/            gitignored except inputs/ — see data/README.md
   ti2026/
@@ -106,6 +119,7 @@ python -m ti_predict.predict_ti15 --dry-run   # end-to-end rehearsal (writes .dr
 
 python -m ti_predict.ti15_results          # reconcile the 44 completed TI15 series vs the standings
 python -m ti_predict.bracket               # verify the 14-node topology against the league feed
+python -m ti_predict.seating_evidence      # verify the archived seeded-participant evidence
 python -m ti_predict.sequential_assimilation --sweep   # within-league early->late diagnostic
 python -m ti_predict.slate_compare --node 810 --draws 40000  # paired near-tie resolution
 python -m ti_predict.predict_main_event --draws 1000   # the 14-slot bracket slate (~5 min)

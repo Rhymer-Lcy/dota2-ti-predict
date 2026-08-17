@@ -116,9 +116,35 @@ PUBLISHED_STANDINGS = [
 FINAL_EIGHT = ["Iron Wing", "Team Spirit", "TEAM VISION", "BoomBoys",
                "Team Liquid", "Team Yandex", "Nigma Galaxy", "Team Falcons"]
 
-# Fixed opening bracket (do not reseed): league-feed node id -> (client name, client name).
-UBQF = {14: ("Iron Wing", "Team Spirit"), 15: ("TEAM VISION", "BoomBoys"),
-        16: ("Team Liquid", "Team Yandex"), 17: ("Nigma Galaxy", "Team Falcons")}
+# Fixed opening bracket (do not reseed): league-feed node id -> (client display name, ...).
+#
+# DERIVED, never hand-typed. The reviewed seating transcription is the single declarative table of
+# opening participants; keeping a second copy here would be two independently editable tables that
+# could silently disagree, which is exactly the failure the seating gate exists to prevent. The gate
+# (ti_predict/seating_evidence.py) additionally proves the transcription still belongs to an
+# unmodified archived capture before production consumes these seats.
+SEATING_EVIDENCE = os.path.join(REPO, "data", "ti2026", "inputs", "evidence", "main_event_seating",
+                                "ti15_main_event_seating.json")
+
+
+def opening_seats(path=None):
+    """{node_id: (display_a, display_b)} read from the reviewed seating transcription."""
+    path = path or SEATING_EVIDENCE
+    try:
+        with open(path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        seats = {int(s["node_id"]): tuple(s["display"]) for s in doc["transcription"]["seats"]}
+    except (OSError, KeyError, ValueError, TypeError) as e:
+        raise SystemExit(f"cannot read the opening seats from {path}: {e}. "
+                         "The seeded Main Event participants have no other source in this "
+                         "repository - the saved Valve feed carries no team ids in its Playoff "
+                         "nodes - so nothing downstream may proceed.")
+    if not seats:
+        raise SystemExit(f"{path} declares no opening seats")
+    return seats
+
+
+UBQF = opening_seats()
 
 # Round -> UTC day. Round 1 is overridden per series by the league feed's own scheduled_time; the
 # rest is the labelled cadence assumption described in the module docstring.
@@ -142,6 +168,23 @@ SWISS_LOCK = "2026-08-13T02:00:00Z"       # pre-TI production cutoff (first Swis
 SERIES_ID_BASE = 900_000_000
 MATCH_ID_BASE = 9_900_000_000
 TI15_LEAGUE_ID = "19719"
+
+# Side provenance. universe.py builds every scanned row as team_a = ident(radiant_team_id), so a
+# scanned row's orientation genuinely means "team_a played Radiant". The synthetic rows below are
+# oriented team_a = SERIES WINNER, which is an arbitrary bookkeeping choice carrying no side
+# information at all: a 2-0 yields y = 1,1 and a 2-1 yields y = 1,1,0 by construction, so 88 of 109
+# rows have team_a winning whatever the sides actually were. Feeding that to the radiant-coefficient
+# estimator reads a bookkeeping artefact as a Radiant advantage. Bradley-Terry itself is
+# orientation-symmetric and is unaffected, so every row still trains the strengths; only est_c must
+# be restricted. The marker is set at construction and is never inferred from winner/loser.
+SIDE_RADIANT_DIRE = "radiant_dire"    # team_a is the Radiant side (scanned pro matches)
+SIDE_NONE = "none"                    # orientation carries no side meaning (synthetic TI15 rows)
+
+# Timestamp provenance. Round 1 has a scheduled_time in the saved official league feed; rounds 2-6
+# have no locally recorded time and are placed on a cadence purely so the h90 decay has something to
+# weight by. The second kind is an imputation and is labelled as one -- never as an observed finish.
+TS_OFFICIAL_SCHEDULE = "official_schedule_feed"
+TS_IMPUTED_CADENCE = "imputed_cadence"
 
 
 def canon(name):
@@ -244,7 +287,7 @@ def verify_standings():
     last_map = max(r["start_time"] for r in rows)
     serve_ts = int(datetime.fromisoformat(SERVE_CUTOFF.replace("Z", "+00:00")).timestamp())
     if serve_ts <= last_map:
-        problems.append(f"SERVE_CUTOFF {SERVE_CUTOFF} is not after the final TI15 map "
+        problems.append(f"SERVE_CUTOFF {SERVE_CUTOFF} is not after the latest modelled TI15 map "
                         f"({datetime.fromtimestamp(last_map, timezone.utc).isoformat()}); the "
                         "last results would be excluded from their own serve state")
     swiss_ts = int(datetime.fromisoformat(SWISS_LOCK.replace("Z", "+00:00")).timestamp())
@@ -257,8 +300,11 @@ def verify_standings():
             "standings_reproduced": True, "unique_surviving_orgs": len(orgs),
             "swiss_round_sizes": dict(per_round),
             "serve_cutoff": SERVE_CUTOFF,
-            "last_ti15_map_utc": datetime.fromtimestamp(last_map, timezone.utc).isoformat(),
-            "cutoff_is_after_last_result": True}
+            "latest_model_timestamp_utc":
+                datetime.fromtimestamp(last_map, timezone.utc).isoformat(),
+            "latest_model_timestamp_basis": "imputed for rounds 2-6; only round 1 carries the "
+                                            "saved league feed's scheduled times",
+            "cutoff_is_after_latest_model_timestamp": True}
 
 
 def build_rows(collapse_to=None, use_feed_times=True):
@@ -283,12 +329,12 @@ def build_rows(collapse_to=None, use_feed_times=True):
         key = frozenset((a, b))
         seq = per_round_seq[rnd]; per_round_seq[rnd] += 1
         if collapse_ts is not None:
-            ts = collapse_ts
+            ts, ts_prov = collapse_ts, TS_IMPUTED_CADENCE
         elif rnd == 1 and key in feed_times:
-            ts = feed_times[key]; used_feed += 1
+            ts, ts_prov = feed_times[key], TS_OFFICIAL_SCHEDULE; used_feed += 1
         else:
             hour = ROUND_BLOCK_HOURS[0 if seq < 4 else 1]
-            ts = _ts(ROUND_DAY[rnd], hour); assumed += 1
+            ts, ts_prov = _ts(ROUND_DAY[rnd], hour), TS_IMPUTED_CADENCE; assumed += 1
         sid = SERIES_ID_BASE + i
         for j in range(wm + lm):
             rows.append({"match_id": str(MATCH_ID_BASE + 10 * i + j), "start_time": ts + j,
@@ -296,7 +342,9 @@ def build_rows(collapse_to=None, use_feed_times=True):
                          "leagueid": TI15_LEAGUE_ID, "league_name": "The International 2026",
                          "series_id": sid, "team_a": a, "team_b": b,
                          "a_won": 1 if j < wm else 0, "is_target": 0,
-                         "ti15_round": rnd, "ti15_stage": "swiss" if rnd <= 5 else "elimination"})
+                         "ti15_round": rnd, "ti15_stage": "swiss" if rnd <= 5 else "elimination",
+                         "side_provenance": SIDE_NONE,
+                         "timestamp_provenance": ts_prov})
     prov = {"series_expanded": len(SWISS) + len(ELIMINATION), "map_rows": len(rows),
             "round1_timestamps_from_league_feed": used_feed,
             "timestamps_assumed_from_cadence": assumed,
@@ -306,6 +354,34 @@ def build_rows(collapse_to=None, use_feed_times=True):
     return rows, prov
 
 
+def historical_universe():
+    """The scanned rating universe with its side provenance made explicit.
+
+    universe.py writes team_a = ident(radiant_team_id) for every scanned map, so the whole file
+    carries genuine Radiant/Dire orientation. Stamping it here means downstream code can demand the
+    marker instead of assuming it.
+    """
+    from ti_predict.backtest import load
+    uni, _, _ = load()
+    for r in uni:
+        r["side_provenance"] = SIDE_RADIANT_DIRE
+        r["timestamp_provenance"] = "scanned_match_start_time"
+    return uni
+
+
+def side_labelled(rows):
+    """The subset of `rows` whose team_a genuinely denotes the Radiant side.
+
+    Fail-closed: an unmarked row is a bug, not a default. Use this to feed calibrate.est_c, never
+    the raw training set, or synthetic rows will be read as Radiant observations they are not.
+    """
+    missing = [r["match_id"] for r in rows if "side_provenance" not in r]
+    if missing:
+        raise SystemExit(f"{len(missing)} row(s) carry no side_provenance marker (e.g. "
+                         f"{missing[:3]}); refusing to guess whether team_a means Radiant")
+    return [r for r in rows if r["side_provenance"] == SIDE_RADIANT_DIRE]
+
+
 def augmented_universe(collapse_to=None, use_stages=("swiss", "elimination")):
     """The frozen rating universe plus the requested TI15 stages, as `backtest.load` returns it.
 
@@ -313,8 +389,7 @@ def augmented_universe(collapse_to=None, use_stages=("swiss", "elimination")):
     `load` does, so nothing about the frozen weighting convention is special-cased for TI15.
     """
     from collections import Counter
-    from ti_predict.backtest import load
-    uni, _, _ = load()
+    uni = historical_universe()
     base_ids = {r["series_id"] for r in uni}
     ti, prov = build_rows(collapse_to=collapse_to)
     ti = [r for r in ti if r["ti15_stage"] in use_stages]

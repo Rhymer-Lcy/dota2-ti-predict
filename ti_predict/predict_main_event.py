@@ -86,17 +86,24 @@ def _sha256(path):
 
 # --------------------------------------------------------------------------- states
 def fit(rows, cutoff_ts):
-    """The frozen estimator, unchanged: weighted BT at h90 / lambda=1 plus its train-only c."""
+    """The frozen estimator, unchanged: weighted BT at h90 / lambda=1 plus its train-only c.
+
+    Every training row feeds the strengths -- Bradley-Terry is orientation-symmetric, so the
+    synthetic TI15 rows lose nothing by being oriented winner-first. Only `est_c` is restricted to
+    rows whose team_a genuinely means Radiant; see ti15_results.side_labelled for why. This is a
+    missing-metadata correction, not a model change: the estimator, h90, lambda and the side-neutral
+    formula are untouched, and c is not tuned.
+    """
     train = [m for m in rows if m["start_time"] < cutoff_ts]
     if not train:
         raise SystemExit("no training maps before cutoff")
     s = bt_strengths(train, cutoff_ts, hl=float(PRODUCTION_HALF_LIFE_DAYS))
-    return s, float(est_c(train, s)), len(train)
+    return s, float(est_c(tr.side_labelled(train), s)), len(train)
 
 
 def build_states(collapse_to=None):
     """States A (pre-TI), B (post-Swiss) and C (post-Elimination / serve), plus a decay control."""
-    base, _, _ = load()
+    base = tr.historical_universe()
     swiss_only, prov_s = tr.augmented_universe(collapse_to=collapse_to, use_stages=("swiss",))
     full, prov_f = tr.augmented_universe(collapse_to=collapse_to,
                                          use_stages=("swiss", "elimination"))
@@ -148,7 +155,7 @@ def bootstrap_strengths(rows, cutoff_ts, teams, draws, seed=SEED):
         samp = [train[i] for b in pick for i in blocks[b]]
         s = bt_strengths(samp, cutoff_ts, hl=float(PRODUCTION_HALF_LIFE_DAYS))
         S[d] = [s.get(t, 0.0) for t in teams]
-        C[d] = est_c(samp, s)
+        C[d] = est_c(tr.side_labelled(samp), s)     # same side-provenance restriction as fit()
     return S, C, nb
 
 
@@ -216,6 +223,11 @@ def run(draws=1000, outdir=None, verify_draws=VERIFY_DRAWS, seed=SEED, tie_repor
     topo = bk.load_topology()
     scoring = bk.verify_scoring_vector()
     seats = {nid: (tr.canon(a), tr.canon(b)) for nid, (a, b) in tr.UBQF.items()}
+    # The saved Valve feed proves the graph but carries no team ids in its Playoff nodes, so the four
+    # seeded participants rest on separate, weaker evidence. Verify it before anything is computed.
+    from ti_predict import seating_evidence as se
+    seating = se.verify(seats=seats)
+    display = se.display_names()
     teams, W, PR = bk.enumerate_structure(topo, seats)
 
     st = build_states()
@@ -234,10 +246,22 @@ def run(draws=1000, outdir=None, verify_draws=VERIFY_DRAWS, seed=SEED, tie_repor
                 "not metadata",
         "run_started_at": started.isoformat(timespec="seconds"),
         "serve_cutoff": st["C_serve"]["cutoff"],
-        "last_ti15_map_utc": _iso(max(r["start_time"] for r in rows if r.get("ti15_stage"))),
-        "cutoff_is_after_last_result": True,
+        "latest_model_timestamp_utc": _iso(max(r["start_time"] for r in rows
+                                               if r.get("ti15_stage"))),
+        "timestamp_basis": "IMPUTED. Round 1 carries the saved official league feed's scheduled "
+                           "times; rounds 2-6 have no locally recorded time and are placed on a "
+                           "two-blocks-per-day cadence purely so the h90 decay has something to "
+                           "weight by. The value above is therefore the latest timestamp USED BY "
+                           "THE MODEL, not an externally observed finish time for the last series.",
+        "timestamp_provenance_counts": {
+            k: sum(1 for r in rows if r.get("timestamp_provenance") == k)
+            for k in (tr.TS_OFFICIAL_SCHEDULE, tr.TS_IMPUTED_CADENCE)},
+        "chronology_gate": "latest timestamp used by the model < serve cutoff <= production run "
+                           "start. This orders three things the pipeline controls; it asserts "
+                           "nothing about when the final series really ended.",
+        "cutoff_is_after_latest_model_timestamp": True,
         "cutoff_is_not_in_the_future": True,
-        "margin_after_last_result_hours": round(
+        "margin_after_latest_model_timestamp_hours": round(
             (_ts(st["C_serve"]["cutoff"])
              - max(r["start_time"] for r in rows if r.get("ti15_stage"))) / 3600.0, 2),
         "margin_before_run_start_hours": round(
@@ -389,9 +413,13 @@ def run(draws=1000, outdir=None, verify_draws=VERIFY_DRAWS, seed=SEED, tie_repor
         tie["artifact"] = "predictions/ti2026/playoffs/research/slot810_tiebreak_20260816.json"
         tie["read_from_staging_copy"] = bool(tie_report)
         tie["source_sha256"] = _sha256(tie_path)
-        tie["deterministic_pick_retained"] = ("the official-score objective still has a unique "
-                                              "argmax, so the client pick stays the primary; the "
-                                              "tie is a statement about evidence, not an abstention")
+        tie["deterministic_pick_retained"] = (
+            "The fixed-seed 1000-draw production approximation has a unique NUMERICAL argmax, and "
+            "the production decision procedure takes it, so the client pick stays the primary. That "
+            "is emphatically NOT a claim that the underlying uncertainty-integrated objective has a "
+            "unique argmax, nor that Nigma Galaxy is truly the better pick: the 40,000-draw paired "
+            "comparison does not resolve the sign. The pick is determinism, not evidence.")
+        tie["statistically_separated"] = False
 
     # runner-up: best slate that is not the primary, and best slate with a different champion
     runner = int(order_by_score[1])
@@ -583,6 +611,17 @@ def run(draws=1000, outdir=None, verify_draws=VERIFY_DRAWS, seed=SEED, tie_repor
                 "ti15_results": st["_provenance"]["full"],
             },
             "seed": seed, "bootstrap_draws": draws, "bootstrap_blocks": n_blocks,
+            "approximation": {
+                "objective": "expected official score under the outcome distribution averaged over "
+                             f"{draws} fixed-seed series-blocked bootstrap draws",
+                "exact_given_the_distribution": "the 16,384 x 16,384 scoring is exact; the "
+                                                "APPROXIMATION is the finite bootstrap average that "
+                                                "stands in for the parameter posterior",
+                "read_as_estimates": ["expected_score", "expected_correct", "runner-up regret",
+                                      "per-node cost_of_changing"],
+                "draws_not_increased_for_precision": "the draw count is a fixed production "
+                                                     "parameter, not tuned to sharpen a headline",
+            },
             "enumeration": {"outcomes": int(W.shape[0]), "coherent_slates": int(W.shape[0]),
                             "method": "exact enumeration of all 2^14 outcomes; no Monte Carlo",
                             "probability_mass": float(P_bar.sum())},
@@ -602,6 +641,7 @@ def run(draws=1000, outdir=None, verify_draws=VERIFY_DRAWS, seed=SEED, tie_repor
                                                  for n in topo["order"]]},
                   "pool_verification": verification,
                   "timestamp_sensitivity": ts_sens,
+                  "seeded_participants": seating,
                   "roster_audit": rosters,
                   "standings_vs_model_strength": tension,
                   "locked_group_slate_scoreboard": group_scoreboard,
@@ -689,8 +729,13 @@ def run(draws=1000, outdir=None, verify_draws=VERIFY_DRAWS, seed=SEED, tie_repor
                                for k in range(len(topo["order"]))
                                if W[diff_champ, k] != W[best_score, k]]}},
         "client_actions": [{"selection_id": r["selection_id"], "series": r["series"],
-                            "select": r["pick"]} for r in
-                           sorted(primary, key=lambda x: x["selection_id"])],
+                            "select": display.get(r["pick"], r["pick"]),
+                            "canonical": r["pick"],
+                            "name_basis": "client display name as it appears in the archived "
+                                          "bracket/schedule evidence; `canonical` is the internal "
+                                          "model organization"}
+                           for r in sorted(primary, key=lambda x: x["selection_id"])],
+        "client_display_names": display,
         "caveats": [
             "model-only; no market, crowd or manual input of any kind",
             "the h90 decay origin and the 44 inserted series are the only things that changed "
@@ -782,7 +827,11 @@ def to_markdown(a):
           f"E[score] {dc['expected_score']:.1f} (regret {dc['regret_vs_primary']:.2f})", "",
           "## Client actions", ""]
     for r in a["client_actions"]:
-        L.append(f"- slot {r['selection_id']} - {r['series']}: **{r['select']}**")
+        extra = "" if r["select"] == r["canonical"] else f"  _(model: {r['canonical']})_"
+        L.append(f"- slot {r['selection_id']} - {r['series']}: **{r['select']}**{extra}")
+    L += ["", "Names above are the client display names transcribed from the archived "
+              "bracket/schedule evidence; the model's canonical organizations are shown in "
+              "parentheses where they differ."]
     L += ["", "## Caveats", ""] + [f"- {c}" for c in a["caveats"]]
     return "\n".join(L) + "\n"
 

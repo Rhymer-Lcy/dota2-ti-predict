@@ -134,11 +134,45 @@ def test_the_cutoff_is_not_dated_after_the_run_that_used_it(art):
     cp = m["cutoff_provenance"]
     started = datetime.fromisoformat(m["generated_at"])
     cutoff = datetime.fromisoformat(m["data_cutoff"])
-    last = datetime.fromisoformat(cp["last_ti15_map_utc"])
-    assert last < cutoff <= started, (cp["last_ti15_map_utc"], m["data_cutoff"], m["generated_at"])
-    assert cp["cutoff_is_after_last_result"] and cp["cutoff_is_not_in_the_future"]
-    assert cp["margin_after_last_result_hours"] > 0
+    last = datetime.fromisoformat(cp["latest_model_timestamp_utc"])
+    assert last < cutoff <= started, (cp["latest_model_timestamp_utc"], m["data_cutoff"],
+                                      m["generated_at"])
+    assert cp["cutoff_is_after_latest_model_timestamp"] and cp["cutoff_is_not_in_the_future"]
+    assert cp["margin_after_latest_model_timestamp_hours"] > 0
     assert cp["margin_before_run_start_hours"] >= 0
+
+
+def test_timestamp_provenance_separates_imputed_from_observed(art):
+    """The latest modelled timestamp is imputed; the artifact must not call it an observed finish."""
+    cp = art["manifest"]["cutoff_provenance"]
+    assert "IMPUTED" in cp["timestamp_basis"]
+    assert "not an externally observed finish time" in cp["timestamp_basis"]
+    for stale in ("last_ti15_map_utc", "cutoff_is_after_last_result"):
+        assert stale not in cp, f"{stale} implied an observed fact and must not return"
+    counts = cp["timestamp_provenance_counts"]
+    # Counts are MAP rows, not series: round 1's eight series expand to 18 maps (five 2-0s and
+    # three 2-1s), and the remaining 91 maps of rounds 2-6 carry imputed cadence times.
+    assert counts["official_schedule_feed"] == 18, "round 1's 8 series expand to 18 maps"
+    assert counts["imputed_cadence"] == 91, "rounds 2-6 are imputed"
+    assert counts["official_schedule_feed"] + counts["imputed_cadence"] == 109
+    assert "asserts nothing about when the final series really ended" in cp["chronology_gate"]
+
+
+def test_finite_bootstrap_approximation_is_declared(art):
+    ap = art["manifest"]["approximation"]
+    assert str(art["manifest"]["bootstrap_draws"]) in ap["objective"]
+    assert "expected_score" in ap["read_as_estimates"]
+    assert "not tuned" in ap["draws_not_increased_for_precision"]
+
+
+def test_slot_810_is_not_claimed_to_be_statistically_resolved(art):
+    tie = art["runner_up"]["second_best_overall"]["paired_tie_resolution"]
+    assert tie["verdict"] == "TIE"
+    assert tie["statistically_separated"] is False
+    txt = tie["deterministic_pick_retained"]
+    assert "NUMERICAL argmax" in txt
+    assert "does not resolve the sign" in txt
+    assert "determinism, not evidence" in txt
 
 
 def test_every_state_cutoff_is_in_the_past_relative_to_the_run(art):
@@ -174,10 +208,30 @@ def test_the_slate_is_coherent_against_the_verified_topology(art):
 
 
 def test_client_actions_agree_with_the_slate(art):
+    """`canonical` must equal the model's pick, and `select` must be its client display name."""
     slate = {r["selection_id"]: r["pick"] for r in art["primary_slate"]}
-    actions = {r["selection_id"]: r["select"] for r in art["client_actions"]}
-    assert slate == actions
+    actions = {r["selection_id"]: r for r in art["client_actions"]}
+    assert {k: v["canonical"] for k, v in actions.items()} == slate
+    disp = art["client_display_names"]
+    for sel, r in actions.items():
+        assert r["select"] == disp[r["canonical"]], sel
     assert [r["selection_id"] for r in art["client_actions"]] == sorted(actions)
+
+
+def test_client_actions_render_client_facing_names(art):
+    """The transcription hazard this guards: never hand an operator 'PARIVISION' to find in-client."""
+    names = {r["select"] for r in art["client_actions"]}
+    assert names <= {"Iron Wing", "Team Spirit", "TEAM VISION", "BoomBoys",
+                     "Team Liquid", "Team Yandex", "Nigma Galaxy", "Team Falcons"}
+    assert not (names & {"PARIVISION", "BetBoom Team", "Tundra Esports"})
+    # and the canonical name is still carried, not discarded
+    assert all("canonical" in r for r in art["client_actions"])
+    assert {"PARIVISION", "BetBoom Team"} & {r["canonical"] for r in art["client_actions"]}
+
+
+def test_the_display_map_is_derived_from_the_archived_evidence(art):
+    from ti_predict import seating_evidence as se
+    assert art["client_display_names"] == se.display_names()
 
 
 def test_only_the_grand_final_is_bo5_in_the_slate(art):

@@ -1,1 +1,5 @@
 * text=auto
+
+# Evidence captures are byte-exact provenance: never let eol/text normalization touch them.
+*.jpg binary
+*.png binary

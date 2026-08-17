@@ -93,6 +93,8 @@ def compare(row_a, row_b, draws=20000, seed=pme.SEED, label_a="A", label_b="B"):
         "ci90": [round(float(np.percentile(d, 5)), 4), round(float(np.percentile(d, 95)), 4)],
         "ci95": [round(float(np.percentile(d, 2.5)), 4), round(float(np.percentile(d, 97.5)), 4)],
         "p_delta_gt_0": round(float((d > 0).mean()), 4),
+        "statistically_separated": False if ((np.percentile(d, 2.5) < 0 < np.percentile(d, 97.5)))
+                                   else True,
         "convergence": conv,
         "reference_scale": {
             "expected_score_of_a": None, "score_step_1_correct": 120,
@@ -108,7 +110,9 @@ def verdict(rep, tie_band=0.05):
     tiny = abs(rep["bootstrap_mean_delta"]) < band
     if ci_spans_zero and tiny:
         return ("TIE", f"the paired 95% interval spans zero and the mean difference is under "
-                       f"{band:.0f} points, {tie_band:.0%} of one correct node")
+                       f"{band:.0f} points, {tie_band:.0%} of one correct node. The sign is NOT "
+                       "resolved: this says the two slates are evidentially indistinguishable, not "
+                       "that their true difference is zero")
     if ci_spans_zero:
         return ("INDISTINGUISHABLE", "the paired 95% interval spans zero")
     return ("SEPARATED", "the paired 95% interval excludes zero")

@@ -140,6 +140,77 @@ def test_a_cutoff_dated_before_the_last_result_trips_the_gate():
     tr.verify_standings()
 
 
+# ------------------------------------------------------------------ side provenance
+def test_synthetic_rows_are_marked_as_carrying_no_side_information():
+    rows, _ = tr.build_rows()
+    assert all(r["side_provenance"] == tr.SIDE_NONE for r in rows)
+    # and the reason the marker exists: team_a is the winner, so a_won is 88/109 by construction
+    assert sum(r["a_won"] for r in rows) == 88 and len(rows) == 109
+
+
+def test_historical_rows_are_marked_as_genuinely_side_labelled():
+    uni = tr.historical_universe()
+    assert uni and all(r["side_provenance"] == tr.SIDE_RADIANT_DIRE for r in uni)
+    rate = sum(r["a_won"] for r in uni) / len(uni)
+    assert 0.45 < rate < 0.60, "team_a is radiant here, so the win rate is the radiant base rate"
+
+
+def test_side_labelled_keeps_history_and_drops_only_the_synthetic_rows():
+    rows, _ = tr.augmented_universe()
+    kept = tr.side_labelled(rows)
+    assert len(kept) == len(rows) - 109
+    assert not any(r.get("ti15_stage") for r in kept)
+    assert all(r["side_provenance"] == tr.SIDE_RADIANT_DIRE for r in kept)
+
+
+def test_side_labelled_fails_closed_on_an_unmarked_row():
+    rows, _ = tr.augmented_universe()
+    stripped = [dict(r) for r in rows[:50]]
+    stripped[7].pop("side_provenance")
+    with pytest.raises(SystemExit):
+        tr.side_labelled(stripped)
+
+
+def test_all_109_synthetic_rows_still_reach_the_strength_fit():
+    """The fix restricts est_c only; Bradley-Terry must still see every TI15 map."""
+    rows, _ = tr.augmented_universe()
+    ti = [r for r in rows if r.get("ti15_stage")]
+    assert len(ti) == 109
+    assert sum(r["w"] for r in ti) == pytest.approx(44.0)
+
+
+def test_side_provenance_is_not_inferred_from_winner_orientation():
+    """Both a 2-0 and a 2-1 are marked the same way; the marker is set at construction."""
+    rows, _ = tr.build_rows()
+    by_series = {}
+    for r in rows:
+        by_series.setdefault(r["series_id"], []).append(r)
+    two_oh = [v for v in by_series.values() if len(v) == 2]
+    two_one = [v for v in by_series.values() if len(v) == 3]
+    assert two_oh and two_one
+    for grp in two_oh + two_one:
+        assert {r["side_provenance"] for r in grp} == {tr.SIDE_NONE}
+
+
+# ------------------------------------------------------------------ timestamp provenance
+def test_timestamp_provenance_marks_round_one_official_and_the_rest_imputed():
+    rows, prov = tr.build_rows()
+    off = [r for r in rows if r["timestamp_provenance"] == tr.TS_OFFICIAL_SCHEDULE]
+    imp = [r for r in rows if r["timestamp_provenance"] == tr.TS_IMPUTED_CADENCE]
+    assert len(off) + len(imp) == len(rows) == 109
+    assert {r["ti15_round"] for r in off} == {1}
+    assert {r["ti15_round"] for r in imp} == {2, 3, 4, 5, 6}
+    # series vs maps: 8 round-1 series carry feed times, and they expand to 18 map rows
+    assert prov["round1_timestamps_from_league_feed"] == 8
+    assert len({r["series_id"] for r in off}) == 8
+    assert len(off) == 18 and len(imp) == 91
+
+
+def test_collapsed_timestamps_are_all_labelled_imputed():
+    rows, _ = tr.build_rows(collapse_to="2026-08-16T00:00:00Z")
+    assert {r["timestamp_provenance"] for r in rows} == {tr.TS_IMPUTED_CADENCE}
+
+
 def test_the_fixed_bracket_seats_exactly_the_survivors():
     seated = [t for pair in tr.UBQF.values() for t in pair]
     assert sorted(seated) == sorted(tr.FINAL_EIGHT)

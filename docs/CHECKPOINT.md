@@ -108,7 +108,12 @@ ordinary map-level observations. Frozen hyperparameters never meant frozen stren
 
 A cutoff here is **not metadata**: it is the h90 decay reference and the training-set upper bound
 (`start_time < cutoff`), so it has to be a time actually reached. The serve cutoff sits 4.0 h after
-the final Elimination map (2026-08-16T08:00Z, Yandex 2-1 LGD) and before the run that consumes it.
+the latest timestamp USED BY THE MODEL and before the run that consumes it. That latest timestamp is
+**imputed**, not observed: only round 1 (18 of the 109 map rows) carries real scheduled times from
+the saved league feed; rounds 2-6 (91 rows) are placed on a two-blocks-per-day cadence purely so the
+h90 decay has something to weight by. The chronology gate therefore asserts an ordering the pipeline
+controls - latest modelled timestamp < serve cutoff <= run start - and asserts nothing about when
+the final series really ended.
 An earlier 18:00Z value violated the second bound - it post-dated its own run by about 75 minutes -
 and was corrected. Both bounds are now asserted rather than trusted: `verify_standings` refuses a
 cutoff at or before the last result, and the production run refuses to start if any state cutoff is
@@ -121,6 +126,48 @@ timestamps are Tier 1 from Valve's league feed and reconcile with the reported r
 rounds 2-5 and the Elimination Round are placed on a labelled two-blocks-per-day cadence, and the
 whole TI15 block collapsed onto one instant moves strengths by <= 0.0013 and does not change the
 slate.
+
+## Where the four opening participants come from
+Two provenance roles, deliberately kept apart:
+
+| what | source |
+|---|---|
+| bracket GRAPH and winner/loser routing | saved Valve league feed `data/ti2026/raw/league_19719_feed.json` |
+| the four SEEDED participants | `data/ti2026/inputs/evidence/main_event_seating/` - a privacy-preserving crop of an operator-captured screenshot of the logged-in Dota 2 client, plus its reviewed transcription |
+
+The feed cannot supply the seating: every Playoff node in that snapshot carries
+`team_id_1 = team_id_2 = 0`. Without evidence `ti15_results.UBQF` would be a naked hand-entered
+constant behind a load-bearing input. It is now gated by `ti_predict/seating_evidence.py`, which
+before any enumeration checks that the archived PNG still matches its recorded sha256 and byte
+count, that it sits inside the evidence directory, that the record is classified as a first-party
+in-client capture with no source URL, that the reviewed transcription covers exactly nodes 14-17 and
+selections 801-804, that the eight display names resolve to eight unique canonical organisations,
+and that the seats production is about to enumerate are exactly the transcribed ones. Any mismatch
+aborts before a probability exists. The runtime contract is bytes + reviewed transcription + hash,
+**not** OCR: parsing a screenshot at production time would be a fragile dependency that could drift.
+
+The client renders the eight seats as abbreviations (IW, TSpirit, VSN, BB, Liquid, TY, NGX, FLCN) in
+four dated blocks A-D; the record carries that mapping alongside the canonical organisations. Only
+the crop is published: the uncropped capture also showed the operator's persona, a friend's name and
+account statistics, none of which is evidence for anything claimed here. The transformation is crop
+only - no redaction or repainting - and both the crop's and the private original's hashes are
+recorded, so the excerpt's lineage stays checkable.
+
+**The transcription is the single declarative seat table.** `ti15_results.UBQF` is derived from it at
+import rather than hand-maintained, so no second, independently editable table can silently
+disagree. The gate's seat comparison is therefore a check on the pipeline path - what production is
+about to enumerate is what the evidence says - not two independent tables agreeing.
+
+**Declared trust boundary:** human review of the capture-to-transcription step. Runtime OCR is
+deliberately excluded, so that step cannot be closed cryptographically. The hash proves the image has
+not changed since review, not that the review read it correctly; any future change to the image
+invalidates the gate until a human re-reviews it. The one genuinely independent cross-check is that
+the eight seated organisations must equal the eight survivors reconstructed from the 39 Swiss and 5
+Elimination series.
+
+These four pairings entered the model earlier as authoritative current-tournament facts supplied in
+the operator's prediction request. This archive is the client capture that confirms them, not a
+claim about where the original model input came from.
 
 ## Bracket topology - read, not typed
 `ti_predict/bracket.py` reads the 14 playoff nodes out of the saved official league feed, rebuilds
@@ -139,21 +186,28 @@ bootstrap draws before optimizing, which is exact because expected score is line
 distribution. Series-blocked means a Bo3 is one block; three maps never pose as three draws.
 
 ## Result
-- Primary slate E[official score] **2287.5**, E[correct] 5.107, against greedy-favourite 2221.3.
-- Champion probabilities: PARIVISION 0.348, Team Falcons 0.158, Team Yandex 0.138, BetBoom 0.113,
-  Team Spirit 0.079, Team Liquid 0.067, Nigma Galaxy 0.062, Tundra Esports 0.036.
-- **Slot 810 is a decision-theoretic tie, resolved quantitatively rather than asserted.** The
-  runner-up differs only there (Nigma Galaxy vs Team Liquid). A 40,000-draw PAIRED bootstrap
-  (`ti_predict/slate_compare.py`, both slates scored on the same draw) gives plug-in delta +5.25,
-  bootstrap mean **+0.40** (MC SE 0.31, and by linearity that mean IS the delta under the
-  bootstrap-averaged distribution the slate was chosen on), median +1.76, SD 62.9, 90% CI
-  [-105.9, +101.5], 95% CI [-127.0, +120.4], **P(delta > 0) = 0.511**. MC SE falls at the 1/sqrt(n)
-  rate across n = 1k..40k (2.01 -> 0.31) while the mean wanders inside +/-2.5, so the estimate has
-  converged and the two slates are statistically indistinguishable: the interval is wider than a
-  whole correct node in each direction and the mean is under 0.4% of one. **The client pick stays
-  Nigma Galaxy** - the official-score objective still has a unique argmax, so a tie in evidence is
-  not an abstention. Detail: `research/slot810_tiebreak_20260816.json`. The full slate is also
-  identical under an independent bootstrap seed (20260817).
+- Every headline number below is an ESTIMATE under the fixed-seed 1000-draw bootstrap-averaged
+  approximation. The 16,384 x 16,384 scoring is exact; the finite bootstrap standing in for the
+  parameter posterior is not. `ti15_main_event_prediction.json` is the machine source of truth -
+  read numbers from it rather than from prose, which is why they are not duplicated here.
+- Champion: **PARIVISION (client: TEAM VISION)**, the clear favourite; the field behind it is not
+  sharply separated and every bootstrap interval is wide.
+- **Radiant-c side-provenance correction (this round).** The synthetic TI15 rows are oriented
+  team_a = series winner, so 88 of 109 have team_a winning purely by construction; feeding them to
+  `est_c` read that bookkeeping artefact as a Radiant advantage. All 109 rows still train the
+  strengths (Bradley-Terry is orientation-symmetric), but only rows with genuine Radiant/Dire
+  provenance now reach `est_c`. c moves +0.1056 -> +0.0940; team strengths move by exactly zero;
+  max series-probability change 1.3e-04; max champion-probability change 1.2e-04; optimum row 957
+  unchanged; **no client pick changes**. A correctness fix for missing metadata, not a model change.
+- **Slot 810 is a decision-theoretic TIE** between Nigma Galaxy and Team Liquid, the only node
+  where the runner-up slate differs. A 40,000-draw paired bootstrap
+  (`ti_predict/slate_compare.py`) records `statistically_separated: false`: the sign of the
+  difference is **not** resolved. The client pick stays **Nigma Galaxy** because the fixed-seed
+  1000-draw production approximation has a unique numerical argmax and the deterministic production
+  decision rule takes it. That is determinism, not evidence - nothing here claims Nigma Galaxy is
+  truly superior to Team Liquid. Every figure behind this lives in
+  `predictions/ti2026/playoffs/research/slot810_tiebreak_20260816.json`, which is the authoritative
+  machine-readable source; it is deliberately not copied into prose, where it would go stale.
 - Six late-bracket nodes are flagged fragile (806, 810, 811, 812, 813, 814); the four quarter-finals
   and the PARIVISION line are not.
 

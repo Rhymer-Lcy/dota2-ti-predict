@@ -1,0 +1,85 @@
+{
+  "schema_version": 3,
+  "record": "TI15 Main Event opening seating - archived evidence and reviewed transcription",
+  "compiled_at": "2026-08-17",
+  "evidence_scope": "opening Main Event seating (the four upper-bracket quarterfinal pairings)",
+
+  "provenance_roles": {
+    "seating_source": "archived first-party Dota 2 client screenshot (privacy-preserving crop)",
+    "topology_source": "saved Valve league feed (data/ti2026/raw/league_19719_feed.json)",
+    "seating_role": "the client capture establishes WHO occupies the four opening nodes",
+    "topology_role": "the Valve feed independently establishes the 14-node graph and the winner/loser edges",
+    "roles_are_separate": "These are two different questions answered by two different artifacts. The feed cannot supply the seating: every Playoff node in that snapshot carries team_id_1 = team_id_2 = 0. The capture is not used to derive the graph."
+  },
+
+  "source": {
+    "type": "first-party in-client capture, privacy-preserving crop",
+    "description": "privacy-preserving crop derived from an operator-captured screenshot from the logged-in Dota 2 client",
+    "source_url": null,
+    "acquisition_date": "2026-08-17",
+    "network_access_used": false
+  },
+
+  "image": {
+    "path": "data/ti2026/inputs/evidence/main_event_seating/ti15_main_event_bracket_client_crop_20260817.png",
+    "sha256": "ee343c08320c46d337363cda02ceb67ae57a37bd73175fe1cbe44d14355f48b2",
+    "bytes": 427163,
+    "pixels": [1624, 1000],
+    "transformation": "crop only",
+    "crop_geometry": {
+      "source_pixels": [2048, 1152],
+      "box_left_upper_right_lower": [424, 0, 2048, 1000],
+      "reproduce": "PIL: Image.open(<private original>).crop((424, 0, 2048, 1000)).save(out, format='PNG', optimize=True)",
+      "note": "crop only - no scaling, rotation, redaction, painting or pixel edits. The PNG container is re-encoded by the crop step, so the crop's hash is not derivable from the original's; both hashes are recorded."
+    },
+    "original_private_capture_sha256": "3a3abff414059d56c6301cfd6fd12dfa81062990c89bf0fdff65a4f854ebfb52",
+    "original_private_capture_bytes": 1212870,
+    "original_is_deliberately_not_in_this_repository": "The uncropped capture shows the operator's Steam persona, a friend's display name, account points/percentile and unrelated sidebar and chat UI. None of that is evidence for anything this repository claims, so only the crop is published. The full capture is retained privately by the operator.",
+    "retained_content": "Dota 2 client navigation chrome and the FPS/CPU overlay (establishing this is an in-client view), the 赛事预测 heading, the 小组赛 / 国际邀请赛 tabs, and the complete Main Event bracket: 胜者组第1轮 blocks A-D with all four pairings and team logos, 胜者组第2轮 (E, F), 胜者组决赛 (G), 总决赛, and every 败者组 round with its routing labels.",
+    "removed_content": "left sidebar (Steam persona, activity menu, points and percentile, friends list) and the bottom bar (chat entry, hero portraits, play button)"
+  },
+
+  "transcription": {
+    "method": "read from the archived crop by the assistant and reviewed against the operator's own transcription; the image is NOT parsed at production runtime",
+    "runtime_contract": "the immutable bytes plus this reviewed transcription plus the sha256 are the auditable evidence contract. Production verifies the hash, the byte count and the directory contents, then CONSUMES these canonical seats; it never OCRs the image.",
+    "trust_boundary": "Human review of the screenshot-to-transcription step is the declared trust boundary, because runtime OCR is intentionally excluded. It cannot be eliminated cryptographically: the hash proves the image has not changed since review, not that the review read it correctly. What the hash does guarantee is that any future change to the image invalidates the gate until a human re-reviews it.",
+    "single_source_of_seats": "This block is the ONLY declarative table of opening participants in the repository. ti15_results.UBQF is derived from it at import, so there is no second, independently editable seat table that could silently disagree.",
+    "abbreviations": {
+      "IW": "Iron Wing", "TSpirit": "Team Spirit", "VSN": "TEAM VISION", "BB": "BoomBoys",
+      "Liquid": "Team Liquid", "TY": "Team Yandex", "NGX": "Nigma Galaxy", "FLCN": "Team Falcons"
+    },
+    "label_note": "client_block/client_date restate the client's own match labels (8/20 blocks A-D) in ASCII; the screenshot renders them in Chinese",
+    "seats": [
+      {
+        "selection_id": 801, "node_id": 14, "round": "UBQF", "best_of": 3,
+        "client_block": "A", "client_date": "2026-08-20",
+        "display": ["Iron Wing", "Team Spirit"],
+        "canonical": ["Tundra Esports", "Team Spirit"]
+      },
+      {
+        "selection_id": 802, "node_id": 15, "round": "UBQF", "best_of": 3,
+        "client_block": "B", "client_date": "2026-08-20",
+        "display": ["TEAM VISION", "BoomBoys"],
+        "canonical": ["PARIVISION", "BetBoom Team"]
+      },
+      {
+        "selection_id": 803, "node_id": 16, "round": "UBQF", "best_of": 3,
+        "client_block": "C", "client_date": "2026-08-20",
+        "display": ["Team Liquid", "Team Yandex"],
+        "canonical": ["Team Liquid", "Team Yandex"]
+      },
+      {
+        "selection_id": 804, "node_id": 17, "round": "UBQF", "best_of": 3,
+        "client_block": "D", "client_date": "2026-08-20",
+        "display": ["Nigma Galaxy", "Team Falcons"],
+        "canonical": ["Nigma Galaxy", "Team Falcons"]
+      }
+    ]
+  },
+
+  "evidence_strength": {
+    "statement": "The four opening Main Event participants are hash-gated against a privacy-preserving crop of an operator-captured screenshot from the logged-in Dota 2 client.",
+    "original_model_input_provenance": "These four pairings entered the model earlier, as authoritative current-tournament facts supplied in the operator's prediction request. This record archives the client capture that confirms them; it is not a claim that the screenshot was the original source of the model input.",
+    "independent_cross_check": "The eight seated organisations are separately required to equal the eight survivors reconstructed from the 39 Swiss and 5 Elimination series (ti15_results.verify_standings). Seating evidence and match results are independent facts, so their agreement is a real check."
+  }
+}
