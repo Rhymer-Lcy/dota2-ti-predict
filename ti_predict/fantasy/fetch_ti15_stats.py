@@ -315,7 +315,39 @@ def historical_ids():
     return sorted(ids)
 
 
-def run_history(sleep=1.05, limit=0):
+def _history_rows(mid, match, players):
+    torm = tormentor_by_slot(match)
+    out = []
+    for p in match.get("players", []):
+        acct = p.get("account_id")
+        if acct not in players:
+            continue
+        total, wisdom = _rune_counts(p)
+        tokens = p.get("neutral_tokens_log")
+        out.append({"match_id": mid, "account_id": acct, "hero_id": p.get("hero_id"),
+                    "runes_total": total, "runes_wisdom": wisdom,
+                    "tormentor_kills": torm.get(int(p.get("player_slot", 0)), 0),
+                    "madstone_log": (len(tokens) if isinstance(tokens, list) else None)})
+    if not out:
+        # A real, classified outcome: the match held no roster player. A marker row records that,
+        # so a resume does not request it for ever and coverage does not look permanently short.
+        out.append({"match_id": mid, "account_id": "", "hero_id": "", "runes_total": "",
+                    "runes_wisdom": "", "tormentor_kills": "", "madstone_log": ""})
+    return out
+
+
+def run_history(sleep=0.15, limit=0, workers=4):
+    """Refetch the historical window for the three columns the old table lacks.
+
+    Concurrency is here because the bottleneck is download size, not the rate limit: a parsed match
+    payload is 0.3 to 3 MB and takes several seconds on the wire, while OpenDota's anonymous limit
+    is 60 requests a minute. Four workers at a 0.15 s stagger stay well inside that and cut the
+    wall-clock by roughly the worker count. Writes go through one lock to one handle, so the file
+    cannot interleave.
+    """
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
     os.makedirs(PROC, exist_ok=True)
     players = ti_players()
     targets = historical_ids()
@@ -325,43 +357,40 @@ def run_history(sleep=1.05, limit=0):
     todo = [m for m in targets if m not in have]
     if limit:
         todo = todo[:limit]
-    print(f"history: {len(targets)} matches, {len(have)} already extended, {len(todo)} to go",
-          flush=True)
+    print(f"history: {len(targets)} matches, {len(have)} already extended, {len(todo)} to go, "
+          f"{workers} workers", flush=True)
     new = not os.path.exists(HIST_EXTRAS)
     failed = []
+    lock = threading.Lock()
+    done = [0]
     with open(HIST_EXTRAS, "a", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=HIST_FIELDS)
         if new:
             w.writeheader()
-        for n, mid in enumerate(todo, 1):
+
+        def work(mid):
             m = _get(MATCH.format(mid))
-            if not isinstance(m, dict) or "players" not in m:
-                failed.append(mid)
-            else:
-                torm = tormentor_by_slot(m)
-                wrote = False
-                for p in m.get("players", []):
-                    acct = p.get("account_id")
-                    if acct not in players:
-                        continue
-                    total, wisdom = _rune_counts(p)
-                    tokens = p.get("neutral_tokens_log")
-                    w.writerow({"match_id": mid, "account_id": acct, "hero_id": p.get("hero_id"),
-                                "runes_total": total, "runes_wisdom": wisdom,
-                                "tormentor_kills": torm.get(int(p.get("player_slot", 0)), 0),
-                                "madstone_log": (len(tokens) if isinstance(tokens, list)
-                                                 else None)})
-                    wrote = True
-                if not wrote:
-                    # A real, classified outcome: the match held no roster player. Record a marker
-                    # row so a resume does not request it for ever.
-                    w.writerow({"match_id": mid, "account_id": "", "hero_id": "",
-                                "runes_total": "", "runes_wisdom": "", "tormentor_kills": "",
-                                "madstone_log": ""})
-            if n % 25 == 0:
-                fh.flush()
-                print(f"  {n}/{len(todo)} ({len(failed)} failed)", flush=True)
-            time.sleep(sleep)
+            rows = None
+            if isinstance(m, dict) and "players" in m:
+                rows = _history_rows(mid, m, players)
+            with lock:
+                if rows is None:
+                    failed.append(mid)
+                else:
+                    for row in rows:
+                        w.writerow(row)
+                done[0] += 1
+                if done[0] % 25 == 0:
+                    fh.flush()
+                    print(f"  {done[0]}/{len(todo)} ({len(failed)} failed)", flush=True)
+
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            futures = []
+            for mid in todo:
+                futures.append(ex.submit(work, mid))
+                time.sleep(sleep)
+            for f in futures:
+                f.result()
     return targets, failed
 
 
@@ -411,6 +440,7 @@ def main(argv=None):
     a.add_argument("--source", choices=("ti15", "history"), required=True)
     a.add_argument("--sleep", type=float, default=1.05)
     a.add_argument("--limit", type=int, default=0)
+    a.add_argument("--workers", type=int, default=4, help="history source only")
     a = a.parse_args(argv)
 
     if a.source == "ti15":
@@ -420,7 +450,7 @@ def main(argv=None):
         if failed:
             sys.exit(f"{len(failed)} TI15 matches failed; re-run to resume")
     else:
-        targets, failed = run_history(a.sleep, a.limit)
+        targets, failed = run_history(a.sleep, a.limit, a.workers)
         prov = write_provenance(hist_targets=targets, hist_failed=failed)
         print(json.dumps(prov.get("history"), indent=2))
         if failed:
