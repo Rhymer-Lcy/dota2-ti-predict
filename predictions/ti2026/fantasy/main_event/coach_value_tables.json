@@ -1,0 +1,5354 @@
+{
+ "manifest": {
+  "artifact_family": "TI15 period-1 (Main Event) Fantasy",
+  "generated_at": "2026-08-17T12:30:33+00:00",
+  "code_commit": "8c6b715",
+  "git_dirty_at_start": false,
+  "information_cutoff": "2026-08-17T00:00:00Z",
+  "main_event_results_used": false,
+  "leakage_note": "every input match starts before 2026-08-20T00:00:00Z, asserted in the fetcher on both the league listing and each match payload",
+  "runtime_seconds": 31.4,
+  "estimator": {
+   "chain": "player-game -> role arithmetic mean -> top two games in a series -> best series in the period -> equal-weight mean over event blocks -> expectation over the Main Event series-count distribution",
+   "expected_maximum": "closed form over the empirical series pool, not simulated",
+   "uncertainty": "hierarchical bootstrap: resample event blocks, then series within",
+   "bootstrap_draws": 400,
+   "coach_stacking": "additive (prefix + suffix); multiplicative reported as sensitivity"
+  },
+  "data": {
+   "historical_player_maps": {
+    "path": "data\\ti2026\\processed\\fantasy\\player_map_stats.csv",
+    "sha256": "8e97d77c899edbbc6645c08984e1434034308e1658d7f3049652b18d868445b7"
+   },
+   "historical_extras": {
+    "path": "data\\ti2026\\processed\\fantasy\\hist_player_map_extras.csv",
+    "sha256": "3a68d699e9590eccb7f56d4111f94350c0a2cd7d7ecce7038fef727c6e167fd6"
+   },
+   "historical_match_extras": {
+    "path": "data\\ti2026\\processed\\fantasy\\match_extras.csv",
+    "sha256": "e566b3a56ed43e59e0285def25b15c2b2dd0c0601f95f1306b66f48a6a7baab2"
+   },
+   "ti15_player_maps": {
+    "path": "data\\ti2026\\processed\\fantasy\\ti15_player_map_stats.csv",
+    "sha256": "42235d33dbde3aae5ad16d3ca7c014fa804d9d54927a481c751a63f1dd4e5944"
+   },
+   "ti15_match_extras": {
+    "path": "data\\ti2026\\processed\\fantasy\\ti15_match_extras.csv",
+    "sha256": "b09ac9c9f0094a85366c5abda344058d341824a6534c0adc9d971a96732d68ee"
+   },
+   "roster_positions": {
+    "path": "data\\ti2026\\inputs\\fantasy\\roster_positions.csv",
+    "sha256": "b416e7f7d88d300d67ef73999b4136359a4222c66a27c779b181f8ebc26b28ac"
+   }
+  },
+  "bracket_isolation": {
+   "committed_artifact": "predictions\\ti2026\\playoffs\\ti15_main_event_prediction.json",
+   "artifact_generated_at": "2026-08-17T09:41:58+00:00",
+   "artifact_code_commit": "0f6c691",
+   "consumed_read_only": [
+    "strength_evolution[*].serve",
+    "states.C_serve.radiant_c",
+    "the saved league feed topology via ti_predict.bracket"
+   ],
+   "refit": false,
+   "modified": false,
+   "universe_maps_csv_touched": false
+  },
+  "coverage": {
+   "Aurora Gaming|core": {
+    "series": 37,
+    "games": 93,
+    "player_games": 186,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Aurora Gaming|mid": {
+    "series": 37,
+    "games": 93,
+    "player_games": 93,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Aurora Gaming|support": {
+    "series": 37,
+    "games": 93,
+    "player_games": 186,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Tundra Esports|core": {
+    "series": 36,
+    "games": 78,
+    "player_games": 156,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Tundra Esports|support": {
+    "series": 36,
+    "games": 87,
+    "player_games": 174,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Tundra Esports|mid": {
+    "series": 36,
+    "games": 87,
+    "player_games": 87,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Spirit|core": {
+    "series": 32,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Spirit|support": {
+    "series": 32,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Spirit|mid": {
+    "series": 32,
+    "games": 74,
+    "player_games": 74,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Yandex|core": {
+    "series": 22,
+    "games": 55,
+    "player_games": 110,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Yandex|mid": {
+    "series": 22,
+    "games": 55,
+    "player_games": 55,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Yandex|support": {
+    "series": 22,
+    "games": 55,
+    "player_games": 110,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Falcons|support": {
+    "series": 42,
+    "games": 98,
+    "player_games": 196,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Falcons|core": {
+    "series": 42,
+    "games": 98,
+    "player_games": 196,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Liquid|support": {
+    "series": 38,
+    "games": 73,
+    "player_games": 146,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Liquid|core": {
+    "series": 38,
+    "games": 93,
+    "player_games": 186,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Liquid|mid": {
+    "series": 38,
+    "games": 93,
+    "player_games": 93,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Nigma Galaxy|core": {
+    "series": 24,
+    "games": 27,
+    "player_games": 54,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "LGD Gaming|core": {
+    "series": 35,
+    "games": 66,
+    "player_games": 132,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "LGD Gaming|support": {
+    "series": 35,
+    "games": 80,
+    "player_games": 160,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "BetBoom Team|core": {
+    "series": 43,
+    "games": 101,
+    "player_games": 202,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "BetBoom Team|mid": {
+    "series": 43,
+    "games": 101,
+    "player_games": 101,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "BetBoom Team|support": {
+    "series": 43,
+    "games": 101,
+    "player_games": 202,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Xtreme Gaming|core": {
+    "series": 25,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Xtreme Gaming|mid": {
+    "series": 25,
+    "games": 57,
+    "player_games": 57,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Xtreme Gaming|support": {
+    "series": 25,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Vici Gaming|core": {
+    "series": 33,
+    "games": 75,
+    "player_games": 150,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Vici Gaming|mid": {
+    "series": 33,
+    "games": 75,
+    "player_games": 75,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Vici Gaming|support": {
+    "series": 33,
+    "games": 75,
+    "player_games": 150,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "GamerLegion|core": {
+    "series": 27,
+    "games": 59,
+    "player_games": 118,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "GamerLegion|mid": {
+    "series": 27,
+    "games": 59,
+    "player_games": 59,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "GamerLegion|support": {
+    "series": 27,
+    "games": 59,
+    "player_games": 118,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "PARIVISION|mid": {
+    "series": 30,
+    "games": 80,
+    "player_games": 80,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "PARIVISION|support": {
+    "series": 30,
+    "games": 80,
+    "player_games": 160,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Nigma Galaxy|mid": {
+    "series": 19,
+    "games": 40,
+    "player_games": 40,
+    "events": [
+     "19543",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "PARIVISION|core": {
+    "series": 30,
+    "games": 62,
+    "player_games": 124,
+    "events": [
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Falcons|mid": {
+    "series": 39,
+    "games": 91,
+    "player_games": 91,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Nigma Galaxy|support": {
+    "series": 21,
+    "games": 42,
+    "player_games": 84,
+    "events": [
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Resilience|core": {
+    "series": 6,
+    "games": 16,
+    "player_games": 32,
+    "events": [
+     "19719"
+    ]
+   },
+   "Team Resilience|mid": {
+    "series": 6,
+    "games": 16,
+    "player_games": 16,
+    "events": [
+     "19719"
+    ]
+   },
+   "Team Resilience|support": {
+    "series": 6,
+    "games": 16,
+    "player_games": 32,
+    "events": [
+     "19719"
+    ]
+   },
+   "OG|mid": {
+    "series": 16,
+    "games": 34,
+    "player_games": 34,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "OG|support": {
+    "series": 16,
+    "games": 34,
+    "player_games": 68,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "OG|core": {
+    "series": 16,
+    "games": 34,
+    "player_games": 68,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "HULIGANI|mid": {
+    "series": 9,
+    "games": 20,
+    "player_games": 20,
+    "events": [
+     "19719",
+     "19785"
+    ]
+   },
+   "HULIGANI|support": {
+    "series": 9,
+    "games": 10,
+    "player_games": 20,
+    "events": [
+     "19719"
+    ]
+   },
+   "HULIGANI|core": {
+    "series": 9,
+    "games": 20,
+    "player_games": 40,
+    "events": [
+     "19719",
+     "19785"
+    ]
+   }
+  },
+  "accounts": {
+   "operator": {
+    "file": "predictions\\ti2026\\fantasy\\main_event\\account_state_operator_20260817.json",
+    "sha256": "77439bff75de0e7d615a7242c22bf4ca52f556029e773f788a045d78e17f4c99",
+    "roll_tokens": 40,
+    "coach": {
+     "prefix": "Elemental",
+     "prefix_bonus_percent": 8,
+     "suffix": "the Tormented",
+     "suffix_bonus_percent": 23,
+     "status": "observed in client",
+     "change_cost_tokens": 0
+    }
+   },
+   "target": {
+    "file": "predictions\\ti2026\\fantasy\\main_event\\account_state_target_20260817.json",
+    "sha256": "3f86bd1125d9db05d04ba1c9ced2cf911d59b61e781ddefaf91e81c835a933d6",
+    "roll_tokens": 36,
+    "coach": {
+     "prefix": "Elemental",
+     "prefix_bonus_percent": 8,
+     "suffix": "the Tormented",
+     "suffix_bonus_percent": 23,
+     "status": "observed in client",
+     "change_cost_tokens": 0
+    }
+   }
+  }
+ },
+ "joint": {
+  "operator": {
+   "converged_teams": {
+    "core": "PARIVISION",
+    "mid": "Team Falcons",
+    "support": "Team Falcons"
+   },
+   "coach": {
+    "prefix": "Otherworldly",
+    "suffix": "the Clutch"
+   },
+   "iterations": [
+    {
+     "teams": {
+      "core": "PARIVISION",
+      "mid": "Team Falcons",
+      "support": "Team Falcons"
+     },
+     "coach": [
+      "Elemental",
+      "the Tormented"
+     ],
+     "account_total": 48372.7
+    },
+    {
+     "teams": {
+      "core": "PARIVISION",
+      "mid": "Team Falcons",
+      "support": "Team Falcons"
+     },
+     "coach": [
+      "Otherworldly",
+      "the Clutch"
+     ],
+     "account_total": 48372.7
+    }
+   ],
+   "joint_table_additive": [
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch",
+     "account_total": 48372.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Clutch",
+     "account_total": 48317.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Clutch",
+     "account_total": 48248.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Clutch",
+     "account_total": 48163.8,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Lucky",
+     "account_total": 47926.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Clutch",
+     "account_total": 47913.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Lucky",
+     "account_total": 47792.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Lucky",
+     "account_total": 47756.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Lucky",
+     "account_total": 47660.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Clutch",
+     "account_total": 47454.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Clutch",
+     "account_total": 47454.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Clutch",
+     "account_total": 47454.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Clutch",
+     "account_total": 47454.0,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Underdog",
+     "account_total": 47446.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Lucky",
+     "account_total": 47421.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Tormented",
+     "account_total": 47361.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Underdog",
+     "account_total": 47334.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Underdog",
+     "account_total": 47305.6,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Tormented",
+     "account_total": 47253.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Underdog",
+     "account_total": 47235.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Tormented",
+     "account_total": 47217.6,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Decisive",
+     "account_total": 47202.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Tormented",
+     "account_total": 47142.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Decisive",
+     "account_total": 47098.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Decisive",
+     "account_total": 47079.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 47063.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Patient",
+     "account_total": 47063.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Cruel",
+     "account_total": 47063.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": null,
+     "account_total": 47063.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Decisive",
+     "account_total": 46994.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Underdog",
+     "account_total": 46961.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Lucky",
+     "account_total": 46951.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Lucky",
+     "account_total": 46951.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Lucky",
+     "account_total": 46951.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Lucky",
+     "account_total": 46951.3,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 46946.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Patient",
+     "account_total": 46946.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Cruel",
+     "account_total": 46946.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": null,
+     "account_total": 46946.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 46916.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Patient",
+     "account_total": 46916.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Cruel",
+     "account_total": 46916.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": null,
+     "account_total": 46916.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Tormented",
+     "account_total": 46876.8,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 46845.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Patient",
+     "account_total": 46845.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Cruel",
+     "account_total": 46845.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": null,
+     "account_total": 46845.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Decisive",
+     "account_total": 46728.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 46576.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Patient",
+     "account_total": 46576.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Cruel",
+     "account_total": 46576.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": null,
+     "account_total": 46576.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Underdog",
+     "account_total": 46491.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Underdog",
+     "account_total": 46491.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Underdog",
+     "account_total": 46491.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Underdog",
+     "account_total": 46491.0,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Tormented",
+     "account_total": 46404.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Tormented",
+     "account_total": 46404.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Tormented",
+     "account_total": 46404.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Tormented",
+     "account_total": 46404.3,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Decisive",
+     "account_total": 46261.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Decisive",
+     "account_total": 46261.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Decisive",
+     "account_total": 46261.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Decisive",
+     "account_total": 46261.3,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Patient",
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Cruel",
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Royal",
+     "suffix": null,
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Patient",
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Cruel",
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Golden",
+     "suffix": null,
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Patient",
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Cruel",
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": null,
+     "account_total": 46105.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 46105.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Patient",
+     "account_total": 46105.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Cruel",
+     "account_total": 46105.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": null,
+     "suffix": null,
+     "account_total": 46105.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    }
+   ],
+   "joint_table_multiplicative_sensitivity": [
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch",
+     "account_total": 48413.3
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Clutch",
+     "account_total": 48347.6
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Clutch",
+     "account_total": 48267.3
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Clutch",
+     "account_total": 48185.9
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Lucky",
+     "account_total": 47961.2
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Clutch",
+     "account_total": 47932.7
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Lucky",
+     "account_total": 47812.0
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Lucky",
+     "account_total": 47767.1
+    }
+   ],
+   "incumbent": {
+    "prefix": "Elemental",
+    "suffix": "the Tormented",
+    "account_total": 47217.6,
+    "gap_to_best": 1155.1,
+    "gap_pct": 2.388
+   },
+   "agreement_across_stacking_rules": true,
+   "caveat": "prefix evidence differs by title: red/blue/green are exact flags, Elemental and Otherworldly are strict subsets of their condition so their scores are LOWER BOUNDS, and Royal, Golden and Heroic have no hero-category table at all and cannot be scored."
+  },
+  "target": {
+   "converged_teams": {
+    "core": "PARIVISION",
+    "mid": "Team Falcons",
+    "support": "Team Yandex"
+   },
+   "coach": {
+    "prefix": "Crimson",
+    "suffix": "the Clutch"
+   },
+   "iterations": [
+    {
+     "teams": {
+      "core": "PARIVISION",
+      "mid": "Team Falcons",
+      "support": "Team Yandex"
+     },
+     "coach": [
+      "Elemental",
+      "the Tormented"
+     ],
+     "account_total": 50476.0
+    },
+    {
+     "teams": {
+      "core": "PARIVISION",
+      "mid": "Team Falcons",
+      "support": "Team Yandex"
+     },
+     "coach": [
+      "Crimson",
+      "the Clutch"
+     ],
+     "account_total": 50476.0
+    }
+   ],
+   "joint_table_additive": [
+    {
+     "prefix": "Crimson",
+     "suffix": "the Clutch",
+     "account_total": 50476.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Clutch",
+     "account_total": 50377.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Clutch",
+     "account_total": 50305.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch",
+     "account_total": 50303.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Clutch",
+     "account_total": 50155.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Lucky",
+     "account_total": 49982.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Lucky",
+     "account_total": 49840.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Lucky",
+     "account_total": 49744.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Lucky",
+     "account_total": 49701.2,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Clutch",
+     "account_total": 49598.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Clutch",
+     "account_total": 49598.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Clutch",
+     "account_total": 49598.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Clutch",
+     "account_total": 49598.2,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Lucky",
+     "account_total": 49591.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Underdog",
+     "account_total": 49423.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Underdog",
+     "account_total": 49328.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Underdog",
+     "account_total": 49226.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Underdog",
+     "account_total": 49197.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Underdog",
+     "account_total": 49091.2,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Tormented",
+     "account_total": 49076.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Lucky",
+     "account_total": 49064.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Lucky",
+     "account_total": 49064.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Lucky",
+     "account_total": 49064.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Lucky",
+     "account_total": 49064.0,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Tormented",
+     "account_total": 48950.9,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Tormented",
+     "account_total": 48872.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Decisive",
+     "account_total": 48842.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Tormented",
+     "account_total": 48821.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 48740.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Patient",
+     "account_total": 48740.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Cruel",
+     "account_total": 48740.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": null,
+     "account_total": 48740.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Decisive",
+     "account_total": 48740.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Tormented",
+     "account_total": 48734.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Decisive",
+     "account_total": 48636.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 48634.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Patient",
+     "account_total": 48634.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Cruel",
+     "account_total": 48634.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": null,
+     "account_total": 48634.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Decisive",
+     "account_total": 48596.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 48530.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Patient",
+     "account_total": 48530.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Cruel",
+     "account_total": 48530.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": null,
+     "account_total": 48530.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Underdog",
+     "account_total": 48519.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Underdog",
+     "account_total": 48519.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Underdog",
+     "account_total": 48519.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Underdog",
+     "account_total": 48519.6,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Decisive",
+     "account_total": 48496.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 48492.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Patient",
+     "account_total": 48492.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Cruel",
+     "account_total": 48492.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": null,
+     "account_total": 48492.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 48393.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Patient",
+     "account_total": 48393.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Cruel",
+     "account_total": 48393.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": null,
+     "account_total": 48393.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Tormented",
+     "account_total": 48170.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Tormented",
+     "account_total": 48170.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Tormented",
+     "account_total": 48170.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Tormented",
+     "account_total": 48170.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Decisive",
+     "account_total": 47945.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Decisive",
+     "account_total": 47945.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Decisive",
+     "account_total": 47945.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Decisive",
+     "account_total": 47945.0,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Patient",
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Cruel",
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Royal",
+     "suffix": null,
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Patient",
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Cruel",
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Golden",
+     "suffix": null,
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Patient",
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Cruel",
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": null,
+     "account_total": 47837.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Flayed Twins Acolyte",
+     "account_total": 47837.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Patient",
+     "account_total": 47837.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Cruel",
+     "account_total": 47837.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": null,
+     "suffix": null,
+     "account_total": 47837.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    }
+   ],
+   "joint_table_multiplicative_sensitivity": [
+    {
+     "prefix": "Crimson",
+     "suffix": "the Clutch",
+     "account_total": 50514.0
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Clutch",
+     "account_total": 50396.7
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch",
+     "account_total": 50346.0
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Clutch",
+     "account_total": 50335.8
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Clutch",
+     "account_total": 50182.5
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Lucky",
+     "account_total": 50014.4
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Lucky",
+     "account_total": 49852.5
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Lucky",
+     "account_total": 49780.6
+    }
+   ],
+   "incumbent": {
+    "prefix": "Elemental",
+    "suffix": "the Tormented",
+    "account_total": 48950.9,
+    "gap_to_best": 1525.1,
+    "gap_pct": 3.021
+   },
+   "agreement_across_stacking_rules": true,
+   "caveat": "prefix evidence differs by title: red/blue/green are exact flags, Elemental and Otherworldly are strict subsets of their condition so their scores are LOWER BOUNDS, and Royal, Golden and Heroic have no hero-category table at all and cannot be scored."
+  }
+ },
+ "per_role": {
+  "operator": {
+   "core": [
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch",
+     "period_score": 19920.9,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Clutch",
+     "period_score": 19896.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Clutch",
+     "period_score": 19820.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Clutch",
+     "period_score": 19800.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Clutch",
+     "period_score": 19769.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Lucky",
+     "period_score": 19719.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Lucky",
+     "period_score": 19645.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Clutch",
+     "period_score": 19583.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Clutch",
+     "period_score": 19583.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Clutch",
+     "period_score": 19583.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Clutch",
+     "period_score": 19583.2,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Lucky",
+     "period_score": 19566.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Lucky",
+     "period_score": 19542.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Lucky",
+     "period_score": 19526.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Decisive",
+     "period_score": 19394.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Tormented",
+     "period_score": 19365.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Underdog",
+     "period_score": 19362.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Decisive",
+     "period_score": 19360.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Lucky",
+     "period_score": 19336.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Lucky",
+     "period_score": 19336.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Lucky",
+     "period_score": 19336.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Lucky",
+     "period_score": 19336.5,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 19322.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Patient",
+     "period_score": 19322.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Cruel",
+     "period_score": 19322.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": null,
+     "period_score": 19322.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Tormented",
+     "period_score": 19307.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Underdog",
+     "period_score": 19298.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 19266.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Patient",
+     "period_score": 19266.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Cruel",
+     "period_score": 19266.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": null,
+     "period_score": 19266.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Decisive",
+     "period_score": 19254.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Decisive",
+     "period_score": 19249.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Decisive",
+     "period_score": 19220.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Underdog",
+     "period_score": 19219.2,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Tormented",
+     "period_score": 19218.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Tormented",
+     "period_score": 19212.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Underdog",
+     "period_score": 19204.8,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Tormented",
+     "period_score": 19189.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 19176.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Patient",
+     "period_score": 19176.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Cruel",
+     "period_score": 19176.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": null,
+     "period_score": 19176.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Underdog",
+     "period_score": 19176.2,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 19163.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Patient",
+     "period_score": 19163.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Cruel",
+     "period_score": 19163.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": null,
+     "period_score": 19163.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 19142.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Patient",
+     "period_score": 19142.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Cruel",
+     "period_score": 19142.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": null,
+     "period_score": 19142.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Decisive",
+     "period_score": 19027.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Decisive",
+     "period_score": 19027.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Decisive",
+     "period_score": 19027.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Decisive",
+     "period_score": 19027.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Tormented",
+     "period_score": 18988.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Tormented",
+     "period_score": 18988.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Tormented",
+     "period_score": 18988.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Tormented",
+     "period_score": 18988.2,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Underdog",
+     "period_score": 18984.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Underdog",
+     "period_score": 18984.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Underdog",
+     "period_score": 18984.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Underdog",
+     "period_score": 18984.2,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Patient",
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Cruel",
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Royal",
+     "suffix": null,
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Patient",
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Cruel",
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Golden",
+     "suffix": null,
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Patient",
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Cruel",
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": null,
+     "period_score": 18945.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 18945.5,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Patient",
+     "period_score": 18945.5,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Cruel",
+     "period_score": 18945.5,
+     "prefix_evidence": "none",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": null,
+     "suffix": null,
+     "period_score": 18945.5,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    }
+   ],
+   "mid": [
+    {
+     "prefix": "Crimson",
+     "suffix": "the Clutch",
+     "period_score": 14583.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch",
+     "period_score": 14541.9,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Clutch",
+     "period_score": 14458.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Tormented",
+     "period_score": 14398.8,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Clutch",
+     "period_score": 14360.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Tormented",
+     "period_score": 14352.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Underdog",
+     "period_score": 14349.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Lucky",
+     "period_score": 14348.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Decisive",
+     "period_score": 14340.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Lucky",
+     "period_score": 14318.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Decisive",
+     "period_score": 14298.9,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Underdog",
+     "period_score": 14297.6,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Clutch",
+     "period_score": 14279.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14276.2,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Patient",
+     "period_score": 14276.2,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Cruel",
+     "period_score": 14276.2,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": null,
+     "period_score": 14276.2,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Tormented",
+     "period_score": 14274.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Lucky",
+     "period_score": 14233.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14233.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Patient",
+     "period_score": 14233.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Cruel",
+     "period_score": 14233.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": null,
+     "period_score": 14233.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Underdog",
+     "period_score": 14221.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Decisive",
+     "period_score": 14219.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Tormented",
+     "period_score": 14177.8,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14151.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Patient",
+     "period_score": 14151.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Cruel",
+     "period_score": 14151.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": null,
+     "period_score": 14151.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Clutch",
+     "period_score": 14150.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Clutch",
+     "period_score": 14150.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Clutch",
+     "period_score": 14150.3,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Clutch",
+     "period_score": 14150.3,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Lucky",
+     "period_score": 14146.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Decisive",
+     "period_score": 14128.8,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Underdog",
+     "period_score": 14121.2,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Tormented",
+     "period_score": 14089.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14059.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Patient",
+     "period_score": 14059.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Cruel",
+     "period_score": 14059.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": null,
+     "period_score": 14059.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Lucky",
+     "period_score": 14054.8,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Decisive",
+     "period_score": 14044.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Underdog",
+     "period_score": 14038.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13971.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Patient",
+     "period_score": 13971.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Cruel",
+     "period_score": 13971.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": null,
+     "period_score": 13971.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Tormented",
+     "period_score": 13965.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Tormented",
+     "period_score": 13965.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Tormented",
+     "period_score": 13965.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Tormented",
+     "period_score": 13965.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Lucky",
+     "period_score": 13926.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Lucky",
+     "period_score": 13926.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Lucky",
+     "period_score": 13926.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Lucky",
+     "period_score": 13926.7,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Decisive",
+     "period_score": 13918.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Decisive",
+     "period_score": 13918.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Decisive",
+     "period_score": 13918.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Decisive",
+     "period_score": 13918.2,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Underdog",
+     "period_score": 13911.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Underdog",
+     "period_score": 13911.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Underdog",
+     "period_score": 13911.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Underdog",
+     "period_score": 13911.1,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Patient",
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Cruel",
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Royal",
+     "suffix": null,
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Patient",
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Cruel",
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Golden",
+     "suffix": null,
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Patient",
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Cruel",
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": null,
+     "period_score": 13845.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13845.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Patient",
+     "period_score": 13845.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Cruel",
+     "period_score": 13845.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": null,
+     "suffix": null,
+     "period_score": 13845.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    }
+   ],
+   "support": [
+    {
+     "prefix": "Emerald",
+     "suffix": "the Clutch",
+     "period_score": 14003.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Lucky",
+     "period_score": 13972.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Clutch",
+     "period_score": 13914.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch",
+     "period_score": 13909.9,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Underdog",
+     "period_score": 13894.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Clutch",
+     "period_score": 13894.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Lucky",
+     "period_score": 13889.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Lucky",
+     "period_score": 13878.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Lucky",
+     "period_score": 13877.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Clutch",
+     "period_score": 13864.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Lucky",
+     "period_score": 13840.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Underdog",
+     "period_score": 13786.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Underdog",
+     "period_score": 13785.9,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Underdog",
+     "period_score": 13779.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Underdog",
+     "period_score": 13746.8,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Tormented",
+     "period_score": 13746.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Clutch",
+     "period_score": 13720.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Clutch",
+     "period_score": 13720.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Clutch",
+     "period_score": 13720.5,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Clutch",
+     "period_score": 13720.5,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Lucky",
+     "period_score": 13688.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Lucky",
+     "period_score": 13688.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Lucky",
+     "period_score": 13688.0,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Lucky",
+     "period_score": 13688.0,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Tormented",
+     "period_score": 13644.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Tormented",
+     "period_score": 13642.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Tormented",
+     "period_score": 13635.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Decisive",
+     "period_score": 13610.8,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13609.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Patient",
+     "period_score": 13609.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Cruel",
+     "period_score": 13609.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": null,
+     "period_score": 13609.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Tormented",
+     "period_score": 13597.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Underdog",
+     "period_score": 13595.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Underdog",
+     "period_score": 13595.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Underdog",
+     "period_score": 13595.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Underdog",
+     "period_score": 13595.7,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Decisive",
+     "period_score": 13509.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Decisive",
+     "period_score": 13508.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13507.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Patient",
+     "period_score": 13507.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Cruel",
+     "period_score": 13507.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": null,
+     "period_score": 13507.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13507.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Patient",
+     "period_score": 13507.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Cruel",
+     "period_score": 13507.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": null,
+     "period_score": 13507.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Decisive",
+     "period_score": 13500.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13498.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Patient",
+     "period_score": 13498.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Cruel",
+     "period_score": 13498.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": null,
+     "period_score": 13498.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Decisive",
+     "period_score": 13463.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13461.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Patient",
+     "period_score": 13461.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Cruel",
+     "period_score": 13461.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": null,
+     "period_score": 13461.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Tormented",
+     "period_score": 13450.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Tormented",
+     "period_score": 13450.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Tormented",
+     "period_score": 13450.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Tormented",
+     "period_score": 13450.7,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Decisive",
+     "period_score": 13315.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Decisive",
+     "period_score": 13315.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Decisive",
+     "period_score": 13315.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Decisive",
+     "period_score": 13315.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Patient",
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Cruel",
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Royal",
+     "suffix": null,
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Patient",
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Cruel",
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Golden",
+     "suffix": null,
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Patient",
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Cruel",
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": null,
+     "period_score": 13314.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 13314.1,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Patient",
+     "period_score": 13314.1,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Cruel",
+     "period_score": 13314.1,
+     "prefix_evidence": "none",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": null,
+     "suffix": null,
+     "period_score": 13314.1,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    }
+   ]
+  },
+  "target": {
+   "core": [
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch",
+     "period_score": 23105.6,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Clutch",
+     "period_score": 23036.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Clutch",
+     "period_score": 23015.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Clutch",
+     "period_score": 22958.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Clutch",
+     "period_score": 22940.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Lucky",
+     "period_score": 22805.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Clutch",
+     "period_score": 22749.9,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Clutch",
+     "period_score": 22749.9,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Clutch",
+     "period_score": 22749.9,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Clutch",
+     "period_score": 22749.9,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Lucky",
+     "period_score": 22725.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Lucky",
+     "period_score": 22685.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Lucky",
+     "period_score": 22630.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Lucky",
+     "period_score": 22615.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Lucky",
+     "period_score": 22427.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Lucky",
+     "period_score": 22427.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Lucky",
+     "period_score": 22427.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Lucky",
+     "period_score": 22427.2,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Underdog",
+     "period_score": 22320.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Tormented",
+     "period_score": 22266.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Underdog",
+     "period_score": 22210.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Underdog",
+     "period_score": 22197.9,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Tormented",
+     "period_score": 22180.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Underdog",
+     "period_score": 22156.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Tormented",
+     "period_score": 22138.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Underdog",
+     "period_score": 22125.2,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Tormented",
+     "period_score": 22091.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Decisive",
+     "period_score": 22089.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Tormented",
+     "period_score": 22088.2,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 22079.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Patient",
+     "period_score": 22079.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Cruel",
+     "period_score": 22079.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": null,
+     "period_score": 22079.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Decisive",
+     "period_score": 22004.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 21992.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Patient",
+     "period_score": 21992.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Cruel",
+     "period_score": 21992.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": null,
+     "period_score": 21992.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Decisive",
+     "period_score": 21987.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 21975.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Patient",
+     "period_score": 21975.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Cruel",
+     "period_score": 21975.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": null,
+     "period_score": 21975.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Decisive",
+     "period_score": 21925.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Underdog",
+     "period_score": 21920.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Underdog",
+     "period_score": 21920.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Underdog",
+     "period_score": 21920.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Underdog",
+     "period_score": 21920.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 21915.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Patient",
+     "period_score": 21915.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Cruel",
+     "period_score": 21915.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": null,
+     "period_score": 21915.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Decisive",
+     "period_score": 21908.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 21898.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Patient",
+     "period_score": 21898.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Cruel",
+     "period_score": 21898.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": null,
+     "period_score": 21898.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Tormented",
+     "period_score": 21879.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Tormented",
+     "period_score": 21879.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Tormented",
+     "period_score": 21879.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Tormented",
+     "period_score": 21879.6,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Decisive",
+     "period_score": 21710.9,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Decisive",
+     "period_score": 21710.9,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Decisive",
+     "period_score": 21710.9,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Decisive",
+     "period_score": 21710.9,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Patient",
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Cruel",
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Royal",
+     "suffix": null,
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Patient",
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Cruel",
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Golden",
+     "suffix": null,
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Patient",
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Cruel",
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": null,
+     "period_score": 21700.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 21700.6,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Patient",
+     "period_score": 21700.6,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Cruel",
+     "period_score": 21700.6,
+     "prefix_evidence": "none",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": null,
+     "suffix": null,
+     "period_score": 21700.6,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    }
+   ],
+   "mid": [
+    {
+     "prefix": "Crimson",
+     "suffix": "the Clutch",
+     "period_score": 12413.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Underdog",
+     "period_score": 12388.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Lucky",
+     "period_score": 12360.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Tormented",
+     "period_score": 12347.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Clutch",
+     "period_score": 12315.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Decisive",
+     "period_score": 12300.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Underdog",
+     "period_score": 12276.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch",
+     "period_score": 12251.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Lucky",
+     "period_score": 12248.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 12232.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Patient",
+     "period_score": 12232.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Cruel",
+     "period_score": 12232.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": null,
+     "period_score": 12232.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Tormented",
+     "period_score": 12231.0,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Underdog",
+     "period_score": 12196.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Decisive",
+     "period_score": 12187.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Lucky",
+     "period_score": 12180.2,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Tormented",
+     "period_score": 12161.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Clutch",
+     "period_score": 12137.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Clutch",
+     "period_score": 12125.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Decisive",
+     "period_score": 12120.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 12114.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Patient",
+     "period_score": 12114.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Cruel",
+     "period_score": 12114.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": null,
+     "period_score": 12114.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Underdog",
+     "period_score": 12085.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Underdog",
+     "period_score": 12084.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Lucky",
+     "period_score": 12067.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Lucky",
+     "period_score": 12063.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Tormented",
+     "period_score": 12047.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Tormented",
+     "period_score": 12045.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 12045.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Patient",
+     "period_score": 12045.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Cruel",
+     "period_score": 12045.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": null,
+     "period_score": 12045.4,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Clutch",
+     "period_score": 12021.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Clutch",
+     "period_score": 12021.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Clutch",
+     "period_score": 12021.1,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Clutch",
+     "period_score": 12021.1,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Decisive",
+     "period_score": 12004.3,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Decisive",
+     "period_score": 12002.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Underdog",
+     "period_score": 11981.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Underdog",
+     "period_score": 11981.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Underdog",
+     "period_score": 11981.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Underdog",
+     "period_score": 11981.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Lucky",
+     "period_score": 11958.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Lucky",
+     "period_score": 11958.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Lucky",
+     "period_score": 11958.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Lucky",
+     "period_score": 11958.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Tormented",
+     "period_score": 11940.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Tormented",
+     "period_score": 11940.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Tormented",
+     "period_score": 11940.6,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Tormented",
+     "period_score": 11940.6,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 11930.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Patient",
+     "period_score": 11930.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Cruel",
+     "period_score": 11930.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": null,
+     "period_score": 11930.9,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 11929.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Patient",
+     "period_score": 11929.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Cruel",
+     "period_score": 11929.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": null,
+     "period_score": 11929.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Decisive",
+     "period_score": 11900.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Decisive",
+     "period_score": 11900.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Decisive",
+     "period_score": 11900.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Decisive",
+     "period_score": 11900.2,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Patient",
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Cruel",
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Royal",
+     "suffix": null,
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Patient",
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Cruel",
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Golden",
+     "suffix": null,
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Patient",
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Cruel",
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": null,
+     "period_score": 11824.8,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 11824.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Patient",
+     "period_score": 11824.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Cruel",
+     "period_score": 11824.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": null,
+     "suffix": null,
+     "period_score": 11824.8,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    }
+   ],
+   "support": [
+    {
+     "prefix": "Emerald",
+     "suffix": "the Clutch",
+     "period_score": 15209.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Clutch",
+     "period_score": 15089.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Clutch",
+     "period_score": 15047.6,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Clutch",
+     "period_score": 15025.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Lucky",
+     "period_score": 15003.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Underdog",
+     "period_score": 14956.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch",
+     "period_score": 14946.5,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Lucky",
+     "period_score": 14912.8,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Lucky",
+     "period_score": 14907.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Lucky",
+     "period_score": 14896.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Underdog",
+     "period_score": 14880.5,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Underdog",
+     "period_score": 14853.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Clutch",
+     "period_score": 14827.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Clutch",
+     "period_score": 14827.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Clutch",
+     "period_score": 14827.2,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Clutch",
+     "period_score": 14827.2,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Underdog",
+     "period_score": 14825.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Lucky",
+     "period_score": 14759.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Underdog",
+     "period_score": 14709.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Tormented",
+     "period_score": 14684.8,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Lucky",
+     "period_score": 14678.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Lucky",
+     "period_score": 14678.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Lucky",
+     "period_score": 14678.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Lucky",
+     "period_score": 14678.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Decisive",
+     "period_score": 14667.4,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14646.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Patient",
+     "period_score": 14646.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": "the Cruel",
+     "period_score": 14646.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Emerald",
+     "suffix": null,
+     "period_score": 14646.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Underdog",
+     "period_score": 14617.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Underdog",
+     "period_score": 14617.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Underdog",
+     "period_score": 14617.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Underdog",
+     "period_score": 14617.7,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Tormented",
+     "period_score": 14598.7,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Decisive",
+     "period_score": 14586.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Tormented",
+     "period_score": 14581.1,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Decisive",
+     "period_score": 14565.7,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14565.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Patient",
+     "period_score": 14565.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": "the Cruel",
+     "period_score": 14565.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Cerulean",
+     "suffix": null,
+     "period_score": 14565.1,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Tormented",
+     "period_score": 14549.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14544.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Patient",
+     "period_score": 14544.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": "the Cruel",
+     "period_score": 14544.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Elemental",
+     "suffix": null,
+     "period_score": 14544.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Decisive",
+     "period_score": 14537.0,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14515.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Patient",
+     "period_score": 14515.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": "the Cruel",
+     "period_score": 14515.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Crimson",
+     "suffix": null,
+     "period_score": 14515.6,
+     "prefix_evidence": "exact",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Tormented",
+     "period_score": 14444.3,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Decisive",
+     "period_score": 14425.8,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14404.9,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Patient",
+     "period_score": 14404.9,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": "the Cruel",
+     "period_score": 14404.9,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Otherworldly",
+     "suffix": null,
+     "period_score": 14404.9,
+     "prefix_evidence": "lower_bound",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Tormented",
+     "period_score": 14350.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Tormented",
+     "period_score": 14350.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Tormented",
+     "period_score": 14350.7,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Tormented",
+     "period_score": 14350.7,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Decisive",
+     "period_score": 14333.9,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Decisive",
+     "period_score": 14333.9,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Decisive",
+     "period_score": 14333.9,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Decisive",
+     "period_score": 14333.9,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Patient",
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Royal",
+     "suffix": "the Cruel",
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Royal",
+     "suffix": null,
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Patient",
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Golden",
+     "suffix": "the Cruel",
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Golden",
+     "suffix": null,
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Patient",
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": "the Cruel",
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": "Heroic",
+     "suffix": null,
+     "period_score": 14312.4,
+     "prefix_evidence": "untabled",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Flayed Twins Acolyte",
+     "period_score": 14312.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Patient",
+     "period_score": 14312.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    },
+    {
+     "prefix": null,
+     "suffix": "the Cruel",
+     "period_score": 14312.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": false
+    },
+    {
+     "prefix": null,
+     "suffix": null,
+     "period_score": 14312.4,
+     "prefix_evidence": "none",
+     "suffix_scoreable": true
+    }
+   ]
+  }
+ }
+}

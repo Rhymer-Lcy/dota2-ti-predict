@@ -1,0 +1,628 @@
+{
+ "what": "TI15 pre-Main-Event player-map snapshot for Fantasy, plus the extras the older historical table does not carry.",
+ "source": {
+  "league_matches": "https://api.opendota.com/api/leagues/19719/matches",
+  "match": "https://api.opendota.com/api/matches/{match_id}"
+ },
+ "retrieved_at": "2026-08-17T12:19:41+00:00",
+ "leakage_boundary": {
+  "main_event_start": "2026-08-20T00:00:00Z",
+  "main_event_results_used": false,
+  "assertion": "every fetched match asserted start_time < main_event_start, twice: on the league listing and again on each match payload"
+ },
+ "bracket_isolation": {
+  "universe_maps_csv_read": false,
+  "universe_maps_csv_written": false,
+  "note": "match ids come from OpenDota's league endpoint, not from the frozen universe"
+ },
+ "expected_pre_main_event_shape": {
+  "swiss_series": 39,
+  "elimination_series": 5,
+  "total_series": 44,
+  "approx_maps": 109
+ },
+ "observed": {
+  "maps": 109,
+  "distinct_series": 44,
+  "player_maps": 1074,
+  "unparsed_maps": [],
+  "organizations": {
+   "Aurora Gaming": 5,
+   "BetBoom Team": 5,
+   "GamerLegion": 5,
+   "HULIGANI": 5,
+   "LGD Gaming": 4,
+   "Nigma Galaxy": 5,
+   "OG": 5,
+   "PARIVISION": 5,
+   "Team Falcons": 5,
+   "Team Liquid": 5,
+   "Team Resilience": 5,
+   "Team Spirit": 5,
+   "Team Yandex": 5,
+   "Tundra Esports": 5,
+   "Vici Gaming": 5,
+   "Xtreme Gaming": 5
+  }
+ },
+ "historical_extras": {
+  "rows": 4810,
+  "distinct_matches": 623
+ },
+ "roster_reconciliation": {
+  "source": "data/ti2026/inputs/fantasy/roster_positions.csv, active players only",
+  "rule": "a player-map enters only if its account_id resolves to exactly one (organization, fantasy_role); a role-game enters only if every player of that role has a row in that game",
+  "shape_check": "each organisation must present exactly 2 core, 1 mid and 2 support",
+  "failures": {}
+ },
+ "files_untracked_by_repo_policy": {
+  "ti15_league_listing": {
+   "path": "data\\ti2026\\raw\\fantasy\\ti15_league_19719_matches.json",
+   "sha256": "71a4d67e61a130919aca4ab063161e68c420fec5f12635bd8db4607c4325418c"
+  },
+  "ti15_player_map_stats": {
+   "path": "data\\ti2026\\processed\\fantasy\\ti15_player_map_stats.csv",
+   "sha256": "42235d33dbde3aae5ad16d3ca7c014fa804d9d54927a481c751a63f1dd4e5944"
+  },
+  "ti15_match_extras": {
+   "path": "data\\ti2026\\processed\\fantasy\\ti15_match_extras.csv",
+   "sha256": "b09ac9c9f0094a85366c5abda344058d341824a6534c0adc9d971a96732d68ee"
+  },
+  "hist_player_map_extras": {
+   "path": "data\\ti2026\\processed\\fantasy\\hist_player_map_extras.csv",
+   "sha256": "3a68d699e9590eccb7f56d4111f94350c0a2cd7d7ecce7038fef727c6e167fd6"
+  }
+ },
+ "stat_coverage_after_join": {
+  "kills": 1.0,
+  "deaths": 1.0,
+  "creep_score": 1.0,
+  "gpm": 1.0,
+  "tower_kills": 1.0,
+  "roshan_kills": 1.0,
+  "teamfight_participation": 1.0,
+  "wards_placed": 1.0,
+  "camps_stacked": 1.0,
+  "runes_grabbed": 1.0,
+  "first_blood": 1.0,
+  "stuns": 1.0,
+  "smokes_used": 1.0,
+  "madstone": 0.0,
+  "watchers_taken": 0.0,
+  "lotuses_grabbed": 0.0,
+  "tormentor_kills": 1.0,
+  "courier_kills": 1.0
+ },
+ "coverage_by_org_role": {
+  "Aurora Gaming|core": {
+   "series": 37,
+   "games": 93,
+   "player_games": 186,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "Aurora Gaming|mid": {
+   "series": 37,
+   "games": 93,
+   "player_games": 93,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "Aurora Gaming|support": {
+   "series": 37,
+   "games": 93,
+   "player_games": 186,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "Tundra Esports|core": {
+   "series": 36,
+   "games": 78,
+   "player_games": 156,
+   "events": [
+    "19101",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Tundra Esports|support": {
+   "series": 36,
+   "games": 87,
+   "player_games": 174,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Tundra Esports|mid": {
+   "series": 36,
+   "games": 87,
+   "player_games": 87,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Team Spirit|core": {
+   "series": 32,
+   "games": 57,
+   "player_games": 114,
+   "events": [
+    "19101",
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "Team Spirit|support": {
+   "series": 32,
+   "games": 57,
+   "player_games": 114,
+   "events": [
+    "19101",
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "Team Spirit|mid": {
+   "series": 32,
+   "games": 74,
+   "player_games": 74,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "Team Yandex|core": {
+   "series": 22,
+   "games": 55,
+   "player_games": 110,
+   "events": [
+    "19101",
+    "19543",
+    "19719",
+    "19785"
+   ]
+  },
+  "Team Yandex|mid": {
+   "series": 22,
+   "games": 55,
+   "player_games": 55,
+   "events": [
+    "19101",
+    "19543",
+    "19719",
+    "19785"
+   ]
+  },
+  "Team Yandex|support": {
+   "series": 22,
+   "games": 55,
+   "player_games": 110,
+   "events": [
+    "19101",
+    "19543",
+    "19719",
+    "19785"
+   ]
+  },
+  "Team Falcons|support": {
+   "series": 42,
+   "games": 98,
+   "player_games": 196,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Team Falcons|core": {
+   "series": 42,
+   "games": 98,
+   "player_games": 196,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Team Liquid|support": {
+   "series": 38,
+   "games": 73,
+   "player_games": 146,
+   "events": [
+    "19101",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Team Liquid|core": {
+   "series": 38,
+   "games": 93,
+   "player_games": 186,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Team Liquid|mid": {
+   "series": 38,
+   "games": 93,
+   "player_games": 93,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Nigma Galaxy|core": {
+   "series": 24,
+   "games": 27,
+   "player_games": 54,
+   "events": [
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "LGD Gaming|core": {
+   "series": 35,
+   "games": 66,
+   "player_games": 132,
+   "events": [
+    "19101",
+    "19543",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "LGD Gaming|support": {
+   "series": 35,
+   "games": 80,
+   "player_games": 160,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "BetBoom Team|core": {
+   "series": 43,
+   "games": 101,
+   "player_games": 202,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "BetBoom Team|mid": {
+   "series": 43,
+   "games": 101,
+   "player_games": 101,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "BetBoom Team|support": {
+   "series": 43,
+   "games": 101,
+   "player_games": 202,
+   "events": [
+    "19101",
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Xtreme Gaming|core": {
+   "series": 25,
+   "games": 57,
+   "player_games": 114,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "Xtreme Gaming|mid": {
+   "series": 25,
+   "games": 57,
+   "player_games": 57,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "Xtreme Gaming|support": {
+   "series": 25,
+   "games": 57,
+   "player_games": 114,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "Vici Gaming|core": {
+   "series": 33,
+   "games": 75,
+   "player_games": 150,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Vici Gaming|mid": {
+   "series": 33,
+   "games": 75,
+   "player_games": 75,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Vici Gaming|support": {
+   "series": 33,
+   "games": 75,
+   "player_games": 150,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "GamerLegion|core": {
+   "series": 27,
+   "games": 59,
+   "player_games": 118,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "GamerLegion|mid": {
+   "series": 27,
+   "games": 59,
+   "player_games": 59,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "GamerLegion|support": {
+   "series": 27,
+   "games": 59,
+   "player_games": 118,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "PARIVISION|mid": {
+   "series": 30,
+   "games": 80,
+   "player_games": 80,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "PARIVISION|support": {
+   "series": 30,
+   "games": 80,
+   "player_games": 160,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "Nigma Galaxy|mid": {
+   "series": 19,
+   "games": 40,
+   "player_games": 40,
+   "events": [
+    "19543",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "PARIVISION|core": {
+   "series": 30,
+   "games": 62,
+   "player_games": 124,
+   "events": [
+    "19696",
+    "19719",
+    "19785"
+   ]
+  },
+  "Team Falcons|mid": {
+   "series": 39,
+   "games": 91,
+   "player_games": 91,
+   "events": [
+    "19543",
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Nigma Galaxy|support": {
+   "series": 21,
+   "games": 42,
+   "player_games": 84,
+   "events": [
+    "19696",
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "Team Resilience|core": {
+   "series": 6,
+   "games": 16,
+   "player_games": 32,
+   "events": [
+    "19719"
+   ]
+  },
+  "Team Resilience|mid": {
+   "series": 6,
+   "games": 16,
+   "player_games": 16,
+   "events": [
+    "19719"
+   ]
+  },
+  "Team Resilience|support": {
+   "series": 6,
+   "games": 16,
+   "player_games": 32,
+   "events": [
+    "19719"
+   ]
+  },
+  "OG|mid": {
+   "series": 16,
+   "games": 34,
+   "player_games": 34,
+   "events": [
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "OG|support": {
+   "series": 16,
+   "games": 34,
+   "player_games": 68,
+   "events": [
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "OG|core": {
+   "series": 16,
+   "games": 34,
+   "player_games": 68,
+   "events": [
+    "19719",
+    "19785",
+    "20009"
+   ]
+  },
+  "HULIGANI|mid": {
+   "series": 9,
+   "games": 20,
+   "player_games": 20,
+   "events": [
+    "19719",
+    "19785"
+   ]
+  },
+  "HULIGANI|support": {
+   "series": 9,
+   "games": 10,
+   "player_games": 20,
+   "events": [
+    "19719"
+   ]
+  },
+  "HULIGANI|core": {
+   "series": 9,
+   "games": 20,
+   "player_games": 40,
+   "events": [
+    "19719",
+    "19785"
+   ]
+  }
+ }
+}

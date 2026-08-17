@@ -1,0 +1,142 @@
+{
+ "schema_version": 1,
+ "event": "The International 2026 (TI15), period 1 (Main Event)",
+ "compiled_at": "2026-08-17T12:30:34+00:00",
+ "canonical_source": "data/ti2026/inputs/fantasy/fantasy_rules.json; this file records the subset that period-1 optimisation actually depends on, with grades",
+ "banner": {
+  "emblems_per_banner": 5,
+  "colour_layout": {
+   "core": [
+    "red",
+    "green",
+    "red",
+    "green",
+    "red"
+   ],
+   "mid": [
+    "red",
+    "blue",
+    "green",
+    "red",
+    "green"
+   ],
+   "support": [
+    "blue",
+    "green",
+    "blue",
+    "green",
+    "blue"
+   ]
+  },
+  "grade": "user_runtime_observation (first-party client 'Upgrade War Banner' screen, 2026-08-17, both accounts)",
+  "supersedes": "the three-slot period-1 reading taken from the Fantasy landing page, which renders only three of the five emblems. Withdrawn.",
+  "composition_rule": "multiplier = 1 + quality_bonus + net_trait_bonus",
+  "validation": "all 30 live emblems reproduce their displayed total AND their displayed net trait contribution from primitive trait rules",
+  "quality_bonus": {
+   "I": 0.1,
+   "II": 0.3,
+   "III": 0.6,
+   "IV": 1.0,
+   "V": 1.5
+  },
+  "traits": {
+   "Fractal": "+60% to itself if all five qualities differ",
+   "Benevolent": "+20% to each adjacent emblem, never itself",
+   "Vampiric": "+50% to itself, -10% to each adjacent emblem",
+   "Unique": "+30% if it is the only Unique on the banner",
+   "Friendly": "+50% if the banner holds at least three Friendly",
+   "Incorruptible": "quality below Tier III is treated as Tier III",
+   "Base": "no modifier"
+  }
+ },
+ "scoring_chain": [
+  "player-game: sum over banner emblems of coefficient x raw stat x emblem multiplier, then amplified by any triggering coach title",
+  "role-game: arithmetic mean over the role's players (2 core, 1 mid, 2 support)",
+  "role-series: the top TWO scoring games in the series",
+  "role-period: the BEST scoring series, never the sum"
+ ],
+ "token_costs": {
+  "war_banner_regeneration": 1,
+  "team_change": 0,
+  "coach_title_change": 0,
+  "note": "the blanket 'every operation costs one token' phrasing is withdrawn; only banner regeneration is priced"
+ },
+ "lock": {
+  "recorded_utc": "2026-08-20T02:00:00Z",
+  "countdown_observed": "2 days until lineup lock, 2026-08-17",
+  "snapshot": "the roster is snapshotted when period matches begin; post-start UI editability is NOT relied on and is not evidence that a later edit reaches period 1"
+ },
+ "candidate_pool": {
+  "client_offers_all_16": true,
+  "can_score": [
+   "BetBoom Team",
+   "Nigma Galaxy",
+   "PARIVISION",
+   "Team Falcons",
+   "Team Liquid",
+   "Team Spirit",
+   "Team Yandex",
+   "Tundra Esports"
+  ],
+  "why": "an eliminated organisation plays zero Main Event series"
+ },
+ "observability": {
+  "resolved_this_round": {
+   "tormentor_kills": "objectives[].CHAT_MESSAGE_MINIBOSS_KILL carries player_slot, so the kill is attributable to one player. The previous 'per-player attribution unverified' grade is withdrawn."
+  },
+  "bounded_not_resolved": {
+   "runes_grabbed": "OpenDota's rune_pickups EXCLUDES wisdom runes (type 8) while the runes histogram includes them. The client says 'bottled or taken' and does not say which. Both are carried; production uses rune_pickups and the gap is reported."
+  },
+  "unobservable": {
+   "madstone": "neutral_tokens_log is an empty list on all 4785 historical player-maps and on every TI15 player-map. Missing, not zero.",
+   "watchers_taken": "no key anywhere in the match payload",
+   "lotuses_grabbed": "no key anywhere in the match payload"
+  },
+  "treatment": "weight on an unobservable stat is set to zero and reported as unscored banner weight, and an exact breakpoint is published for how much it would have to be worth per player-game to change the team ranking"
+ },
+ "reward_table": {
+  "100th": 12000,
+  "99th": 11400,
+  "95th": 10000,
+  "90th": 8400,
+  "80th": 5800,
+  "60th": 3300,
+  "40th": 1700,
+  "20th": 400,
+  "10th": 200,
+  "objective_note": "values are closed; the competitor score distribution is not, and the table cannot be inverted into one. The production objective is expected period score."
+ },
+ "coach": {
+  "prefix_bonus": {
+   "Crimson": 0.06,
+   "Cerulean": 0.11,
+   "Emerald": 0.06,
+   "Royal": 0.1,
+   "Golden": 0.08,
+   "Elemental": 0.08,
+   "Otherworldly": 0.07,
+   "Heroic": 0.09
+  },
+  "suffix_bonus": {
+   "the Tormented": 0.23,
+   "the Flayed Twins Acolyte": 0.09,
+   "the Patient": 0.23,
+   "the Underdog": 0.06,
+   "the Decisive": 0.24,
+   "the Clutch": 0.16,
+   "the Lucky": 0.21,
+   "the Cruel": 0.13
+  },
+  "prefix_evidence": {
+   "Crimson": "exact",
+   "Cerulean": "exact",
+   "Emerald": "exact",
+   "Elemental": "lower_bound",
+   "Otherworldly": "lower_bound",
+   "Royal": "untabled",
+   "Golden": "untabled",
+   "Heroic": "untabled"
+  },
+  "stacking": "additive in production; multiplicative available as a sensitivity; which rule Valve uses remains UNRESOLVED"
+ }
+}
