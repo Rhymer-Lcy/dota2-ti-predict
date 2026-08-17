@@ -1,0 +1,335 @@
+{
+ "schema_version": 2,
+ "account": "TARGET ACCOUNT (the friend). Never the operator's own account.",
+ "period": 1,
+ "period_name": "The International",
+ "observed_at": "2026-08-17T00:00:00Z",
+ "provenance": {
+  "source": "operator transcription of fresh first-party Dota 2 client screenshots of the 'Upgrade War Banner' screen, all three roles, plus the Coaching Titles panel and the reroll board",
+  "tier": "user_runtime_observation",
+  "captured": "2026-08-17",
+  "images_committed": false,
+  "images_note": "The raw captures are NOT committed: they carry unrelated account and social UI. Request a privacy-preserving crop if archival image evidence becomes necessary.",
+  "supersedes": "The 2026-08-12 states transcribed the Fantasy LANDING page, which renders only three of the five emblems. Those three-slot period-1 multipliers are withdrawn and must not be mixed into this state."
+ },
+ "lock": {
+  "in_client_countdown_observed": "2 days until lineup lock",
+  "recorded_lock_utc": "2026-08-20T02:00:00Z",
+  "snapshot_rule": "Once matches for a period begin, a snapshot of the roster is saved and used for scoring. The pre-start snapshot is the production cutoff; post-start UI editability is not evidence that an edit reaches period 1."
+ },
+ "roll_tokens": 36,
+ "token_costs": {
+  "war_banner_regeneration": 1,
+  "team_change_via_banner_button": 0,
+  "coach_title_change": 0,
+  "note": "Corrected wording: each War Banner regeneration/reroll action costs one token. Team and Coach Title changes are free. The earlier blanket 'every operation costs 1 token' is withdrawn."
+ },
+ "coach": {
+  "prefix": "Elemental",
+  "prefix_bonus_percent": 8,
+  "suffix": "the Tormented",
+  "suffix_bonus_percent": 23,
+  "status": "observed in client",
+  "change_cost_tokens": 0
+ },
+ "banners": {
+  "core": {
+   "client_team": "Xtreme Gaming",
+   "canonical_team": "Xtreme Gaming",
+   "players": [
+    "Xxs",
+    "Ame"
+   ],
+   "team_is_main_event_survivor": false,
+   "colour_layout": [
+    "red",
+    "green",
+    "red",
+    "green",
+    "red"
+   ],
+   "slots": [
+    {
+     "slot": 1,
+     "colour": "red",
+     "stat": "gpm",
+     "quality_tier": "II",
+     "quality_bonus": 0.3,
+     "trait": "Benevolent",
+     "displayed_multiplier": 1.5,
+     "displayed_net_trait_bonus": 0.2,
+     "model_multiplier": 1.5,
+     "model_net_trait_bonus": 0.2,
+     "reproduces_client": true
+    },
+    {
+     "slot": 2,
+     "colour": "green",
+     "stat": "roshan_kills",
+     "quality_tier": "IV",
+     "quality_bonus": 1.0,
+     "trait": "Benevolent",
+     "displayed_multiplier": 2.1,
+     "displayed_net_trait_bonus": 0.1,
+     "model_multiplier": 2.1,
+     "model_net_trait_bonus": 0.1,
+     "reproduces_client": true
+    },
+    {
+     "slot": 3,
+     "colour": "red",
+     "stat": "creep_score",
+     "quality_tier": "V",
+     "quality_bonus": 1.5,
+     "trait": "Vampiric",
+     "displayed_multiplier": 3.4,
+     "displayed_net_trait_bonus": 0.9,
+     "model_multiplier": 3.4,
+     "model_net_trait_bonus": 0.9,
+     "reproduces_client": true
+    },
+    {
+     "slot": 4,
+     "colour": "green",
+     "stat": "tormentor_kills",
+     "quality_tier": "I",
+     "quality_bonus": 0.1,
+     "trait": "Benevolent",
+     "displayed_multiplier": 1.0,
+     "displayed_net_trait_bonus": -0.1,
+     "model_multiplier": 1.0,
+     "model_net_trait_bonus": -0.1,
+     "reproduces_client": true
+    },
+    {
+     "slot": 5,
+     "colour": "red",
+     "stat": "madstone",
+     "quality_tier": "III",
+     "quality_bonus": 0.6,
+     "trait": "Unique",
+     "displayed_multiplier": 2.1,
+     "displayed_net_trait_bonus": 0.5,
+     "model_multiplier": 2.1,
+     "model_net_trait_bonus": 0.5,
+     "reproduces_client": true
+    }
+   ]
+  },
+  "mid": {
+   "client_team": "Team Yandex",
+   "canonical_team": "Team Yandex",
+   "players": [
+    "CHIRA_JUNIOR"
+   ],
+   "team_is_main_event_survivor": true,
+   "colour_layout": [
+    "red",
+    "blue",
+    "green",
+    "red",
+    "green"
+   ],
+   "slots": [
+    {
+     "slot": 1,
+     "colour": "red",
+     "stat": "deaths",
+     "quality_tier": "II",
+     "quality_bonus": 0.3,
+     "trait": "Vampiric",
+     "displayed_multiplier": 1.8,
+     "displayed_net_trait_bonus": 0.5,
+     "model_multiplier": 1.8,
+     "model_net_trait_bonus": 0.5,
+     "reproduces_client": true
+    },
+    {
+     "slot": 2,
+     "colour": "blue",
+     "stat": "wards_placed",
+     "quality_tier": "III",
+     "quality_bonus": 0.6,
+     "trait": "Fractal",
+     "displayed_multiplier": 1.5,
+     "displayed_net_trait_bonus": -0.1,
+     "model_multiplier": 1.5,
+     "model_net_trait_bonus": -0.1,
+     "reproduces_client": true
+    },
+    {
+     "slot": 3,
+     "colour": "green",
+     "stat": "stuns",
+     "quality_tier": "I",
+     "quality_bonus": 0.1,
+     "trait": "Fractal",
+     "displayed_multiplier": 1.1,
+     "displayed_net_trait_bonus": 0.0,
+     "model_multiplier": 1.1,
+     "model_net_trait_bonus": 0.0,
+     "reproduces_client": true
+    },
+    {
+     "slot": 4,
+     "colour": "red",
+     "stat": "creep_score",
+     "quality_tier": "I",
+     "quality_bonus": 0.1,
+     "trait": "Fractal",
+     "displayed_multiplier": 1.1,
+     "displayed_net_trait_bonus": 0.0,
+     "model_multiplier": 1.1,
+     "model_net_trait_bonus": 0.0,
+     "reproduces_client": true
+    },
+    {
+     "slot": 5,
+     "colour": "green",
+     "stat": "first_blood",
+     "quality_tier": "II",
+     "quality_bonus": 0.3,
+     "trait": "Unique",
+     "displayed_multiplier": 1.6,
+     "displayed_net_trait_bonus": 0.3,
+     "model_multiplier": 1.6,
+     "model_net_trait_bonus": 0.3,
+     "reproduces_client": true
+    }
+   ]
+  },
+  "support": {
+   "client_team": "Xtreme Gaming",
+   "canonical_team": "Xtreme Gaming",
+   "players": [
+    "xNova",
+    "fy"
+   ],
+   "team_is_main_event_survivor": false,
+   "colour_layout": [
+    "blue",
+    "green",
+    "blue",
+    "green",
+    "blue"
+   ],
+   "slots": [
+    {
+     "slot": 1,
+     "colour": "blue",
+     "stat": "runes_grabbed",
+     "quality_tier": "V",
+     "quality_bonus": 1.5,
+     "trait": "Vampiric",
+     "displayed_multiplier": 2.9,
+     "displayed_net_trait_bonus": 0.4,
+     "model_multiplier": 2.9,
+     "model_net_trait_bonus": 0.4,
+     "reproduces_client": true
+    },
+    {
+     "slot": 2,
+     "colour": "green",
+     "stat": "first_blood",
+     "quality_tier": "I",
+     "quality_bonus": 0.1,
+     "trait": "Vampiric",
+     "displayed_multiplier": 1.5,
+     "displayed_net_trait_bonus": 0.4,
+     "model_multiplier": 1.5,
+     "model_net_trait_bonus": 0.4,
+     "reproduces_client": true
+    },
+    {
+     "slot": 3,
+     "colour": "blue",
+     "stat": "watchers_taken",
+     "quality_tier": "II",
+     "quality_bonus": 0.3,
+     "trait": "Fractal",
+     "displayed_multiplier": 1.1,
+     "displayed_net_trait_bonus": -0.2,
+     "model_multiplier": 1.1,
+     "model_net_trait_bonus": -0.2,
+     "reproduces_client": true
+    },
+    {
+     "slot": 4,
+     "colour": "green",
+     "stat": "teamfight_participation",
+     "quality_tier": "II",
+     "quality_bonus": 0.3,
+     "trait": "Vampiric",
+     "displayed_multiplier": 1.8,
+     "displayed_net_trait_bonus": 0.5,
+     "model_multiplier": 1.8,
+     "model_net_trait_bonus": 0.5,
+     "reproduces_client": true
+    },
+    {
+     "slot": 5,
+     "colour": "blue",
+     "stat": "wards_placed",
+     "quality_tier": "III",
+     "quality_bonus": 0.6,
+     "trait": "Unique",
+     "displayed_multiplier": 1.8,
+     "displayed_net_trait_bonus": 0.2,
+     "model_multiplier": 1.8,
+     "model_net_trait_bonus": 0.2,
+     "reproduces_client": true
+    }
+   ]
+  }
+ },
+ "roll_board": [
+  {
+   "id": "TG1",
+   "label_zh": "重新生成红色徽标的特性",
+   "label_en": "regenerate the TRAIT of the red emblem(s)",
+   "kind": "trait",
+   "colour": "red",
+   "which": "all_of_colour_reading",
+   "semantics_status": "TARGET_SELECTION_SEMANTICS_UNKNOWN",
+   "candidate_slots": [
+    1,
+    3,
+    5
+   ],
+   "semantics_note": "Bare colour, no positional qualifier; same ambiguity as OP3 and evaluated both ways."
+  },
+  {
+   "id": "TG2",
+   "label_zh": "重新生成随机一枚红色徽标的品质",
+   "label_en": "regenerate the QUALITY of a RANDOM red emblem",
+   "kind": "quality",
+   "colour": "red",
+   "which": "random_one",
+   "semantics_status": "TARGET_RANDOM_ONE",
+   "candidate_slots": [
+    1,
+    3,
+    5
+   ],
+   "semantics_note": "The client states the target is random. Which of the three reds is hit is genuinely stochastic; the tier outcome distribution is separately unknown."
+  },
+  {
+   "id": "TG3",
+   "label_zh": "重新生成最后一枚绿色徽标的统计数据",
+   "label_en": "regenerate the STAT of the LAST green emblem",
+   "kind": "stat",
+   "colour": "green",
+   "which": "last",
+   "semantics_status": "TARGET_RESOLVED",
+   "resolved_target_slot": 4,
+   "semantics_note": "Core layout is red/green/red/green/red, so the last green emblem is slot 4."
+  }
+ ],
+ "selected_banner_for_crafting": "core",
+ "validation": {
+  "banner_arithmetic": "all 15 emblems reproduce the client's displayed total AND its net trait contribution exactly from primitive trait rules via banner_model.evaluate",
+  "colour_layout": "matches banner_model.LAYOUTS[1] for every role"
+ },
+ "state_index": 8,
+ "previous_state": "account_state_target_20260812d.json"
+}

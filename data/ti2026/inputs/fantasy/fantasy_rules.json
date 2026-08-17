@@ -138,7 +138,13 @@
   "not_daily": "Fantasy is NOT a daily game in TI2026. There are exactly two periods, each covering a whole stage.",
   "carryover": "The roster carries over from period to period; crafting improvements persist (DOTA_FantasyCraft_Tutorial_Locked_Body).",
   "unlock": "A period unlocks once matches begin for the preceding period.",
-  "upgrade": "The roster is eligible for an upgrade at the beginning of every period."
+  "upgrade": "The roster is eligible for an upgrade at the beginning of every period.",
+  "period_1_lock": {
+   "recorded_utc": "2026-08-20T02:00:00Z",
+   "in_client_countdown_observed": "2 days until lineup lock, seen 2026-08-17",
+   "snapshot_rule": "Once matches for a period begin, a snapshot of the roster is saved and used for scoring.",
+   "operational_reading": "The start of The International period is a HARD decision deadline for period-1 scoring. The client may well remain visually editable after the start; that is not evidence that an edit reaches period 1, and it is not relied on. The pre-start snapshot is the production cutoff."
+  }
  },
  "scoring_pipeline": {
   "status": "PARTIAL",
@@ -280,8 +286,40 @@
     "status": "CONFIRMED",
     "mechanism": "FantasyCraftingTabletData_t holds m_vecGemSlots of FantasyCraftingGemSlotData_t, and each slot carries m_nRequiredTabletLevel ('Minimum tablet level to unlock this type of gem, -1 or 0 for always unlocked'). FantasyPeriodData_t carries m_nTabletLevel ('What level are fantasy tablets when this is the active crafting period?'), and CMsgDotaFantasyCraftingTabletPeriodData.Tablet carries tablet_level.",
     "consequence": "The three-slot layout is the PERIOD-0 layout. Period 1 raises the tablet level and unlocks further gem slots. Any optimisation must be done per period against that period's slot count, and the 'upgrade at the beginning of every period' wording in the help text is this mechanism.",
-    "period_1_slot_count": null,
-    "period_1_slot_count_status": "UNRESOLVED"
+    "period_1_slot_count": 5,
+    "period_1_slot_count_status": "CONFIRMED_USER_RUNTIME",
+    "observed_growth": "three slots in period 0, five in period 1, on the same carried-over banner. This is the m_nRequiredTabletLevel mechanism doing exactly what the schema said it would."
+   },
+   "period_1_emblems_per_banner": 5,
+   "period_1_color_composition": {
+    "core": [
+     "red",
+     "green",
+     "red",
+     "green",
+     "red"
+    ],
+    "mid": [
+     "red",
+     "blue",
+     "green",
+     "red",
+     "green"
+    ],
+    "support": [
+     "blue",
+     "green",
+     "blue",
+     "green",
+     "blue"
+    ]
+   },
+   "period_1_evidence": {
+    "tier": "user_runtime_observation",
+    "captured": "2026-08-17",
+    "source": "the client's own 'Upgrade War Banner' screen, which renders the COMPLETE banner, for all three roles on two independent accounts",
+    "corroboration": "all 30 emblems across the two accounts reproduce their displayed total AND their displayed net trait contribution from the primitive trait rules, which an incorrect slot count or colour order could not do: Fractal reads all five qualities and Friendly counts all five traits, so a missing slot would break the arithmetic on the slots that remain",
+    "withdrawn": "The Fantasy LANDING page renders only three emblems. An earlier round of this project transcribed that partial view as the whole period-1 banner and recorded three slots. That reading is WITHDRAWN. The period-0 three-slot layout must not be carried into period 1 either."
    }
   },
   "quality_tiers": {
@@ -373,9 +411,15 @@
    "status": "CONFIRMED",
    "value": 1,
    "unit": "roll token",
-   "evidence_tier_1": "DOTA_FantasyCraft_Tutorial_Operations_Body: 'Any operation will cost you one Roll Token.'",
+   "evidence_tier_1": "DOTA_FantasyCraft_Tutorial_Operations_Body, plus the 2026-08-17 first-party How-to-Play text",
    "schema_corroboration": "FantasyCraftOperation_t carries m_unOperationID, m_nRollWeight, m_eTarget, m_sLocDescription and m_vecOperations, and no cost field. A per-operation price has nowhere to live in the schema, which is consistent with a flat one-token cost for every operation regardless of what it does.",
-   "consequence": "Upgrading a quality, rerolling a stat, rerolling a trait and rerolling the option board all cost the same. The budget problem is therefore about the NUMBER of operations, not their mix."
+   "consequence": "Upgrading a quality, rerolling a stat, rerolling a trait and rerolling the option board all cost the same. The budget problem is therefore about the NUMBER of operations, not their mix.",
+   "scope": "one War Banner regeneration/reroll action",
+   "free_actions": [
+    "changing the selected team through the War Banner button",
+    "changing either Coach Title"
+   ],
+   "wording_correction": "The blanket phrasing 'every operation costs one token' is withdrawn as ambiguous. What the client establishes is narrower and is what the budget model uses: each War Banner regeneration costs exactly one Roll Token and consuming one of the three offered choices refreshes the offered set; team changes and Coach Title changes cost nothing and are reversible."
   },
   "option_board": {
    "status": "CONFIRMED",
@@ -1277,8 +1321,18 @@
    "20th",
    "10th"
   ],
-  "fantasy_period_tier_points": null,
-  "fantasy_period_tier_points_status": "UNRESOLVED",
+  "fantasy_period_tier_points": {
+   "100th": 12000,
+   "99th": 11400,
+   "95th": 10000,
+   "90th": 8400,
+   "80th": 5800,
+   "60th": 3300,
+   "40th": 1700,
+   "20th": 400,
+   "10th": 200
+  },
+  "fantasy_period_tier_points_status": "CONFIRMED_USER_RUNTIME",
   "note": "DOTA_Fantasy26_RewardTierName0..8 give nine percentile tiers with a Points column filled at runtime. An older non-2026 string block (DOTA_FantasyCraftHelp_RewardsBottom25 .. RewardsTop1) lists 1,000 / 2,500 / 6,000 / 10,000 / 18,000 / 25,000 Compendium Points for six coarser bands; it is NOT assumed to apply to 2026 because 2026 ships its own nine-tier table.",
   "overall_rank_rewards": {
    "status": "CONFIRMED",
@@ -1298,7 +1352,12 @@
    ],
    "input": "Predictions Score plus Fantasy Score (DOTA_Score2026_Predictions / DOTA_Score2026_Fantasy)"
   },
-  "objective_consequence": "Rewards are percentile-banded, not proportional to score. The decision-relevant objective is therefore the probability of clearing a percentile threshold, which is not the same as maximising expected score. Which of the two to optimise cannot be settled until the tier point values are known."
+  "objective_consequence": "The reward VALUES are now closed, but the objective is not. Converting a score into a reward needs the distribution of every other entrant's score, and nothing available carries it: the percentile is computed server-side and returned per account. The tier table alone cannot be inverted into a competitor distribution and must not be treated as one. The defensible objective is therefore expected period score, reported with its uncertainty, and the tier curve is used only to say where extra variance would and would not pay.",
+  "fantasy_period_tier_points_evidence": {
+   "tier": "user_runtime_observation",
+   "captured": "2026-08-17",
+   "source": "the client's own Fantasy reward table"
+  }
  },
  "eligibility": {
   "status": "CONFIRMED",
@@ -1706,7 +1765,13 @@
    }
   },
   "operational_model": "A team change through the War Banner button is FREE and preserves the banner. There is therefore no commitment cost to a team choice: a switch can be made now and revised later at no price, which removes the switching-cost term from the pre-selection decision entirely.",
-  "consequence_for_optimisation": "The two-stage keep-or-pay model that drove the pre-banner round is superseded for team choice. With lambda = 0 the optimal policy is simply to hold the current argmax and re-evaluate whenever the banner changes."
+  "consequence_for_optimisation": "The two-stage keep-or-pay model that drove the pre-banner round is superseded for team choice. With lambda = 0 the optimal policy is simply to hold the current argmax and re-evaluate whenever the banner changes.",
+  "period_1_candidate_pool": {
+   "client_offers": "all 16 tournament organisations, verified by direct operator interaction with the Choose Team dropdown on 2026-08-17",
+   "can_actually_score": 8,
+   "why": "an eliminated organisation plays no Main Event series, so its best-series score is undefined and its period contribution is zero. Client feasibility and scoring opportunity are different things and the dropdown only settles the first.",
+   "survivors_source": "repository truth: ti15_results.FINAL_EIGHT and the hash-gated seating evidence, resolved through ti15_results.ALIAS. No second survivor table is defined anywhere in the Fantasy code."
+  }
  },
  "banner_generation_independence": {
   "status": "CONFIRMED",
