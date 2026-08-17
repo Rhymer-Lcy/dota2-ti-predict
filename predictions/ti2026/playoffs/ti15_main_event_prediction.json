@@ -1,0 +1,2598 @@
+{
+  "manifest": {
+    "artifact": "TI15 main-event 14-slot bracket prediction",
+    "status": "OFFICIAL",
+    "generated_at": "2026-08-17T09:41:58+00:00",
+    "runtime_seconds": 374.2,
+    "code_commit": "0f6c691",
+    "git_commit_at_start": "0f6c691",
+    "git_dirty_at_start": false,
+    "snapshot_boundary": "after the final Elimination Round series (Team Yandex 2-1 LGD Gaming, 2026-08-16); before any Main Event match",
+    "network_used": false,
+    "odds_used": false,
+    "future_main_event_results_used": false,
+    "clean_run_provenance_note": "network_used and odds_used are properties of the code path taken: the league feed is read from the on-disk snapshot whose sha256 is recorded below, no fetcher is invoked, and no market or crowd series exists in the repository to read.",
+    "data_cutoff": "2026-08-16T12:00:00+00:00",
+    "cutoff_provenance": {
+      "role": "h90 decay reference AND training-set upper bound (start_time < cutoff); not metadata",
+      "run_started_at": "2026-08-17T09:35:44+00:00",
+      "serve_cutoff": "2026-08-16T12:00:00+00:00",
+      "latest_model_timestamp_utc": "2026-08-16T08:00:02+00:00",
+      "timestamp_basis": "IMPUTED. Round 1 carries the saved official league feed's scheduled times; rounds 2-6 have no locally recorded time and are placed on a two-blocks-per-day cadence purely so the h90 decay has something to weight by. The value above is therefore the latest timestamp USED BY THE MODEL, not an externally observed finish time for the last series.",
+      "timestamp_provenance_counts": {
+        "official_schedule_feed": 18,
+        "imputed_cadence": 91
+      },
+      "chronology_gate": "latest timestamp used by the model < serve cutoff <= production run start. This orders three things the pipeline controls; it asserts nothing about when the final series really ended.",
+      "cutoff_is_after_latest_model_timestamp": true,
+      "cutoff_is_not_in_the_future": true,
+      "margin_after_latest_model_timestamp_hours": 4.0,
+      "margin_before_run_start_hours": 21.6
+    },
+    "model": {
+      "family": "B-bt",
+      "half_life_days": 90,
+      "lambda": 1.0,
+      "calibration": "none",
+      "map_prob": "side-neutral 0.5*(sigmoid(d+c)+sigmoid(d-c))",
+      "radiant_c": 0.094,
+      "weighting": "1/series_size (series cap)",
+      "frozen": true,
+      "reopened_for_ti15": false
+    },
+    "inputs_used": {
+      "network": false,
+      "odds_or_market": false,
+      "crowd_percentages": false,
+      "main_event_results": false,
+      "manual_adjustments": false,
+      "historical_universe_rows": 8690,
+      "ti15_series_inserted": 44,
+      "ti15_map_rows": 109
+    },
+    "provenance": {
+      "universe_sha256": "8a61f7196ea432264dc215e0427659f911ea755ee49a2a116c8fae6e60b0d45a",
+      "league_feed_sha256": "41b53f0e8a7c84551be0e569e0bc5d5a6998769ed211f2d365c5a634c012845b",
+      "teams_sha256": "6fa7689f954f39e9147281ab6e21c265436f10a668694a701c780b8e623016df",
+      "canonical_identity_sha256": "0c3e30f15c4c69aef9b8f36208659617613c36bb20e6c8611164c3a42a8782b9",
+      "questions_sha256": "155dafd53431bce76b73b22861e31f696e123923fcf6d82cb8300a889608da13",
+      "ti15_results": {
+        "series_expanded": 44,
+        "map_rows": 109,
+        "round1_timestamps_from_league_feed": 8,
+        "timestamps_assumed_from_cadence": 36,
+        "collapsed_to": null,
+        "weighting": "1/series_size per map, so each Bo3 contributes total weight 1.0",
+        "series_id_range": [
+          900000000,
+          900000043
+        ],
+        "universe_rows": 8690,
+        "stages_included": [
+          "swiss",
+          "elimination"
+        ],
+        "combined_rows": 8799,
+        "ti15_rows_added": 109
+      }
+    },
+    "seed": 20260816,
+    "bootstrap_draws": 1000,
+    "bootstrap_blocks": 4428,
+    "approximation": {
+      "objective": "expected official score under the outcome distribution averaged over 1000 fixed-seed series-blocked bootstrap draws",
+      "exact_given_the_distribution": "the 16,384 x 16,384 scoring is exact; the APPROXIMATION is the finite bootstrap average that stands in for the parameter posterior",
+      "read_as_estimates": [
+        "expected_score",
+        "expected_correct",
+        "runner-up regret",
+        "per-node cost_of_changing"
+      ],
+      "draws_not_increased_for_precision": "the draw count is a fixed production parameter, not tuned to sharpen a headline"
+    },
+    "enumeration": {
+      "outcomes": 16384,
+      "coherent_slates": 16384,
+      "method": "exact enumeration of all 2^14 outcomes; no Monte Carlo",
+      "probability_mass": 1.0
+    }
+  },
+  "gates": {
+    "result_reconciliation": {
+      "swiss_series": 39,
+      "elimination_series": 5,
+      "total_series": 44,
+      "standings_reproduced": true,
+      "unique_surviving_orgs": 8,
+      "swiss_round_sizes": {
+        "1": 8,
+        "2": 8,
+        "3": 8,
+        "4": 8,
+        "5": 7
+      },
+      "serve_cutoff": "2026-08-16T12:00:00Z",
+      "latest_model_timestamp_utc": "2026-08-16T08:00:02+00:00",
+      "latest_model_timestamp_basis": "imputed for rounds 2-6; only round 1 carries the saved league feed's scheduled times",
+      "cutoff_is_after_latest_model_timestamp": true
+    },
+    "pipeline_identity_vs_locked_group_run": {
+      "locked_training_maps": 8690,
+      "refit_training_maps": 8690,
+      "locked_radiant_c": 0.0932,
+      "refit_radiant_c": 0.0932,
+      "locked_cutoff": "2026-08-13T02:00:00+00:00",
+      "refit_cutoff": "2026-08-13T02:00:00+00:00",
+      "reproduced": true
+    },
+    "scoring_vector": {
+      "vector": [
+        0,
+        120,
+        360,
+        720,
+        1200,
+        1800,
+        2520,
+        3360,
+        4320,
+        5400,
+        6600,
+        7920,
+        9360,
+        10920,
+        12000
+      ],
+      "anchors_ok": true,
+      "source": "client-transcribed scoring_rule in prediction_questions.json (TI2026-Q-BRACKET, source_tier 1), independently matching contest_rules"
+    },
+    "bracket_topology": {
+      "source": "official Valve league feed 19719, Playoff node group (local snapshot)",
+      "shape": {
+        "UBQF": 4,
+        "UBSF": 2,
+        "UBF": 1,
+        "LBR1": 2,
+        "LBR2": 2,
+        "LBSF": 1,
+        "LBF": 1,
+        "GF": 1
+      },
+      "nodes": [
+        {
+          "selection_id": 801,
+          "node_id": 14,
+          "round": "UBQF",
+          "best_of": 3,
+          "inputs": [
+            "seeded"
+          ],
+          "client_series": "Upper Bracket Round 1 Match 1"
+        },
+        {
+          "selection_id": 802,
+          "node_id": 15,
+          "round": "UBQF",
+          "best_of": 3,
+          "inputs": [
+            "seeded"
+          ],
+          "client_series": "Upper Bracket Round 1 Match 2"
+        },
+        {
+          "selection_id": 803,
+          "node_id": 16,
+          "round": "UBQF",
+          "best_of": 3,
+          "inputs": [
+            "seeded"
+          ],
+          "client_series": "Upper Bracket Round 1 Match 3"
+        },
+        {
+          "selection_id": 804,
+          "node_id": 17,
+          "round": "UBQF",
+          "best_of": 3,
+          "inputs": [
+            "seeded"
+          ],
+          "client_series": "Upper Bracket Round 1 Match 4"
+        },
+        {
+          "selection_id": 805,
+          "node_id": 18,
+          "round": "UBSF",
+          "best_of": 3,
+          "inputs": [
+            "W14",
+            "W15"
+          ],
+          "client_series": "Upper Bracket Round 2 Match 1"
+        },
+        {
+          "selection_id": 806,
+          "node_id": 19,
+          "round": "UBSF",
+          "best_of": 3,
+          "inputs": [
+            "W16",
+            "W17"
+          ],
+          "client_series": "Upper Bracket Round 2 Match 2"
+        },
+        {
+          "selection_id": 807,
+          "node_id": 20,
+          "round": "UBF",
+          "best_of": 3,
+          "inputs": [
+            "W18",
+            "W19"
+          ],
+          "client_series": "Upper Bracket Final"
+        },
+        {
+          "selection_id": 809,
+          "node_id": 22,
+          "round": "LBR1",
+          "best_of": 3,
+          "inputs": [
+            "L14",
+            "L15"
+          ],
+          "client_series": "Lower Bracket Round 1 Match 1"
+        },
+        {
+          "selection_id": 810,
+          "node_id": 23,
+          "round": "LBR1",
+          "best_of": 3,
+          "inputs": [
+            "L16",
+            "L17"
+          ],
+          "client_series": "Lower Bracket Round 1 Match 2"
+        },
+        {
+          "selection_id": 811,
+          "node_id": 24,
+          "round": "LBR2",
+          "best_of": 3,
+          "inputs": [
+            "L19",
+            "W22"
+          ],
+          "client_series": "Lower Bracket Round 2 Match 1"
+        },
+        {
+          "selection_id": 812,
+          "node_id": 25,
+          "round": "LBR2",
+          "best_of": 3,
+          "inputs": [
+            "L18",
+            "W23"
+          ],
+          "client_series": "Lower Bracket Round 2 Match 2"
+        },
+        {
+          "selection_id": 813,
+          "node_id": 26,
+          "round": "LBSF",
+          "best_of": 3,
+          "inputs": [
+            "W24",
+            "W25"
+          ],
+          "client_series": "Lower Bracket Round 3"
+        },
+        {
+          "selection_id": 814,
+          "node_id": 27,
+          "round": "LBF",
+          "best_of": 3,
+          "inputs": [
+            "L20",
+            "W26"
+          ],
+          "client_series": "Lower Bracket Final"
+        },
+        {
+          "selection_id": 808,
+          "node_id": 21,
+          "round": "GF",
+          "best_of": 5,
+          "inputs": [
+            "W20",
+            "W27"
+          ],
+          "client_series": "Grand Final"
+        }
+      ]
+    },
+    "pool_verification": {
+      "draws_checked_with_full_scan": 30,
+      "pool_optimum_equals_global_optimum": 29,
+      "max_expected_score_shortfall": 2.438,
+      "pool_size": 4096
+    },
+    "timestamp_sensitivity": {
+      "arm": "all 44 TI15 series collapsed to 2026-08-16T00:00:00Z",
+      "compared_against": "the point-estimate serve state (like for like; the primary slate itself is chosen on the bootstrap-averaged distribution)",
+      "max_abs_strength_change": 0.001326,
+      "optimal_slate_unchanged": true,
+      "champion_prob_max_change": 0.000506
+    },
+    "seeded_participants": {
+      "gate": "seeded Main Event participants verified against archived first-party evidence",
+      "evidence_record": "data/ti2026/inputs/evidence/main_event_seating/ti15_main_event_seating.json",
+      "image": {
+        "path": "data/ti2026/inputs/evidence/main_event_seating/ti15_main_event_bracket_client_crop_20260817.png",
+        "sha256": "ee343c08320c46d337363cda02ceb67ae57a37bd73175fe1cbe44d14355f48b2",
+        "bytes": 427163,
+        "pixels": [
+          1624,
+          1000
+        ],
+        "transformation": "crop only",
+        "crop_geometry": {
+          "source_pixels": [
+            2048,
+            1152
+          ],
+          "box_left_upper_right_lower": [
+            424,
+            0,
+            2048,
+            1000
+          ],
+          "reproduce": "PIL: Image.open(<private original>).crop((424, 0, 2048, 1000)).save(out, format='PNG', optimize=True)",
+          "note": "crop only - no scaling, rotation, redaction, painting or pixel edits. The PNG container is re-encoded by the crop step, so the crop's hash is not derivable from the original's; both hashes are recorded."
+        },
+        "original_private_capture_sha256": "3a3abff414059d56c6301cfd6fd12dfa81062990c89bf0fdff65a4f854ebfb52",
+        "original_is_deliberately_not_in_this_repository": "The uncropped capture shows the operator's Steam persona, a friend's display name, account points/percentile and unrelated sidebar and chat UI. None of that is evidence for anything this repository claims, so only the crop is published. The full capture is retained privately by the operator."
+      },
+      "source_type": "first-party in-client capture, privacy-preserving crop",
+      "source_description": "privacy-preserving crop derived from an operator-captured screenshot from the logged-in Dota 2 client",
+      "source_url": null,
+      "acquisition_date": "2026-08-17",
+      "evidence_scope": "opening Main Event seating (the four upper-bracket quarterfinal pairings)",
+      "seating_source": "archived first-party Dota 2 client screenshot (privacy-preserving crop)",
+      "topology_source": "saved Valve league feed (data/ti2026/raw/league_19719_feed.json)",
+      "roles_are_separate": "These are two different questions answered by two different artifacts. The feed cannot supply the seating: every Playoff node in that snapshot carries team_id_1 = team_id_2 = 0. The capture is not used to derive the graph.",
+      "runtime_contract": "the immutable bytes plus this reviewed transcription plus the sha256 are the auditable evidence contract. Production verifies the hash, the byte count and the directory contents, then CONSUMES these canonical seats; it never OCRs the image.",
+      "trust_boundary": "Human review of the screenshot-to-transcription step is the declared trust boundary, because runtime OCR is intentionally excluded. It cannot be eliminated cryptographically: the hash proves the image has not changed since review, not that the review read it correctly. What the hash does guarantee is that any future change to the image invalidates the gate until a human re-reviews it.",
+      "single_source_of_seats": "This block is the ONLY declarative table of opening participants in the repository. ti15_results.UBQF is derived from it at import, so there is no second, independently editable seat table that could silently disagree.",
+      "directory_contents": {
+        "images": [
+          "ti15_main_event_bracket_client_crop_20260817.png"
+        ],
+        "records": [
+          "ti15_main_event_seating.json"
+        ]
+      },
+      "seats": [
+        {
+          "selection_id": 801,
+          "node_id": 14,
+          "client_block": "A",
+          "client_date": "2026-08-20",
+          "display": [
+            "Iron Wing",
+            "Team Spirit"
+          ],
+          "canonical": [
+            "Tundra Esports",
+            "Team Spirit"
+          ]
+        },
+        {
+          "selection_id": 802,
+          "node_id": 15,
+          "client_block": "B",
+          "client_date": "2026-08-20",
+          "display": [
+            "TEAM VISION",
+            "BoomBoys"
+          ],
+          "canonical": [
+            "PARIVISION",
+            "BetBoom Team"
+          ]
+        },
+        {
+          "selection_id": 803,
+          "node_id": 16,
+          "client_block": "C",
+          "client_date": "2026-08-20",
+          "display": [
+            "Team Liquid",
+            "Team Yandex"
+          ],
+          "canonical": [
+            "Team Liquid",
+            "Team Yandex"
+          ]
+        },
+        {
+          "selection_id": 804,
+          "node_id": 17,
+          "client_block": "D",
+          "client_date": "2026-08-20",
+          "display": [
+            "Nigma Galaxy",
+            "Team Falcons"
+          ],
+          "canonical": [
+            "Nigma Galaxy",
+            "Team Falcons"
+          ]
+        }
+      ],
+      "production_seat_check": {
+        "nodes_checked": [
+          14,
+          15,
+          16,
+          17
+        ],
+        "matches_evidence": true
+      },
+      "evidence_strength": "The four opening Main Event participants are hash-gated against a privacy-preserving crop of an operator-captured screenshot from the logged-in Dota 2 client.",
+      "original_model_input_provenance": "These four pairings entered the model earlier, as authoritative current-tournament facts supplied in the operator's prediction request. This record archives the client capture that confirms them; it is not a claim that the screenshot was the original source of the model input."
+    },
+    "roster_audit": {
+      "teams_audited": 16,
+      "audit_source": "data/ti2026/inputs/roster_events.csv",
+      "confirmed": 15,
+      "changed": [
+        {
+          "organization": "LGD Gaming",
+          "role": "2",
+          "outgoing": {
+            "player": "TaiLung",
+            "account_id": "1026694469"
+          },
+          "incoming": {
+            "player": "Topson",
+            "account_id": "94054712"
+          },
+          "reason_category": "tournament-integrity-ban",
+          "eligibility": "outgoing-banned-incoming-eligible",
+          "announced_utc": "2026-08-09T05:20:00Z",
+          "effective_status": "active",
+          "evidence_tier": "1",
+          "source": "lgd-official-weibo+lgd-official-x+liquipedia-ti2026-participants"
+        }
+      ],
+      "blocking": [],
+      "retrieved_at": "2026-08-10",
+      "blocking_in_main_event": [],
+      "changed_in_main_event": []
+    },
+    "standings_vs_model_strength": [
+      {
+        "team": "PARIVISION",
+        "swiss_rank": 1,
+        "model_rank": 1,
+        "gap": 0
+      },
+      {
+        "team": "Team Falcons",
+        "swiss_rank": 6,
+        "model_rank": 2,
+        "gap": 4
+      },
+      {
+        "team": "Team Yandex",
+        "swiss_rank": 11,
+        "model_rank": 3,
+        "gap": 8
+      },
+      {
+        "team": "BetBoom Team",
+        "swiss_rank": 9,
+        "model_rank": 4,
+        "gap": 5
+      },
+      {
+        "team": "Team Spirit",
+        "swiss_rank": 4,
+        "model_rank": 5,
+        "gap": -1
+      },
+      {
+        "team": "Team Liquid",
+        "swiss_rank": 2,
+        "model_rank": 6,
+        "gap": -4
+      },
+      {
+        "team": "Nigma Galaxy",
+        "swiss_rank": 3,
+        "model_rank": 7,
+        "gap": -4
+      },
+      {
+        "team": "Tundra Esports",
+        "swiss_rank": 5,
+        "model_rank": 8,
+        "gap": -3
+      }
+    ],
+    "locked_group_slate_scoreboard": {
+      "slots_correct": 6,
+      "expected_correct_at_lock": 5.249,
+      "status": "DESCRIPTIVE ONLY",
+      "note": "a single realized tournament. It is NOT evidence that the model is calibrated, validated, or well specified, and it is not why the model was left frozen. The decision not to reopen rests on the preregistered validation and the freeze (docs/validation-plan-v2.md), which predate this outcome.",
+      "must_not_be_used_as": [
+        "calibration evidence",
+        "validation evidence",
+        "justification for keeping or changing the model"
+      ]
+    },
+    "sequential_assimilation": {
+      "name": "within-league early-to-late sequential-assimilation diagnostic",
+      "is_a_group_to_playoff_replay": false,
+      "why_not": "the rating universe has no stage field, so no local record exists of which series were group and which were playoff. The split is chronological within a league. Nothing here is evidence about elimination brackets specifically.",
+      "status": "AUXILIARY, DOWNGRADED",
+      "purpose": "test the sequential-update procedure; it never selects a model",
+      "ti15_excluded_from_selection": true,
+      "stage_metadata_available_locally": false,
+      "selection_rule": "structural only -- a valid chronological split, at least 6 early series, at least 10 late maps whose both teams appeared early, and non-empty pre-league training data. No criterion refers to a league's outcomes or to model error on it.",
+      "populations": {
+        "all": "every league passing the minimums. Dominated by season-long leagues and streamer/exhibition events, which have no group-to-playoff arc at all; the three largest supply about half the map weight.",
+        "folds": "only the leagues in inputs/folds.csv -- the preregistered set, i.e. discrete tournaments. Smaller and the relevant population for a TI-like event."
+      },
+      "per_population_and_split": {
+        "all@0.4": {
+          "leagues": 34,
+          "preregistered_folds_included": 16,
+          "eligible_late_maps": 3210,
+          "map_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0146,
+              "ci90": [
+                -0.0295,
+                -0.0026
+              ],
+              "leagues_improved": 23,
+              "leagues_worsened": 11,
+              "significant": true
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0146,
+              "ci90": [
+                -0.0298,
+                -0.0026
+              ],
+              "leagues_improved": 23,
+              "leagues_worsened": 11,
+              "significant": true
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0142,
+              "ci90": [
+                -0.0273,
+                -0.0038
+              ],
+              "leagues_improved": 24,
+              "leagues_worsened": 10,
+              "significant": true
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0075,
+              "ci90": [
+                0.0004,
+                0.0168
+              ],
+              "leagues_improved": 10,
+              "leagues_worsened": 24,
+              "significant": true
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.003,
+              "ci90": [
+                -0.0011,
+                0.0088
+              ],
+              "leagues_improved": 10,
+              "leagues_worsened": 24,
+              "significant": false
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.0005,
+              "ci90": [
+                -0.0014,
+                0.0034
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 21,
+              "significant": false
+            }
+          },
+          "event_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0074,
+              "ci90": [
+                -0.0186,
+                0.0033
+              ],
+              "leagues_improved": 23,
+              "leagues_worsened": 11,
+              "significant": false
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0074,
+              "ci90": [
+                -0.0188,
+                0.0034
+              ],
+              "leagues_improved": 23,
+              "leagues_worsened": 11,
+              "significant": false
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0085,
+              "ci90": [
+                -0.0185,
+                0.0016
+              ],
+              "leagues_improved": 24,
+              "leagues_worsened": 10,
+              "significant": false
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0043,
+              "ci90": [
+                -0.0034,
+                0.0119
+              ],
+              "leagues_improved": 10,
+              "leagues_worsened": 24,
+              "significant": false
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.0015,
+              "ci90": [
+                -0.0035,
+                0.0063
+              ],
+              "leagues_improved": 10,
+              "leagues_worsened": 24,
+              "significant": false
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.0001,
+              "ci90": [
+                -0.0024,
+                0.0024
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 21,
+              "significant": false
+            }
+          }
+        },
+        "all@0.5": {
+          "leagues": 38,
+          "preregistered_folds_included": 18,
+          "eligible_late_maps": 2865,
+          "map_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0131,
+              "ci90": [
+                -0.0304,
+                -0.0022
+              ],
+              "leagues_improved": 28,
+              "leagues_worsened": 10,
+              "significant": true
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.013,
+              "ci90": [
+                -0.0302,
+                -0.0019
+              ],
+              "leagues_improved": 28,
+              "leagues_worsened": 10,
+              "significant": true
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0112,
+              "ci90": [
+                -0.0246,
+                -0.0028
+              ],
+              "leagues_improved": 29,
+              "leagues_worsened": 9,
+              "significant": true
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0048,
+              "ci90": [
+                -0.001,
+                0.0155
+              ],
+              "leagues_improved": 11,
+              "leagues_worsened": 27,
+              "significant": false
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.001,
+              "ci90": [
+                -0.0027,
+                0.008
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 25,
+              "significant": false
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": -0.0006,
+              "ci90": [
+                -0.0024,
+                0.0033
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 25,
+              "significant": false
+            }
+          },
+          "event_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0204,
+              "ci90": [
+                -0.0309,
+                -0.0103
+              ],
+              "leagues_improved": 28,
+              "leagues_worsened": 10,
+              "significant": true
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0204,
+              "ci90": [
+                -0.0308,
+                -0.0105
+              ],
+              "leagues_improved": 28,
+              "leagues_worsened": 10,
+              "significant": true
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0181,
+              "ci90": [
+                -0.0264,
+                -0.0102
+              ],
+              "leagues_improved": 29,
+              "leagues_worsened": 9,
+              "significant": true
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0113,
+              "ci90": [
+                0.0054,
+                0.0175
+              ],
+              "leagues_improved": 11,
+              "leagues_worsened": 27,
+              "significant": true
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.0062,
+              "ci90": [
+                0.0023,
+                0.0103
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 25,
+              "significant": true
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.0025,
+              "ci90": [
+                0.0006,
+                0.0044
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 25,
+              "significant": true
+            }
+          }
+        },
+        "all@0.6": {
+          "leagues": 39,
+          "preregistered_folds_included": 19,
+          "eligible_late_maps": 2420,
+          "map_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0113,
+              "ci90": [
+                -0.0246,
+                -0.0004
+              ],
+              "leagues_improved": 27,
+              "leagues_worsened": 12,
+              "significant": true
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0112,
+              "ci90": [
+                -0.0248,
+                0.0
+              ],
+              "leagues_improved": 28,
+              "leagues_worsened": 11,
+              "significant": false
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0091,
+              "ci90": [
+                -0.0197,
+                -0.0002
+              ],
+              "leagues_improved": 28,
+              "leagues_worsened": 11,
+              "significant": true
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0035,
+              "ci90": [
+                -0.0023,
+                0.011
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 26,
+              "significant": false
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.0003,
+              "ci90": [
+                -0.0032,
+                0.0053
+              ],
+              "leagues_improved": 14,
+              "leagues_worsened": 25,
+              "significant": false
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": -0.0009,
+              "ci90": [
+                -0.0026,
+                0.0018
+              ],
+              "leagues_improved": 18,
+              "leagues_worsened": 21,
+              "significant": false
+            }
+          },
+          "event_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0142,
+              "ci90": [
+                -0.024,
+                -0.0046
+              ],
+              "leagues_improved": 27,
+              "leagues_worsened": 12,
+              "significant": true
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0141,
+              "ci90": [
+                -0.0243,
+                -0.0048
+              ],
+              "leagues_improved": 28,
+              "leagues_worsened": 11,
+              "significant": true
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.01,
+              "ci90": [
+                -0.0177,
+                -0.0026
+              ],
+              "leagues_improved": 28,
+              "leagues_worsened": 11,
+              "significant": true
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0053,
+              "ci90": [
+                0.0001,
+                0.0108
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 26,
+              "significant": true
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.0022,
+              "ci90": [
+                -0.0013,
+                0.0058
+              ],
+              "leagues_improved": 14,
+              "leagues_worsened": 25,
+              "significant": false
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.0005,
+              "ci90": [
+                -0.0013,
+                0.0023
+              ],
+              "leagues_improved": 18,
+              "leagues_worsened": 21,
+              "significant": false
+            }
+          }
+        },
+        "all@0.7": {
+          "leagues": 35,
+          "preregistered_folds_included": 18,
+          "eligible_late_maps": 1911,
+          "map_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0201,
+              "ci90": [
+                -0.0338,
+                -0.009
+              ],
+              "leagues_improved": 25,
+              "leagues_worsened": 10,
+              "significant": true
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0202,
+              "ci90": [
+                -0.0343,
+                -0.0093
+              ],
+              "leagues_improved": 25,
+              "leagues_worsened": 10,
+              "significant": true
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.017,
+              "ci90": [
+                -0.0276,
+                -0.0082
+              ],
+              "leagues_improved": 27,
+              "leagues_worsened": 8,
+              "significant": true
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0095,
+              "ci90": [
+                0.0035,
+                0.0166
+              ],
+              "leagues_improved": 10,
+              "leagues_worsened": 25,
+              "significant": true
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.0043,
+              "ci90": [
+                0.001,
+                0.0089
+              ],
+              "leagues_improved": 12,
+              "leagues_worsened": 23,
+              "significant": true
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.0012,
+              "ci90": [
+                -0.0003,
+                0.0035
+              ],
+              "leagues_improved": 12,
+              "leagues_worsened": 23,
+              "significant": false
+            }
+          },
+          "event_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0186,
+              "ci90": [
+                -0.032,
+                -0.007
+              ],
+              "leagues_improved": 25,
+              "leagues_worsened": 10,
+              "significant": true
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0188,
+              "ci90": [
+                -0.0322,
+                -0.0072
+              ],
+              "leagues_improved": 25,
+              "leagues_worsened": 10,
+              "significant": true
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0161,
+              "ci90": [
+                -0.0271,
+                -0.0064
+              ],
+              "leagues_improved": 27,
+              "leagues_worsened": 8,
+              "significant": true
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0099,
+              "ci90": [
+                0.0031,
+                0.0174
+              ],
+              "leagues_improved": 10,
+              "leagues_worsened": 25,
+              "significant": true
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.0052,
+              "ci90": [
+                0.0007,
+                0.0101
+              ],
+              "leagues_improved": 12,
+              "leagues_worsened": 23,
+              "significant": true
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.002,
+              "ci90": [
+                -0.0002,
+                0.0042
+              ],
+              "leagues_improved": 12,
+              "leagues_worsened": 23,
+              "significant": false
+            }
+          }
+        },
+        "folds@0.4": {
+          "leagues": 16,
+          "preregistered_folds_included": 16,
+          "eligible_late_maps": 862,
+          "map_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0111,
+              "ci90": [
+                -0.021,
+                -0.001
+              ],
+              "leagues_improved": 11,
+              "leagues_worsened": 5,
+              "significant": true
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0112,
+              "ci90": [
+                -0.0209,
+                -0.0017
+              ],
+              "leagues_improved": 11,
+              "leagues_worsened": 5,
+              "significant": true
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0115,
+              "ci90": [
+                -0.0185,
+                -0.0037
+              ],
+              "leagues_improved": 12,
+              "leagues_worsened": 4,
+              "significant": true
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0077,
+              "ci90": [
+                0.002,
+                0.0129
+              ],
+              "leagues_improved": 4,
+              "leagues_worsened": 12,
+              "significant": true
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.0045,
+              "ci90": [
+                0.0008,
+                0.0079
+              ],
+              "leagues_improved": 4,
+              "leagues_worsened": 12,
+              "significant": true
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.0019,
+              "ci90": [
+                0.0001,
+                0.0037
+              ],
+              "leagues_improved": 6,
+              "leagues_worsened": 10,
+              "significant": true
+            }
+          },
+          "event_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0019,
+              "ci90": [
+                -0.011,
+                0.0072
+              ],
+              "leagues_improved": 11,
+              "leagues_worsened": 5,
+              "significant": false
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.002,
+              "ci90": [
+                -0.0112,
+                0.0067
+              ],
+              "leagues_improved": 11,
+              "leagues_worsened": 5,
+              "significant": false
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0047,
+              "ci90": [
+                -0.012,
+                0.0031
+              ],
+              "leagues_improved": 12,
+              "leagues_worsened": 4,
+              "significant": false
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0027,
+              "ci90": [
+                -0.0028,
+                0.0083
+              ],
+              "leagues_improved": 4,
+              "leagues_worsened": 12,
+              "significant": false
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.0013,
+              "ci90": [
+                -0.0024,
+                0.0048
+              ],
+              "leagues_improved": 4,
+              "leagues_worsened": 12,
+              "significant": false
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.0004,
+              "ci90": [
+                -0.0014,
+                0.0022
+              ],
+              "leagues_improved": 6,
+              "leagues_worsened": 10,
+              "significant": false
+            }
+          }
+        },
+        "folds@0.5": {
+          "leagues": 18,
+          "preregistered_folds_included": 18,
+          "eligible_late_maps": 786,
+          "map_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0172,
+              "ci90": [
+                -0.0259,
+                -0.0089
+              ],
+              "leagues_improved": 14,
+              "leagues_worsened": 4,
+              "significant": true
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0173,
+              "ci90": [
+                -0.0262,
+                -0.0089
+              ],
+              "leagues_improved": 14,
+              "leagues_worsened": 4,
+              "significant": true
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0158,
+              "ci90": [
+                -0.0226,
+                -0.0092
+              ],
+              "leagues_improved": 15,
+              "leagues_worsened": 3,
+              "significant": true
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0107,
+              "ci90": [
+                0.0059,
+                0.0156
+              ],
+              "leagues_improved": 3,
+              "leagues_worsened": 15,
+              "significant": true
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.0064,
+              "ci90": [
+                0.0033,
+                0.0096
+              ],
+              "leagues_improved": 3,
+              "leagues_worsened": 15,
+              "significant": true
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.0028,
+              "ci90": [
+                0.0013,
+                0.0044
+              ],
+              "leagues_improved": 3,
+              "leagues_worsened": 15,
+              "significant": true
+            }
+          },
+          "event_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.018,
+              "ci90": [
+                -0.0275,
+                -0.0095
+              ],
+              "leagues_improved": 14,
+              "leagues_worsened": 4,
+              "significant": true
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0181,
+              "ci90": [
+                -0.0277,
+                -0.0095
+              ],
+              "leagues_improved": 14,
+              "leagues_worsened": 4,
+              "significant": true
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0171,
+              "ci90": [
+                -0.0251,
+                -0.0093
+              ],
+              "leagues_improved": 15,
+              "leagues_worsened": 3,
+              "significant": true
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0119,
+              "ci90": [
+                0.006,
+                0.0178
+              ],
+              "leagues_improved": 3,
+              "leagues_worsened": 15,
+              "significant": true
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.0073,
+              "ci90": [
+                0.0036,
+                0.0112
+              ],
+              "leagues_improved": 3,
+              "leagues_worsened": 15,
+              "significant": true
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.0034,
+              "ci90": [
+                0.0015,
+                0.0053
+              ],
+              "leagues_improved": 3,
+              "leagues_worsened": 15,
+              "significant": true
+            }
+          }
+        },
+        "folds@0.6": {
+          "leagues": 19,
+          "preregistered_folds_included": 19,
+          "eligible_late_maps": 761,
+          "map_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0077,
+              "ci90": [
+                -0.0195,
+                0.005
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 6,
+              "significant": false
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0076,
+              "ci90": [
+                -0.0199,
+                0.0046
+              ],
+              "leagues_improved": 14,
+              "leagues_worsened": 5,
+              "significant": false
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0063,
+              "ci90": [
+                -0.0164,
+                0.0043
+              ],
+              "leagues_improved": 14,
+              "leagues_worsened": 5,
+              "significant": false
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0036,
+              "ci90": [
+                -0.0045,
+                0.0109
+              ],
+              "leagues_improved": 7,
+              "leagues_worsened": 12,
+              "significant": false
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.0016,
+              "ci90": [
+                -0.0036,
+                0.0065
+              ],
+              "leagues_improved": 7,
+              "leagues_worsened": 12,
+              "significant": false
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.0005,
+              "ci90": [
+                -0.0022,
+                0.003
+              ],
+              "leagues_improved": 8,
+              "leagues_worsened": 11,
+              "significant": false
+            }
+          },
+          "event_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.005,
+              "ci90": [
+                -0.0135,
+                0.004
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 6,
+              "significant": false
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0049,
+              "ci90": [
+                -0.0138,
+                0.0038
+              ],
+              "leagues_improved": 14,
+              "leagues_worsened": 5,
+              "significant": false
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0044,
+              "ci90": [
+                -0.0121,
+                0.0036
+              ],
+              "leagues_improved": 14,
+              "leagues_worsened": 5,
+              "significant": false
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0024,
+              "ci90": [
+                -0.0036,
+                0.0082
+              ],
+              "leagues_improved": 7,
+              "leagues_worsened": 12,
+              "significant": false
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": 0.001,
+              "ci90": [
+                -0.0029,
+                0.0049
+              ],
+              "leagues_improved": 7,
+              "leagues_worsened": 12,
+              "significant": false
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": 0.0002,
+              "ci90": [
+                -0.0018,
+                0.0022
+              ],
+              "leagues_improved": 8,
+              "leagues_worsened": 11,
+              "significant": false
+            }
+          }
+        },
+        "folds@0.7": {
+          "leagues": 18,
+          "preregistered_folds_included": 18,
+          "eligible_late_maps": 609,
+          "map_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0036,
+              "ci90": [
+                -0.0166,
+                0.0085
+              ],
+              "leagues_improved": 11,
+              "leagues_worsened": 7,
+              "significant": false
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0037,
+              "ci90": [
+                -0.0164,
+                0.0082
+              ],
+              "leagues_improved": 12,
+              "leagues_worsened": 6,
+              "significant": false
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0029,
+              "ci90": [
+                -0.0148,
+                0.0083
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 5,
+              "significant": false
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0009,
+              "ci90": [
+                -0.0075,
+                0.0099
+              ],
+              "leagues_improved": 7,
+              "leagues_worsened": 11,
+              "significant": false
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": -0.0002,
+              "ci90": [
+                -0.0056,
+                0.0058
+              ],
+              "leagues_improved": 7,
+              "leagues_worsened": 11,
+              "significant": false
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": -0.0005,
+              "ci90": [
+                -0.0034,
+                0.0026
+              ],
+              "leagues_improved": 7,
+              "leagues_worsened": 11,
+              "significant": false
+            }
+          },
+          "event_weighted": {
+            "D_full_vs_A_pre": {
+              "pooled_delta": -0.0024,
+              "ci90": [
+                -0.011,
+                0.0063
+              ],
+              "leagues_improved": 11,
+              "leagues_worsened": 7,
+              "significant": false
+            },
+            "D_full_vs_B_origin": {
+              "pooled_delta": -0.0024,
+              "ci90": [
+                -0.0112,
+                0.0062
+              ],
+              "leagues_improved": 12,
+              "leagues_worsened": 6,
+              "significant": false
+            },
+            "D_full_vs_C_concurrent": {
+              "pooled_delta": -0.0024,
+              "ci90": [
+                -0.0107,
+                0.0065
+              ],
+              "leagues_improved": 13,
+              "leagues_worsened": 5,
+              "significant": false
+            },
+            "kappa0.25_vs_D_full": {
+              "pooled_delta": 0.0007,
+              "ci90": [
+                -0.0055,
+                0.007
+              ],
+              "leagues_improved": 7,
+              "leagues_worsened": 11,
+              "significant": false
+            },
+            "kappa0.50_vs_D_full": {
+              "pooled_delta": -0.0001,
+              "ci90": [
+                -0.0044,
+                0.004
+              ],
+              "leagues_improved": 7,
+              "leagues_worsened": 11,
+              "significant": false
+            },
+            "kappa0.75_vs_D_full": {
+              "pooled_delta": -0.0004,
+              "ci90": [
+                -0.0026,
+                0.0018
+              ],
+              "leagues_improved": 7,
+              "leagues_worsened": 11,
+              "significant": false
+            }
+          }
+        }
+      },
+      "supported_claim": "on the broad league population, assimilating a league's earlier results improves prediction of its later results under the frozen update (0.009-0.020 nats, significant at every split and both weightings)",
+      "not_established": "the same effect on discrete tournaments alone. It is positive in direction at all four splits but significant at only 1 of 4 (significant at [0.5], not at [0.4, 0.6, 0.7]), and the splits nearest the TI15 shape are among the non-significant ones. No empirical warrant is claimed for 'observing the TI15 Swiss improves Main Event prediction'.",
+      "audit_predeclared_candidate_set": [
+        "plain frozen refit (kappa=1.00)",
+        "shrinkage kappa=0.25",
+        "shrinkage kappa=0.50",
+        "shrinkage kappa=0.75"
+      ],
+      "candidate_set_provenance": "fixed before scoring this auxiliary analysis and not altered afterwards, but NOT preregistered: no timestamped earlier artifact in this repository registers this kappa set. It carries none of the standing of the preregistered v1 model validation. Same status for the split fractions.",
+      "selected": "plain frozen sequential refit (kappa=1.00)",
+      "selection_reason": "no shrinkage candidate beat the plain refit anywhere -- in the cells where the family separates at all, shrinkage is significantly WORSE. kappa=1 is also the frozen default, so it wins every tie.",
+      "why_production_uses_the_plain_refit": "because it is the frozen default, not because this diagnostic validated it",
+      "production_path_changed": false,
+      "detail_artifact": "predictions/ti2026/playoffs/research/sequential_assimilation_20260816.json"
+    }
+  },
+  "seeding": [
+    {
+      "node_id": 14,
+      "selection_id": 801,
+      "client_names": [
+        "Iron Wing",
+        "Team Spirit"
+      ],
+      "teams": [
+        "Tundra Esports",
+        "Team Spirit"
+      ]
+    },
+    {
+      "node_id": 15,
+      "selection_id": 802,
+      "client_names": [
+        "TEAM VISION",
+        "BoomBoys"
+      ],
+      "teams": [
+        "PARIVISION",
+        "BetBoom Team"
+      ]
+    },
+    {
+      "node_id": 16,
+      "selection_id": 803,
+      "client_names": [
+        "Team Liquid",
+        "Team Yandex"
+      ],
+      "teams": [
+        "Team Liquid",
+        "Team Yandex"
+      ]
+    },
+    {
+      "node_id": 17,
+      "selection_id": 804,
+      "client_names": [
+        "Nigma Galaxy",
+        "Team Falcons"
+      ],
+      "teams": [
+        "Nigma Galaxy",
+        "Team Falcons"
+      ]
+    }
+  ],
+  "strength_evolution": {
+    "BetBoom Team": {
+      "pre_ti": 1.0221,
+      "post_swiss": 0.9567,
+      "serve": 0.9973,
+      "serve_bootstrap_sd": 0.1604,
+      "serve_bootstrap_90ci": [
+        0.7064,
+        1.2325
+      ],
+      "decay_only_control": 1.0084,
+      "delta_pre_to_serve": -0.0248,
+      "delta_attributable_to_ti15": -0.0111
+    },
+    "Nigma Galaxy": {
+      "pre_ti": 0.6048,
+      "post_swiss": 0.7663,
+      "serve": 0.7681,
+      "serve_bootstrap_sd": 0.2257,
+      "serve_bootstrap_90ci": [
+        0.385,
+        1.1219
+      ],
+      "decay_only_control": 0.5944,
+      "delta_pre_to_serve": 0.1633,
+      "delta_attributable_to_ti15": 0.1737
+    },
+    "PARIVISION": {
+      "pre_ti": 1.2847,
+      "post_swiss": 1.3668,
+      "serve": 1.369,
+      "serve_bootstrap_sd": 0.1374,
+      "serve_bootstrap_90ci": [
+        1.1227,
+        1.5707
+      ],
+      "decay_only_control": 1.269,
+      "delta_pre_to_serve": 0.0843,
+      "delta_attributable_to_ti15": 0.0999
+    },
+    "Team Falcons": {
+      "pre_ti": 1.0561,
+      "post_swiss": 1.033,
+      "serve": 1.0638,
+      "serve_bootstrap_sd": 0.1761,
+      "serve_bootstrap_90ci": [
+        0.7573,
+        1.3373
+      ],
+      "decay_only_control": 1.0413,
+      "delta_pre_to_serve": 0.0077,
+      "delta_attributable_to_ti15": 0.0225
+    },
+    "Team Liquid": {
+      "pre_ti": 0.7668,
+      "post_swiss": 0.8292,
+      "serve": 0.8295,
+      "serve_bootstrap_sd": 0.1542,
+      "serve_bootstrap_90ci": [
+        0.5611,
+        1.0589
+      ],
+      "decay_only_control": 0.754,
+      "delta_pre_to_serve": 0.0627,
+      "delta_attributable_to_ti15": 0.0756
+    },
+    "Team Spirit": {
+      "pre_ti": 0.8475,
+      "post_swiss": 0.8478,
+      "serve": 0.8558,
+      "serve_bootstrap_sd": 0.1696,
+      "serve_bootstrap_90ci": [
+        0.5396,
+        1.0985
+      ],
+      "decay_only_control": 0.834,
+      "delta_pre_to_serve": 0.0083,
+      "delta_attributable_to_ti15": 0.0218
+    },
+    "Team Yandex": {
+      "pre_ti": 1.0667,
+      "post_swiss": 1.0185,
+      "serve": 1.0259,
+      "serve_bootstrap_sd": 0.1648,
+      "serve_bootstrap_90ci": [
+        0.7383,
+        1.2802
+      ],
+      "decay_only_control": 1.0508,
+      "delta_pre_to_serve": -0.0409,
+      "delta_attributable_to_ti15": -0.025
+    },
+    "Tundra Esports": {
+      "pre_ti": 0.5451,
+      "post_swiss": 0.6135,
+      "serve": 0.6495,
+      "serve_bootstrap_sd": 0.1611,
+      "serve_bootstrap_90ci": [
+        0.3627,
+        0.8974
+      ],
+      "decay_only_control": 0.5336,
+      "delta_pre_to_serve": 0.1044,
+      "delta_attributable_to_ti15": 0.1159
+    }
+  },
+  "states": {
+    "A_pre_ti": {
+      "cutoff": "2026-08-13T02:00:00+00:00",
+      "train_maps": 8690,
+      "radiant_c": 0.0932,
+      "data": "historical universe only"
+    },
+    "B_post_swiss": {
+      "cutoff": "2026-08-15T18:00:00+00:00",
+      "train_maps": 8787,
+      "radiant_c": 0.0938,
+      "data": "historical universe + 39 TI15 Swiss series"
+    },
+    "C_serve": {
+      "cutoff": "2026-08-16T12:00:00+00:00",
+      "train_maps": 8799,
+      "radiant_c": 0.094,
+      "data": "historical universe + 39 Swiss + 5 Elimination series"
+    },
+    "control_decay_origin": {
+      "cutoff": "2026-08-16T12:00:00+00:00",
+      "train_maps": 8690,
+      "radiant_c": 0.0932,
+      "data": "historical universe only, serve-time decay origin (isolates the decay shift from the new observations)"
+    }
+  },
+  "tournament_probabilities": {
+    "BetBoom Team": {
+      "champion": 0.1126,
+      "champion_bootstrap_90ci": [
+        0.0365,
+        0.2254
+      ],
+      "reach_grand_final": 0.2308,
+      "win_ubqf": 0.3659,
+      "reach_ub_final": 0.2146,
+      "win_ub_final": 0.1103,
+      "reach_lb_final": 0.2424,
+      "win_lb_final": 0.1204,
+      "eliminated_in_lbr1": 0.2555
+    },
+    "Nigma Galaxy": {
+      "champion": 0.0624,
+      "champion_bootstrap_90ci": [
+        0.0075,
+        0.1686
+      ],
+      "reach_grand_final": 0.1586,
+      "win_ubqf": 0.397,
+      "reach_ub_final": 0.1788,
+      "win_ub_final": 0.0733,
+      "reach_lb_final": 0.1973,
+      "win_lb_final": 0.0853,
+      "eliminated_in_lbr1": 0.3357
+    },
+    "PARIVISION": {
+      "champion": 0.348,
+      "champion_bootstrap_90ci": [
+        0.2005,
+        0.4978
+      ],
+      "reach_grand_final": 0.5195,
+      "win_ubqf": 0.6341,
+      "reach_ub_final": 0.4484,
+      "win_ub_final": 0.2862,
+      "reach_lb_final": 0.3544,
+      "win_lb_final": 0.2332,
+      "eliminated_in_lbr1": 0.1027
+    },
+    "Team Falcons": {
+      "champion": 0.1576,
+      "champion_bootstrap_90ci": [
+        0.0553,
+        0.3007
+      ],
+      "reach_grand_final": 0.3243,
+      "win_ubqf": 0.603,
+      "reach_ub_final": 0.3277,
+      "win_ub_final": 0.161,
+      "reach_lb_final": 0.309,
+      "win_lb_final": 0.1633,
+      "eliminated_in_lbr1": 0.1787
+    },
+    "Team Liquid": {
+      "champion": 0.0667,
+      "champion_bootstrap_90ci": [
+        0.0201,
+        0.1392
+      ],
+      "reach_grand_final": 0.1738,
+      "win_ubqf": 0.4284,
+      "reach_ub_final": 0.1942,
+      "win_ub_final": 0.0796,
+      "reach_lb_final": 0.2172,
+      "win_lb_final": 0.0942,
+      "eliminated_in_lbr1": 0.2944
+    },
+    "Team Spirit": {
+      "champion": 0.0793,
+      "champion_bootstrap_90ci": [
+        0.0218,
+        0.1696
+      ],
+      "reach_grand_final": 0.1923,
+      "win_ubqf": 0.571,
+      "reach_ub_final": 0.2079,
+      "win_ub_final": 0.0956,
+      "reach_lb_final": 0.2287,
+      "win_lb_final": 0.0967,
+      "eliminated_in_lbr1": 0.2601
+    },
+    "Team Yandex": {
+      "champion": 0.138,
+      "champion_bootstrap_90ci": [
+        0.0497,
+        0.2694
+      ],
+      "reach_grand_final": 0.2947,
+      "win_ubqf": 0.5716,
+      "reach_ub_final": 0.2993,
+      "win_ub_final": 0.1431,
+      "reach_lb_final": 0.2963,
+      "win_lb_final": 0.1516,
+      "eliminated_in_lbr1": 0.1912
+    },
+    "Tundra Esports": {
+      "champion": 0.0356,
+      "champion_bootstrap_90ci": [
+        0.0083,
+        0.0837
+      ],
+      "reach_grand_final": 0.106,
+      "win_ubqf": 0.429,
+      "reach_ub_final": 0.1292,
+      "win_ub_final": 0.0507,
+      "reach_lb_final": 0.1547,
+      "win_lb_final": 0.0552,
+      "eliminated_in_lbr1": 0.3816
+    }
+  },
+  "optimization": {
+    "objective": "maximize E[MAIN_EVENT_SCORE(number of correct nodes)] over all coherent slates, against the bootstrap-averaged outcome distribution",
+    "why_averaging_is_exact": "expected score is linear in the outcome distribution, so averaging the distribution over parameter draws and then optimizing equals optimizing the uncertainty-integrated objective",
+    "candidates_evaluated": 16384,
+    "greedy_coherent_favourite": {
+      "row": 189,
+      "expected_score": 2222.2,
+      "expected_correct": 5.06
+    },
+    "max_expected_correct": {
+      "row": 701,
+      "expected_score": 2288.1,
+      "expected_correct": 5.119
+    },
+    "max_expected_official_score": {
+      "row": 957,
+      "expected_score": 2288.5,
+      "expected_correct": 5.109
+    },
+    "point_estimate_check": {
+      "argmax_row_under_point_estimate": 957,
+      "same_slate_as_primary": true,
+      "primary_expected_score_under_point_estimate": 2331.7
+    },
+    "score_distribution_of_primary": {
+      "0": 0.01818,
+      "1": 0.05973,
+      "2": 0.09862,
+      "3": 0.12528,
+      "4": 0.13582,
+      "5": 0.13987,
+      "6": 0.12398,
+      "7": 0.10401,
+      "8": 0.08207,
+      "9": 0.05561,
+      "10": 0.03227,
+      "11": 0.01589,
+      "12": 0.00641,
+      "13": 0.00192,
+      "14": 0.00036
+    }
+  },
+  "primary_slate": [
+    {
+      "selection_id": 801,
+      "node_id": 14,
+      "round": "UBQF",
+      "series": "Upper Bracket Round 1 Match 1",
+      "best_of": 3,
+      "predicted_matchup": [
+        "Tundra Esports",
+        "Team Spirit"
+      ],
+      "pick": "Team Spirit",
+      "opponent": "Tundra Esports",
+      "conditional_win_prob": 0.5766477658886031,
+      "map_win_prob": 0.5512782897464781,
+      "marginal_pick_wins_node": 0.5709880298229932,
+      "marginal_matchup_occurs": 0.5709880298229932,
+      "conditional_win_prob_90ci": [
+        0.4311,
+        0.7044
+      ],
+      "conditional_win_prob_sd": 0.0843,
+      "draws_favouring_pick": 0.782,
+      "cost_of_changing": 127.2487882293517,
+      "alternative": "Tundra Esports",
+      "alternative_expected_score": 2161.210946425835,
+      "bootstrap_draw_agreement": 0.786,
+      "draw_pick_distribution": {
+        "Team Spirit": 0.7860000000000006,
+        "Tundra Esports": 0.21400000000000016
+      },
+      "fragile": false
+    },
+    {
+      "selection_id": 802,
+      "node_id": 15,
+      "round": "UBQF",
+      "series": "Upper Bracket Round 1 Match 2",
+      "best_of": 3,
+      "predicted_matchup": [
+        "PARIVISION",
+        "BetBoom Team"
+      ],
+      "pick": "PARIVISION",
+      "opponent": "BetBoom Team",
+      "conditional_win_prob": 0.6359525367593342,
+      "map_win_prob": 0.5916618694476385,
+      "marginal_pick_wins_node": 0.6341027073719658,
+      "marginal_matchup_occurs": 0.6341027073719658,
+      "conditional_win_prob_90ci": [
+        0.5095,
+        0.7462
+      ],
+      "conditional_win_prob_sd": 0.0723,
+      "draws_favouring_pick": 0.957,
+      "cost_of_changing": 477.83853650530136,
+      "alternative": "BetBoom Team",
+      "alternative_expected_score": 1810.6211981498855,
+      "bootstrap_draw_agreement": 0.962,
+      "draw_pick_distribution": {
+        "PARIVISION": 0.9620000000000007,
+        "BetBoom Team": 0.03800000000000003
+      },
+      "fragile": false
+    },
+    {
+      "selection_id": 803,
+      "node_id": 16,
+      "round": "UBQF",
+      "series": "Upper Bracket Round 1 Match 3",
+      "best_of": 3,
+      "predicted_matchup": [
+        "Team Liquid",
+        "Team Yandex"
+      ],
+      "pick": "Team Yandex",
+      "opponent": "Team Liquid",
+      "conditional_win_prob": 0.5729986424303625,
+      "map_win_prob": 0.5488209132832109,
+      "marginal_pick_wins_node": 0.5716226686937775,
+      "marginal_matchup_occurs": 0.5716226686937775,
+      "conditional_win_prob_90ci": [
+        0.4373,
+        0.6982
+      ],
+      "conditional_win_prob_sd": 0.0784,
+      "draws_favouring_pick": 0.818,
+      "cost_of_changing": 92.48303849180638,
+      "alternative": "Team Liquid",
+      "alternative_expected_score": 2195.9766961633804,
+      "bootstrap_draw_agreement": 0.818,
+      "draw_pick_distribution": {
+        "Team Yandex": 0.8180000000000006,
+        "Team Liquid": 0.18200000000000013
+      },
+      "fragile": false
+    },
+    {
+      "selection_id": 804,
+      "node_id": 17,
+      "round": "UBQF",
+      "series": "Upper Bracket Round 1 Match 4",
+      "best_of": 3,
+      "predicted_matchup": [
+        "Nigma Galaxy",
+        "Team Falcons"
+      ],
+      "pick": "Team Falcons",
+      "opponent": "Nigma Galaxy",
+      "conditional_win_prob": 0.6090431605971807,
+      "map_win_prob": 0.5732188078332403,
+      "marginal_pick_wins_node": 0.6030439527919449,
+      "marginal_matchup_occurs": 0.6030439527919449,
+      "conditional_win_prob_90ci": [
+        0.4321,
+        0.7647
+      ],
+      "conditional_win_prob_sd": 0.103,
+      "draws_favouring_pick": 0.826,
+      "cost_of_changing": 152.21205667138747,
+      "alternative": "Nigma Galaxy",
+      "alternative_expected_score": 2136.2476779837993,
+      "bootstrap_draw_agreement": 0.827,
+      "draw_pick_distribution": {
+        "Team Falcons": 0.8270000000000006,
+        "Nigma Galaxy": 0.17300000000000013
+      },
+      "fragile": false
+    },
+    {
+      "selection_id": 805,
+      "node_id": 18,
+      "round": "UBSF",
+      "series": "Upper Bracket Round 2 Match 1",
+      "best_of": 3,
+      "predicted_matchup": [
+        "Team Spirit",
+        "PARIVISION"
+      ],
+      "pick": "PARIVISION",
+      "opponent": "Team Spirit",
+      "conditional_win_prob": 0.6840059885958187,
+      "map_win_prob": 0.6252931933283354,
+      "marginal_pick_wins_node": 0.4483567850510637,
+      "marginal_matchup_occurs": 0.24704674601547655,
+      "conditional_win_prob_90ci": [
+        0.5675,
+        0.7917
+      ],
+      "conditional_win_prob_sd": 0.0689,
+      "draws_favouring_pick": 0.994,
+      "cost_of_changing": 277.42928317072506,
+      "alternative": "Team Spirit",
+      "alternative_expected_score": 2011.0304514844618,
+      "bootstrap_draw_agreement": 0.957,
+      "draw_pick_distribution": {
+        "PARIVISION": 0.9570000000000007,
+        "BetBoom Team": 0.037000000000000026,
+        "Team Spirit": 0.006
+      },
+      "fragile": false
+    },
+    {
+      "selection_id": 806,
+      "node_id": 19,
+      "round": "UBSF",
+      "series": "Upper Bracket Round 2 Match 2",
+      "best_of": 3,
+      "predicted_matchup": [
+        "Team Yandex",
+        "Team Falcons"
+      ],
+      "pick": "Team Falcons",
+      "opponent": "Team Yandex",
+      "conditional_win_prob": 0.5141745564247303,
+      "map_win_prob": 0.5094508297910892,
+      "marginal_pick_wins_node": 0.32767304144595844,
+      "marginal_matchup_occurs": 0.17666363223529816,
+      "conditional_win_prob_90ci": [
+        0.3663,
+        0.6675
+      ],
+      "conditional_win_prob_sd": 0.0883,
+      "draws_favouring_pick": 0.546,
+      "cost_of_changing": 19.33365397201942,
+      "alternative": "Team Yandex",
+      "alternative_expected_score": 2269.1260806831674,
+      "bootstrap_draw_agreement": 0.489,
+      "draw_pick_distribution": {
+        "Team Falcons": 0.4890000000000004,
+        "Team Yandex": 0.36700000000000027,
+        "Nigma Galaxy": 0.09300000000000007,
+        "Team Liquid": 0.05100000000000004
+      },
+      "fragile": true
+    },
+    {
+      "selection_id": 807,
+      "node_id": 20,
+      "round": "UBF",
+      "series": "Upper Bracket Final",
+      "best_of": 3,
+      "predicted_matchup": [
+        "PARIVISION",
+        "Team Falcons"
+      ],
+      "pick": "PARIVISION",
+      "opponent": "Team Falcons",
+      "conditional_win_prob": 0.6124582032030824,
+      "map_win_prob": 0.5755470337194395,
+      "marginal_pick_wins_node": 0.2862481137769247,
+      "marginal_matchup_occurs": 0.08898366179889218,
+      "conditional_win_prob_90ci": [
+        0.486,
+        0.733
+      ],
+      "conditional_win_prob_sd": 0.075,
+      "draws_favouring_pick": 0.934,
+      "cost_of_changing": 74.96168384207976,
+      "alternative": "Team Falcons",
+      "alternative_expected_score": 2213.498050813107,
+      "bootstrap_draw_agreement": 0.85,
+      "draw_pick_distribution": {
+        "PARIVISION": 0.8500000000000006,
+        "Team Falcons": 0.06700000000000005,
+        "Team Yandex": 0.04200000000000003,
+        "BetBoom Team": 0.028000000000000018,
+        "Nigma Galaxy": 0.007,
+        "Team Spirit": 0.004,
+        "Team Liquid": 0.002
+      },
+      "fragile": false
+    },
+    {
+      "selection_id": 809,
+      "node_id": 22,
+      "round": "LBR1",
+      "series": "Lower Bracket Round 1 Match 1",
+      "best_of": 3,
+      "predicted_matchup": [
+        "Tundra Esports",
+        "BetBoom Team"
+      ],
+      "pick": "BetBoom Team",
+      "opponent": "Tundra Esports",
+      "conditional_win_prob": 0.6275905865016549,
+      "map_win_prob": 0.5859056783143257,
+      "marginal_pick_wins_node": 0.3785564208187929,
+      "marginal_matchup_occurs": 0.2266327157505109,
+      "conditional_win_prob_90ci": [
+        0.5014,
+        0.7403
+      ],
+      "conditional_win_prob_sd": 0.0744,
+      "draws_favouring_pick": 0.953,
+      "cost_of_changing": 221.19598749420084,
+      "alternative": "Tundra Esports",
+      "alternative_expected_score": 2067.263747160986,
+      "bootstrap_draw_agreement": 0.959,
+      "draw_pick_distribution": {
+        "BetBoom Team": 0.9590000000000007,
+        "PARIVISION": 0.03800000000000003,
+        "Tundra Esports": 0.003
+      },
+      "fragile": false
+    },
+    {
+      "selection_id": 810,
+      "node_id": 23,
+      "round": "LBR1",
+      "series": "Lower Bracket Round 1 Match 2",
+      "best_of": 3,
+      "predicted_matchup": [
+        "Team Liquid",
+        "Nigma Galaxy"
+      ],
+      "pick": "Nigma Galaxy",
+      "opponent": "Team Liquid",
+      "conditional_win_prob": 0.47703544768184686,
+      "map_win_prob": 0.4846855094373267,
+      "marginal_pick_wins_node": 0.26738331900037404,
+      "marginal_matchup_occurs": 0.16266794125256756,
+      "conditional_win_prob_90ci": [
+        0.3124,
+        0.6505
+      ],
+      "conditional_win_prob_sd": 0.1035,
+      "draws_favouring_pick": 0.419,
+      "cost_of_changing": 0.38993626166256945,
+      "alternative": "Team Liquid",
+      "alternative_expected_score": 2288.0697983935243,
+      "bootstrap_draw_agreement": 0.365,
+      "draw_pick_distribution": {
+        "Team Liquid": 0.44400000000000034,
+        "Nigma Galaxy": 0.36500000000000027,
+        "Team Falcons": 0.10500000000000008,
+        "Team Yandex": 0.08600000000000006
+      },
+      "fragile": true
+    },
+    {
+      "selection_id": 811,
+      "node_id": 24,
+      "round": "LBR2",
+      "series": "Lower Bracket Round 2 Match 1",
+      "best_of": 3,
+      "predicted_matchup": [
+        "Team Yandex",
+        "BetBoom Team"
+      ],
+      "pick": "BetBoom Team",
+      "opponent": "Team Yandex",
+      "conditional_win_prob": 0.48931093507058143,
+      "map_win_prob": 0.4928734741303702,
+      "marginal_pick_wins_node": 0.19799392922342052,
+      "marginal_matchup_occurs": 0.0506926344592074,
+      "conditional_win_prob_90ci": [
+        0.3478,
+        0.6265
+      ],
+      "conditional_win_prob_sd": 0.0852,
+      "draws_favouring_pick": 0.454,
+      "cost_of_changing": 66.22471955166247,
+      "alternative": "Team Yandex",
+      "alternative_expected_score": 2222.2350151035243,
+      "bootstrap_draw_agreement": 0.786,
+      "draw_pick_distribution": {
+        "BetBoom Team": 0.7860000000000006,
+        "Team Yandex": 0.08300000000000006,
+        "Team Falcons": 0.07400000000000005,
+        "PARIVISION": 0.037000000000000026,
+        "Team Liquid": 0.011000000000000003,
+        "Nigma Galaxy": 0.008,
+        "Tundra Esports": 0.001
+      },
+      "fragile": true
+    },
+    {
+      "selection_id": 812,
+      "node_id": 25,
+      "round": "LBR2",
+      "series": "Lower Bracket Round 2 Match 2",
+      "best_of": 3,
+      "predicted_matchup": [
+        "Team Spirit",
+        "Nigma Galaxy"
+      ],
+      "pick": "Team Spirit",
+      "opponent": "Nigma Galaxy",
+      "conditional_win_prob": 0.5327533048585193,
+      "map_win_prob": 0.5218494444202214,
+      "marginal_pick_wins_node": 0.17336776690919609,
+      "marginal_matchup_occurs": 0.05086472729731744,
+      "conditional_win_prob_90ci": [
+        0.3521,
+        0.6964
+      ],
+      "conditional_win_prob_sd": 0.1037,
+      "draws_favouring_pick": 0.604,
+      "cost_of_changing": 34.701295585829484,
+      "alternative": "Team Liquid",
+      "alternative_expected_score": 2253.7584390693573,
+      "bootstrap_draw_agreement": 0.562,
+      "draw_pick_distribution": {
+        "Team Spirit": 0.5620000000000004,
+        "Tundra Esports": 0.1230000000000001,
+        "Team Liquid": 0.11800000000000009,
+        "Nigma Galaxy": 0.11800000000000009,
+        "Team Falcons": 0.04200000000000003,
+        "Team Yandex": 0.03300000000000002,
+        "PARIVISION": 0.004
+      },
+      "fragile": true
+    },
+    {
+      "selection_id": 813,
+      "node_id": 26,
+      "round": "LBSF",
+      "series": "Lower Bracket Round 3",
+      "best_of": 3,
+      "predicted_matchup": [
+        "BetBoom Team",
+        "Team Spirit"
+      ],
+      "pick": "BetBoom Team",
+      "opponent": "Team Spirit",
+      "conditional_win_prob": 0.5527830832192914,
+      "map_win_prob": 0.5352471082119639,
+      "marginal_pick_wins_node": 0.13813603636347518,
+      "marginal_matchup_occurs": 0.023685622839350325,
+      "conditional_win_prob_90ci": [
+        0.404,
+        0.6928
+      ],
+      "conditional_win_prob_sd": 0.0858,
+      "draws_favouring_pick": 0.739,
+      "cost_of_changing": 20.23521434386066,
+      "alternative": "Team Spirit",
+      "alternative_expected_score": 2268.224520311326,
+      "bootstrap_draw_agreement": 0.5,
+      "draw_pick_distribution": {
+        "BetBoom Team": 0.5000000000000003,
+        "Team Spirit": 0.21900000000000017,
+        "Team Falcons": 0.07400000000000005,
+        "Team Yandex": 0.07200000000000005,
+        "Team Liquid": 0.04200000000000003,
+        "PARIVISION": 0.04100000000000003,
+        "Nigma Galaxy": 0.03400000000000002,
+        "Tundra Esports": 0.01800000000000001
+      },
+      "fragile": true
+    },
+    {
+      "selection_id": 814,
+      "node_id": 27,
+      "round": "LBF",
+      "series": "Lower Bracket Final",
+      "best_of": 3,
+      "predicted_matchup": [
+        "Team Falcons",
+        "BetBoom Team"
+      ],
+      "pick": "Team Falcons",
+      "opponent": "BetBoom Team",
+      "conditional_win_prob": 0.5248502472238062,
+      "map_win_prob": 0.5165729007226991,
+      "marginal_pick_wins_node": 0.16333703713999245,
+      "marginal_matchup_occurs": 0.01953947210624242,
+      "conditional_win_prob_90ci": [
+        0.3828,
+        0.6641
+      ],
+      "conditional_win_prob_sd": 0.0855,
+      "draws_favouring_pick": 0.604,
+      "cost_of_changing": 19.33365397201942,
+      "alternative": "Team Yandex",
+      "alternative_expected_score": 2269.1260806831674,
+      "bootstrap_draw_agreement": 0.383,
+      "draw_pick_distribution": {
+        "Team Falcons": 0.3830000000000003,
+        "Team Yandex": 0.2930000000000002,
+        "PARIVISION": 0.1240000000000001,
+        "Nigma Galaxy": 0.07300000000000005,
+        "BetBoom Team": 0.06500000000000004,
+        "Team Liquid": 0.04000000000000003,
+        "Team Spirit": 0.02100000000000001,
+        "Tundra Esports": 0.001
+      },
+      "fragile": true
+    },
+    {
+      "selection_id": 808,
+      "node_id": 21,
+      "round": "GF",
+      "series": "Grand Final",
+      "best_of": 5,
+      "predicted_matchup": [
+        "PARIVISION",
+        "Team Falcons"
+      ],
+      "pick": "PARIVISION",
+      "opponent": "Team Falcons",
+      "conditional_win_prob": 0.6395095849497816,
+      "map_win_prob": 0.5755470337194395,
+      "marginal_pick_wins_node": 0.34797788058136625,
+      "marginal_matchup_occurs": 0.08688017572760814,
+      "conditional_win_prob_90ci": [
+        0.4825,
+        0.7815
+      ],
+      "conditional_win_prob_sd": 0.0908,
+      "draws_favouring_pick": 0.934,
+      "cost_of_changing": 155.99265806278845,
+      "alternative": "Team Falcons",
+      "alternative_expected_score": 2132.4670765923984,
+      "bootstrap_draw_agreement": 0.856,
+      "draw_pick_distribution": {
+        "PARIVISION": 0.8560000000000006,
+        "Team Falcons": 0.060000000000000046,
+        "Team Yandex": 0.03900000000000003,
+        "BetBoom Team": 0.028000000000000018,
+        "Nigma Galaxy": 0.010000000000000002,
+        "Team Spirit": 0.005,
+        "Team Liquid": 0.002
+      },
+      "fragile": false
+    }
+  ],
+  "runner_up": {
+    "second_best_overall": {
+      "row": 701,
+      "expected_score": 2288.1,
+      "expected_correct": 5.119,
+      "regret_vs_primary": 0.39,
+      "differs_at": [
+        {
+          "selection_id": 810,
+          "round": "LBR1",
+          "primary": "Nigma Galaxy",
+          "alternative": "Team Liquid"
+        }
+      ],
+      "paired_tie_resolution": {
+        "differ_at_selection_ids": [
+          810
+        ],
+        "draws": 40000,
+        "plug_in_delta": 5.211,
+        "bootstrap_mean_delta": 0.3593,
+        "bootstrap_median_delta": 1.7237,
+        "bootstrap_sd": 62.9754,
+        "mc_se_of_mean": 0.3149,
+        "ci90": [
+          -106.1303,
+          101.5639
+        ],
+        "ci95": [
+          -127.2364,
+          120.5424
+        ],
+        "p_delta_gt_0": 0.5111,
+        "verdict": "TIE",
+        "verdict_reason": "the paired 95% interval spans zero and the mean difference is under 6 points, 5% of one correct node. The sign is NOT resolved: this says the two slates are evidentially indistinguishable, not that their true difference is zero",
+        "artifact": "predictions/ti2026/playoffs/research/slot810_tiebreak_20260816.json",
+        "read_from_staging_copy": true,
+        "source_sha256": "9c60f34fe1d9a71ab395e3c0835d9fac32b9c2ed6c6038f56ecc510503f71286",
+        "deterministic_pick_retained": "The fixed-seed 1000-draw production approximation has a unique NUMERICAL argmax, and the production decision procedure takes it, so the client pick stays the primary. That is emphatically NOT a claim that the underlying uncertainty-integrated objective has a unique argmax, nor that Nigma Galaxy is truly the better pick: the 40,000-draw paired comparison does not resolve the sign. The pick is determinism, not evidence.",
+        "statistically_separated": false
+      }
+    },
+    "best_with_a_different_champion": {
+      "row": 9149,
+      "champion": "Team Falcons",
+      "expected_score": 2132.5,
+      "expected_correct": 4.918,
+      "regret_vs_primary": 155.99,
+      "differs_at": [
+        {
+          "selection_id": 808,
+          "round": "GF",
+          "primary": "PARIVISION",
+          "alternative": "Team Falcons"
+        }
+      ]
+    }
+  },
+  "client_actions": [
+    {
+      "selection_id": 801,
+      "series": "Upper Bracket Round 1 Match 1",
+      "select": "Team Spirit",
+      "canonical": "Team Spirit",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 802,
+      "series": "Upper Bracket Round 1 Match 2",
+      "select": "TEAM VISION",
+      "canonical": "PARIVISION",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 803,
+      "series": "Upper Bracket Round 1 Match 3",
+      "select": "Team Yandex",
+      "canonical": "Team Yandex",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 804,
+      "series": "Upper Bracket Round 1 Match 4",
+      "select": "Team Falcons",
+      "canonical": "Team Falcons",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 805,
+      "series": "Upper Bracket Round 2 Match 1",
+      "select": "TEAM VISION",
+      "canonical": "PARIVISION",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 806,
+      "series": "Upper Bracket Round 2 Match 2",
+      "select": "Team Falcons",
+      "canonical": "Team Falcons",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 807,
+      "series": "Upper Bracket Final",
+      "select": "TEAM VISION",
+      "canonical": "PARIVISION",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 808,
+      "series": "Grand Final",
+      "select": "TEAM VISION",
+      "canonical": "PARIVISION",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 809,
+      "series": "Lower Bracket Round 1 Match 1",
+      "select": "BoomBoys",
+      "canonical": "BetBoom Team",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 810,
+      "series": "Lower Bracket Round 1 Match 2",
+      "select": "Nigma Galaxy",
+      "canonical": "Nigma Galaxy",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 811,
+      "series": "Lower Bracket Round 2 Match 1",
+      "select": "BoomBoys",
+      "canonical": "BetBoom Team",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 812,
+      "series": "Lower Bracket Round 2 Match 2",
+      "select": "Team Spirit",
+      "canonical": "Team Spirit",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 813,
+      "series": "Lower Bracket Round 3",
+      "select": "BoomBoys",
+      "canonical": "BetBoom Team",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    },
+    {
+      "selection_id": 814,
+      "series": "Lower Bracket Final",
+      "select": "Team Falcons",
+      "canonical": "Team Falcons",
+      "name_basis": "client display name as it appears in the archived bracket/schedule evidence; `canonical` is the internal model organization"
+    }
+  ],
+  "client_display_names": {
+    "Tundra Esports": "Iron Wing",
+    "Team Spirit": "Team Spirit",
+    "PARIVISION": "TEAM VISION",
+    "BetBoom Team": "BoomBoys",
+    "Team Liquid": "Team Liquid",
+    "Team Yandex": "Team Yandex",
+    "Nigma Galaxy": "Nigma Galaxy",
+    "Team Falcons": "Team Falcons"
+  },
+  "caveats": [
+    "model-only; no market, crowd or manual input of any kind",
+    "the h90 decay origin and the 44 inserted series are the only things that changed relative to the locked group-stage run; the estimator is byte-identical",
+    "rounds 2-5 and the Elimination Round have no locally recorded timestamp; the cadence assumption is bounded by the collapse arm in gates.timestamp_sensitivity",
+    "maps within a series are modelled as exchangeable draws, so a 2-0 and a 2-1 differ only in the third map's outcome, never in order or momentum"
+  ]
+}
