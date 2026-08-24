@@ -1,0 +1,705 @@
+{
+ "schema_version": 1,
+ "event": "The International 2026 (TI15)",
+ "record": "official in-client Fantasy settlement, two accounts x two Fantasy periods",
+ "created_at": "2026-08-24T07:40:00Z",
+ "status": "OFFICIAL_FANTASY_OUTCOME_ARCHIVED",
+ "supersedes_knowledge_state_of": {
+  "artifact": "predictions/ti2026/postmortem/fantasy_closure.json",
+  "historical_status": "OFFICIAL_FANTASY_OUTCOME_NOT_ARCHIVED",
+  "historical_status_is_preserved": true,
+  "note": "that status was true when it was written and is left exactly as written. This file records the later knowledge state; it does not edit the earlier one."
+ },
+ "provenance": {
+  "source_type": "first-party in-client capture, operator-supplied",
+  "source_tier": 1,
+  "network_access_used": false,
+  "raw_evidence_public": false,
+  "evidence_ids": [
+   "ti2026-ev-007",
+   "ti2026-ev-008",
+   "ti2026-ev-009",
+   "ti2026-ev-010"
+  ],
+  "independent_paths": 1,
+  "single_path_note": "unlike the bracket settlement, which has two client views AND a deterministic recomputation, an official Fantasy score cannot be recomputed by this project at all: three of its statistics are unobservable from every source held. Provenance here is one first-party path, corroborated only by each frame's own internal consistency. That is stated rather than dressed up as agreement.",
+  "transcription_basis": "read at native resolution from each frame: the period tab, the three role scores, every scored emblem row with its multiplier and points, the period total and the period percentile"
+ },
+ "accounts": {
+  "labels": [
+   "operator",
+   "target"
+  ],
+  "convention": "`operator` is the account this repository is operated from; `target` is the second, comparison account. No display name, avatar, account identifier or leaderboard entry is published anywhere in this archive."
+ },
+ "periods": {
+  "group_stage": {
+   "operator": {
+    "account_role": "operator",
+    "period": "group_stage",
+    "client_tab": "group stage",
+    "evidence_id": "ti2026-ev-007",
+    "direct_first_party_facts": {
+     "displayed_total": 37217.47,
+     "displayed_percentile_pct": 44.28,
+     "percentile_scope": "the Fantasy leaderboard percentile the client displays for THIS period. It is not an account-level percentile and is never combined across periods.",
+     "roles": {
+      "core": {
+       "team": "Xtreme Gaming",
+       "players": [
+        "Ame",
+        "Xxs"
+       ],
+       "displayed_score": 12793.8,
+       "emblems": [
+        {
+         "stat": "tower_kills",
+         "multiplier": 1.6,
+         "points": 2996.22
+        },
+        {
+         "stat": "teamfight_participation",
+         "multiplier": 2.1,
+         "points": 6622.97
+        },
+        {
+         "stat": "deaths",
+         "multiplier": 1.1,
+         "points": 3174.6
+        }
+       ]
+      },
+      "mid": {
+       "team": "Team Falcons",
+       "players": [
+        "Malr1ne"
+       ],
+       "displayed_score": 14148.98,
+       "emblems": [
+        {
+         "stat": "madstone",
+         "multiplier": 1.7,
+         "points": 2446.91
+        },
+        {
+         "stat": "runes_grabbed",
+         "multiplier": 1.8,
+         "points": 7370.35
+        },
+        {
+         "stat": "tormentor_kills",
+         "multiplier": 1.6,
+         "points": 4331.71
+        }
+       ]
+      },
+      "support": {
+       "team": "Xtreme Gaming",
+       "players": [
+        "fy",
+        "xNova"
+       ],
+       "displayed_score": 10274.7,
+       "emblems": [
+        {
+         "stat": "lotuses_gained",
+         "multiplier": 2.1,
+         "points": 3511.2
+        },
+        {
+         "stat": "tormentor_kills",
+         "multiplier": 3.0,
+         "points": 3955.5
+        },
+        {
+         "stat": "wards_placed",
+         "multiplier": 1.2,
+         "points": 2808.0
+        }
+       ]
+      }
+     },
+     "coach_title": {
+      "prefix": "Elemental",
+      "suffix": "the Tormented"
+     }
+    },
+    "internal_reconciliation": {
+     "per_role": {
+      "core": {
+       "emblem_count": 3,
+       "sum_of_emblem_points": 12793.79,
+       "displayed_score": 12793.8,
+       "abs_difference": 0.01,
+       "tolerance": 0.02,
+       "within_tolerance": true
+      },
+      "mid": {
+       "emblem_count": 3,
+       "sum_of_emblem_points": 14148.97,
+       "displayed_score": 14148.98,
+       "abs_difference": 0.01,
+       "tolerance": 0.02,
+       "within_tolerance": true
+      },
+      "support": {
+       "emblem_count": 3,
+       "sum_of_emblem_points": 10274.7,
+       "displayed_score": 10274.7,
+       "abs_difference": 0.0,
+       "tolerance": 0.02,
+       "within_tolerance": true
+      }
+     },
+     "sum_of_role_scores": 37217.48,
+     "displayed_total": 37217.47,
+     "abs_difference": 0.01,
+     "tolerance": 0.02,
+     "within_tolerance": true,
+     "all_within_tolerance": true
+    },
+    "frozen_configuration_pin": {
+     "frozen_artifact": "predictions/ti2026/fantasy/account_state_operator_20260812b.json",
+     "source": "tracked",
+     "fields_compared": 16,
+     "mismatches": [],
+     "checked": true,
+     "players_not_recorded_in_frozen_state": [
+      "mid"
+     ],
+     "match": true
+    }
+   },
+   "target": {
+    "account_role": "target",
+    "period": "group_stage",
+    "client_tab": "group stage",
+    "evidence_id": "ti2026-ev-009",
+    "direct_first_party_facts": {
+     "displayed_total": 39692.11,
+     "displayed_percentile_pct": 53.36,
+     "percentile_scope": "the Fantasy leaderboard percentile the client displays for THIS period. It is not an account-level percentile and is never combined across periods.",
+     "roles": {
+      "core": {
+       "team": "Xtreme Gaming",
+       "players": [
+        "Xxs",
+        "Ame"
+       ],
+       "displayed_score": 21393.54,
+       "emblems": [
+        {
+         "stat": "gpm",
+         "multiplier": 1.5,
+         "points": 4388.99
+        },
+        {
+         "stat": "roshan_kills",
+         "multiplier": 2.1,
+         "points": 3987.14
+        },
+        {
+         "stat": "creep_score",
+         "multiplier": 3.2,
+         "points": 13017.41
+        }
+       ]
+      },
+      "mid": {
+       "team": "Team Yandex",
+       "players": [
+        "CHIRA_JUNIOR"
+       ],
+       "displayed_score": 8229.52,
+       "emblems": [
+        {
+         "stat": "deaths",
+         "multiplier": 1.8,
+         "points": 6598.8
+        },
+        {
+         "stat": "wards_placed",
+         "multiplier": 2.1,
+         "points": 1022.11
+        },
+        {
+         "stat": "stuns",
+         "multiplier": 1.7,
+         "points": 608.6
+        }
+       ]
+      },
+      "support": {
+       "team": "Xtreme Gaming",
+       "players": [
+        "xNova",
+        "fy"
+       ],
+       "displayed_score": 10069.05,
+       "emblems": [
+        {
+         "stat": "runes_grabbed",
+         "multiplier": 2.9,
+         "points": 3066.75
+        },
+        {
+         "stat": "first_blood",
+         "multiplier": 1.5,
+         "points": 2901.0
+        },
+        {
+         "stat": "watchers_taken",
+         "multiplier": 1.8,
+         "points": 4101.3
+        }
+       ]
+      }
+     },
+     "coach_title": {
+      "prefix": "Elemental",
+      "suffix": "the Tormented"
+     }
+    },
+    "internal_reconciliation": {
+     "per_role": {
+      "core": {
+       "emblem_count": 3,
+       "sum_of_emblem_points": 21393.54,
+       "displayed_score": 21393.54,
+       "abs_difference": 0.0,
+       "tolerance": 0.02,
+       "within_tolerance": true
+      },
+      "mid": {
+       "emblem_count": 3,
+       "sum_of_emblem_points": 8229.51,
+       "displayed_score": 8229.52,
+       "abs_difference": 0.01,
+       "tolerance": 0.02,
+       "within_tolerance": true
+      },
+      "support": {
+       "emblem_count": 3,
+       "sum_of_emblem_points": 10069.05,
+       "displayed_score": 10069.05,
+       "abs_difference": 0.0,
+       "tolerance": 0.02,
+       "within_tolerance": true
+      }
+     },
+     "sum_of_role_scores": 39692.11,
+     "displayed_total": 39692.11,
+     "abs_difference": 0.0,
+     "tolerance": 0.02,
+     "within_tolerance": true,
+     "all_within_tolerance": true
+    },
+    "frozen_configuration_pin": {
+     "frozen_artifact": "predictions/ti2026/fantasy/account_state_target_20260812d.json",
+     "source": "tracked",
+     "fields_compared": 17,
+     "mismatches": [],
+     "checked": true,
+     "match": true
+    }
+   }
+  },
+  "main_event": {
+   "operator": {
+    "account_role": "operator",
+    "period": "main_event",
+    "client_tab": "main event",
+    "evidence_id": "ti2026-ev-008",
+    "direct_first_party_facts": {
+     "displayed_total": 82839.01,
+     "displayed_percentile_pct": 88.5,
+     "percentile_scope": "the Fantasy leaderboard percentile the client displays for THIS period. It is not an account-level percentile and is never combined across periods.",
+     "roles": {
+      "core": {
+       "team": "PARIVISION",
+       "players": [
+        "Satanic",
+        "No[t]iced"
+       ],
+       "displayed_score": 39415.52,
+       "emblems": [
+        {
+         "stat": "tower_kills",
+         "multiplier": 1.1,
+         "points": 3120.83
+        },
+        {
+         "stat": "teamfight_participation",
+         "multiplier": 2.7,
+         "points": 8280.96
+        },
+        {
+         "stat": "deaths",
+         "multiplier": 3.0,
+         "points": 10448.1
+        },
+        {
+         "stat": "roshan_kills",
+         "multiplier": 2.3,
+         "points": 7170.3
+        },
+        {
+         "stat": "gpm",
+         "multiplier": 3.0,
+         "points": 10395.32
+        }
+       ]
+      },
+      "mid": {
+       "team": "Team Falcons",
+       "players": [
+        "Malr1ne"
+       ],
+       "displayed_score": 25733.9,
+       "emblems": [
+        {
+         "stat": "madstone",
+         "multiplier": 1.8,
+         "points": 1931.9
+        },
+        {
+         "stat": "runes_grabbed",
+         "multiplier": 2.5,
+         "points": 11139.0
+        },
+        {
+         "stat": "tormentor_kills",
+         "multiplier": 2.5,
+         "points": 4395.0
+        },
+        {
+         "stat": "deaths",
+         "multiplier": 2.5,
+         "points": 8268.0
+        },
+        {
+         "stat": "roshan_kills",
+         "multiplier": 1.6,
+         "points": 0.0
+        }
+       ]
+      },
+      "support": {
+       "team": "Team Falcons",
+       "players": [
+        "Cr1t-",
+        "Sneyking"
+       ],
+       "displayed_score": 17689.59,
+       "emblems": [
+        {
+         "stat": "lotuses_grabbed",
+         "multiplier": 1.0,
+         "points": 1611.28
+        },
+        {
+         "stat": "first_blood",
+         "multiplier": 3.0,
+         "points": 0.0
+        },
+        {
+         "stat": "wards_placed",
+         "multiplier": 1.7,
+         "points": 4759.68
+        },
+        {
+         "stat": "teamfight_participation",
+         "multiplier": 1.8,
+         "points": 5612.46
+        },
+        {
+         "stat": "smokes_used",
+         "multiplier": 2.5,
+         "points": 5706.17
+        }
+       ]
+      }
+     },
+     "coach_title": {
+      "prefix": "Otherworldly",
+      "suffix": "the Clutch"
+     }
+    },
+    "internal_reconciliation": {
+     "per_role": {
+      "core": {
+       "emblem_count": 5,
+       "sum_of_emblem_points": 39415.51,
+       "displayed_score": 39415.52,
+       "abs_difference": 0.01,
+       "tolerance": 0.03,
+       "within_tolerance": true
+      },
+      "mid": {
+       "emblem_count": 5,
+       "sum_of_emblem_points": 25733.9,
+       "displayed_score": 25733.9,
+       "abs_difference": 0.0,
+       "tolerance": 0.03,
+       "within_tolerance": true
+      },
+      "support": {
+       "emblem_count": 5,
+       "sum_of_emblem_points": 17689.59,
+       "displayed_score": 17689.59,
+       "abs_difference": 0.0,
+       "tolerance": 0.03,
+       "within_tolerance": true
+      }
+     },
+     "sum_of_role_scores": 82839.01,
+     "displayed_total": 82839.01,
+     "abs_difference": 0.0,
+     "tolerance": 0.02,
+     "within_tolerance": true,
+     "all_within_tolerance": true
+    },
+    "frozen_configuration_pin": {
+     "frozen_artifact": "ti2026-ev-004",
+     "source": "private",
+     "result": "RECORDED",
+     "checked_at": "2026-08-24T07:40:00Z",
+     "fields_compared": 23,
+     "match": true,
+     "method": "coach title prefix and suffix, three teams, three player sets and fifteen ordered (stat, multiplier) emblem pairs, compared against the privately archived final banner state. No score information is used.",
+     "reproducible_without_the_private_archive": false,
+     "re_verified_by": "tests/test_fantasy_settlement.py, which re-runs the live comparison whenever the private archive is mounted and fails on any disagreement"
+    }
+   },
+   "target": {
+    "account_role": "target",
+    "period": "main_event",
+    "client_tab": "main event",
+    "evidence_id": "ti2026-ev-010",
+    "direct_first_party_facts": {
+     "displayed_total": 93454.67,
+     "displayed_percentile_pct": 96.41,
+     "percentile_scope": "the Fantasy leaderboard percentile the client displays for THIS period. It is not an account-level percentile and is never combined across periods.",
+     "roles": {
+      "core": {
+       "team": "PARIVISION",
+       "players": [
+        "No[t]iced",
+        "Satanic"
+       ],
+       "displayed_score": 36051.03,
+       "emblems": [
+        {
+         "stat": "gpm",
+         "multiplier": 1.8,
+         "points": 5806.88
+        },
+        {
+         "stat": "roshan_kills",
+         "multiplier": 1.7,
+         "points": 996.2
+        },
+        {
+         "stat": "creep_score",
+         "multiplier": 3.4,
+         "points": 20282.7
+        },
+        {
+         "stat": "teamfight_participation",
+         "multiplier": 1.5,
+         "points": 4051.25
+        },
+        {
+         "stat": "madstone",
+         "multiplier": 1.8,
+         "points": 4914.0
+        }
+       ]
+      },
+      "mid": {
+       "team": "Team Falcons",
+       "players": [
+        "Malr1ne"
+       ],
+       "displayed_score": 30729.27,
+       "emblems": [
+        {
+         "stat": "deaths",
+         "multiplier": 2.4,
+         "points": 7160.4
+        },
+        {
+         "stat": "runes_grabbed",
+         "multiplier": 2.7,
+         "points": 10438.79
+        },
+        {
+         "stat": "courier_kills",
+         "multiplier": 1.2,
+         "points": 843.6
+        },
+        {
+         "stat": "creep_score",
+         "multiplier": 3.0,
+         "points": 8186.4
+        },
+        {
+         "stat": "first_blood",
+         "multiplier": 2.0,
+         "points": 4100.08
+        }
+       ]
+      },
+      "support": {
+       "team": "Team Yandex",
+       "players": [
+        "Maladych",
+        "Saksa"
+       ],
+       "displayed_score": 26674.37,
+       "emblems": [
+        {
+         "stat": "runes_grabbed",
+         "multiplier": 2.9,
+         "points": 5266.63
+        },
+        {
+         "stat": "first_blood",
+         "multiplier": 1.7,
+         "points": 1643.9
+        },
+        {
+         "stat": "watchers_taken",
+         "multiplier": 1.1,
+         "points": 3318.08
+        },
+        {
+         "stat": "teamfight_participation",
+         "multiplier": 3.0,
+         "points": 10127.75
+        },
+        {
+         "stat": "wards_placed",
+         "multiplier": 1.8,
+         "points": 6318.0
+        }
+       ]
+      }
+     },
+     "coach_title": {
+      "prefix": "Crimson",
+      "suffix": "the Clutch"
+     }
+    },
+    "internal_reconciliation": {
+     "per_role": {
+      "core": {
+       "emblem_count": 5,
+       "sum_of_emblem_points": 36051.03,
+       "displayed_score": 36051.03,
+       "abs_difference": 0.0,
+       "tolerance": 0.03,
+       "within_tolerance": true
+      },
+      "mid": {
+       "emblem_count": 5,
+       "sum_of_emblem_points": 30729.27,
+       "displayed_score": 30729.27,
+       "abs_difference": 0.0,
+       "tolerance": 0.03,
+       "within_tolerance": true
+      },
+      "support": {
+       "emblem_count": 5,
+       "sum_of_emblem_points": 26674.36,
+       "displayed_score": 26674.37,
+       "abs_difference": 0.01,
+       "tolerance": 0.03,
+       "within_tolerance": true
+      }
+     },
+     "sum_of_role_scores": 93454.67,
+     "displayed_total": 93454.67,
+     "abs_difference": 0.0,
+     "tolerance": 0.02,
+     "within_tolerance": true,
+     "all_within_tolerance": true
+    },
+    "frozen_configuration_pin": {
+     "frozen_artifact": "ti2026-ev-005",
+     "source": "private",
+     "result": "RECORDED",
+     "checked_at": "2026-08-24T07:40:00Z",
+     "fields_compared": 23,
+     "match": true,
+     "method": "coach title prefix and suffix, three teams, three player sets and fifteen ordered (stat, multiplier) emblem pairs, compared against the privately archived final banner state. No score information is used.",
+     "reproducible_without_the_private_archive": false,
+     "re_verified_by": "tests/test_fantasy_settlement.py, which re-runs the live comparison whenever the private archive is mounted and fails on any disagreement"
+    }
+   }
+  }
+ },
+ "derived_arithmetic": {
+  "per_period_differences": {
+   "group_stage": {
+    "operator_total": 37217.47,
+    "target_total": 39692.11,
+    "target_minus_operator": 2474.64,
+    "per_role_target_minus_operator": {
+     "core": 8599.74,
+     "mid": -5919.46,
+     "support": -205.65
+    },
+    "sum_of_per_role_differences": 2474.63,
+    "sum_matches_overall_within_display_rounding": true,
+    "role_winner": {
+     "core": "target",
+     "mid": "operator",
+     "support": "operator"
+    },
+    "period_winner": "target"
+   },
+   "main_event": {
+    "operator_total": 82839.01,
+    "target_total": 93454.67,
+    "target_minus_operator": 10615.66,
+    "per_role_target_minus_operator": {
+     "core": -3364.49,
+     "mid": 4995.37,
+     "support": 8984.78
+    },
+    "sum_of_per_role_differences": 10615.66,
+    "sum_matches_overall_within_display_rounding": true,
+    "role_winner": {
+     "core": "operator",
+     "mid": "target",
+     "support": "target"
+    },
+    "period_winner": "target"
+   }
+  },
+  "two_period_arithmetic_sums": {
+   "operator": 120056.48,
+   "target": 133146.78,
+   "target_minus_operator": 13090.3,
+   "label": "arithmetic sum of the two archived Fantasy period totals",
+   "is_official_overall_total": false,
+   "why_not": "no rule text this project verified, and no client view it holds, establishes that the two period scores add to a published overall Fantasy total. The client's own sidebar figure is an account-level event point total, which is a different quantity and is not transcribed. Until an official equivalence is evidenced, this is arithmetic performed here, not a score the client awarded.",
+   "percentiles_are_not_combined": "percentiles are not additive and are never summed, averaged or interpolated across periods. Each period's percentile is reported only against its own period."
+  }
+ },
+ "not_transcribed": [
+  "the account-level event point total and account percentile in the client sidebar",
+  "the friend leaderboard and the global top-100 leaderboard",
+  "display names and avatars"
+ ],
+ "not_evidence_for": [
+  "any bracket prediction result",
+  "an official overall Fantasy total across both periods",
+  "the per-player raw statistics behind any emblem row"
+ ],
+ "phase": "post_event",
+ "post_event_only": true,
+ "observed_after_prediction": true,
+ "valid_production_input": false
+}

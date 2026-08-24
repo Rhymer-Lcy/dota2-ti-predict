@@ -269,6 +269,14 @@ overall event points and percentile in that capture are **not** a Fantasy score 
 as one, and no reconstruction was attempted from public statistics while three official statistics
 remain unobservable.
 
+> **Later addendum, 2026-08-24 — not known when the closure above was written.** Four first-party
+> captures of the settled Fantasy panels (two accounts x two periods) subsequently became available
+> and close that gap: the current status is `OFFICIAL_FANTASY_OUTCOME_ARCHIVED`. The paragraph above
+> is left exactly as sealed. The ordering and all three role directions came out correct, the
+> magnitude did not, and the four `U` terms in the equation above turn out to be real emblems with
+> real values — including a necessary condition that was in fact met without flipping the result. See
+> [`docs/TI2026_FANTASY_SETTLEMENT_ADDENDUM.md`](TI2026_FANTASY_SETTLEMENT_ADDENDUM.md).
+
 ---
 
 ## Evidence / Privacy Architecture

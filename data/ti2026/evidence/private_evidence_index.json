@@ -6,7 +6,7 @@
  "why_this_file_exists": "Raw client captures are load-bearing evidence for this project and are also personally identifying: they show the operator's Steam persona, a friend's display name, avatars, the friend leaderboard and account point totals. None of that is evidence for anything this repository claims. So the raw bytes stay in a private archive and the public repository publishes the sha256 of each original plus a transcription of only the facts the project actually uses. The hash is a commitment: it pins exactly which bytes were read, so a later reviewer can be handed the private file and verify it is the one that was transcribed, without the image ever being published.",
  "raw_evidence_storage": "private_local_external",
  "raw_evidence_public": false,
- "private_archive_layout": "<private evidence root>/ti2026/{pre_event,post_event}/ plus manifest.private.json. The absolute location is deliberately not recorded here; it is an operator-local path.",
+ "private_archive_layout": "<private evidence root>/ti2026/{pre_event,post_event,fantasy}/ plus manifest.private.json. The absolute location is deliberately not recorded here; it is an operator-local path.",
  "repository_local_ingress": "evidence_local/ is git-ignored and exists as a staging area for new private captures before they are moved to the private archive. Nothing in it is ever committed.",
  "trust_boundary": "Transcription from image to text is done by human-reviewed reading, not by runtime OCR. The hash proves the image has not changed since it was read; it does not prove the reading was correct. Any future change to an image invalidates its record until it is re-read.",
  "evidence": [
@@ -209,6 +209,574 @@
     "relation_to_sealed_closure": "this is PROVENANCE for the result already recorded in predictions/ti2026/postmortem/fantasy_closure.json, not a new analytical input. Archiving it changes no Fantasy number and reopens nothing.",
     "account_mapping_basis": "the file states its own review label; the mapping is read from it, not inferred"
    }
+  },
+  {
+   "evidence_id": "ti2026-ev-007",
+   "media_type": "image/png",
+   "sha256": "abbfd8393a87a534e72f2dab5e86d950223ecf862b81bd70f5063487d8a4fe4d",
+   "bytes": 2277719,
+   "pixels": [
+    2048,
+    1152
+   ],
+   "evidence_phase": "post_event",
+   "evidence_scope": "fantasy_settlement",
+   "period": "group_stage",
+   "account_role": "operator",
+   "source_type": "first_party_in_client_capture",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the frame also shows the account's Steam persona, a friend leaderboard with other people's display names, avatars, and the account-level event point total and percentile. None of that is evidence for anything this repository claims.",
+   "used_in_original_production": false,
+   "valid_production_input": false,
+   "production_use": "none. This is post-event truth and must never enter a TI2026 fit.",
+   "observed_after_prediction": true,
+   "capture_time_basis": "not recorded in the image. Bounded below by the settlement of this Fantasy period, which the displayed period score presupposes.",
+   "public_safe_transcription": {
+    "view": "the client Fantasy panel for this period, settled",
+    "period_tab": "group stage",
+    "displayed_total": 37217.47,
+    "displayed_percentile_pct": 44.28,
+    "role_scores": {
+     "core": 12793.8,
+     "mid": 14148.98,
+     "support": 10274.7
+    },
+    "role_deployment": {
+     "core": {
+      "team": "Xtreme Gaming",
+      "players": [
+       "Ame",
+       "Xxs"
+      ]
+     },
+     "mid": {
+      "team": "Team Falcons",
+      "players": [
+       "Malr1ne"
+      ]
+     },
+     "support": {
+      "team": "Xtreme Gaming",
+      "players": [
+       "fy",
+       "xNova"
+      ]
+     }
+    },
+    "coach_title": {
+     "prefix": "Elemental",
+     "suffix": "the Tormented"
+    },
+    "emblems": {
+     "core": [
+      {
+       "stat": "tower_kills",
+       "multiplier": 1.6,
+       "points": 2996.22
+      },
+      {
+       "stat": "teamfight_participation",
+       "multiplier": 2.1,
+       "points": 6622.97
+      },
+      {
+       "stat": "deaths",
+       "multiplier": 1.1,
+       "points": 3174.6
+      }
+     ],
+     "mid": [
+      {
+       "stat": "madstone",
+       "multiplier": 1.7,
+       "points": 2446.91
+      },
+      {
+       "stat": "runes_grabbed",
+       "multiplier": 1.8,
+       "points": 7370.35
+      },
+      {
+       "stat": "tormentor_kills",
+       "multiplier": 1.6,
+       "points": 4331.71
+      }
+     ],
+     "support": [
+      {
+       "stat": "lotuses_gained",
+       "multiplier": 2.1,
+       "points": 3511.2
+      },
+      {
+       "stat": "tormentor_kills",
+       "multiplier": 3.0,
+       "points": 3955.5
+      },
+      {
+       "stat": "wards_placed",
+       "multiplier": 1.2,
+       "points": 2808.0
+      }
+     ]
+    }
+   },
+   "scope_limits": {
+    "one_account_one_period": "this frame is evidence for this account and this period only. It says nothing about the other account, the other period, or any bracket prediction.",
+    "percentile_is_period_scoped": "the percentile shown is the Fantasy leaderboard percentile for this period. It is not the account-level percentile in the sidebar, which is a different quantity and is deliberately not transcribed.",
+    "not_evidence_for": [
+     "bracket prediction settlement",
+     "an official overall Fantasy total across periods",
+     "per-player raw statistics behind any emblem row"
+    ],
+    "no_recomputation_path": "an official Fantasy score cannot be recomputed by this project, so unlike the bracket settlement this figure has one first-party path and no independent derivation. Its only corroboration is the frame's internal consistency: emblem rows sum to the role score and role scores sum to the displayed total, both within display rounding."
+   },
+   "deliberately_not_transcribed": "the account-level event point total and percentile, the friend leaderboard, the global top-100 leaderboard, and all display names and avatars"
+  },
+  {
+   "evidence_id": "ti2026-ev-008",
+   "media_type": "image/png",
+   "sha256": "a4584434c186c8f92821e756c695815c0f8e98faca7c267ebce1220d54ff5c8c",
+   "bytes": 2319007,
+   "pixels": [
+    2048,
+    1152
+   ],
+   "evidence_phase": "post_event",
+   "evidence_scope": "fantasy_settlement",
+   "period": "main_event",
+   "account_role": "operator",
+   "source_type": "first_party_in_client_capture",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the frame also shows the account's Steam persona, a friend leaderboard with other people's display names, avatars, and the account-level event point total and percentile. None of that is evidence for anything this repository claims.",
+   "used_in_original_production": false,
+   "valid_production_input": false,
+   "production_use": "none. This is post-event truth and must never enter a TI2026 fit.",
+   "observed_after_prediction": true,
+   "capture_time_basis": "not recorded in the image. Bounded below by the settlement of this Fantasy period, which the displayed period score presupposes.",
+   "public_safe_transcription": {
+    "view": "the client Fantasy panel for this period, settled",
+    "period_tab": "main event",
+    "displayed_total": 82839.01,
+    "displayed_percentile_pct": 88.5,
+    "role_scores": {
+     "core": 39415.52,
+     "mid": 25733.9,
+     "support": 17689.59
+    },
+    "role_deployment": {
+     "core": {
+      "team": "PARIVISION",
+      "players": [
+       "Satanic",
+       "No[t]iced"
+      ]
+     },
+     "mid": {
+      "team": "Team Falcons",
+      "players": [
+       "Malr1ne"
+      ]
+     },
+     "support": {
+      "team": "Team Falcons",
+      "players": [
+       "Cr1t-",
+       "Sneyking"
+      ]
+     }
+    },
+    "coach_title": {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch"
+    },
+    "emblems": {
+     "core": [
+      {
+       "stat": "tower_kills",
+       "multiplier": 1.1,
+       "points": 3120.83
+      },
+      {
+       "stat": "teamfight_participation",
+       "multiplier": 2.7,
+       "points": 8280.96
+      },
+      {
+       "stat": "deaths",
+       "multiplier": 3.0,
+       "points": 10448.1
+      },
+      {
+       "stat": "roshan_kills",
+       "multiplier": 2.3,
+       "points": 7170.3
+      },
+      {
+       "stat": "gpm",
+       "multiplier": 3.0,
+       "points": 10395.32
+      }
+     ],
+     "mid": [
+      {
+       "stat": "madstone",
+       "multiplier": 1.8,
+       "points": 1931.9
+      },
+      {
+       "stat": "runes_grabbed",
+       "multiplier": 2.5,
+       "points": 11139.0
+      },
+      {
+       "stat": "tormentor_kills",
+       "multiplier": 2.5,
+       "points": 4395.0
+      },
+      {
+       "stat": "deaths",
+       "multiplier": 2.5,
+       "points": 8268.0
+      },
+      {
+       "stat": "roshan_kills",
+       "multiplier": 1.6,
+       "points": 0.0
+      }
+     ],
+     "support": [
+      {
+       "stat": "lotuses_grabbed",
+       "multiplier": 1.0,
+       "points": 1611.28
+      },
+      {
+       "stat": "first_blood",
+       "multiplier": 3.0,
+       "points": 0.0
+      },
+      {
+       "stat": "wards_placed",
+       "multiplier": 1.7,
+       "points": 4759.68
+      },
+      {
+       "stat": "teamfight_participation",
+       "multiplier": 1.8,
+       "points": 5612.46
+      },
+      {
+       "stat": "smokes_used",
+       "multiplier": 2.5,
+       "points": 5706.17
+      }
+     ]
+    }
+   },
+   "scope_limits": {
+    "one_account_one_period": "this frame is evidence for this account and this period only. It says nothing about the other account, the other period, or any bracket prediction.",
+    "percentile_is_period_scoped": "the percentile shown is the Fantasy leaderboard percentile for this period. It is not the account-level percentile in the sidebar, which is a different quantity and is deliberately not transcribed.",
+    "not_evidence_for": [
+     "bracket prediction settlement",
+     "an official overall Fantasy total across periods",
+     "per-player raw statistics behind any emblem row"
+    ],
+    "no_recomputation_path": "an official Fantasy score cannot be recomputed by this project, so unlike the bracket settlement this figure has one first-party path and no independent derivation. Its only corroboration is the frame's internal consistency: emblem rows sum to the role score and role scores sum to the displayed total, both within display rounding."
+   },
+   "deliberately_not_transcribed": "the account-level event point total and percentile, the friend leaderboard, the global top-100 leaderboard, and all display names and avatars"
+  },
+  {
+   "evidence_id": "ti2026-ev-009",
+   "media_type": "image/png",
+   "sha256": "3fc0abd804beb04501c65f32c3ce17789cccfc4538d1982da417c53ea4278ee3",
+   "bytes": 2330127,
+   "pixels": [
+    2048,
+    1152
+   ],
+   "evidence_phase": "post_event",
+   "evidence_scope": "fantasy_settlement",
+   "period": "group_stage",
+   "account_role": "target",
+   "source_type": "first_party_in_client_capture",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the frame also shows the account's Steam persona, a friend leaderboard with other people's display names, avatars, and the account-level event point total and percentile. None of that is evidence for anything this repository claims.",
+   "used_in_original_production": false,
+   "valid_production_input": false,
+   "production_use": "none. This is post-event truth and must never enter a TI2026 fit.",
+   "observed_after_prediction": true,
+   "capture_time_basis": "not recorded in the image. Bounded below by the settlement of this Fantasy period, which the displayed period score presupposes.",
+   "public_safe_transcription": {
+    "view": "the client Fantasy panel for this period, settled",
+    "period_tab": "group stage",
+    "displayed_total": 39692.11,
+    "displayed_percentile_pct": 53.36,
+    "role_scores": {
+     "core": 21393.54,
+     "mid": 8229.52,
+     "support": 10069.05
+    },
+    "role_deployment": {
+     "core": {
+      "team": "Xtreme Gaming",
+      "players": [
+       "Xxs",
+       "Ame"
+      ]
+     },
+     "mid": {
+      "team": "Team Yandex",
+      "players": [
+       "CHIRA_JUNIOR"
+      ]
+     },
+     "support": {
+      "team": "Xtreme Gaming",
+      "players": [
+       "xNova",
+       "fy"
+      ]
+     }
+    },
+    "coach_title": {
+     "prefix": "Elemental",
+     "suffix": "the Tormented"
+    },
+    "emblems": {
+     "core": [
+      {
+       "stat": "gpm",
+       "multiplier": 1.5,
+       "points": 4388.99
+      },
+      {
+       "stat": "roshan_kills",
+       "multiplier": 2.1,
+       "points": 3987.14
+      },
+      {
+       "stat": "creep_score",
+       "multiplier": 3.2,
+       "points": 13017.41
+      }
+     ],
+     "mid": [
+      {
+       "stat": "deaths",
+       "multiplier": 1.8,
+       "points": 6598.8
+      },
+      {
+       "stat": "wards_placed",
+       "multiplier": 2.1,
+       "points": 1022.11
+      },
+      {
+       "stat": "stuns",
+       "multiplier": 1.7,
+       "points": 608.6
+      }
+     ],
+     "support": [
+      {
+       "stat": "runes_grabbed",
+       "multiplier": 2.9,
+       "points": 3066.75
+      },
+      {
+       "stat": "first_blood",
+       "multiplier": 1.5,
+       "points": 2901.0
+      },
+      {
+       "stat": "watchers_taken",
+       "multiplier": 1.8,
+       "points": 4101.3
+      }
+     ]
+    }
+   },
+   "scope_limits": {
+    "one_account_one_period": "this frame is evidence for this account and this period only. It says nothing about the other account, the other period, or any bracket prediction.",
+    "percentile_is_period_scoped": "the percentile shown is the Fantasy leaderboard percentile for this period. It is not the account-level percentile in the sidebar, which is a different quantity and is deliberately not transcribed.",
+    "not_evidence_for": [
+     "bracket prediction settlement",
+     "an official overall Fantasy total across periods",
+     "per-player raw statistics behind any emblem row"
+    ],
+    "no_recomputation_path": "an official Fantasy score cannot be recomputed by this project, so unlike the bracket settlement this figure has one first-party path and no independent derivation. Its only corroboration is the frame's internal consistency: emblem rows sum to the role score and role scores sum to the displayed total, both within display rounding."
+   },
+   "deliberately_not_transcribed": "the account-level event point total and percentile, the friend leaderboard, the global top-100 leaderboard, and all display names and avatars"
+  },
+  {
+   "evidence_id": "ti2026-ev-010",
+   "media_type": "image/png",
+   "sha256": "5cfb43273e518d6c988cef0ffb80fe385359c27069c4ba475f90c9684ae9eebf",
+   "bytes": 2358904,
+   "pixels": [
+    2048,
+    1152
+   ],
+   "evidence_phase": "post_event",
+   "evidence_scope": "fantasy_settlement",
+   "period": "main_event",
+   "account_role": "target",
+   "source_type": "first_party_in_client_capture",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the frame also shows the account's Steam persona, a friend leaderboard with other people's display names, avatars, and the account-level event point total and percentile. None of that is evidence for anything this repository claims.",
+   "used_in_original_production": false,
+   "valid_production_input": false,
+   "production_use": "none. This is post-event truth and must never enter a TI2026 fit.",
+   "observed_after_prediction": true,
+   "capture_time_basis": "not recorded in the image. Bounded below by the settlement of this Fantasy period, which the displayed period score presupposes.",
+   "public_safe_transcription": {
+    "view": "the client Fantasy panel for this period, settled",
+    "period_tab": "main event",
+    "displayed_total": 93454.67,
+    "displayed_percentile_pct": 96.41,
+    "role_scores": {
+     "core": 36051.03,
+     "mid": 30729.27,
+     "support": 26674.37
+    },
+    "role_deployment": {
+     "core": {
+      "team": "PARIVISION",
+      "players": [
+       "No[t]iced",
+       "Satanic"
+      ]
+     },
+     "mid": {
+      "team": "Team Falcons",
+      "players": [
+       "Malr1ne"
+      ]
+     },
+     "support": {
+      "team": "Team Yandex",
+      "players": [
+       "Maladych",
+       "Saksa"
+      ]
+     }
+    },
+    "coach_title": {
+     "prefix": "Crimson",
+     "suffix": "the Clutch"
+    },
+    "emblems": {
+     "core": [
+      {
+       "stat": "gpm",
+       "multiplier": 1.8,
+       "points": 5806.88
+      },
+      {
+       "stat": "roshan_kills",
+       "multiplier": 1.7,
+       "points": 996.2
+      },
+      {
+       "stat": "creep_score",
+       "multiplier": 3.4,
+       "points": 20282.7
+      },
+      {
+       "stat": "teamfight_participation",
+       "multiplier": 1.5,
+       "points": 4051.25
+      },
+      {
+       "stat": "madstone",
+       "multiplier": 1.8,
+       "points": 4914.0
+      }
+     ],
+     "mid": [
+      {
+       "stat": "deaths",
+       "multiplier": 2.4,
+       "points": 7160.4
+      },
+      {
+       "stat": "runes_grabbed",
+       "multiplier": 2.7,
+       "points": 10438.79
+      },
+      {
+       "stat": "courier_kills",
+       "multiplier": 1.2,
+       "points": 843.6
+      },
+      {
+       "stat": "creep_score",
+       "multiplier": 3.0,
+       "points": 8186.4
+      },
+      {
+       "stat": "first_blood",
+       "multiplier": 2.0,
+       "points": 4100.08
+      }
+     ],
+     "support": [
+      {
+       "stat": "runes_grabbed",
+       "multiplier": 2.9,
+       "points": 5266.63
+      },
+      {
+       "stat": "first_blood",
+       "multiplier": 1.7,
+       "points": 1643.9
+      },
+      {
+       "stat": "watchers_taken",
+       "multiplier": 1.1,
+       "points": 3318.08
+      },
+      {
+       "stat": "teamfight_participation",
+       "multiplier": 3.0,
+       "points": 10127.75
+      },
+      {
+       "stat": "wards_placed",
+       "multiplier": 1.8,
+       "points": 6318.0
+      }
+     ]
+    }
+   },
+   "scope_limits": {
+    "one_account_one_period": "this frame is evidence for this account and this period only. It says nothing about the other account, the other period, or any bracket prediction.",
+    "percentile_is_period_scoped": "the percentile shown is the Fantasy leaderboard percentile for this period. It is not the account-level percentile in the sidebar, which is a different quantity and is deliberately not transcribed.",
+    "not_evidence_for": [
+     "bracket prediction settlement",
+     "an official overall Fantasy total across periods",
+     "per-player raw statistics behind any emblem row"
+    ],
+    "no_recomputation_path": "an official Fantasy score cannot be recomputed by this project, so unlike the bracket settlement this figure has one first-party path and no independent derivation. Its only corroboration is the frame's internal consistency: emblem rows sum to the role score and role scores sum to the displayed total, both within display rounding."
+   },
+   "deliberately_not_transcribed": "the account-level event point total and percentile, the friend leaderboard, the global top-100 leaderboard, and all display names and avatars"
   }
  ],
  "settlement_provenance": {
@@ -260,12 +828,25 @@
   "forward_control": "a test fails if any NEW tracked file carries the name, and fails again if the register of affected files goes stale",
   "if_removal_is_later_requested": "if the affected person explicitly asks for stronger removal, handle it as a separate privacy and history-rewrite operation, not as part of TI2026 scientific archival work. It is deliberately not performed here."
  },
- "excluded_from_this_file": [
-  "absolute filesystem paths to the private archive",
-  "account or friend display names",
-  "avatars or any person identity",
-  "Steam or account identifiers",
-  "leaderboard entries",
-  "account point totals and percentile"
- ]
+  "fantasy_settlement_provenance": {
+   "claim": "the official Fantasy period settlement for two accounts across both TI2026 periods",
+   "evidence_ids": [
+    "ti2026-ev-007",
+    "ti2026-ev-008",
+    "ti2026-ev-009",
+    "ti2026-ev-010"
+   ],
+   "independent_paths": 1,
+   "why_only_one": "an official Fantasy score cannot be recomputed from any source this project holds: madstone, watchers_taken and lotuses_grabbed are unobservable in public match data. The bracket settlement's three-way agreement has no counterpart here.",
+   "corroboration_available": "within-frame only: each frame's emblem rows sum to its role score and its role scores sum to its displayed total, both within display rounding. Enforced in code.",
+   "status": "single first-party path, internally consistent"
+  },
+  "excluded_from_this_file": [
+   "absolute filesystem paths to the private archive",
+   "account or friend display names",
+   "avatars or any person identity",
+   "Steam or account identifiers",
+   "leaderboard entries",
+   "the account-level event point total and account percentile shown in the client sidebar. This is NOT the Fantasy period score or its Fantasy-leaderboard percentile, which are archived as settlement facts under evidence ids ti2026-ev-007 to ti2026-ev-010."
+  ]
 }

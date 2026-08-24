@@ -1,0 +1,514 @@
+{
+ "schema_version": 1,
+ "event": "The International 2026 (TI15)",
+ "record": "post-seal Fantasy settlement addendum",
+ "created_at": "2026-08-24T07:40:00Z",
+ "update_type": "post_seal_first_party_evidence_addendum",
+ "original_closure_status": "OFFICIAL_FANTASY_OUTCOME_NOT_ARCHIVED",
+ "current_status": "OFFICIAL_FANTASY_OUTCOME_ARCHIVED",
+ "what_this_is_not": [
+  "not a reopening of Fantasy research, optimisation, rerolls or model selection",
+  "not a re-fit: no coefficient, value table or decision rule was touched",
+  "not a correction of the sealed closure, which remains valid as the knowledge state it recorded",
+  "not a calibration claim: two accounts over two periods cannot support one"
+ ],
+ "sealed_artifacts_untouched": [
+  "predictions/ti2026/postmortem/fantasy_closure.json",
+  "predictions/ti2026/fantasy/",
+  "predictions/ti2026/playoffs/ti15_main_event_prediction.json"
+ ],
+ "evidence": [
+  {
+   "evidence_id": "ti2026-ev-007",
+   "account_role": "operator",
+   "period": "group_stage",
+   "sha256": "abbfd8393a87a534e72f2dab5e86d950223ecf862b81bd70f5063487d8a4fe4d",
+   "raw_evidence_public": false
+  },
+  {
+   "evidence_id": "ti2026-ev-008",
+   "account_role": "operator",
+   "period": "main_event",
+   "sha256": "a4584434c186c8f92821e756c695815c0f8e98faca7c267ebce1220d54ff5c8c",
+   "raw_evidence_public": false
+  },
+  {
+   "evidence_id": "ti2026-ev-009",
+   "account_role": "target",
+   "period": "group_stage",
+   "sha256": "3fc0abd804beb04501c65f32c3ce17789cccfc4538d1982da417c53ea4278ee3",
+   "raw_evidence_public": false
+  },
+  {
+   "evidence_id": "ti2026-ev-010",
+   "account_role": "target",
+   "period": "main_event",
+   "sha256": "5cfb43273e518d6c988cef0ffb80fe385359c27069c4ba475f90c9684ae9eebf",
+   "raw_evidence_public": false
+  }
+ ],
+ "account_mapping": {
+  "status": "ACCOUNT_MAPPING_PROVEN",
+  "mapping": {
+   "account_a": "operator",
+   "account_b": "target"
+  },
+  "supports": [
+   {
+    "review_label": "account_a",
+    "account_role": "operator",
+    "evidence_id_of_frozen_state": "ti2026-ev-004",
+    "label_published_in_evidence_index": "account_a",
+    "settlement_frame": "ti2026-ev-008",
+    "configuration_fields_compared": 23,
+    "configuration_match": true,
+    "configuration_evidence": "RECORDED"
+   },
+   {
+    "review_label": "account_b",
+    "account_role": "target",
+    "evidence_id_of_frozen_state": "ti2026-ev-005",
+    "label_published_in_evidence_index": "account_b",
+    "settlement_frame": "ti2026-ev-010",
+    "configuration_fields_compared": 23,
+    "configuration_match": true,
+    "configuration_evidence": "RECORDED"
+   }
+  ],
+  "unresolved": [],
+  "score_information_used": false,
+  "why_score_information_is_not_used": "mapping accounts by which realized total is closer to which projection would assume the conclusion the comparison is supposed to test",
+  "what_stays_unpublished": "which real person holds which account. That mapping is operator-held; nothing here publishes a display name, avatar or account identifier."
+ },
+ "configuration_pins": {
+  "operator/group_stage": {
+   "frozen_artifact": "predictions/ti2026/fantasy/account_state_operator_20260812b.json",
+   "source": "tracked",
+   "fields_compared": 16,
+   "mismatches": [],
+   "checked": true,
+   "players_not_recorded_in_frozen_state": [
+    "mid"
+   ],
+   "match": true
+  },
+  "operator/main_event": {
+   "frozen_artifact": "ti2026-ev-004",
+   "source": "private",
+   "result": "RECORDED",
+   "checked_at": "2026-08-24T07:40:00Z",
+   "fields_compared": 23,
+   "match": true,
+   "method": "coach title prefix and suffix, three teams, three player sets and fifteen ordered (stat, multiplier) emblem pairs, compared against the privately archived final banner state. No score information is used.",
+   "reproducible_without_the_private_archive": false,
+   "re_verified_by": "tests/test_fantasy_settlement.py, which re-runs the live comparison whenever the private archive is mounted and fails on any disagreement"
+  },
+  "target/group_stage": {
+   "frozen_artifact": "predictions/ti2026/fantasy/account_state_target_20260812d.json",
+   "source": "tracked",
+   "fields_compared": 17,
+   "mismatches": [],
+   "checked": true,
+   "match": true
+  },
+  "target/main_event": {
+   "frozen_artifact": "ti2026-ev-005",
+   "source": "private",
+   "result": "RECORDED",
+   "checked_at": "2026-08-24T07:40:00Z",
+   "fields_compared": 23,
+   "match": true,
+   "method": "coach title prefix and suffix, three teams, three player sets and fifteen ordered (stat, multiplier) emblem pairs, compared against the privately archived final banner state. No score information is used.",
+   "reproducible_without_the_private_archive": false,
+   "re_verified_by": "tests/test_fantasy_settlement.py, which re-runs the live comparison whenever the private archive is mounted and fails on any disagreement"
+  }
+ },
+ "official_results": {
+  "group_stage": {
+   "operator": {
+    "total": 37217.47,
+    "percentile_pct": 44.28,
+    "roles": {
+     "core": 12793.8,
+     "mid": 14148.98,
+     "support": 10274.7
+    }
+   },
+   "target": {
+    "total": 39692.11,
+    "percentile_pct": 53.36,
+    "roles": {
+     "core": 21393.54,
+     "mid": 8229.52,
+     "support": 10069.05
+    }
+   }
+  },
+  "main_event": {
+   "operator": {
+    "total": 82839.01,
+    "percentile_pct": 88.5,
+    "roles": {
+     "core": 39415.52,
+     "mid": 25733.9,
+     "support": 17689.59
+    }
+   },
+   "target": {
+    "total": 93454.67,
+    "percentile_pct": 96.41,
+    "roles": {
+     "core": 36051.03,
+     "mid": 30729.27,
+     "support": 26674.37
+    }
+   }
+  }
+ },
+ "derived_differences": {
+  "group_stage": {
+   "operator_total": 37217.47,
+   "target_total": 39692.11,
+   "target_minus_operator": 2474.64,
+   "per_role_target_minus_operator": {
+    "core": 8599.74,
+    "mid": -5919.46,
+    "support": -205.65
+   },
+   "sum_of_per_role_differences": 2474.63,
+   "sum_matches_overall_within_display_rounding": true,
+   "role_winner": {
+    "core": "target",
+    "mid": "operator",
+    "support": "operator"
+   },
+   "period_winner": "target"
+  },
+  "main_event": {
+   "operator_total": 82839.01,
+   "target_total": 93454.67,
+   "target_minus_operator": 10615.66,
+   "per_role_target_minus_operator": {
+    "core": -3364.49,
+    "mid": 4995.37,
+    "support": 8984.78
+   },
+   "sum_of_per_role_differences": 10615.66,
+   "sum_matches_overall_within_display_rounding": true,
+   "role_winner": {
+    "core": "operator",
+    "mid": "target",
+    "support": "target"
+   },
+   "period_winner": "target"
+  }
+ },
+ "two_period_arithmetic_sums": {
+  "operator": 120056.48,
+  "target": 133146.78,
+  "target_minus_operator": 13090.3,
+  "label": "arithmetic sum of the two archived Fantasy period totals",
+  "is_official_overall_total": false,
+  "why_not": "no rule text this project verified, and no client view it holds, establishes that the two period scores add to a published overall Fantasy total. The client's own sidebar figure is an account-level event point total, which is a different quantity and is not transcribed. Until an official equivalence is evidenced, this is arithmetic performed here, not a score the client awarded.",
+  "percentiles_are_not_combined": "percentiles are not additive and are never summed, averaged or interpolated across periods. Each period's percentile is reported only against its own period."
+ },
+ "frozen_vs_realized": {
+  "main_event": {
+   "period": "main_event",
+   "frozen_estimate": {
+    "source": "predictions/ti2026/postmortem/fantasy_closure.json",
+    "estimator": "observed-data plug-in on the deployed configuration at the sealed final state",
+    "unit": "projected Fantasy points under the project's own value model",
+    "read_not_recomputed": true,
+    "per_account": {
+     "operator": 73679.8,
+     "target": 76934.1
+    },
+    "difference_target_minus_operator": 3254.3,
+    "semantics": "an observed-data plug-in on the deployed configuration, NOT a complete expected-value forecast: three official statistics were excluded from it by construction and contribute zero to it by exclusion, not by evidence."
+   },
+   "realized": {
+    "per_account": {
+     "operator": 82839.01,
+     "target": 93454.67
+    },
+    "difference_target_minus_operator": 10615.66
+   },
+   "account_ordering": {
+    "predicted": "target > operator",
+    "realized": "target > operator",
+    "direction_correct": true
+   },
+   "role_directions": {
+    "core": {
+     "predicted_winner": "operator",
+     "realized_winner": "operator",
+     "realized_difference_target_minus_operator": -3364.49,
+     "direction_correct": true
+    },
+    "mid": {
+     "predicted_winner": "target",
+     "realized_winner": "target",
+     "realized_difference_target_minus_operator": 4995.37,
+     "direction_correct": true
+    },
+    "support": {
+     "predicted_winner": "target",
+     "realized_winner": "target",
+     "realized_difference_target_minus_operator": 8984.78,
+     "direction_correct": true
+    }
+   },
+   "role_directions_correct": 3,
+   "role_directions_total": 3,
+   "gap_decomposition": {
+    "identity": "realized_gap = frozen_estimate_gap + excluded_term_gap + residual",
+    "frozen_estimate_gap": 3254.3,
+    "excluded_term_gap": 4688.9,
+    "residual": 2672.46,
+    "realized_gap": 10615.66,
+    "exact_by_construction": true,
+    "residual_meaning": "projection error on the terms the estimator DID score, plus any difference in which series ended up being each role's best. It is not separable further from a settlement view, and it is not a calibration statistic.",
+    "rounding_note": "the sealed gap is recorded to one decimal, so the residual inherits that precision"
+   },
+   "level_difference": {
+    "operator_realized_minus_frozen": 9159.21,
+    "target_realized_minus_frozen": 16520.57,
+    "is_model_error": false,
+    "why_not": "the estimator omitted three official statistics by construction, so its level is a projection of a strict subset of the score. Calling the gap between it and the full official total 'error' would charge the estimator for terms it never claimed to include. No calibration claim is made, and none is supportable from two accounts."
+   },
+   "excluded_terms": {
+    "unobservable_statistics": [
+     "lotuses_grabbed",
+     "madstone",
+     "watchers_taken"
+    ],
+    "per_account": {
+     "operator": {
+      "emblems": [
+       {
+        "role": "mid",
+        "stat": "madstone",
+        "multiplier": 1.8,
+        "points": 1931.9
+       },
+       {
+        "role": "support",
+        "stat": "lotuses_grabbed",
+        "multiplier": 1.0,
+        "points": 1611.28
+       }
+      ],
+      "points_total": 3543.18
+     },
+     "target": {
+      "emblems": [
+       {
+        "role": "core",
+        "stat": "madstone",
+        "multiplier": 1.8,
+        "points": 4914.0
+       },
+       {
+        "role": "support",
+        "stat": "watchers_taken",
+        "multiplier": 1.1,
+        "points": 3318.08
+       }
+      ],
+      "points_total": 8232.08
+     }
+    },
+    "target_minus_operator": 4688.9,
+    "equation_from_the_sealed_closure": "delta_full(B - A) = +3254.3 + U_B_madstone + U_B_watchers - U_A_madstone - U_A_lotuses",
+    "necessary_condition_check": {
+     "condition": "U_A_madstone + U_A_lotuses > 3254.3",
+     "realized_left_hand_side": 3543.18,
+     "threshold": 3254.3,
+     "condition_met": true,
+     "outcome": "the NECESSARY condition was met and account_a still did not overturn account_b, which is exactly what the sealed record said the condition could not settle: it was necessary, not sufficient, because account_b's unobserved terms were unbounded too and turned out to be the larger pair."
+    },
+    "status_change_for_observability": "these statistics remain unobservable from public match data. The settlement view makes their SCORED CONTRIBUTION visible after the fact for these four banners only; it does not make the underlying per-player counts retrievable, and it arrives long after any decision it could have informed."
+   }
+  },
+  "group_stage": {
+   "period": "group_stage",
+   "status": "NO_FROZEN_PRE_EVENT_FORECAST",
+   "what_was_searched": [
+    "predictions/ti2026/postmortem/fantasy_closure.json",
+    "predictions/ti2026/fantasy/preselection_20260810.json",
+    "predictions/ti2026/fantasy/preselection_20260811_go.json",
+    "predictions/ti2026/fantasy/preselection_20260811_hold.json",
+    "predictions/ti2026/fantasy/team_change_experiment_20260812.json",
+    "predictions/ti2026/fantasy/coach_pricing_20260812.json"
+   ],
+   "finding": "no sealed artifact records a projected two-account group-stage total or gap. The sealed plug-in comparison is the Main Event one, and its per-role winners are the Main Event ones.",
+   "consequence": "the group-stage settlement is archived as fact and is NOT scored against a forecast. Constructing a group-stage projection now would be a post-hoc fit to a known answer."
+  }
+ },
+ "structural_attribution": {
+  "group_stage": {
+   "per_role": {
+    "core": {
+     "same_team": true,
+     "same_player_set": true,
+     "same_coach_title": true,
+     "operator_team": "Xtreme Gaming",
+     "target_team": "Xtreme Gaming",
+     "difference_target_minus_operator": 8599.74,
+     "attribution": "emblem construction only - the two accounts fielded the same players in this role AND carried the same coach title, so the underlying per-player statistics and the title amplification are identical and the entire difference is the banner built on them",
+     "identifiable": true,
+     "isolates_emblem_construction": true
+    },
+    "mid": {
+     "same_team": false,
+     "same_player_set": false,
+     "same_coach_title": true,
+     "operator_team": "Team Falcons",
+     "target_team": "Team Yandex",
+     "difference_target_minus_operator": -5919.46,
+     "attribution": "confounded - the accounts differed in BOTH the players fielded and the banner built on them, and a settlement view cannot separate the two",
+     "identifiable": false,
+     "isolates_emblem_construction": false
+    },
+    "support": {
+     "same_team": true,
+     "same_player_set": true,
+     "same_coach_title": true,
+     "operator_team": "Xtreme Gaming",
+     "target_team": "Xtreme Gaming",
+     "difference_target_minus_operator": -205.65,
+     "attribution": "emblem construction only - the two accounts fielded the same players in this role AND carried the same coach title, so the underlying per-player statistics and the title amplification are identical and the entire difference is the banner built on them",
+     "identifiable": true,
+     "isolates_emblem_construction": true
+    }
+   },
+   "share_of_period_gap": {
+    "core": 3.4751,
+    "mid": -2.392,
+    "support": -0.0831
+   },
+   "share_note": "a descriptive decomposition of the realized difference. Shares can exceed 1 or be negative when roles pull in opposite directions.",
+   "coach_titles": {
+    "operator": {
+     "prefix": "Elemental",
+     "suffix": "the Tormented"
+    },
+    "target": {
+     "prefix": "Elemental",
+     "suffix": "the Tormented"
+    }
+   },
+   "coach_titles_identical": true
+  },
+  "main_event": {
+   "per_role": {
+    "core": {
+     "same_team": true,
+     "same_player_set": true,
+     "same_coach_title": false,
+     "operator_team": "PARIVISION",
+     "target_team": "PARIVISION",
+     "difference_target_minus_operator": -3364.49,
+     "attribution": "emblem construction and coach title jointly - the two accounts fielded the same players in this role, so no part of this difference can be a player-selection effect, but the coach titles differed and a settlement view cannot split the two",
+     "identifiable": true,
+     "isolates_emblem_construction": false
+    },
+    "mid": {
+     "same_team": true,
+     "same_player_set": true,
+     "same_coach_title": false,
+     "operator_team": "Team Falcons",
+     "target_team": "Team Falcons",
+     "difference_target_minus_operator": 4995.37,
+     "attribution": "emblem construction and coach title jointly - the two accounts fielded the same players in this role, so no part of this difference can be a player-selection effect, but the coach titles differed and a settlement view cannot split the two",
+     "identifiable": true,
+     "isolates_emblem_construction": false
+    },
+    "support": {
+     "same_team": false,
+     "same_player_set": false,
+     "same_coach_title": false,
+     "operator_team": "Team Falcons",
+     "target_team": "Team Yandex",
+     "difference_target_minus_operator": 8984.78,
+     "attribution": "confounded - the accounts differed in BOTH the players fielded and the banner built on them, and a settlement view cannot separate the two",
+     "identifiable": false,
+     "isolates_emblem_construction": false
+    }
+   },
+   "share_of_period_gap": {
+    "core": -0.3169,
+    "mid": 0.4706,
+    "support": 0.8464
+   },
+   "share_note": "a descriptive decomposition of the realized difference. Shares can exceed 1 or be negative when roles pull in opposite directions.",
+   "coach_titles": {
+    "operator": {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch"
+    },
+    "target": {
+     "prefix": "Crimson",
+     "suffix": "the Clutch"
+    }
+   },
+   "coach_titles_identical": false
+  }
+ },
+ "zero_scoring_emblems": {
+  "operator/group_stage": {
+   "zero_scoring_emblems": [],
+   "emblem_slots": 9,
+   "zero_share": 0.0
+  },
+  "operator/main_event": {
+   "zero_scoring_emblems": [
+    {
+     "role": "mid",
+     "stat": "roshan_kills",
+     "multiplier": 1.6
+    },
+    {
+     "role": "support",
+     "stat": "first_blood",
+     "multiplier": 3.0
+    }
+   ],
+   "emblem_slots": 15,
+   "zero_share": 0.1333
+  },
+  "target/group_stage": {
+   "zero_scoring_emblems": [],
+   "emblem_slots": 9,
+   "zero_share": 0.0
+  },
+  "target/main_event": {
+   "zero_scoring_emblems": [],
+   "emblem_slots": 15,
+   "zero_share": 0.0
+  }
+ },
+ "unknowns": {
+  "per_player_raw_statistics": "UNKNOWN - the settlement shows scored points per emblem, not the underlying counts",
+  "which_series_set_each_role_period_score": "UNKNOWN - the role-period score is the best series, and the frames do not say which",
+  "opportunity_from_number_of_games": "UNKNOWN where the teams differed; not separable from banner construction in the support role",
+  "group_stage_forecast_accuracy": "NOT APPLICABLE - no frozen two-account group-stage forecast exists",
+  "leaderboard_population": "UNCHANGED - the closure's refusal to model the Fantasy leaderboard population stands; the client's own percentile is archived as a displayed fact, not as an estimate"
+ },
+ "does_not_prove": [
+  "that the Fantasy value model is calibrated - the level comparison is not an error measurement, because three statistics were excluded from the estimator by construction",
+  "that the decision rule was right - two accounts, one event, one realization",
+  "that any 2027 parameter should change - nothing here is a tuning signal",
+  "that the group-stage outcome validates or refutes anything: it had no frozen forecast"
+ ],
+ "ti2027_implication": {
+  "action": "capture the settlement view for every Fantasy period and every compared account, immediately after each period settles",
+  "why": "the settlement view is the only artifact that exposes the scored contribution of statistics that are unobservable from public match data, and it exposes points per emblem, which is a free exact check on the value model. TI2026 obtained it only after the closure was sealed.",
+  "not_a_parameter_change": true
+ },
+ "phase": "post_event",
+ "post_event_only": true,
+ "observed_after_prediction": true,
+ "valid_production_input": false
+}

@@ -283,11 +283,15 @@ def test_production_modules_do_not_reference_the_post_event_namespace():
     The needle is the full namespace path, not the bare word: 'outcomes' is an ordinary dict key in
     several modules, meaning 'possible results of a node', and has nothing to do with the archive.
     """
-    allowed = {"postmortem.py", "chronology.py", "ti2026_record.py"}
+    # The allowlist is the set of POST-EVENT modules. Adding one to it is only safe because the
+    # needles below also forbid every production module from importing an allowed module, so a
+    # post-event namespace cannot re-enter production indirectly either.
+    allowed = {"postmortem.py", "chronology.py", "ti2026_record.py", "fantasy_settlement.py"}
     needles = [d for d in ch.POST_EVENT_DIRS]
     needles += [d.replace("/", os.sep) for d in ch.POST_EVENT_DIRS]
     needles += ["from ti_predict import postmortem", "ti_predict.postmortem",
-                "from ti_predict import ti2026_record"]
+                "from ti_predict import ti2026_record",
+                "from ti_predict import fantasy_settlement", "ti_predict.fantasy_settlement"]
     offenders = []
     for root, _dirs, files in os.walk(os.path.join(REPO, "ti_predict")):
         if "__pycache__" in root:
