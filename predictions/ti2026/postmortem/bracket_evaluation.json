@@ -431,7 +431,7 @@
   "per_node_agrees": true,
   "per_node_marks_checked": 14,
   "official_points_displayed_by_client": null,
-  "official_points_basis": "the client displays the 8/14 count for this track but shows no points figure for it. The 4320 points quoted throughout this project is DERIVED: it is entry 8 of the committed 15-entry Main Event scoring vector in data/ti2026/inputs/prediction_questions.json. It is not a transcription of anything visible in the capture."
+  "official_points_basis": "This capture frames the bracket page. It directly shows the 8/14 count for this track, the 6/16 count for the group track, and a settlement mark on every one of the 14 nodes; it does not include the client's settlement summary panel, so no points figure appears anywhere in the frame. The 4320 quoted throughout this project is therefore DERIVED here: it is entry 8 of the committed 15-entry Main Event scoring vector in data/ti2026/inputs/prediction_questions.json, reached deterministically from the frozen slate and the realized node winners. The operator reports that the client's own settlement summary panel states 8 correct, 6 incorrect and +4,320 directly. That panel is not part of this frame, and this index records only what this frame shows; archiving the points figure as a direct first-party transcription requires a capture of that panel. See INC-16."
  },
  "expected_vs_realized": {
   "expected_correct_pre_event": 5.109,

@@ -100,11 +100,18 @@ clinches the node's declared best-of, so that source could not have entered sile
 committed 15-entry scoring vector - never copied from the client - then cross-checked against the
 first-party settlement, which is a hard gate: a mismatch aborts.
 
-> A note on provenance, because it matters more than the number. The capture displays the **8/14
-> count** and a per-node check or cross on every node. It does **not** display a points figure for
-> this track. **4320 is derived** - it is entry 8 of the committed scoring vector - and the evidence
-> index records that explicitly rather than claiming it was seen. The number is right; its
-> provenance is derivation, not transcription.
+> A note on provenance, because it is weaker than it could be. The archived capture frames the
+> bracket page: it **directly shows** the 8/14 count, the group-stage 6/16 count and a settlement
+> check or cross on **every one of the 14 nodes**. It does not include the client's settlement
+> summary panel, so no points figure appears in that frame. **4320 is therefore derived here** -
+> entry 8 of the committed scoring vector, reached deterministically from the frozen slate and the
+> realized winners.
+>
+> The operator reports that the client's own settlement summary states 8 correct, 6 incorrect and
+> **+4,320** directly. That panel is not part of the archived bytes, so the index records only what
+> those bytes show. The value is not in doubt - the count it keys on is directly transcribed and
+> agrees node by node - but it currently rests on **one** verified path where **two** were
+> available. Archiving a capture of that panel would close it (INC-16).
 
 The client also settles the group-stage track at **6 of 16**, against a pre-event expectation of
 5.249. Recorded for completeness; the same N = 1 caveat applies with even less force at one draw.
@@ -285,12 +292,24 @@ architecture separates those two facts:
 The declared trust boundary is unchanged: the hash proves an image has not changed since it was read.
 It does not prove the reading was correct.
 
-**One open privacy item.** Seven tracked pre-event Fantasy state files carry the friend account's
-client display name inside a rendered `compendium_player_title` string. They were committed and
-pushed long before this phase. Both remedies are out of scope here - editing them mutates frozen
-pre-event evidence, and removing them means rewriting a published branch, which cannot recall
-existing clones or forks. The exposure is therefore **registered** (INC-19) with an exact file list
-and enforced by a test that fails if it ever spreads to a new file. **It needs an operator decision.**
+**Legacy identity exposure — resolved.** A display-name exposure exists in frozen pre-event Fantasy
+state files that were committed and pushed before this archival began. The decision is
+**`ACCEPTED_LEGACY_EXPOSURE_PRESERVE_HISTORY`**: preserve history rather than rewrite it, because the
+exposure is already published, a rewrite would break published commit identities and the
+reproduction they anchor, it could not recall existing clones or forks anyway, and the value is a
+display nickname rather than a datum any conclusion depends on. Forward control is the effective
+remedy: the exposure is registered with an exact file list and a test fails if it reaches any new
+artifact, or if the register goes stale. Nothing was edited, rewritten or force-pushed. If the
+affected person later asks for stronger removal, that is a separate privacy operation, not part of
+this scientific archive (INC-19).
+
+**Final Fantasy banner states.** The two screenshot-derived final states underlying the sealed
+two-account comparison existed only in a session scratch directory and would have been lost. They
+are now in the private archive under `ti2026/fantasy/final_states/` as `account_a` /
+`account_b`, byte-preserving, with an anonymised derivative alongside each raw original. Their
+sha256 values and a public-safe summary are in the evidence index. They are **provenance for** the
+sealed result, not new inputs to it: no Fantasy number or conclusion changes because they are now
+durable.
 
 ---
 
@@ -316,9 +335,11 @@ that changed how the project works:
 - **INC-11/13, Fantasy observability.** Three official statistics turned out to be unobservable, and
   the first response was to fill the gap with an aggregate ratio used as a rate. Withdrawn. The terms
   are now symbolic and unbounded. **UNKNOWN is a valid value.**
-- **INC-16, a fact remembered as observed.** The archival brief stated the settlement capture shows
-  "+4320". It does not; 4320 is derived. The conclusion is unchanged and the provenance is now
-  recorded correctly. *Look at the artifact again before recording that you saw something in it.*
+- **INC-16, a provenance gap, not a numeric one.** The archived capture is the bracket view and does
+  not include the client's settlement summary panel, so the points figure is derived rather than
+  read. No number moves — the 8/14 count is directly transcribed and agrees node by node — but 4320
+  rests on one verified path where two were available. *When one screen reports several fields you
+  will quote, capture the panel that shows them together.*
 - **INC-17/18, structural checks caught two real errors during archival.** A secondary source
   reported best-of-5 scores (rejected by the clinch assertion), and the first node-assignment attempt
   failed because PARIVISION and Team Spirit played twice - the participant pair is not a unique key

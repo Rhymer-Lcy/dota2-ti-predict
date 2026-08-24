@@ -553,6 +553,85 @@ def test_fantasy_closure_does_not_claim_an_official_settlement():
     assert "account_a" in blob and "account_b" in blob
 
 
+def test_settlement_transcription_and_derivation_agree():
+    """The directly transcribed count and the derived score must be one consistent story.
+
+    8 and 6 are read straight off the capture. 4320 is derived from the committed scoring vector.
+    The two are only worth quoting together if the derivation keys on the transcribed count, so
+    that link is asserted rather than assumed.
+    """
+    idx = json.load(open(pm.SETTLEMENT, encoding="utf-8"))
+    e = next(x for x in idx["evidence"] if x["evidence_id"] == "ti2026-ev-003")
+    s = e["public_safe_transcription"]["main_event_prediction_settlement"]
+    assert s["correct_predictions"] == OFFICIAL_CORRECT
+    assert s["incorrect_predictions"] == OFFICIAL_INCORRECT
+    assert s["total_predictions"] == 14
+    assert s["correct_predictions"] + s["incorrect_predictions"] == s["total_predictions"]
+    vec = bk.verify_scoring_vector()["vector"]
+    assert vec[s["correct_predictions"]] == OFFICIAL_SCORE
+    ev = pm.build()["official_evaluation"]
+    assert ev["official_correct"] == s["correct_predictions"]
+    assert ev["official_incorrect"] == s["incorrect_predictions"]
+    assert ev["official_score"] == vec[s["correct_predictions"]] == OFFICIAL_SCORE
+
+
+def test_points_provenance_is_stated_as_derived_for_this_capture_only():
+    """The archive must not claim the client shows no points figure - only that this frame does not.
+
+    The distinction is the whole content of INC-16: a statement about one archived frame is
+    verifiable from the bytes, a statement about the client is not.
+    """
+    idx = json.load(open(pm.SETTLEMENT, encoding="utf-8"))
+    e = next(x for x in idx["evidence"] if x["evidence_id"] == "ti2026-ev-003")
+    s = e["public_safe_transcription"]["main_event_prediction_settlement"]
+    assert s["official_points_visible_in_this_capture"] is False
+    basis = s["official_points_basis"]
+    assert "DERIVED" in basis
+    assert "settlement summary panel" in basis
+    for overreach in ("the client displays no points",
+                      "the client shows no points figure",
+                      "shows no points figure for it"):
+        assert overreach not in basis, f"over-broad claim about the client: {overreach!r}"
+
+
+def test_final_fantasy_states_are_indexed_privately_and_anonymously():
+    idx = json.load(open(pm.SETTLEMENT, encoding="utf-8"))
+    by_id = {e["evidence_id"]: e for e in idx["evidence"]}
+    for eid, label, tokens in (("ti2026-ev-004", "account_a", 0), ("ti2026-ev-005", "account_b", 2)):
+        e = by_id[eid]
+        assert e["media_type"] == "application/json"
+        assert len(e["sha256"]) == 64
+        assert e["raw_evidence_public"] is False
+        assert e["raw_evidence_storage"] == "private_local_external"
+        assert e["public_account_label"] == label
+        assert e["evidence_phase"] == "pre_event"
+        assert e["observed_after_prediction"] is False
+        t = e["public_safe_transcription"]
+        assert t["remaining_reroll_tokens"] == tokens
+        assert t["role_banners"] == ["core", "mid", "support"]
+        assert t["emblem_slots_per_banner"] == 5
+        blob = json.dumps(e, ensure_ascii=False)
+        for needle in _leak_needles():
+            assert needle not in blob, f"{eid} leaks {needle!r}"
+
+
+def test_legacy_exposure_decision_is_recorded():
+    from ti_predict import ti2026_record as rc
+    idx = json.load(open(pm.SETTLEMENT, encoding="utf-8"))
+    leg = idx["legacy_identity_exposure"]
+    assert leg["status"] == "ACCEPTED_LEGACY_EXPOSURE_PRESERVE_HISTORY"
+    assert leg["incident"] == "INC-19"
+    assert leg["forward_control"]
+    assert leg["if_removal_is_later_requested"]
+    inc = next(i for i in rc.INCIDENTS if i["id"] == "INC-19")
+    assert inc["status"] == "RESOLVED - ACCEPTED_LEGACY_EXPOSURE_PRESERVE_HISTORY"
+    assert inc["resolution"]["forward_control_retained"] is True
+    # the decision record must describe the exposure generically, never by repeating the name
+    for needle in _identity_needles():
+        assert needle not in json.dumps(leg, ensure_ascii=False)
+        assert needle not in json.dumps(inc, ensure_ascii=False)
+
+
 def test_the_settlement_capture_is_not_read_as_a_fantasy_score():
     idx = json.load(open(pm.SETTLEMENT, encoding="utf-8"))
     e = next(x for x in idx["evidence"] if x["evidence_id"] == "ti2026-ev-003")
@@ -560,6 +639,9 @@ def test_the_settlement_capture_is_not_read_as_a_fantasy_score():
     assert "main_event_prediction_settlement" in t
     assert "fantasy" not in json.dumps(t["main_event_prediction_settlement"]).lower()
     assert t["main_event_prediction_settlement"]["official_points_displayed_by_client"] is None
+    assert json.load(open(os.path.join(pm.POSTMORTEM_DIR, "fantasy_closure.json"),
+                          encoding="utf-8"))["realized_fantasy_outcome"]["status"] == \
+        "OFFICIAL_FANTASY_OUTCOME_NOT_ARCHIVED"
 
 
 # --------------------------------------------------------------------------- 20 untouched local artifact

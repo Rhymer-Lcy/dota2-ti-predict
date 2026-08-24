@@ -89,7 +89,9 @@
      "incorrect_predictions": 6,
      "total_predictions": 14,
      "official_points_displayed_by_client": null,
-     "official_points_basis": "the client displays the 8/14 count for this track but shows no points figure for it. The 4320 points quoted throughout this project is DERIVED: it is entry 8 of the committed 15-entry Main Event scoring vector in data/ti2026/inputs/prediction_questions.json. It is not a transcription of anything visible in the capture.",
+     "official_points_visible_in_this_capture": false,
+     "official_points_basis": "This capture frames the bracket page. It directly shows the 8/14 count for this track, the 6/16 count for the group track, and a settlement mark on every one of the 14 nodes; it does not include the client's settlement summary panel, so no points figure appears anywhere in the frame. The 4320 quoted throughout this project is therefore DERIVED here: it is entry 8 of the committed 15-entry Main Event scoring vector in data/ti2026/inputs/prediction_questions.json, reached deterministically from the frozen slate and the realized node winners. The operator reports that the client's own settlement summary panel states 8 correct, 6 incorrect and +4,320 directly. That panel is not part of this frame, and this index records only what this frame shows; archiving the points figure as a direct first-party transcription requires a capture of that panel. See INC-16.",
+     "coverage_basis": "the whole 3840x2160 frame was re-examined at native resolution in six tiles during the 2026-08-24 archival correction; the file is a single-frame PNG with no alpha and no hidden frame.",
      "per_node_credit": {
       "801": true,
       "802": true,
@@ -118,8 +120,75 @@
     },
     "deliberately_not_transcribed": "the account's overall event point total and percentile, the friend leaderboard and all display names and avatars. The overall point total is NOT a Main Event prediction score and NOT a Fantasy score, and must never be read as either."
    }
+  },
+  {
+   "evidence_id": "ti2026-ev-004",
+   "media_type": "application/json",
+   "sha256": "efc425aa2706e003bebfd9b9b465e9cf0a46fbe0c88e67ac0d11cf27d6777220",
+   "bytes": 5619,
+   "evidence_phase": "pre_event",
+   "source_type": "hand transcription of a first-party Dota 2 client screenshot, operator-supplied",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the transcription names the account holder",
+   "public_account_label": "account_a",
+   "used_in_original_production": true,
+   "production_use": "the final deployed period-1 banner state underlying the sealed two-account Fantasy comparison",
+   "observed_after_prediction": false,
+   "public_safe_transcription": {
+    "what_it_is": "the FINAL deployed period-1 Fantasy banner state for account_a: three role banners (core, mid, support), five emblem slots each, plus the coach title prefix and suffix",
+    "remaining_reroll_tokens": 0,
+    "role_banners": ["core", "mid", "support"],
+    "emblem_slots_per_banner": 5,
+    "relation_to_sealed_closure": "this is PROVENANCE for the result already recorded in predictions/ti2026/postmortem/fantasy_closure.json, not a new analytical input. Archiving it changes no Fantasy number and reopens nothing.",
+    "account_mapping_basis": "the file states its own review label; the mapping is read from it, not inferred"
+   }
+  },
+  {
+   "evidence_id": "ti2026-ev-005",
+   "media_type": "application/json",
+   "sha256": "952391b447c55c1e6e1e6b5052a26498d1f97d88fc2aa97fd01bd1caf4841647",
+   "bytes": 5631,
+   "evidence_phase": "pre_event",
+   "source_type": "hand transcription of a first-party Dota 2 client screenshot, operator-supplied",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the transcription names the account holder, who for this entry is a third party rather than the operator",
+   "public_account_label": "account_b",
+   "used_in_original_production": true,
+   "production_use": "the final deployed period-1 banner state underlying the sealed two-account Fantasy comparison",
+   "observed_after_prediction": false,
+   "public_safe_transcription": {
+    "what_it_is": "the FINAL deployed period-1 Fantasy banner state for account_b: three role banners (core, mid, support), five emblem slots each, plus the coach title prefix and suffix",
+    "remaining_reroll_tokens": 2,
+    "role_banners": ["core", "mid", "support"],
+    "emblem_slots_per_banner": 5,
+    "relation_to_sealed_closure": "this is PROVENANCE for the result already recorded in predictions/ti2026/postmortem/fantasy_closure.json, not a new analytical input. Archiving it changes no Fantasy number and reopens nothing.",
+    "account_mapping_basis": "the file states its own review label; the mapping is read from it, not inferred"
+   }
   }
  ],
+ "legacy_identity_exposure": {
+  "status": "ACCEPTED_LEGACY_EXPOSURE_PRESERVE_HISTORY",
+  "incident": "INC-19",
+  "what": "a legacy display-name exposure in frozen pre-event Fantasy state files, published before the post-event archival began",
+  "decision": "preserve history; do not rewrite it",
+  "rationale": [
+   "the exposure already exists in published Git history",
+   "rewriting history would break published commit identities and the reproduction they anchor",
+   "a rewrite could not recall existing clones, forks or caches in any case",
+   "the value is a display nickname, not a datum any conclusion depends on",
+   "forward controls that stop it spreading are the effective remedy here"
+  ],
+  "forward_control": "a test fails if any NEW tracked file carries the name, and fails again if the register of affected files goes stale",
+  "if_removal_is_later_requested": "if the affected person explicitly asks for stronger removal, handle it as a separate privacy and history-rewrite operation, not as part of TI2026 scientific archival work. It is deliberately not performed here."
+ },
  "excluded_from_this_file": [
   "absolute filesystem paths to the private archive",
   "account or friend display names",

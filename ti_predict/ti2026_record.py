@@ -252,22 +252,40 @@ INCIDENTS = [
     },
     {
         "id": "INC-16",
-        "title": "a stated fact about the settlement capture was not in the capture",
-        "symptom": "the archival brief stated that the client screenshot displays 8 correct, 6 "
-                   "incorrect and +4320 points. The capture shows the 8/14 count and a per-node "
-                   "mark on every node; it displays no points figure for that track at all",
-        "root_cause": "4320 is a derived quantity - entry 8 of the committed scoring vector - and "
-                      "had been carried in prose long enough to be remembered as something seen",
+        "title": "the archived settlement capture does not include the client's settlement summary panel",
+        "symptom": "the operator reports that the client's settlement summary states 8 correct, 6 "
+                   "incorrect and +4,320 directly. The capture that was archived frames the "
+                   "bracket page: it directly shows the 8/14 count, the group-stage 6/16 count and "
+                   "a settlement mark on all 14 nodes, but carries no points figure anywhere in "
+                   "the frame",
+        "root_cause": "the archived frame and the summary panel are two different client views, "
+                      "and only the bracket view was captured. On the archival side, the first "
+                      "pass also under-described this - it reported the absence as if the client "
+                      "showed no points figure at all, rather than as a property of this one frame",
         "load_bearing": True,
-        "impact_on_submitted_decision": "none, and the archived conclusion is unchanged: 4320 is "
-                                        "correct, but it is DERIVED from the committed scoring "
-                                        "vector rather than transcribed from the image. The "
-                                        "evidence index records that distinction explicitly",
-        "fix": "transcribe only what is visible; mark derived quantities as derived",
-        "prevention_ti2027": "before recording a fact as observed, look at the artifact again. A "
-                             "number that is right can still have the wrong provenance",
-        "check": "the evidence index stores official_points_displayed_by_client = null next to "
-                 "official_points_basis explaining the derivation",
+        "impact_on_submitted_decision": "none, and no number moves. 4320 is independently correct: "
+                                        "it is entry 8 of the committed scoring vector, reached "
+                                        "deterministically from the frozen slate and the realized "
+                                        "node winners, and the 8/14 count it keys on IS directly "
+                                        "transcribed from the capture and agrees node by node. "
+                                        "What is affected is the STRENGTH of the provenance - "
+                                        "4320 currently rests on one verified path (derivation) "
+                                        "where two were available (derivation plus a direct "
+                                        "first-party reading)",
+        "fix": "the evidence index records exactly what this frame contains, marks the points "
+               "figure as not visible in it, and states plainly that a capture of the settlement "
+               "summary panel would upgrade 4320 to dual provenance. Nothing is transcribed that "
+               "the archived bytes do not show",
+        "prevention_ti2027": "when one client screen reports several fields the pipeline will "
+                             "quote, capture the panel that shows them together and transcribe "
+                             "each field directly. Where a field must instead be derived, say so "
+                             "next to it - a number that is right can still have weaker provenance "
+                             "than it deserves",
+        "check": "the evidence index stores official_points_visible_in_this_capture=false beside "
+                 "official_points_basis, and a test asserts the derived score equals the scoring "
+                 "vector entry for the directly transcribed count",
+        "status": "OPEN - resolvable by archiving a capture of the settlement summary panel, which "
+                  "would give 4320 direct first-party provenance alongside the derivation",
     },
     {
         "id": "INC-17",
@@ -288,10 +306,11 @@ INCIDENTS = [
     },
     {
         "id": "INC-19",
-        "title": "the friend account's display name is embedded in seven tracked Fantasy state files",
-        "symptom": "seven pre-event Fantasy account-state artifacts contain the target account's "
+        "title": "a legacy display-name exposure in frozen pre-event Fantasy state files",
+        "symptom": "seven pre-event Fantasy account-state artifacts carry an account holder's "
                    "client display name inside the rendered compendium_player_title string, which "
-                   "embeds the account name in the title text",
+                   "embeds the account name in the title text. The account is a third party, not "
+                   "the operator",
         "root_cause": "the client's title string was transcribed verbatim into the state file. The "
                       "field was captured for its title semantics; nobody noticed it also carries "
                       "an identity",
@@ -312,7 +331,26 @@ INCIDENTS = [
         "check": "tests/test_postmortem.py::test_client_identity_does_not_spread_beyond_the_known"
                  "_exposure fails on any new tracked file carrying the name, and also fails if the "
                  "register goes stale",
-        "status": "OPEN - operator decision required on whether to act on already-published content",
+        "status": "RESOLVED - ACCEPTED_LEGACY_EXPOSURE_PRESERVE_HISTORY",
+        "resolution": {
+            "decision": "preserve history; do not rewrite it",
+            "decided_by": "operator, 2026-08-24",
+            "rationale": [
+                "the exposure already exists in published Git history",
+                "rewriting history would break published commit identities and the reproduction "
+                "they anchor",
+                "a rewrite could not recall existing clones, forks or caches in any case",
+                "the value is a display nickname, not a datum any conclusion depends on",
+                "forward controls that stop it spreading are the effective remedy here",
+            ],
+            "what_was_not_done": ["editing the frozen files", "rewriting origin/main history",
+                                  "force pushing", "retroactive destructive anonymisation"],
+            "forward_control_retained": True,
+            "if_removal_is_later_requested": "if the affected person explicitly asks for stronger "
+                                             "removal, handle it as a separate privacy and "
+                                             "history-rewrite operation, not as part of TI2026 "
+                                             "scientific archival work",
+        },
     },
     {
         "id": "INC-18",
@@ -352,10 +390,15 @@ KNOWN_LIMITATIONS = [
     "The in-client settlement is first-party but singular: there is one capture, and the trust "
     "boundary is human review of it. The hash proves the bytes have not changed since review; it "
     "cannot prove the review read them correctly.",
-    "OPEN, and it needs an operator decision: seven tracked pre-event Fantasy state files carry the "
-    "friend account's client display name, and they are already published. See INC-19. The "
-    "post-event archive added by this phase is clean and a test now prevents the exposure "
-    "spreading, but nothing this phase is permitted to do can un-publish the existing files.",
+    "A legacy display-name exposure exists in frozen pre-event Fantasy state files that were "
+    "published before this archival began. The operator decided to preserve history rather than "
+    "rewrite it (INC-19, ACCEPTED_LEGACY_EXPOSURE_PRESERVE_HISTORY); the exposure is registered, "
+    "bounded to an exact file list, and prevented by test from reaching any new artifact.",
+    "The points figure for the Main Event prediction track is DERIVED from the committed scoring "
+    "vector rather than transcribed: the archived client capture frames the bracket page and does "
+    "not include the client's settlement summary panel. The count it keys on (8 of 14) IS directly "
+    "transcribed and agrees node by node, so the value is not in doubt - only its provenance is "
+    "single-path rather than dual. See INC-16.",
 ]
 
 REUSABLE_LESSONS = [
