@@ -7,7 +7,34 @@ at risk). Goal: place in the top reward tier of the global leaderboard.
 Method reuses the calibrated-probability approach from the archived soccer `odds-pipeline`
 (market de-vig via Shin, cross-checked by an independent model), adapted to esports series.
 
-## Status (2026-08-16) — **GROUP STAGE LOCKED**; **MAIN-EVENT BRACKET READY**; Fantasy period 0 operationally set
+## Status (2026-08-24) — **TI2026 CLOSED AND ARCHIVED**
+
+The tournament is over and the project is closed. **Team Spirit** won TI2026, beating TEAM VISION
+(PARIVISION) 3-2 in the Grand Final. The in-client settlement credits our 14-slot bracket at
+**8 correct / 6 incorrect, 4320 points**, against a pre-event expectation of 5.109 correct / 2288.5
+points — one draw from a distribution the model itself gave a 19.5% chance of reaching. **N = 1: no
+parameter was changed on the strength of it.**
+
+The result that does generalise: **the production optimiser's scoring functional was
+specification-consistent with the client.** Node-by-node recomputation reproduces the client's
+settlement exactly, so the objective all 16,384 slates were ranked by is the objective the client pays.
+
+- **Read first:** [`docs/TI2026_POSTMORTEM.md`](docs/TI2026_POSTMORTEM.md) — what was predicted, what
+  happened, which misses were local versus propagated, and what none of it proves.
+- **Run it again:** [`docs/TI2027_REUSE_PROTOCOL.md`](docs/TI2027_REUSE_PROTOCOL.md) — an operational
+  checklist plus the hard-code inventory.
+- **Machine-readable:** [`predictions/ti2026/postmortem/`](predictions/ti2026/postmortem/) and
+  [`data/ti2026/outcomes/`](data/ti2026/outcomes/).
+
+**Chronology contract.** Pre-event artifacts are immutable historical evidence; post-event truth lives
+only in `data/ti2026/outcomes/` and `predictions/ti2026/postmortem/`, and
+[`ti_predict/chronology.py`](ti_predict/chronology.py) fails closed if either reaches a production
+fit. When TI2026 is used as history in a later season, ingest it through that season's own pipeline —
+never by mutating the frozen 2026 snapshot.
+
+Everything below this line describes the state at prediction time and is preserved as written.
+
+## Pre-event status (2026-08-16) — **GROUP STAGE LOCKED**; **MAIN-EVENT BRACKET READY**; Fantasy period 0 operationally set
 - **Contest rules: verified** (official Valve in-client TI15 activity, not a third-party game). The
   group prediction is a full **16-slot classification** — 4-0 x1, 4-1 x2, decider-win x5,
   decider-loss x5, 1-4 x2, 0-4 x1 — scored by number correct (convex `f(K)`, no penalty, no underdog
@@ -97,6 +124,8 @@ ti_predict/      package: swiss.py (group-stage sim), assign.py (16-slot solver)
                  topology + exact 2^14 enumeration), seating_evidence.py (hash-pinned
                  seeded-participant gate), sequential_assimilation.py, slate_compare.py,
                  predict_main_event.py
+                 post-event: chronology.py (pre/post-event boundary, fails closed),
+                 postmortem.py (evaluator), ti2026_record.py (incidents and lessons)
 backtest2/       historical rolling-origin validation framework (plan, manifests, Phase-3 compare)
 data/            gitignored except inputs/ — see data/README.md
   ti2026/
@@ -104,10 +133,14 @@ data/            gitignored except inputs/ — see data/README.md
                  fantasy/fantasy_rules.json (+ odds/questions screenshots→csv)
     raw/         OpenDota pulls etc. (gitignored, regenerable)
     processed/   cleaned tables / rating snapshots (gitignored)
+    outcomes/    POST-EVENT truth (never a production input) — see docs/TI2026_POSTMORTEM.md
+    evidence/    public index of privately-held first-party captures (hash + safe transcription)
 predictions/     our published picks, TRACKED — see predictions/README.md
   ti2026/
     group-stage/ Swiss predictions
     playoffs/    bracket predictions
+    postmortem/  POST-EVENT evaluation (never a production input)
+evidence_local/  git-ignored ingress for private client captures; canonical storage is external
 ```
 
 ## Run
@@ -123,6 +156,10 @@ python -m ti_predict.seating_evidence      # verify the archived seeded-particip
 python -m ti_predict.sequential_assimilation --sweep   # within-league early->late diagnostic
 python -m ti_predict.slate_compare --node 810 --draws 40000  # paired near-tie resolution
 python -m ti_predict.predict_main_event --draws 1000   # the 14-slot bracket slate (~5 min)
+
+python -m ti_predict.chronology            # print the pre/post-event namespace contract
+python -m ti_predict.postmortem            # post-event evaluation + machine-readable postmortem
+python -m pytest tests/test_postmortem.py  # archive, chronology, privacy and immutability gates
 ```
 The official slate is produced only at the cutoff via `predict_ti15 --official` — see
 [`docs/lockday-runbook.md`](docs/lockday-runbook.md). OpenDota needs no key; STRATZ token (optional)
