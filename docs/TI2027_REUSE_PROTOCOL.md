@@ -190,6 +190,11 @@ Archive, with timestamps and hashes, before each lock:
       participants, with **no sequential updating** in the primary evaluation. Label point estimates
       as point estimates.
 - [ ] Score only the comparators the production run already recorded. **No ex-post strategy search.**
+- [ ] **Capture the Fantasy settlement view for every period and every compared account, immediately
+      after each period settles.** It is the only artifact that shows the scored contribution of
+      statistics that are unobservable in public match data, and it shows points per emblem, which is
+      a free exact check on the value model. TI2026 got it only after the closure was sealed, so four
+      terms had to be carried symbolically to the end.
 - [ ] State what is N = 1 and change nothing on the strength of it.
 
 ---

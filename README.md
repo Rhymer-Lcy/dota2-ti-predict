@@ -21,6 +21,11 @@ settlement exactly, so the objective all 16,384 slates were ranked by is the obj
 
 - **Read first:** [`docs/TI2026_POSTMORTEM.md`](docs/TI2026_POSTMORTEM.md) — what was predicted, what
   happened, which misses were local versus propagated, and what none of it proves.
+- **Fantasy settlement (2026-08-24 addendum):**
+  [`docs/TI2026_FANTASY_SETTLEMENT_ADDENDUM.md`](docs/TI2026_FANTASY_SETTLEMENT_ADDENDUM.md) — four
+  first-party captures closed the `OFFICIAL_FANTASY_OUTCOME_NOT_ARCHIVED` gap after the seal.
+  Ordering and all three role directions correct, magnitude not; the sealed closure is preserved
+  unchanged and the addendum is additive.
 - **Run it again:** [`docs/TI2027_REUSE_PROTOCOL.md`](docs/TI2027_REUSE_PROTOCOL.md) — an operational
   checklist plus the hard-code inventory.
 - **Machine-readable:** [`predictions/ti2026/postmortem/`](predictions/ti2026/postmortem/) and
@@ -125,7 +130,8 @@ ti_predict/      package: swiss.py (group-stage sim), assign.py (16-slot solver)
                  seeded-participant gate), sequential_assimilation.py, slate_compare.py,
                  predict_main_event.py
                  post-event: chronology.py (pre/post-event boundary, fails closed),
-                 postmortem.py (evaluator), ti2026_record.py (incidents and lessons)
+                 postmortem.py (evaluator), ti2026_record.py (incidents and lessons),
+                 fantasy_settlement.py (post-seal Fantasy settlement addendum)
 backtest2/       historical rolling-origin validation framework (plan, manifests, Phase-3 compare)
 data/            gitignored except inputs/ — see data/README.md
   ti2026/
@@ -159,7 +165,9 @@ python -m ti_predict.predict_main_event --draws 1000   # the 14-slot bracket sla
 
 python -m ti_predict.chronology            # print the pre/post-event namespace contract
 python -m ti_predict.postmortem            # post-event evaluation + machine-readable postmortem
-python -m pytest tests/test_postmortem.py  # archive, chronology, privacy and immutability gates
+python -m ti_predict.fantasy_settlement    # official Fantasy settlement archive + addendum
+python -m pytest tests/test_postmortem.py tests/test_fantasy_settlement.py   # archive, chronology,
+                                           # privacy and immutability gates
 ```
 The official slate is produced only at the cutoff via `predict_ti15 --official` — see
 [`docs/lockday-runbook.md`](docs/lockday-runbook.md). OpenDota needs no key; STRATZ token (optional)
