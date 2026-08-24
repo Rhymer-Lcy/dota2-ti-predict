@@ -7,8 +7,15 @@ __pycache__/
 .venv/
 venv/
 
-# Large / regenerable data: raw API pulls, processed snapshots, model caches
-/data/*/raw/
+# Large / regenerable data: raw API pulls, processed snapshots, model caches.
+# The raw directory is excluded by CONTENTS, not as a directory, because git never descends
+# into an excluded directory and a negation below it would silently do nothing.
+/data/*/raw/*
+# ...except the saved Valve league feed. It is NOT regenerable: it is a snapshot of a feed for
+# a tournament that is now over, it is the sole source of the main-event bracket topology, and
+# the frozen production artifact fingerprints it by sha256. Without it the main-event pipeline
+# and the whole post-event evaluation cannot run from a clone.
+!/data/*/raw/league_*_feed.json
 /data/*/processed/
 *.joblib
 *.npz
@@ -28,3 +35,11 @@ Thumbs.db
 # generated backtest reports
 backtest2/reports/
 /data/*/snapshot_*/
+
+# Local private-evidence ingress. Raw Dota 2 client captures identify the operator and a friend,
+# so they are staged here and then moved to the external private archive; nothing here is ever
+# committed. The public repository carries only each capture's sha256 and a privacy-safe
+# transcription (data/ti2026/evidence/private_evidence_index.json). Deliberately narrow: no blanket
+# image ignore, because the one published privacy-preserving crop under data/ti2026/inputs/ MUST
+# stay tracked - a frozen production gate hashes it.
+/evidence_local/

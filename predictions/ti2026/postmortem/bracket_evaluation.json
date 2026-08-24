@@ -1,0 +1,904 @@
+{
+ "schema_version": 1,
+ "event": "The International 2026 (TI15)",
+ "record": "post-event evaluation of the frozen TI2026 Main Event bracket prediction",
+ "created_at": "2026-08-24T02:42:00Z",
+ "deterministic": true,
+ "network_used_by_this_evaluation": false,
+ "production_prediction_artifact": "predictions/ti2026/playoffs/ti15_main_event_prediction.json",
+ "production_prediction_status": "OFFICIAL",
+ "production_code_commit": "0f6c691",
+ "production_generated_at": "2026-08-17T09:41:58+00:00",
+ "production_data_cutoff": "2026-08-16T12:00:00+00:00",
+ "frozen_model": {
+  "family": "B-bt",
+  "half_life_days": 90,
+  "lambda": 1.0,
+  "calibration": "none",
+  "map_prob": "side-neutral 0.5*(sigmoid(d+c)+sigmoid(d-c))",
+  "radiant_c": 0.094,
+  "weighting": "1/series_size (series cap)",
+  "frozen": true,
+  "reopened_for_ti15": false
+ },
+ "selections_source": "read from the committed pre-event artifact; this module holds no second copy of the slate",
+ "outcome_source": "data/ti2026/outcomes/main_event_results.json",
+ "frozen_state_source": "predictions/ti2026/postmortem/frozen_serve_state.json",
+ "frozen_state_verification": {
+  "claim": "this state reproduces every conditional_win_prob stored in the committed pre-event artifact",
+  "checked": 14,
+  "worst_absolute_difference": 0.0,
+  "tolerance": 1e-12,
+  "passed": true
+ },
+ "official_evaluation": {
+  "nodes": [
+   {
+    "selection_id": 801,
+    "node_id": 14,
+    "round": "UBQF",
+    "client_series": "Upper Bracket Round 1 Match 1",
+    "best_of": 3,
+    "submitted_pick": "Team Spirit",
+    "predicted_matchup": [
+     "Team Spirit",
+     "Tundra Esports"
+    ],
+    "realized_matchup": [
+     "Team Spirit",
+     "Tundra Esports"
+    ],
+    "realized_winner": "Team Spirit",
+    "realized_loser": "Tundra Esports",
+    "realized_score": "2-0",
+    "start_time_utc": "2026-08-20T02:30:00Z",
+    "official_credit": true,
+    "pick_was_a_participant": true,
+    "matchup_as_predicted": true,
+    "classification": "OFFICIAL_CORRECT_PATH_EXACT"
+   },
+   {
+    "selection_id": 802,
+    "node_id": 15,
+    "round": "UBQF",
+    "client_series": "Upper Bracket Round 1 Match 2",
+    "best_of": 3,
+    "submitted_pick": "PARIVISION",
+    "predicted_matchup": [
+     "BetBoom Team",
+     "PARIVISION"
+    ],
+    "realized_matchup": [
+     "BetBoom Team",
+     "PARIVISION"
+    ],
+    "realized_winner": "PARIVISION",
+    "realized_loser": "BetBoom Team",
+    "realized_score": "2-1",
+    "start_time_utc": "2026-08-20T05:45:00Z",
+    "official_credit": true,
+    "pick_was_a_participant": true,
+    "matchup_as_predicted": true,
+    "classification": "OFFICIAL_CORRECT_PATH_EXACT"
+   },
+   {
+    "selection_id": 803,
+    "node_id": 16,
+    "round": "UBQF",
+    "client_series": "Upper Bracket Round 1 Match 3",
+    "best_of": 3,
+    "submitted_pick": "Team Yandex",
+    "predicted_matchup": [
+     "Team Liquid",
+     "Team Yandex"
+    ],
+    "realized_matchup": [
+     "Team Liquid",
+     "Team Yandex"
+    ],
+    "realized_winner": "Team Yandex",
+    "realized_loser": "Team Liquid",
+    "realized_score": "2-0",
+    "start_time_utc": "2026-08-20T10:30:00Z",
+    "official_credit": true,
+    "pick_was_a_participant": true,
+    "matchup_as_predicted": true,
+    "classification": "OFFICIAL_CORRECT_PATH_EXACT"
+   },
+   {
+    "selection_id": 804,
+    "node_id": 17,
+    "round": "UBQF",
+    "client_series": "Upper Bracket Round 1 Match 4",
+    "best_of": 3,
+    "submitted_pick": "Team Falcons",
+    "predicted_matchup": [
+     "Nigma Galaxy",
+     "Team Falcons"
+    ],
+    "realized_matchup": [
+     "Nigma Galaxy",
+     "Team Falcons"
+    ],
+    "realized_winner": "Nigma Galaxy",
+    "realized_loser": "Team Falcons",
+    "realized_score": "2-1",
+    "start_time_utc": "2026-08-20T13:20:00Z",
+    "official_credit": false,
+    "pick_was_a_participant": true,
+    "matchup_as_predicted": true,
+    "classification": "OFFICIAL_WRONG_LOCAL_PATH_EXACT"
+   },
+   {
+    "selection_id": 805,
+    "node_id": 18,
+    "round": "UBSF",
+    "client_series": "Upper Bracket Round 2 Match 1",
+    "best_of": 3,
+    "submitted_pick": "PARIVISION",
+    "predicted_matchup": [
+     "PARIVISION",
+     "Team Spirit"
+    ],
+    "realized_matchup": [
+     "PARIVISION",
+     "Team Spirit"
+    ],
+    "realized_winner": "PARIVISION",
+    "realized_loser": "Team Spirit",
+    "realized_score": "2-1",
+    "start_time_utc": "2026-08-21T10:20:00Z",
+    "official_credit": true,
+    "pick_was_a_participant": true,
+    "matchup_as_predicted": true,
+    "classification": "OFFICIAL_CORRECT_PATH_EXACT"
+   },
+   {
+    "selection_id": 806,
+    "node_id": 19,
+    "round": "UBSF",
+    "client_series": "Upper Bracket Round 2 Match 2",
+    "best_of": 3,
+    "submitted_pick": "Team Falcons",
+    "predicted_matchup": [
+     "Team Falcons",
+     "Team Yandex"
+    ],
+    "realized_matchup": [
+     "Nigma Galaxy",
+     "Team Yandex"
+    ],
+    "realized_winner": "Team Yandex",
+    "realized_loser": "Nigma Galaxy",
+    "realized_score": "2-1",
+    "start_time_utc": "2026-08-21T14:10:00Z",
+    "official_credit": false,
+    "pick_was_a_participant": false,
+    "matchup_as_predicted": false,
+    "classification": "OFFICIAL_WRONG_PROPAGATED"
+   },
+   {
+    "selection_id": 807,
+    "node_id": 20,
+    "round": "UBF",
+    "client_series": "Upper Bracket Final",
+    "best_of": 3,
+    "submitted_pick": "PARIVISION",
+    "predicted_matchup": [
+     "PARIVISION",
+     "Team Falcons"
+    ],
+    "realized_matchup": [
+     "PARIVISION",
+     "Team Yandex"
+    ],
+    "realized_winner": "PARIVISION",
+    "realized_loser": "Team Yandex",
+    "realized_score": "2-1",
+    "start_time_utc": "2026-08-22T08:45:00Z",
+    "official_credit": true,
+    "pick_was_a_participant": true,
+    "matchup_as_predicted": false,
+    "classification": "OFFICIAL_CORRECT_PATH_DIVERGED"
+   },
+   {
+    "selection_id": 808,
+    "node_id": 21,
+    "round": "GF",
+    "client_series": "Grand Final",
+    "best_of": 5,
+    "submitted_pick": "PARIVISION",
+    "predicted_matchup": [
+     "PARIVISION",
+     "Team Falcons"
+    ],
+    "realized_matchup": [
+     "PARIVISION",
+     "Team Spirit"
+    ],
+    "realized_winner": "Team Spirit",
+    "realized_loser": "PARIVISION",
+    "realized_score": "3-2",
+    "start_time_utc": "2026-08-23T06:15:00Z",
+    "official_credit": false,
+    "pick_was_a_participant": true,
+    "matchup_as_predicted": false,
+    "classification": "OFFICIAL_WRONG_LOCAL_PATH_DIVERGED"
+   },
+   {
+    "selection_id": 809,
+    "node_id": 22,
+    "round": "LBR1",
+    "client_series": "Lower Bracket Round 1 Match 1",
+    "best_of": 3,
+    "submitted_pick": "BetBoom Team",
+    "predicted_matchup": [
+     "BetBoom Team",
+     "Tundra Esports"
+    ],
+    "realized_matchup": [
+     "BetBoom Team",
+     "Tundra Esports"
+    ],
+    "realized_winner": "BetBoom Team",
+    "realized_loser": "Tundra Esports",
+    "realized_score": "2-1",
+    "start_time_utc": "2026-08-21T02:00:00Z",
+    "official_credit": true,
+    "pick_was_a_participant": true,
+    "matchup_as_predicted": true,
+    "classification": "OFFICIAL_CORRECT_PATH_EXACT"
+   },
+   {
+    "selection_id": 810,
+    "node_id": 23,
+    "round": "LBR1",
+    "client_series": "Lower Bracket Round 1 Match 2",
+    "best_of": 3,
+    "submitted_pick": "Nigma Galaxy",
+    "predicted_matchup": [
+     "Nigma Galaxy",
+     "Team Liquid"
+    ],
+    "realized_matchup": [
+     "Team Falcons",
+     "Team Liquid"
+    ],
+    "realized_winner": "Team Liquid",
+    "realized_loser": "Team Falcons",
+    "realized_score": "2-1",
+    "start_time_utc": "2026-08-21T06:15:00Z",
+    "official_credit": false,
+    "pick_was_a_participant": false,
+    "matchup_as_predicted": false,
+    "classification": "OFFICIAL_WRONG_PROPAGATED"
+   },
+   {
+    "selection_id": 811,
+    "node_id": 24,
+    "round": "LBR2",
+    "client_series": "Lower Bracket Round 2 Match 1",
+    "best_of": 3,
+    "submitted_pick": "BetBoom Team",
+    "predicted_matchup": [
+     "BetBoom Team",
+     "Team Yandex"
+    ],
+    "realized_matchup": [
+     "BetBoom Team",
+     "Nigma Galaxy"
+    ],
+    "realized_winner": "BetBoom Team",
+    "realized_loser": "Nigma Galaxy",
+    "realized_score": "2-1",
+    "start_time_utc": "2026-08-22T05:00:00Z",
+    "official_credit": true,
+    "pick_was_a_participant": true,
+    "matchup_as_predicted": false,
+    "classification": "OFFICIAL_CORRECT_PATH_DIVERGED"
+   },
+   {
+    "selection_id": 812,
+    "node_id": 25,
+    "round": "LBR2",
+    "client_series": "Lower Bracket Round 2 Match 2",
+    "best_of": 3,
+    "submitted_pick": "Team Spirit",
+    "predicted_matchup": [
+     "Nigma Galaxy",
+     "Team Spirit"
+    ],
+    "realized_matchup": [
+     "Team Liquid",
+     "Team Spirit"
+    ],
+    "realized_winner": "Team Spirit",
+    "realized_loser": "Team Liquid",
+    "realized_score": "2-0",
+    "start_time_utc": "2026-08-22T02:00:00Z",
+    "official_credit": true,
+    "pick_was_a_participant": true,
+    "matchup_as_predicted": false,
+    "classification": "OFFICIAL_CORRECT_PATH_DIVERGED"
+   },
+   {
+    "selection_id": 813,
+    "node_id": 26,
+    "round": "LBSF",
+    "client_series": "Lower Bracket Round 3",
+    "best_of": 3,
+    "submitted_pick": "BetBoom Team",
+    "predicted_matchup": [
+     "BetBoom Team",
+     "Team Spirit"
+    ],
+    "realized_matchup": [
+     "BetBoom Team",
+     "Team Spirit"
+    ],
+    "realized_winner": "Team Spirit",
+    "realized_loser": "BetBoom Team",
+    "realized_score": "2-0",
+    "start_time_utc": "2026-08-22T13:10:00Z",
+    "official_credit": false,
+    "pick_was_a_participant": true,
+    "matchup_as_predicted": true,
+    "classification": "OFFICIAL_WRONG_LOCAL_PATH_EXACT"
+   },
+   {
+    "selection_id": 814,
+    "node_id": 27,
+    "round": "LBF",
+    "client_series": "Lower Bracket Final",
+    "best_of": 3,
+    "submitted_pick": "Team Falcons",
+    "predicted_matchup": [
+     "BetBoom Team",
+     "Team Falcons"
+    ],
+    "realized_matchup": [
+     "Team Spirit",
+     "Team Yandex"
+    ],
+    "realized_winner": "Team Spirit",
+    "realized_loser": "Team Yandex",
+    "realized_score": "2-0",
+    "start_time_utc": "2026-08-23T02:10:00Z",
+    "official_credit": false,
+    "pick_was_a_participant": false,
+    "matchup_as_predicted": false,
+    "classification": "OFFICIAL_WRONG_PROPAGATED"
+   }
+  ],
+  "official_correct": 8,
+  "official_incorrect": 6,
+  "total_nodes": 14,
+  "official_score": 4320,
+  "scoring_vector": [
+   0,
+   120,
+   360,
+   720,
+   1200,
+   1800,
+   2520,
+   3360,
+   4320,
+   5400,
+   6600,
+   7920,
+   9360,
+   10920,
+   12000
+  ],
+  "scoring_semantics": "the client credits a selection when the team selected at that node won that node's realized series; it does not require the realized participants to equal the predicted participants",
+  "taxonomy_counts": {
+   "OFFICIAL_CORRECT_PATH_EXACT": 5,
+   "OFFICIAL_CORRECT_PATH_DIVERGED": 3,
+   "OFFICIAL_WRONG_LOCAL_PATH_EXACT": 2,
+   "OFFICIAL_WRONG_LOCAL_PATH_DIVERGED": 1,
+   "OFFICIAL_WRONG_PROPAGATED": 3
+  },
+  "taxonomy_definitions": {
+   "OFFICIAL_CORRECT_PATH_EXACT": "credited, and the realized participants were exactly the ones predicted",
+   "OFFICIAL_CORRECT_PATH_DIVERGED": "credited even though the realized participants were not the ones predicted - the selected team reached this node by a different route than forecast, and still won it",
+   "OFFICIAL_WRONG_LOCAL_PATH_EXACT": "not credited, the participants were exactly as predicted, and the selected team lost. A genuine local winner error with no upstream excuse - a root miss",
+   "OFFICIAL_WRONG_LOCAL_PATH_DIVERGED": "not credited, but the selected team did play this node - it lost to an opponent that an upstream miss had substituted. Part local, part inherited",
+   "OFFICIAL_WRONG_PROPAGATED": "not credited, and the selected team was not one of the two teams that actually played this node. The error is entirely inherited from an upstream path miss"
+  }
+ },
+ "exact_matchup_diagnostic": {
+  "hypothetical_correct": 5,
+  "definition": "nodes where the predicted participant pair AND the winner were both right",
+  "status": "DIAGNOSTIC ONLY",
+  "is_the_official_rule": false,
+  "must_not_be_called": [
+   "official accuracy",
+   "evidence of a specification mismatch"
+  ],
+  "why_it_is_kept": "it separates 'the model called the winner' from 'the model called the whole path', which is the quantity the bracket propagation destroys"
+ },
+ "first_party_settlement_cross_check": {
+  "evidence_id": "ti2026-ev-003",
+  "source_tier": 1,
+  "client_correct": 8,
+  "client_incorrect": 6,
+  "client_total": 14,
+  "derived_correct": 8,
+  "derived_incorrect": 6,
+  "derived_official_score": 4320,
+  "aggregate_agrees": true,
+  "per_node_agrees": true,
+  "per_node_marks_checked": 14,
+  "official_points_displayed_by_client": null,
+  "official_points_basis": "the client displays the 8/14 count for this track but shows no points figure for it. The 4320 points quoted throughout this project is DERIVED: it is entry 8 of the committed 15-entry Main Event scoring vector in data/ti2026/inputs/prediction_questions.json. It is not a transcription of anything visible in the capture."
+ },
+ "expected_vs_realized": {
+  "expected_correct_pre_event": 5.109,
+  "realized_correct": 8,
+  "expected_score_pre_event": 2288.5,
+  "realized_score": 4320,
+  "predicted_champion": "PARIVISION",
+  "actual_champion": "Team Spirit",
+  "pre_event_probability_of_realizing_at_least_this_score": 0.19453,
+  "interpretation": "realized above expectation is a descriptive fact about one tournament. It is not evidence of calibration, of generalization, or that the model is better than it forecast. N = 1"
+ },
+ "probabilistic_review": {
+  "estimator": "POINT ESTIMATE from the single frozen serve state",
+  "not_the_same_as": "the bootstrap-averaged, uncertainty-integrated probabilities the production optimiser maximised against. Those integrate 1000 series-blocked parameter draws; these do not, and the two must not be quoted as if interchangeable",
+  "conditioning": "each series is scored given the participants that actually played it",
+  "sequential_updating_used": false,
+  "n_series": 14,
+  "mean_brier": 0.23664643546901507,
+  "mean_log_loss": 0.6679286655703753,
+  "favourite_accuracy": 0.6428571428571429,
+  "mean_probability_on_actual_winner": 0.5268596098648592,
+  "uninformed_baseline": {
+   "rule": "p = 0.5 for every series",
+   "mean_brier": 0.25,
+   "mean_log_loss": 0.6931471805599453,
+   "why_it_is_here": "a proper score is only readable against a reference. This is the weakest honest one. Beating it on 14 series is not a significant result and is not claimed as one"
+  },
+  "outcomes_below_threshold": {
+   "p_lt_0.5": 5,
+   "p_lt_0.45": 5,
+   "p_lt_0.4": 2,
+   "p_lt_0.35": 1
+  },
+  "min_probability_on_an_actual_winner": 0.27472450302289303,
+  "max_probability_on_an_actual_winner": 0.6840059885958187,
+  "champion_pre_event_probability": {
+   "actual_champion": "Team Spirit",
+   "probability": 0.0793,
+   "bootstrap_90ci": [
+    0.0218,
+    0.1696
+   ],
+   "pre_event_favourite": "PARIVISION",
+   "favourite_probability": 0.348,
+   "favourite_finished": "runner-up"
+  },
+  "sample_size_caveat": "14 series. This supports descriptive statements only. It cannot support a calibration claim, a comparison against another model, or any parameter change.",
+  "series": [
+   {
+    "selection_id": 801,
+    "node_id": 14,
+    "round": "UBQF",
+    "best_of": 3,
+    "realized_matchup": [
+     "Team Spirit",
+     "Tundra Esports"
+    ],
+    "realized_winner": "Team Spirit",
+    "p_pre_event_actual_winner": 0.5766477658886031,
+    "model_favourite": "Team Spirit",
+    "favourite_won": true,
+    "matchup_was_in_the_submitted_slate": true,
+    "artifact_stored_probability_for_this_pair": 0.5766477658886031
+   },
+   {
+    "selection_id": 802,
+    "node_id": 15,
+    "round": "UBQF",
+    "best_of": 3,
+    "realized_matchup": [
+     "PARIVISION",
+     "BetBoom Team"
+    ],
+    "realized_winner": "PARIVISION",
+    "p_pre_event_actual_winner": 0.6359525367593342,
+    "model_favourite": "PARIVISION",
+    "favourite_won": true,
+    "matchup_was_in_the_submitted_slate": true,
+    "artifact_stored_probability_for_this_pair": 0.6359525367593342
+   },
+   {
+    "selection_id": 803,
+    "node_id": 16,
+    "round": "UBQF",
+    "best_of": 3,
+    "realized_matchup": [
+     "Team Yandex",
+     "Team Liquid"
+    ],
+    "realized_winner": "Team Yandex",
+    "p_pre_event_actual_winner": 0.5729986424303625,
+    "model_favourite": "Team Yandex",
+    "favourite_won": true,
+    "matchup_was_in_the_submitted_slate": true,
+    "artifact_stored_probability_for_this_pair": 0.5729986424303625
+   },
+   {
+    "selection_id": 804,
+    "node_id": 17,
+    "round": "UBQF",
+    "best_of": 3,
+    "realized_matchup": [
+     "Nigma Galaxy",
+     "Team Falcons"
+    ],
+    "realized_winner": "Nigma Galaxy",
+    "p_pre_event_actual_winner": 0.39095683940281933,
+    "model_favourite": "Team Falcons",
+    "favourite_won": false,
+    "matchup_was_in_the_submitted_slate": true,
+    "artifact_stored_probability_for_this_pair": 0.39095683940281933
+   },
+   {
+    "selection_id": 805,
+    "node_id": 18,
+    "round": "UBSF",
+    "best_of": 3,
+    "realized_matchup": [
+     "PARIVISION",
+     "Team Spirit"
+    ],
+    "realized_winner": "PARIVISION",
+    "p_pre_event_actual_winner": 0.6840059885958187,
+    "model_favourite": "PARIVISION",
+    "favourite_won": true,
+    "matchup_was_in_the_submitted_slate": true,
+    "artifact_stored_probability_for_this_pair": 0.6840059885958187
+   },
+   {
+    "selection_id": 806,
+    "node_id": 19,
+    "round": "UBSF",
+    "best_of": 3,
+    "realized_matchup": [
+     "Team Yandex",
+     "Nigma Galaxy"
+    ],
+    "realized_winner": "Team Yandex",
+    "p_pre_event_actual_winner": 0.5953939511644291,
+    "model_favourite": "Team Yandex",
+    "favourite_won": true,
+    "matchup_was_in_the_submitted_slate": false,
+    "artifact_stored_probability_for_this_pair": null
+   },
+   {
+    "selection_id": 807,
+    "node_id": 20,
+    "round": "UBF",
+    "best_of": 3,
+    "realized_matchup": [
+     "PARIVISION",
+     "Team Yandex"
+    ],
+    "realized_winner": "PARIVISION",
+    "p_pre_event_actual_winner": 0.6259167763620284,
+    "model_favourite": "PARIVISION",
+    "favourite_won": true,
+    "matchup_was_in_the_submitted_slate": false,
+    "artifact_stored_probability_for_this_pair": null
+   },
+   {
+    "selection_id": 808,
+    "node_id": 21,
+    "round": "GF",
+    "best_of": 5,
+    "realized_matchup": [
+     "Team Spirit",
+     "PARIVISION"
+    ],
+    "realized_winner": "Team Spirit",
+    "p_pre_event_actual_winner": 0.27472450302289303,
+    "model_favourite": "PARIVISION",
+    "favourite_won": false,
+    "matchup_was_in_the_submitted_slate": false,
+    "artifact_stored_probability_for_this_pair": null
+   },
+   {
+    "selection_id": 809,
+    "node_id": 22,
+    "round": "LBR1",
+    "best_of": 3,
+    "realized_matchup": [
+     "BetBoom Team",
+     "Tundra Esports"
+    ],
+    "realized_winner": "BetBoom Team",
+    "p_pre_event_actual_winner": 0.6275905865016549,
+    "model_favourite": "BetBoom Team",
+    "favourite_won": true,
+    "matchup_was_in_the_submitted_slate": true,
+    "artifact_stored_probability_for_this_pair": 0.6275905865016549
+   },
+   {
+    "selection_id": 810,
+    "node_id": 23,
+    "round": "LBR1",
+    "best_of": 3,
+    "realized_matchup": [
+     "Team Liquid",
+     "Team Falcons"
+    ],
+    "realized_winner": "Team Liquid",
+    "p_pre_event_actual_winner": 0.4131466106843833,
+    "model_favourite": "Team Falcons",
+    "favourite_won": false,
+    "matchup_was_in_the_submitted_slate": false,
+    "artifact_stored_probability_for_this_pair": null
+   },
+   {
+    "selection_id": 811,
+    "node_id": 24,
+    "round": "LBR2",
+    "best_of": 3,
+    "realized_matchup": [
+     "BetBoom Team",
+     "Nigma Galaxy"
+    ],
+    "realized_winner": "BetBoom Team",
+    "p_pre_event_actual_winner": 0.5850135255635494,
+    "model_favourite": "BetBoom Team",
+    "favourite_won": true,
+    "matchup_was_in_the_submitted_slate": false,
+    "artifact_stored_probability_for_this_pair": null
+   },
+   {
+    "selection_id": 812,
+    "node_id": 25,
+    "round": "LBR2",
+    "best_of": 3,
+    "realized_matchup": [
+     "Team Spirit",
+     "Team Liquid"
+    ],
+    "realized_winner": "Team Spirit",
+    "p_pre_event_actual_winner": 0.509814978888889,
+    "model_favourite": "Team Spirit",
+    "favourite_won": true,
+    "matchup_was_in_the_submitted_slate": false,
+    "artifact_stored_probability_for_this_pair": null
+   },
+   {
+    "selection_id": 813,
+    "node_id": 26,
+    "round": "LBSF",
+    "best_of": 3,
+    "realized_matchup": [
+     "Team Spirit",
+     "BetBoom Team"
+    ],
+    "realized_winner": "Team Spirit",
+    "p_pre_event_actual_winner": 0.4472169167807084,
+    "model_favourite": "BetBoom Team",
+    "favourite_won": false,
+    "matchup_was_in_the_submitted_slate": true,
+    "artifact_stored_probability_for_this_pair": 0.44721691678070863
+   },
+   {
+    "selection_id": 814,
+    "node_id": 27,
+    "round": "LBF",
+    "best_of": 3,
+    "realized_matchup": [
+     "Team Spirit",
+     "Team Yandex"
+    ],
+    "realized_winner": "Team Spirit",
+    "p_pre_event_actual_winner": 0.4366549160625561,
+    "model_favourite": "Team Yandex",
+    "favourite_won": false,
+    "matchup_was_in_the_submitted_slate": false,
+    "artifact_stored_probability_for_this_pair": null
+   }
+  ]
+ },
+ "optimiser_review": {
+  "objective_as_specified": "maximize E[MAIN_EVENT_SCORE(number of correct nodes)] over all coherent slates, against the bootstrap-averaged outcome distribution",
+  "candidates": 16384,
+  "realized_outcome_row": 14997,
+  "comparators": [
+   {
+    "comparator": "production primary: max E[official score] (SUBMITTED)",
+    "slate_row": 957,
+    "pre_event_expected_score": 2288.5,
+    "pre_event_expected_correct": 5.109,
+    "realized_correct": 8,
+    "realized_official_score": 4320,
+    "note": "this is the slate that was actually submitted"
+   },
+   {
+    "comparator": "max E[correct]",
+    "slate_row": 701,
+    "pre_event_expected_score": 2288.1,
+    "pre_event_expected_correct": 5.119,
+    "realized_correct": 9,
+    "realized_official_score": 5400,
+    "note": "also the recorded second-best-overall slate; differs from the primary only at selection 810"
+   },
+   {
+    "comparator": "greedy coherent favourite",
+    "slate_row": 189,
+    "pre_event_expected_score": 2222.2,
+    "pre_event_expected_correct": 5.06,
+    "realized_correct": 8,
+    "realized_official_score": 4320,
+    "note": "take the model favourite at every node in bracket order"
+   },
+   {
+    "comparator": "best slate with a different champion",
+    "slate_row": 9149,
+    "pre_event_expected_score": 2132.5,
+    "pre_event_expected_correct": 4.918,
+    "realized_correct": 8,
+    "realized_official_score": 4320,
+    "note": "champion Team Falcons"
+   },
+   {
+    "comparator": "point-estimate optimum",
+    "slate_row": 957,
+    "pre_event_expected_score": null,
+    "pre_event_expected_correct": null,
+    "realized_correct": 8,
+    "realized_official_score": 4320,
+    "note": "identical slate to the primary"
+   },
+   {
+    "comparator": "oracle: the realized bracket itself",
+    "slate_row": 14997,
+    "pre_event_expected_score": null,
+    "pre_event_expected_correct": null,
+    "realized_correct": 14,
+    "realized_official_score": 12000,
+    "note": "ex-post upper bound, not an available strategy"
+   }
+  ],
+  "submitted_slate_rank": {
+   "realized_score": 4320,
+   "slates_scoring_strictly_higher": 435,
+   "slates_tied_at_this_score": 529,
+   "rank_interval": [
+    436,
+    964
+   ],
+   "percentile_interval": [
+    94.116,
+    97.345
+   ],
+   "tie_handling": "realized score is a coarse integer scale, so many slates tie. A unique rank is not defined and is not invented: the interval and the tie count are reported instead"
+  },
+  "realized_score_distribution": {
+   "0": 896,
+   "1": 1888,
+   "2": 2368,
+   "3": 2872,
+   "4": 2704,
+   "5": 2166,
+   "6": 1566,
+   "7": 960,
+   "8": 529,
+   "9": 252,
+   "10": 109,
+   "11": 48,
+   "12": 19,
+   "13": 6,
+   "14": 1
+  },
+  "specification_check": {
+   "production_scoring_functional": "count the nodes at which the slate's winner equals the outcome's winner, then look that count up in the committed 15-entry scoring vector",
+   "client_settlement_semantics": "the client credits a node when the selected team won that node's realized series",
+   "consistent": true,
+   "evidence": "the recomputation under the production functional reproduces the first-party in-client settlement exactly, both in aggregate and node by node"
+  },
+  "no_ex_post_search": "only comparators recorded by the pre-event production run are scored here. No new strategy was searched for using the realized outcome, and the 2027 objective is not changed on one realization"
+ },
+ "model_miss_diagnosis": {
+  "fact": {
+   "actual_champion": "Team Spirit",
+   "pre_event_title_probability": 0.0793,
+   "pre_event_title_probability_90ci": [
+    0.0218,
+    0.1696
+   ],
+   "pre_event_rank_by_title_probability": 5,
+   "pre_event_favourite": "PARIVISION",
+   "pre_event_favourite_title_probability": 0.348,
+   "pre_event_favourite_actual_finish": "runner-up",
+   "frozen_latent_strength": 0.8558,
+   "strength_rank_of_champion_among_the_eight": 5,
+   "strength_gap_to_the_strongest": 0.5132,
+   "movement_attributable_to_ti15_group_play": 0.0218,
+   "champion_path": [
+    {
+     "selection_id": 801,
+     "round": "UBQF",
+     "opponent": "Tundra Esports",
+     "won": true,
+     "p_pre_event_champion_wins": 0.5766477658886031
+    },
+    {
+     "selection_id": 805,
+     "round": "UBSF",
+     "opponent": "PARIVISION",
+     "won": false,
+     "p_pre_event_champion_wins": 0.31599401140418126
+    },
+    {
+     "selection_id": 812,
+     "round": "LBR2",
+     "opponent": "Team Liquid",
+     "won": true,
+     "p_pre_event_champion_wins": 0.509814978888889
+    },
+    {
+     "selection_id": 813,
+     "round": "LBSF",
+     "opponent": "BetBoom Team",
+     "won": true,
+     "p_pre_event_champion_wins": 0.4472169167807084
+    },
+    {
+     "selection_id": 814,
+     "round": "LBF",
+     "opponent": "Team Yandex",
+     "won": true,
+     "p_pre_event_champion_wins": 0.4366549160625561
+    },
+    {
+     "selection_id": 808,
+     "round": "GF",
+     "opponent": "PARIVISION",
+     "won": true,
+     "p_pre_event_champion_wins": 0.27472450302289303
+    }
+   ],
+   "series_won_on_the_title_run": 5,
+   "product_of_pre_event_probabilities_along_the_winning_path": 0.015771651740649113,
+   "note_on_that_product": "this is the pre-event probability of exactly this route, not of the title: the model gave the champion 0.0793 across all routes. A route this long is improbable for anyone, including the favourite"
+  },
+  "what_the_model_got_right_about_the_champion": "it did not consider the champion a long shot in absolute terms - 7.9% over eight teams is above the uniform 12.5% floor only for the top four, and the champion ranked fifth. The model placed it mid-field, and a mid-field team won.",
+  "what_the_model_got_wrong": "it ranked the champion fifth of eight by latent strength at serve time, and gave the eventual runner-up more than four times the title probability. The single largest miss on the board is the Grand Final itself, where the model put 0.2747 on the team that won it - the lowest probability it assigned to any realized winner.",
+  "hypothesis": [
+   {
+    "hypothesis": "recency: a 90-day half-life may discount late-window form too slowly",
+    "status": "UNTESTED",
+    "would_require": "multi-event out-of-sample evidence, not one TI",
+    "explicitly_not_done": "no half-life change is proposed or made"
+   },
+   {
+    "hypothesis": "sequential assimilation: updating strengths as the Main Event unfolds might have caught the champion's run",
+    "status": "EXPLORED POST HOC ONLY",
+    "artifact": "predictions/ti2026/postmortem/sequential_posthoc.json (if generated)",
+    "explicitly_not_done": "the production forecast is unchanged and is not re-issued"
+   },
+   {
+    "hypothesis": "bracket-specific or best-of-5 form is not captured by a map-level rating",
+    "status": "UNTESTED",
+    "would_require": "a stage-labelled multi-year corpus"
+   },
+   {
+    "hypothesis": "roster or patch adaptation inside the event window",
+    "status": "UNTESTED",
+    "would_require": "roster and patch metadata the project does not hold"
+   }
+  ],
+  "prohibited_inference": "None of the above may become a TI2027 parameter change on the strength of TI2026. One tournament identifies nothing: with 14 series, a model that is genuinely better and a model that is genuinely worse produce overlapping score distributions. The correct output of this section is a research question with a pre-registered test, not a coefficient."
+ },
+ "phase": "post_event",
+ "post_event_only": true,
+ "observed_after_prediction": true,
+ "valid_production_input": false
+}

@@ -1,0 +1,41 @@
+{
+ "schema_version": 1,
+ "event": "The International 2026 (TI15)",
+ "record": "frozen PRE-EVENT serve state, reproduced at full precision",
+ "content_phase": "pre_event",
+ "recorded_phase": "post_event",
+ "created_at": "2026-08-24T02:42:00Z",
+ "what_this_is": "the exact strengths and radiant coefficient the production run served from. The committed prediction artifact stores them rounded to four decimals, which is not enough to reproduce a probability for a matchup the slate never contained. This side-car carries them at full precision so the post-event evaluation is reproducible from tracked files, without the git-ignored rating universe.",
+ "why_it_is_in_the_post_event_namespace": "the numbers are pre-event, but the file was written after the tournament. Filing it with the postmortem keeps the pre-event snapshot byte-identical to what was served, and the marker keeps it out of any production path.",
+ "reproduction": {
+  "command": "python -m ti_predict.postmortem --refit-frozen-state",
+  "source": "ti_predict.predict_main_event.build_states()['C_serve']",
+  "cutoff": "2026-08-16T12:00:00+00:00",
+  "train_maps": 8799,
+  "data": "historical universe + 39 Swiss + 5 Elimination series",
+  "requires": "data/ti2026/processed/universe_maps.csv (git-ignored, regenerable)"
+ },
+ "verification": {
+  "claim": "this state reproduces every conditional_win_prob stored in the committed pre-event artifact",
+  "checked": 14,
+  "worst_absolute_difference": 0.0,
+  "tolerance": 1e-12,
+  "passed": true
+ },
+ "radiant_c": 0.0940042027235609,
+ "strength": {
+  "BetBoom Team": 0.9973090397058457,
+  "Nigma Galaxy": 0.768127973198186,
+  "PARIVISION": 1.3689592954579084,
+  "Team Falcons": 1.0637714943402763,
+  "Team Liquid": 0.8295405326523375,
+  "Team Spirit": 0.85577466646056,
+  "Team Yandex": 1.0258800957270593,
+  "Tundra Esports": 0.6494843596338595
+ },
+ "strength_scope": "the eight Main Event participants. The full fit covers every team in the rating universe; only these eight can appear in this bracket.",
+ "phase": "post_event",
+ "post_event_only": true,
+ "observed_after_prediction": true,
+ "valid_production_input": false
+}

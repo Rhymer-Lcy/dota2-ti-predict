@@ -33,6 +33,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ti_predict import bracket as bk
+from ti_predict import chronology as ch
 from ti_predict import ti15_results as tr
 from ti_predict.backtest import load
 from ti_predict.calibrate import bt_strengths, est_c
@@ -77,6 +78,7 @@ def _dirty():
 def _sha256(path):
     if not path or not os.path.exists(path):
         return None
+    ch.assert_production_input(path, "a fingerprinted production input")
     h = hashlib.sha256()
     with open(path, "rb") as fh:
         for chunk in iter(lambda: fh.read(65536), b""):
@@ -97,6 +99,7 @@ def fit(rows, cutoff_ts):
     train = [m for m in rows if m["start_time"] < cutoff_ts]
     if not train:
         raise SystemExit("no training maps before cutoff")
+    ch.assert_production_rows(train, "the frozen B-bt estimator")
     s = bt_strengths(train, cutoff_ts, hl=float(PRODUCTION_HALF_LIFE_DAYS))
     return s, float(est_c(tr.side_labelled(train), s)), len(train)
 
