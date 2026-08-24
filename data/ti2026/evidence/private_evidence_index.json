@@ -90,7 +90,7 @@
      "total_predictions": 14,
      "official_points_displayed_by_client": null,
      "official_points_visible_in_this_capture": false,
-     "official_points_basis": "This capture frames the bracket page. It directly shows the 8/14 count for this track, the 6/16 count for the group track, and a settlement mark on every one of the 14 nodes; it does not include the client's settlement summary panel, so no points figure appears anywhere in the frame. The 4320 quoted throughout this project is therefore DERIVED here: it is entry 8 of the committed 15-entry Main Event scoring vector in data/ti2026/inputs/prediction_questions.json, reached deterministically from the frozen slate and the realized node winners. The operator reports that the client's own settlement summary panel states 8 correct, 6 incorrect and +4,320 directly. That panel is not part of this frame, and this index records only what this frame shows; archiving the points figure as a direct first-party transcription requires a capture of that panel. See INC-16.",
+     "official_points_basis": "This capture frames the bracket page. It directly shows the 8/14 count for this track, the 6/16 count for the group track, and a settlement mark on every one of the 14 nodes; it does not include the client's settlement summary modal, so no points figure appears anywhere in this frame. The points figure is proved separately and directly by ti2026-ev-006, the settlement summary capture, and independently by deterministic recomputation against entry 8 of the committed 15-entry Main Event scoring vector in data/ti2026/inputs/prediction_questions.json. This record is unchanged in substance and remains valid; it is complemented by ev-006, not corrected by it. See INC-16, now closed.",
      "coverage_basis": "the whole 3840x2160 frame was re-examined at native resolution in six tiles during the 2026-08-24 archival correction; the file is a single-frame PNG with no alpha and no hidden frame.",
      "per_node_credit": {
       "801": true,
@@ -119,6 +119,43 @@
      "note": "recorded for completeness; the group slate is a separate tracked production artifact. Its pre-event expectation was 5.249 correct."
     },
     "deliberately_not_transcribed": "the account's overall event point total and percentile, the friend leaderboard and all display names and avatars. The overall point total is NOT a Main Event prediction score and NOT a Fantasy score, and must never be read as either."
+   }
+  },
+  {
+   "evidence_id": "ti2026-ev-006",
+   "media_type": "image/png",
+   "sha256": "766f5dca875744132aca065dcb35136c764ffbb63ac13187913bb316e4845f96",
+   "bytes": 1249098,
+   "pixels": [2048, 1152],
+   "evidence_phase": "post_event",
+   "source_type": "first_party_in_client_capture",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the frame also shows the operator's Steam persona, a friend's display name, the friend leaderboard, avatars and the account's overall event points and percentile",
+   "used_in_original_production": false,
+   "production_use": "none. This is post-event truth and must never enter the TI2026 fit.",
+   "observed_after_prediction": true,
+   "capture_time_basis": "not recorded in the image. Bounded below by the conclusion of the Grand Final, which the settlement presupposes.",
+   "public_safe_transcription": {
+    "view": "the client's Main Event prediction settlement summary modal, headed 'The International / Your Predictions'",
+    "main_event_prediction_settlement": {
+     "track": "Main Event bracket predictions (client tab: International Invitational)",
+     "correct_predictions": 8,
+     "incorrect_predictions": 6,
+     "official_points_earned": 4320,
+     "transcription_basis": "read directly from the modal at native resolution: the correct count and the incorrect count sit side by side above the awarded points, each with the client's own check or cross glyph"
+    },
+    "distinct_from_account_total": "the +4,320 in the modal is the award for this track. The sidebar of the same frame separately shows the account's running overall event points and percentile; those are a different quantity and are deliberately not transcribed.",
+    "scope_limits": {
+     "this_frame_is_pre_acknowledgement": "the modal's confirm button is still displayed, so the tab counters behind it have not populated in this view",
+     "group_stage_tab_reads_0_of_16_here": "recorded so it is never mistaken for a contradiction of ti2026-ev-003. This capture is NOT evidence for the group-stage count; ti2026-ev-003, taken after acknowledgement with the counters populated, is.",
+     "not_evidence_for": ["group-stage settlement", "per-node correctness", "any Fantasy result"]
+    },
+    "relation_to_ev003": "complementary, not corrective. ti2026-ev-003 remains valid and unchanged: it is the bracket view proving 8/14 on the Main Event tab, 6/16 on the group tab and the per-node marks on all 14 nodes. This capture is the settlement summary view and proves the three summary fields directly.",
+    "deliberately_not_transcribed": "the account's overall event point total and percentile, the friend leaderboard, and all display names and avatars"
    }
   },
   {
@@ -174,6 +211,40 @@
    }
   }
  ],
+ "settlement_provenance": {
+  "claim": "TI2026 Main Event settlement is 8 correct / 6 incorrect / 4320 points",
+  "independent_paths": [
+   {
+    "path": "A",
+    "evidence_id": "ti2026-ev-003",
+    "kind": "first-party client bracket view",
+    "establishes": {"correct_predictions": 8, "total_predictions": 14,
+                    "per_node_marks": 14},
+    "does_not_establish": ["official_points_earned"]
+   },
+   {
+    "path": "B",
+    "evidence_id": "ti2026-ev-006",
+    "kind": "first-party client settlement summary view",
+    "establishes": {"correct_predictions": 8, "incorrect_predictions": 6,
+                    "official_points_earned": 4320},
+    "does_not_establish": ["per-node correctness", "group-stage settlement"]
+   },
+   {
+    "path": "C",
+    "evidence_id": null,
+    "kind": "deterministic recomputation",
+    "inputs": ["the frozen submitted slate in predictions/ti2026/playoffs/ti15_main_event_prediction.json",
+               "the realized node winners in data/ti2026/outcomes/main_event_results.json",
+               "the committed official scoring vector in data/ti2026/inputs/prediction_questions.json"],
+    "establishes": {"correct_predictions": 8, "incorrect_predictions": 6,
+                    "official_points_earned": 4320}
+   }
+  ],
+  "agreement": "all three agree on 8 correct / 6 incorrect / 4320 points",
+  "independence_note": "A and B are separate client views captured at different moments; C uses no image at all. The evaluator fails closed on any disagreement, so the agreement is enforced rather than observed.",
+  "status": "dual first-party plus deterministic provenance established"
+ },
  "legacy_identity_exposure": {
   "status": "ACCEPTED_LEGACY_EXPOSURE_PRESERVE_HISTORY",
   "incident": "INC-19",

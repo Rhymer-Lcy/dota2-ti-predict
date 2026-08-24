@@ -553,6 +553,95 @@ def test_fantasy_closure_does_not_claim_an_official_settlement():
     assert "account_a" in blob and "account_b" in blob
 
 
+def test_ev006_settlement_summary_is_indexed_and_private():
+    idx = json.load(open(pm.SETTLEMENT, encoding="utf-8"))
+    e = next(x for x in idx["evidence"] if x["evidence_id"] == pm.SUMMARY_VIEW_EVIDENCE)
+    assert e["media_type"] == "image/png"
+    assert len(e["sha256"]) == 64
+    assert e["source_type"] == "first_party_in_client_capture"
+    assert e["source_tier"] == 1 and e["operator_supplied"] is True
+    assert e["evidence_phase"] == "post_event" and e["observed_after_prediction"] is True
+    assert e["raw_evidence_public"] is False
+    assert e["raw_evidence_storage"] == "private_local_external"
+    s = e["public_safe_transcription"]["main_event_prediction_settlement"]
+    assert (s["correct_predictions"], s["incorrect_predictions"], s["official_points_earned"]) \
+        == (OFFICIAL_CORRECT, OFFICIAL_INCORRECT, OFFICIAL_SCORE)
+    # the summary view must not be read as evidence for things it does not show
+    lim = e["public_safe_transcription"]["scope_limits"]
+    assert "group-stage settlement" in lim["not_evidence_for"]
+    assert "per-node correctness" in lim["not_evidence_for"]
+    for needle in _leak_needles():
+        assert needle not in json.dumps(e, ensure_ascii=False)
+
+
+def test_ev003_is_preserved_unchanged_by_the_ev006_addition():
+    """ev-006 is complementary evidence. ev-003's bytes, hash and claims must be untouched."""
+    idx = json.load(open(pm.SETTLEMENT, encoding="utf-8"))
+    e = next(x for x in idx["evidence"] if x["evidence_id"] == pm.BRACKET_VIEW_EVIDENCE)
+    assert e["sha256"] == "1a8749f735c202506897c6ac0a8e45f7097555b0f4bb11eaff22f66cd9e22c48"
+    assert e["bytes"] == 2070115
+    s = e["public_safe_transcription"]["main_event_prediction_settlement"]
+    assert s["correct_predictions"] == OFFICIAL_CORRECT
+    assert s["incorrect_predictions"] == OFFICIAL_INCORRECT
+    assert len(s["per_node_credit"]) == 14
+    g = e["public_safe_transcription"]["group_stage_prediction_settlement"]
+    assert (g["correct_predictions"], g["total_predictions"]) == (6, 16)
+
+
+def test_all_three_settlement_paths_agree():
+    """The gate the whole archive rests on: bracket view, summary view and recomputation."""
+    x = pm.build()["first_party_settlement_cross_check"]
+    p = x["paths"]
+    assert p["A_client_bracket_view"]["correct"] == OFFICIAL_CORRECT
+    assert p["A_client_bracket_view"]["per_node_marks"] == 14
+    assert p["A_client_bracket_view"]["establishes_points"] is False
+    assert p["B_client_settlement_summary_view"]["correct"] == OFFICIAL_CORRECT
+    assert p["B_client_settlement_summary_view"]["incorrect"] == OFFICIAL_INCORRECT
+    assert p["B_client_settlement_summary_view"]["points"] == OFFICIAL_SCORE
+    assert p["C_deterministic_recomputation"]["correct"] == OFFICIAL_CORRECT
+    assert p["C_deterministic_recomputation"]["incorrect"] == OFFICIAL_INCORRECT
+    assert p["C_deterministic_recomputation"]["points"] == OFFICIAL_SCORE
+    assert x["all_three_paths_agree"] is True
+    assert x["provenance_status"] == "dual first-party plus deterministic"
+
+
+def test_a_disagreeing_summary_view_aborts(art, outcomes, tmp_path):
+    """Disagreement on the points figure must fail closed, not be reported as a field."""
+    ev = pm.evaluate_official(art, pm.reconcile(outcomes))
+    idx = json.load(open(pm.SETTLEMENT, encoding="utf-8"))
+    for e in idx["evidence"]:
+        if e["evidence_id"] == pm.SUMMARY_VIEW_EVIDENCE:
+            e["public_safe_transcription"]["main_event_prediction_settlement"][
+                "official_points_earned"] = 5400
+    bad = tmp_path / "index.json"
+    bad.write_text(json.dumps(idx), encoding="utf-8")
+    with pytest.raises(SystemExit):
+        pm.cross_check_settlement(ev, str(bad))
+
+
+def test_a_missing_client_view_aborts(art, outcomes, tmp_path):
+    ev = pm.evaluate_official(art, pm.reconcile(outcomes))
+    for drop in (pm.BRACKET_VIEW_EVIDENCE, pm.SUMMARY_VIEW_EVIDENCE):
+        idx = json.load(open(pm.SETTLEMENT, encoding="utf-8"))
+        idx["evidence"] = [e for e in idx["evidence"] if e["evidence_id"] != drop]
+        bad = tmp_path / f"index_{drop}.json"
+        bad.write_text(json.dumps(idx), encoding="utf-8")
+        with pytest.raises(SystemExit):
+            pm.cross_check_settlement(ev, str(bad))
+
+
+def test_inc16_is_closed():
+    from ti_predict import ti2026_record as rc
+    inc = next(i for i in rc.INCIDENTS if i["id"] == "INC-16")
+    assert inc["status"].startswith("CLOSED")
+    assert inc["resolution"]["ev006_establishes"] == {
+        "correct_predictions": OFFICIAL_CORRECT,
+        "incorrect_predictions": OFFICIAL_INCORRECT,
+        "official_points_earned": OFFICIAL_SCORE,
+    }
+    assert "not superseded" in inc["resolution"]["ev003_remains_valid"]
+
+
 def test_settlement_transcription_and_derivation_agree():
     """The directly transcribed count and the derived score must be one consistent story.
 
@@ -586,8 +675,7 @@ def test_points_provenance_is_stated_as_derived_for_this_capture_only():
     s = e["public_safe_transcription"]["main_event_prediction_settlement"]
     assert s["official_points_visible_in_this_capture"] is False
     basis = s["official_points_basis"]
-    assert "DERIVED" in basis
-    assert "settlement summary panel" in basis
+    assert "ti2026-ev-006" in basis, "the bracket view must point at the view that does show it"
     for overreach in ("the client displays no points",
                       "the client shows no points figure",
                       "shows no points figure for it"):

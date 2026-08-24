@@ -485,51 +485,103 @@ def model_miss_diagnosis(art, rec, strength, c):
 
 
 # --------------------------------------------------------------------------- settlement check
+BRACKET_VIEW_EVIDENCE = "ti2026-ev-003"      # per-node marks and the correct count
+SUMMARY_VIEW_EVIDENCE = "ti2026-ev-006"      # correct, incorrect and the awarded points
+
+
 def settlement_from_index(path=None):
-    """The public-safe transcription of the first-party client settlement."""
+    """The public-safe settlement transcriptions, keyed by evidence id.
+
+    Two separate first-party client views carry settlement facts and they prove different things:
+    the bracket view carries the per-node marks, the summary view carries the awarded points. Both
+    are required, and picking whichever appears first would silently drop one.
+    """
     with open(path or SETTLEMENT, encoding="utf-8") as fh:
         doc = json.load(fh)
+    found = {}
     for e in doc["evidence"]:
         t = e.get("public_safe_transcription", {})
         if "main_event_prediction_settlement" in t:
-            return e["evidence_id"], t["main_event_prediction_settlement"]
-    raise SystemExit("no Main Event settlement transcription found in the public evidence index")
+            found[e["evidence_id"]] = t["main_event_prediction_settlement"]
+    for eid in (BRACKET_VIEW_EVIDENCE, SUMMARY_VIEW_EVIDENCE):
+        if eid not in found:
+            raise SystemExit(f"the public evidence index carries no Main Event settlement "
+                             f"transcription for {eid}; both the bracket view and the settlement "
+                             "summary view are required")
+    return found
 
 
 def cross_check_settlement(ev, path=None):
-    """The derived result must equal the first-party client settlement, aggregate and per node."""
-    eid, s = settlement_from_index(path)
+    """The derived result must equal BOTH first-party client views. Any disagreement aborts.
+
+    Three independent paths reach the same settlement and all three are gated here:
+      A  the bracket view      - the correct count and a mark on each of the 14 nodes;
+      B  the summary view      - the correct count, the incorrect count and the awarded points;
+      C  this recomputation    - from the frozen slate, the realized winners and the committed
+                                 scoring vector, using no image at all.
+    """
+    s = settlement_from_index(path)
+    bracket, summary = s[BRACKET_VIEW_EVIDENCE], s[SUMMARY_VIEW_EVIDENCE]
     problems = []
-    if s["correct_predictions"] != ev["official_correct"]:
-        problems.append(f"correct: client {s['correct_predictions']} vs derived "
-                        f"{ev['official_correct']}")
-    if s["incorrect_predictions"] != ev["official_incorrect"]:
-        problems.append(f"incorrect: client {s['incorrect_predictions']} vs derived "
-                        f"{ev['official_incorrect']}")
-    if s["total_predictions"] != ev["total_nodes"]:
-        problems.append(f"total: client {s['total_predictions']} vs derived {ev['total_nodes']}")
-    per = {int(k): v for k, v in s.get("per_node_credit", {}).items()}
+
+    def cmp(label, got, want, src):
+        if got != want:
+            problems.append(f"{label}: {src} {got} vs derived {want}")
+
+    cmp("correct", bracket["correct_predictions"], ev["official_correct"], "bracket view")
+    cmp("incorrect", bracket["incorrect_predictions"], ev["official_incorrect"], "bracket view")
+    cmp("total", bracket["total_predictions"], ev["total_nodes"], "bracket view")
+    cmp("correct", summary["correct_predictions"], ev["official_correct"], "summary view")
+    cmp("incorrect", summary["incorrect_predictions"], ev["official_incorrect"], "summary view")
+    cmp("points", summary["official_points_earned"], ev["official_score"], "summary view")
+
+    per = {int(k): v for k, v in bracket.get("per_node_credit", {}).items()}
     for n in ev["nodes"]:
         if n["selection_id"] in per and per[n["selection_id"]] != n["official_credit"]:
-            problems.append(f"selection {n['selection_id']}: client credit {per[n['selection_id']]} "
-                            f"vs derived {n['official_credit']}")
+            problems.append(f"selection {n['selection_id']}: bracket view credit "
+                            f"{per[n['selection_id']]} vs derived {n['official_credit']}")
     if problems:
         raise SystemExit("SETTLEMENT MISMATCH - the deterministic recomputation does not reproduce "
                          "the first-party client settlement:\n  " + "\n  ".join(problems))
     return {
-        "evidence_id": eid,
+        "evidence_ids": [BRACKET_VIEW_EVIDENCE, SUMMARY_VIEW_EVIDENCE],
+        "evidence_id": SUMMARY_VIEW_EVIDENCE,
         "source_tier": 1,
-        "client_correct": s["correct_predictions"],
-        "client_incorrect": s["incorrect_predictions"],
-        "client_total": s["total_predictions"],
+        "paths": {
+            "A_client_bracket_view": {
+                "evidence_id": BRACKET_VIEW_EVIDENCE,
+                "correct": bracket["correct_predictions"],
+                "total": bracket["total_predictions"],
+                "per_node_marks": len(per),
+                "establishes_points": False,
+            },
+            "B_client_settlement_summary_view": {
+                "evidence_id": SUMMARY_VIEW_EVIDENCE,
+                "correct": summary["correct_predictions"],
+                "incorrect": summary["incorrect_predictions"],
+                "points": summary["official_points_earned"],
+                "establishes_points": True,
+            },
+            "C_deterministic_recomputation": {
+                "correct": ev["official_correct"],
+                "incorrect": ev["official_incorrect"],
+                "points": ev["official_score"],
+                "inputs": ["frozen submitted slate", "realized node winners",
+                           "committed official scoring vector"],
+            },
+        },
+        "client_correct": summary["correct_predictions"],
+        "client_incorrect": summary["incorrect_predictions"],
+        "client_total": bracket["total_predictions"],
+        "client_points": summary["official_points_earned"],
         "derived_correct": ev["official_correct"],
         "derived_incorrect": ev["official_incorrect"],
         "derived_official_score": ev["official_score"],
         "aggregate_agrees": True,
         "per_node_agrees": True,
         "per_node_marks_checked": len(per),
-        "official_points_displayed_by_client": s.get("official_points_displayed_by_client"),
-        "official_points_basis": s.get("official_points_basis"),
+        "all_three_paths_agree": True,
+        "provenance_status": "dual first-party plus deterministic",
     }
 
 

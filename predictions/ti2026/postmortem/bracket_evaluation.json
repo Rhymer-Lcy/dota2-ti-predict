@@ -419,19 +419,50 @@
   "why_it_is_kept": "it separates 'the model called the winner' from 'the model called the whole path', which is the quantity the bracket propagation destroys"
  },
  "first_party_settlement_cross_check": {
-  "evidence_id": "ti2026-ev-003",
+  "evidence_ids": [
+   "ti2026-ev-003",
+   "ti2026-ev-006"
+  ],
+  "evidence_id": "ti2026-ev-006",
   "source_tier": 1,
+  "paths": {
+   "A_client_bracket_view": {
+    "evidence_id": "ti2026-ev-003",
+    "correct": 8,
+    "total": 14,
+    "per_node_marks": 14,
+    "establishes_points": false
+   },
+   "B_client_settlement_summary_view": {
+    "evidence_id": "ti2026-ev-006",
+    "correct": 8,
+    "incorrect": 6,
+    "points": 4320,
+    "establishes_points": true
+   },
+   "C_deterministic_recomputation": {
+    "correct": 8,
+    "incorrect": 6,
+    "points": 4320,
+    "inputs": [
+     "frozen submitted slate",
+     "realized node winners",
+     "committed official scoring vector"
+    ]
+   }
+  },
   "client_correct": 8,
   "client_incorrect": 6,
   "client_total": 14,
+  "client_points": 4320,
   "derived_correct": 8,
   "derived_incorrect": 6,
   "derived_official_score": 4320,
   "aggregate_agrees": true,
   "per_node_agrees": true,
   "per_node_marks_checked": 14,
-  "official_points_displayed_by_client": null,
-  "official_points_basis": "This capture frames the bracket page. It directly shows the 8/14 count for this track, the 6/16 count for the group track, and a settlement mark on every one of the 14 nodes; it does not include the client's settlement summary panel, so no points figure appears anywhere in the frame. The 4320 quoted throughout this project is therefore DERIVED here: it is entry 8 of the committed 15-entry Main Event scoring vector in data/ti2026/inputs/prediction_questions.json, reached deterministically from the frozen slate and the realized node winners. The operator reports that the client's own settlement summary panel states 8 correct, 6 incorrect and +4,320 directly. That panel is not part of this frame, and this index records only what this frame shows; archiving the points figure as a direct first-party transcription requires a capture of that panel. See INC-16."
+  "all_three_paths_agree": true,
+  "provenance_status": "dual first-party plus deterministic"
  },
  "expected_vs_realized": {
   "expected_correct_pre_event": 5.109,

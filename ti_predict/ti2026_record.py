@@ -239,11 +239,13 @@ INCIDENTS = [
         "symptom": "not a defect: the strongest positive result of the closure",
         "root_cause": "n/a",
         "load_bearing": True,
-        "impact_on_submitted_decision": "the optimiser maximised the right thing. The in-client "
-                                        "settlement credits 8 of 14 and the production functional "
-                                        "recomputes 8 of 14 node by node, so the objective that "
-                                        "16,384 slates were ranked by is the objective the client "
-                                        "actually pays",
+        "impact_on_submitted_decision": "the optimiser maximised the right thing. Two independent "
+                                        "in-client views credit 8 of 14 for 4320 points - the "
+                                        "bracket view node by node, the settlement summary view in "
+                                        "aggregate - and the production functional recomputes the "
+                                        "same result from the frozen slate alone, so the objective "
+                                        "that 16,384 slates were ranked by is the objective the "
+                                        "client actually pays",
         "fix": "n/a",
         "prevention_ti2027": "verify the scoring functional against the client BEFORE optimising "
                              "it, rather than discovering afterwards that it was right",
@@ -252,40 +254,45 @@ INCIDENTS = [
     },
     {
         "id": "INC-16",
-        "title": "the archived settlement capture does not include the client's settlement summary panel",
-        "symptom": "the operator reports that the client's settlement summary states 8 correct, 6 "
-                   "incorrect and +4,320 directly. The capture that was archived frames the "
-                   "bracket page: it directly shows the 8/14 count, the group-stage 6/16 count and "
-                   "a settlement mark on all 14 nodes, but carries no points figure anywhere in "
-                   "the frame",
-        "root_cause": "the archived frame and the summary panel are two different client views, "
-                      "and only the bracket view was captured. On the archival side, the first "
-                      "pass also under-described this - it reported the absence as if the client "
-                      "showed no points figure at all, rather than as a property of this one frame",
+        "title": "the settlement points figure was initially archived on derivation alone",
+        "symptom": "the first archival pass held only the bracket view (ti2026-ev-003). That frame "
+                   "directly shows the 8/14 count, the group-stage 6/16 count and a settlement "
+                   "mark on all 14 nodes, but it does not contain the client's settlement summary "
+                   "modal, so it carries no points figure. An early statement then generalised "
+                   "that absence from the one frame to the client as a whole",
+        "root_cause": "incomplete capture coverage - the bracket view and the settlement summary "
+                      "modal are two different client views and only the first was held - "
+                      "compounded by over-generalised transcription wording on the archival side",
         "load_bearing": True,
-        "impact_on_submitted_decision": "none, and no number moves. 4320 is independently correct: "
-                                        "it is entry 8 of the committed scoring vector, reached "
-                                        "deterministically from the frozen slate and the realized "
-                                        "node winners, and the 8/14 count it keys on IS directly "
-                                        "transcribed from the capture and agrees node by node. "
-                                        "What is affected is the STRENGTH of the provenance - "
-                                        "4320 currently rests on one verified path (derivation) "
-                                        "where two were available (derivation plus a direct "
-                                        "first-party reading)",
-        "fix": "the evidence index records exactly what this frame contains, marks the points "
-               "figure as not visible in it, and states plainly that a capture of the settlement "
-               "summary panel would upgrade 4320 to dual provenance. Nothing is transcribed that "
-               "the archived bytes do not show",
+        "impact_on_submitted_decision": "none. No prediction or evaluation number changed at any "
+                                        "point; 4320 was correct throughout. Only the STRENGTH of "
+                                        "its provenance changed: from derivation alone, to "
+                                        "derivation plus a direct first-party reading",
+        "fix": "two steps. First the wording was corrected so the archive stated a property of the "
+               "one frame rather than of the client. Then ti2026-ev-006, the settlement summary "
+               "capture, was archived; it directly shows 8 correct, 6 incorrect and +4,320, and "
+               "the evaluator now gates the recomputation against BOTH client views",
         "prevention_ti2027": "when one client screen reports several fields the pipeline will "
-                             "quote, capture the panel that shows them together and transcribe "
-                             "each field directly. Where a field must instead be derived, say so "
-                             "next to it - a number that is right can still have weaker provenance "
-                             "than it deserves",
-        "check": "the evidence index stores official_points_visible_in_this_capture=false beside "
-                 "official_points_basis, and a test asserts the derived score equals the scoring "
-                 "vector entry for the directly transcribed count",
-        "status": "OPEN - resolvable by archiving a capture of the settlement summary panel, which "
-                  "would give 4320 direct first-party provenance alongside the derivation",
+                             "quote, capture the view that shows them together. And scope every "
+                             "negative observation to the artifact it was made on - 'this frame "
+                             "does not show X' is verifiable from the bytes, 'the client does not "
+                             "show X' is not",
+        "check": "cross_check_settlement requires both ti2026-ev-003 and ti2026-ev-006 to be "
+                 "present and to agree with the recomputation on correct, incorrect and points; a "
+                 "missing or disagreeing view aborts the run",
+        "status": "CLOSED - dual first-party/deterministic settlement provenance established",
+        "resolution": {
+            "closed_at": "2026-08-24",
+            "ev003_remains_valid": ("the bracket view was never wrong and is not superseded. It "
+                                    "remains the only evidence for the per-node marks and for the "
+                                    "group-stage count; ev-006 is complementary, not corrective"),
+            "ev006_establishes": {"correct_predictions": 8, "incorrect_predictions": 6,
+                                  "official_points_earned": 4320},
+            "operator_report_superseded_by_evidence": ("while only ev-003 was held, the operator's "
+                                                       "report of the summary fields was recorded "
+                                                       "as a report. It is now replaced by the "
+                                                       "capture itself and is no longer relied on"),
+        },
     },
     {
         "id": "INC-17",
@@ -394,11 +401,6 @@ KNOWN_LIMITATIONS = [
     "published before this archival began. The operator decided to preserve history rather than "
     "rewrite it (INC-19, ACCEPTED_LEGACY_EXPOSURE_PRESERVE_HISTORY); the exposure is registered, "
     "bounded to an exact file list, and prevented by test from reaching any new artifact.",
-    "The points figure for the Main Event prediction track is DERIVED from the committed scoring "
-    "vector rather than transcribed: the archived client capture frames the bracket page and does "
-    "not include the client's settlement summary panel. The count it keys on (8 of 14) IS directly "
-    "transcribed and agrees node by node, so the value is not in doubt - only its provenance is "
-    "single-path rather than dual. See INC-16.",
 ]
 
 REUSABLE_LESSONS = [

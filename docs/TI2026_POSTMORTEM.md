@@ -100,18 +100,18 @@ clinches the node's declared best-of, so that source could not have entered sile
 committed 15-entry scoring vector - never copied from the client - then cross-checked against the
 first-party settlement, which is a hard gate: a mismatch aborts.
 
-> A note on provenance, because it is weaker than it could be. The archived capture frames the
-> bracket page: it **directly shows** the 8/14 count, the group-stage 6/16 count and a settlement
-> check or cross on **every one of the 14 nodes**. It does not include the client's settlement
-> summary panel, so no points figure appears in that frame. **4320 is therefore derived here** -
-> entry 8 of the committed scoring vector, reached deterministically from the frozen slate and the
-> realized winners.
->
-> The operator reports that the client's own settlement summary states 8 correct, 6 incorrect and
-> **+4,320** directly. That panel is not part of the archived bytes, so the index records only what
-> those bytes show. The value is not in doubt - the count it keys on is directly transcribed and
-> agrees node by node - but it currently rests on **one** verified path where **two** were
-> available. Archiving a capture of that panel would close it (INC-16).
+**Three independent paths reach this result and the evaluator gates all three**, aborting on any
+disagreement:
+
+| Path | Source | Establishes |
+|---|---|---|
+| **A** | first-party client **bracket view** (`ti2026-ev-003`) | 8/14, plus a settlement mark on **every one of the 14 nodes** |
+| **B** | first-party client **settlement summary view** (`ti2026-ev-006`) | **8 correct, 6 incorrect, +4,320** |
+| **C** | **deterministic recomputation** — frozen slate + realized winners + committed scoring vector, no image involved | 8 correct, 6 incorrect, 4320 |
+
+A and B are separate client views captured at different moments; C uses no image at all. The points
+figure therefore has both a direct first-party reading and an independent derivation, and the
+per-node marks are checked one by one against the recomputation.
 
 The client also settles the group-stage track at **6 of 16**, against a pre-event expectation of
 5.249. Recorded for completeness; the same N = 1 caveat applies with even less force at one draw.
@@ -276,8 +276,9 @@ remain unobservable.
 Raw Dota 2 client captures are load-bearing evidence and personally identifying at the same time. The
 architecture separates those two facts:
 
-- **Canonical raw storage is a private archive outside the repository**, holding the three captures
-  under `ti2026/{pre_event,post_event}/` plus a private manifest.
+- **Canonical raw storage is a private archive outside the repository**, holding four client
+  captures under `ti2026/{pre_event,post_event}/`, the two final Fantasy banner states under
+  `ti2026/fantasy/final_states/`, and a private manifest.
 - **The repository publishes a commitment, not the image**:
   [`data/ti2026/evidence/private_evidence_index.json`](../data/ti2026/evidence/private_evidence_index.json)
   carries each capture's sha256, dimensions, phase, source tier and a privacy-safe transcription of
@@ -335,11 +336,12 @@ that changed how the project works:
 - **INC-11/13, Fantasy observability.** Three official statistics turned out to be unobservable, and
   the first response was to fill the gap with an aggregate ratio used as a rate. Withdrawn. The terms
   are now symbolic and unbounded. **UNKNOWN is a valid value.**
-- **INC-16, a provenance gap, not a numeric one.** The archived capture is the bracket view and does
-  not include the client's settlement summary panel, so the points figure is derived rather than
-  read. No number moves — the 8/14 count is directly transcribed and agrees node by node — but 4320
-  rests on one verified path where two were available. *When one screen reports several fields you
-  will quote, capture the panel that shows them together.*
+- **INC-16, a provenance gap, now closed.** The first archival pass held only the bracket view,
+  which carries no points figure, and an early statement generalised that absence from the frame to
+  the client. The wording was corrected, then the settlement summary capture (`ti2026-ev-006`) was
+  archived and directly verifies 8 / 6 / +4,320. No number ever moved; the provenance went from
+  single-path to dual. *Scope every negative observation to the artifact it was made on — "this
+  frame does not show X" is checkable against the bytes, "the client does not show X" is not.*
 - **INC-17/18, structural checks caught two real errors during archival.** A secondary source
   reported best-of-5 scores (rejected by the clinch assertion), and the first node-assignment attempt
   failed because PARIVISION and Team Spirit played twice - the participant pair is not a unique key
