@@ -1,0 +1,2530 @@
+{
+ "manifest": {
+  "artifact_family": "TI15 period-1 (Main Event) Fantasy",
+  "generated_at": "2026-08-17T12:30:33+00:00",
+  "code_commit": "8c6b715",
+  "git_dirty_at_start": false,
+  "information_cutoff": "2026-08-17T00:00:00Z",
+  "main_event_results_used": false,
+  "leakage_note": "every input match starts before 2026-08-20T00:00:00Z, asserted in the fetcher on both the league listing and each match payload",
+  "runtime_seconds": 31.4,
+  "estimator": {
+   "chain": "player-game -> role arithmetic mean -> top two games in a series -> best series in the period -> equal-weight mean over event blocks -> expectation over the Main Event series-count distribution",
+   "expected_maximum": "closed form over the empirical series pool, not simulated",
+   "uncertainty": "hierarchical bootstrap: resample event blocks, then series within",
+   "bootstrap_draws": 400,
+   "coach_stacking": "additive (prefix + suffix); multiplicative reported as sensitivity"
+  },
+  "data": {
+   "historical_player_maps": {
+    "path": "data\\ti2026\\processed\\fantasy\\player_map_stats.csv",
+    "sha256": "8e97d77c899edbbc6645c08984e1434034308e1658d7f3049652b18d868445b7"
+   },
+   "historical_extras": {
+    "path": "data\\ti2026\\processed\\fantasy\\hist_player_map_extras.csv",
+    "sha256": "3a68d699e9590eccb7f56d4111f94350c0a2cd7d7ecce7038fef727c6e167fd6"
+   },
+   "historical_match_extras": {
+    "path": "data\\ti2026\\processed\\fantasy\\match_extras.csv",
+    "sha256": "e566b3a56ed43e59e0285def25b15c2b2dd0c0601f95f1306b66f48a6a7baab2"
+   },
+   "ti15_player_maps": {
+    "path": "data\\ti2026\\processed\\fantasy\\ti15_player_map_stats.csv",
+    "sha256": "42235d33dbde3aae5ad16d3ca7c014fa804d9d54927a481c751a63f1dd4e5944"
+   },
+   "ti15_match_extras": {
+    "path": "data\\ti2026\\processed\\fantasy\\ti15_match_extras.csv",
+    "sha256": "b09ac9c9f0094a85366c5abda344058d341824a6534c0adc9d971a96732d68ee"
+   },
+   "roster_positions": {
+    "path": "data\\ti2026\\inputs\\fantasy\\roster_positions.csv",
+    "sha256": "b416e7f7d88d300d67ef73999b4136359a4222c66a27c779b181f8ebc26b28ac"
+   }
+  },
+  "bracket_isolation": {
+   "committed_artifact": "predictions\\ti2026\\playoffs\\ti15_main_event_prediction.json",
+   "artifact_generated_at": "2026-08-17T09:41:58+00:00",
+   "artifact_code_commit": "0f6c691",
+   "consumed_read_only": [
+    "strength_evolution[*].serve",
+    "states.C_serve.radiant_c",
+    "the saved league feed topology via ti_predict.bracket"
+   ],
+   "refit": false,
+   "modified": false,
+   "universe_maps_csv_touched": false
+  },
+  "coverage": {
+   "Aurora Gaming|core": {
+    "series": 37,
+    "games": 93,
+    "player_games": 186,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Aurora Gaming|mid": {
+    "series": 37,
+    "games": 93,
+    "player_games": 93,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Aurora Gaming|support": {
+    "series": 37,
+    "games": 93,
+    "player_games": 186,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Tundra Esports|core": {
+    "series": 36,
+    "games": 78,
+    "player_games": 156,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Tundra Esports|support": {
+    "series": 36,
+    "games": 87,
+    "player_games": 174,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Tundra Esports|mid": {
+    "series": 36,
+    "games": 87,
+    "player_games": 87,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Spirit|core": {
+    "series": 32,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Spirit|support": {
+    "series": 32,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Spirit|mid": {
+    "series": 32,
+    "games": 74,
+    "player_games": 74,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Yandex|core": {
+    "series": 22,
+    "games": 55,
+    "player_games": 110,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Yandex|mid": {
+    "series": 22,
+    "games": 55,
+    "player_games": 55,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Yandex|support": {
+    "series": 22,
+    "games": 55,
+    "player_games": 110,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Falcons|support": {
+    "series": 42,
+    "games": 98,
+    "player_games": 196,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Falcons|core": {
+    "series": 42,
+    "games": 98,
+    "player_games": 196,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Liquid|support": {
+    "series": 38,
+    "games": 73,
+    "player_games": 146,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Liquid|core": {
+    "series": 38,
+    "games": 93,
+    "player_games": 186,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Liquid|mid": {
+    "series": 38,
+    "games": 93,
+    "player_games": 93,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Nigma Galaxy|core": {
+    "series": 24,
+    "games": 27,
+    "player_games": 54,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "LGD Gaming|core": {
+    "series": 35,
+    "games": 66,
+    "player_games": 132,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "LGD Gaming|support": {
+    "series": 35,
+    "games": 80,
+    "player_games": 160,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "BetBoom Team|core": {
+    "series": 43,
+    "games": 101,
+    "player_games": 202,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "BetBoom Team|mid": {
+    "series": 43,
+    "games": 101,
+    "player_games": 101,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "BetBoom Team|support": {
+    "series": 43,
+    "games": 101,
+    "player_games": 202,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Xtreme Gaming|core": {
+    "series": 25,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Xtreme Gaming|mid": {
+    "series": 25,
+    "games": 57,
+    "player_games": 57,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Xtreme Gaming|support": {
+    "series": 25,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Vici Gaming|core": {
+    "series": 33,
+    "games": 75,
+    "player_games": 150,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Vici Gaming|mid": {
+    "series": 33,
+    "games": 75,
+    "player_games": 75,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Vici Gaming|support": {
+    "series": 33,
+    "games": 75,
+    "player_games": 150,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "GamerLegion|core": {
+    "series": 27,
+    "games": 59,
+    "player_games": 118,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "GamerLegion|mid": {
+    "series": 27,
+    "games": 59,
+    "player_games": 59,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "GamerLegion|support": {
+    "series": 27,
+    "games": 59,
+    "player_games": 118,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "PARIVISION|mid": {
+    "series": 30,
+    "games": 80,
+    "player_games": 80,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "PARIVISION|support": {
+    "series": 30,
+    "games": 80,
+    "player_games": 160,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Nigma Galaxy|mid": {
+    "series": 19,
+    "games": 40,
+    "player_games": 40,
+    "events": [
+     "19543",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "PARIVISION|core": {
+    "series": 30,
+    "games": 62,
+    "player_games": 124,
+    "events": [
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Falcons|mid": {
+    "series": 39,
+    "games": 91,
+    "player_games": 91,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Nigma Galaxy|support": {
+    "series": 21,
+    "games": 42,
+    "player_games": 84,
+    "events": [
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Resilience|core": {
+    "series": 6,
+    "games": 16,
+    "player_games": 32,
+    "events": [
+     "19719"
+    ]
+   },
+   "Team Resilience|mid": {
+    "series": 6,
+    "games": 16,
+    "player_games": 16,
+    "events": [
+     "19719"
+    ]
+   },
+   "Team Resilience|support": {
+    "series": 6,
+    "games": 16,
+    "player_games": 32,
+    "events": [
+     "19719"
+    ]
+   },
+   "OG|mid": {
+    "series": 16,
+    "games": 34,
+    "player_games": 34,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "OG|support": {
+    "series": 16,
+    "games": 34,
+    "player_games": 68,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "OG|core": {
+    "series": 16,
+    "games": 34,
+    "player_games": 68,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "HULIGANI|mid": {
+    "series": 9,
+    "games": 20,
+    "player_games": 20,
+    "events": [
+     "19719",
+     "19785"
+    ]
+   },
+   "HULIGANI|support": {
+    "series": 9,
+    "games": 10,
+    "player_games": 20,
+    "events": [
+     "19719"
+    ]
+   },
+   "HULIGANI|core": {
+    "series": 9,
+    "games": 20,
+    "player_games": 40,
+    "events": [
+     "19719",
+     "19785"
+    ]
+   }
+  },
+  "accounts": {
+   "operator": {
+    "file": "predictions\\ti2026\\fantasy\\main_event\\account_state_operator_20260817.json",
+    "sha256": "77439bff75de0e7d615a7242c22bf4ca52f556029e773f788a045d78e17f4c99",
+    "roll_tokens": 40,
+    "coach": {
+     "prefix": "Elemental",
+     "prefix_bonus_percent": 8,
+     "suffix": "the Tormented",
+     "suffix_bonus_percent": 23,
+     "status": "observed in client",
+     "change_cost_tokens": 0
+    }
+   },
+   "target": {
+    "file": "predictions\\ti2026\\fantasy\\main_event\\account_state_target_20260817.json",
+    "sha256": "3f86bd1125d9db05d04ba1c9ced2cf911d59b61e781ddefaf91e81c835a933d6",
+    "roll_tokens": 36,
+    "coach": {
+     "prefix": "Elemental",
+     "prefix_bonus_percent": 8,
+     "suffix": "the Tormented",
+     "suffix_bonus_percent": 23,
+     "status": "observed in client",
+     "change_cost_tokens": 0
+    }
+   }
+  }
+ },
+ "rankings": {
+  "operator": {
+   "core": {
+    "current_team": "Xtreme Gaming",
+    "current_team_is_survivor": false,
+    "banner": [
+     {
+      "slot": 1,
+      "stat": "tower_kills",
+      "colour": "red",
+      "quality_tier": "III",
+      "trait": "Benevolent",
+      "multiplier": 1.6
+     },
+     {
+      "slot": 2,
+      "stat": "teamfight_participation",
+      "colour": "green",
+      "quality_tier": "II",
+      "trait": "Fractal",
+      "multiplier": 1.5
+     },
+     {
+      "slot": 3,
+      "stat": "deaths",
+      "colour": "red",
+      "quality_tier": "I",
+      "trait": "Friendly",
+      "multiplier": 1.1
+     },
+     {
+      "slot": 4,
+      "stat": "roshan_kills",
+      "colour": "green",
+      "quality_tier": "II",
+      "trait": "Fractal",
+      "multiplier": 1.3
+     },
+     {
+      "slot": 5,
+      "stat": "gpm",
+      "colour": "red",
+      "quality_tier": "III",
+      "trait": "Friendly",
+      "multiplier": 1.6
+     }
+    ],
+    "coach": {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch"
+    },
+    "recommended_team": "PARIVISION",
+    "robustness": {
+     "family_size": 67,
+     "flips": 0,
+     "flip_fraction": 0.0,
+     "label": "ROBUST",
+     "flipping_perturbations": []
+    },
+    "shrinkage_sweep": {
+     "k_values": [
+      0.0,
+      2.0,
+      5.0,
+      10.0
+     ],
+     "production_k": 5.0,
+     "best_is_stable": true,
+     "leader_survives_family": true,
+     "by_k": {
+      "0.0": {
+       "best": "PARIVISION",
+       "top3": [
+        "PARIVISION",
+        "BetBoom Team",
+        "Team Falcons"
+       ],
+       "gap_to_second_pct": 3.23
+      },
+      "2.0": {
+       "best": "PARIVISION",
+       "top3": [
+        "PARIVISION",
+        "BetBoom Team",
+        "Team Falcons"
+       ],
+       "gap_to_second_pct": 3.566
+      },
+      "5.0": {
+       "best": "PARIVISION",
+       "top3": [
+        "PARIVISION",
+        "BetBoom Team",
+        "Team Falcons"
+       ],
+       "gap_to_second_pct": 3.772
+      },
+      "10.0": {
+       "best": "PARIVISION",
+       "top3": [
+        "PARIVISION",
+        "BetBoom Team",
+        "Team Falcons"
+       ],
+       "gap_to_second_pct": 3.849
+      }
+     }
+    },
+    "unscored": {
+     "total_multiplier": 7.1,
+     "unscored_multiplier": 0,
+     "unscored_fraction": 0.0,
+     "unscored_stats": []
+    },
+    "unobservable_breakpoints": {
+     "unscored_slots": [],
+     "note": "no unscored stat on this banner"
+    },
+    "ranking": [
+     {
+      "organization": "PARIVISION",
+      "expected_period_score": 19920.9,
+      "unshrunk_period_score": 20086.5,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 19820.2,
+      "bootstrap_sd": 319.5,
+      "ci90": [
+       19280.5,
+       20311.5
+      ],
+      "expected_series": 4.077,
+      "n_series_observed": 23,
+      "n_events": 3,
+      "rank": 1,
+      "regret_to_best": 0.0,
+      "regret_pct": 0.0,
+      "p_is_best_bootstrap": 0.8975
+     },
+     {
+      "organization": "BetBoom Team",
+      "expected_period_score": 19169.5,
+      "unshrunk_period_score": 19437.8,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 19034.2,
+      "bootstrap_sd": 431.6,
+      "ci90": [
+       18310.1,
+       19681.8
+      ],
+      "expected_series": 3.492,
+      "n_series_observed": 43,
+      "n_events": 6,
+      "rank": 2,
+      "regret_to_best": 751.4,
+      "regret_pct": 3.77,
+      "p_is_best_bootstrap": 0.07
+     },
+     {
+      "organization": "Team Falcons",
+      "expected_period_score": 18815.2,
+      "unshrunk_period_score": 18774.8,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 18730.5,
+      "bootstrap_sd": 497.6,
+      "ci90": [
+       17834.8,
+       19463.2
+      ],
+      "expected_series": 3.737,
+      "n_series_observed": 42,
+      "n_events": 6,
+      "rank": 3,
+      "regret_to_best": 1105.7,
+      "regret_pct": 5.55,
+      "p_is_best_bootstrap": 0.025
+     },
+     {
+      "organization": "Team Spirit",
+      "expected_period_score": 18629.4,
+      "unshrunk_period_score": 16690.6,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 18490.8,
+      "bootstrap_sd": 451.5,
+      "ci90": [
+       17744.3,
+       19229.1
+      ],
+      "expected_series": 3.427,
+      "n_series_observed": 25,
+      "n_events": 4,
+      "rank": 4,
+      "regret_to_best": 1291.5,
+      "regret_pct": 6.48,
+      "p_is_best_bootstrap": 0.0075
+     },
+     {
+      "organization": "Team Yandex",
+      "expected_period_score": 18413.9,
+      "unshrunk_period_score": 17104.6,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 18375.7,
+      "bootstrap_sd": 397.5,
+      "ci90": [
+       17723.0,
+       18985.6
+      ],
+      "expected_series": 3.672,
+      "n_series_observed": 22,
+      "n_events": 4,
+      "rank": 5,
+      "regret_to_best": 1507.0,
+      "regret_pct": 7.56,
+      "p_is_best_bootstrap": 0.0
+     },
+     {
+      "organization": "Tundra Esports",
+      "expected_period_score": 17901.1,
+      "unshrunk_period_score": 17486.1,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 17831.7,
+      "bootstrap_sd": 428.1,
+      "ci90": [
+       17126.0,
+       18509.3
+      ],
+      "expected_series": 3.059,
+      "n_series_observed": 33,
+      "n_events": 5,
+      "rank": 6,
+      "regret_to_best": 2019.8,
+      "regret_pct": 10.14,
+      "p_is_best_bootstrap": 0.0
+     },
+     {
+      "organization": "Team Liquid",
+      "expected_period_score": 17816.1,
+      "unshrunk_period_score": 16209.4,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 17745.0,
+      "bootstrap_sd": 368.1,
+      "ci90": [
+       17140.2,
+       18348.7
+      ],
+      "expected_series": 3.323,
+      "n_series_observed": 38,
+      "n_events": 6,
+      "rank": 7,
+      "regret_to_best": 2104.8,
+      "regret_pct": 10.57,
+      "p_is_best_bootstrap": 0.0
+     },
+     {
+      "organization": "Nigma Galaxy",
+      "expected_period_score": 17335.2,
+      "unshrunk_period_score": 15635.0,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 17318.1,
+      "bootstrap_sd": 1009.8,
+      "ci90": [
+       15670.4,
+       18928.4
+      ],
+      "expected_series": 3.213,
+      "n_series_observed": 14,
+      "n_events": 3,
+      "rank": 8,
+      "regret_to_best": 2585.7,
+      "regret_pct": 12.98,
+      "p_is_best_bootstrap": 0.0
+     }
+    ]
+   },
+   "mid": {
+    "current_team": "Team Falcons",
+    "current_team_is_survivor": true,
+    "banner": [
+     {
+      "slot": 1,
+      "stat": "madstone",
+      "colour": "red",
+      "quality_tier": "I",
+      "trait": "Fractal",
+      "multiplier": 1.1
+     },
+     {
+      "slot": 2,
+      "stat": "runes_grabbed",
+      "colour": "blue",
+      "quality_tier": "II",
+      "trait": "Unique",
+      "multiplier": 1.5
+     },
+     {
+      "slot": 3,
+      "stat": "tormentor_kills",
+      "colour": "green",
+      "quality_tier": "III",
+      "trait": "Benevolent",
+      "multiplier": 1.6
+     },
+     {
+      "slot": 4,
+      "stat": "deaths",
+      "colour": "red",
+      "quality_tier": "IV",
+      "trait": "Friendly",
+      "multiplier": 2.2
+     },
+     {
+      "slot": 5,
+      "stat": "first_blood",
+      "colour": "green",
+      "quality_tier": "II",
+      "trait": "Unique",
+      "multiplier": 1.3
+     }
+    ],
+    "coach": {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch"
+    },
+    "recommended_team": "Team Falcons",
+    "robustness": {
+     "family_size": 71,
+     "flips": 19,
+     "flip_fraction": 0.2676,
+     "label": "BANNER-DEPENDENT",
+     "flipping_perturbations": [
+      {
+       "perturbation": "slot1.stat->tower_kills",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot2.quality->I",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot2.stat->wards_placed",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot2.stat->camps_stacked",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot2.stat->smokes_used",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot2.stat->watchers_taken",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot2.stat->lotuses_grabbed",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot3.quality->I",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot3.quality->II",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot3.stat->roshan_kills",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot3.stat->teamfight_participation",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot4.quality->V",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot4.trait->Vampiric",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot5.quality->I",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot5.trait->Benevolent",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot5.stat->roshan_kills",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot5.stat->teamfight_participation",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot5.stat->stuns",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot5.stat->courier_kills",
+       "new_best": "PARIVISION"
+      }
+     ]
+    },
+    "shrinkage_sweep": {
+     "k_values": [
+      0.0,
+      2.0,
+      5.0,
+      10.0
+     ],
+     "production_k": 5.0,
+     "best_is_stable": false,
+     "leader_survives_family": false,
+     "by_k": {
+      "0.0": {
+       "best": "Team Falcons",
+       "top3": [
+        "Team Falcons",
+        "PARIVISION",
+        "BetBoom Team"
+       ],
+       "gap_to_second_pct": 3.772
+      },
+      "2.0": {
+       "best": "Team Falcons",
+       "top3": [
+        "Team Falcons",
+        "PARIVISION",
+        "Team Liquid"
+       ],
+       "gap_to_second_pct": 1.649
+      },
+      "5.0": {
+       "best": "Team Falcons",
+       "top3": [
+        "Team Falcons",
+        "PARIVISION",
+        "Team Liquid"
+       ],
+       "gap_to_second_pct": 0.111
+      },
+      "10.0": {
+       "best": "PARIVISION",
+       "top3": [
+        "PARIVISION",
+        "Team Falcons",
+        "Team Liquid"
+       ],
+       "gap_to_second_pct": 1.066
+      }
+     }
+    },
+    "unscored": {
+     "total_multiplier": 7.7,
+     "unscored_multiplier": 1.1,
+     "unscored_fraction": 0.1429,
+     "unscored_stats": [
+      "madstone"
+     ]
+    },
+    "unobservable_breakpoints": {
+     "unscored_slots": [
+      {
+       "slot": 1,
+       "stat": "madstone",
+       "multiplier": 1.1,
+       "coefficient": 13.0,
+       "points_per_extra_unit_per_player_game": 28.6,
+       "challengers": [
+        {
+         "challenger": "PARIVISION",
+         "gap_points": 16.1,
+         "extra_per_player_game_needed": 0.563
+        },
+        {
+         "challenger": "Team Liquid",
+         "gap_points": 627.1,
+         "extra_per_player_game_needed": 21.927
+        },
+        {
+         "challenger": "BetBoom Team",
+         "gap_points": 702.7,
+         "extra_per_player_game_needed": 24.57
+        }
+       ]
+      }
+     ],
+     "reading": "a challenger overtakes the leader only if its players average at least this many MORE of that stat per player-game than the leader's do. The stat has no public per-player source, so the sign of that difference is not established either way."
+    },
+    "ranking": [
+     {
+      "organization": "Team Falcons",
+      "expected_period_score": 14541.9,
+      "unshrunk_period_score": 14664.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 14364.2,
+      "bootstrap_sd": 488.3,
+      "ci90": [
+       13617.2,
+       15226.1
+      ],
+      "expected_series": 3.737,
+      "n_series_observed": 39,
+      "n_events": 5,
+      "rank": 1,
+      "regret_to_best": 0.0,
+      "regret_pct": 0.0,
+      "p_is_best_bootstrap": 0.2925
+     },
+     {
+      "organization": "PARIVISION",
+      "expected_period_score": 14525.8,
+      "unshrunk_period_score": 14111.1,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 14461.0,
+      "bootstrap_sd": 392.4,
+      "ci90": [
+       13841.9,
+       15126.0
+      ],
+      "expected_series": 4.077,
+      "n_series_observed": 30,
+      "n_events": 4,
+      "rank": 2,
+      "regret_to_best": 16.1,
+      "regret_pct": 0.11,
+      "p_is_best_bootstrap": 0.4175
+     },
+     {
+      "organization": "Team Liquid",
+      "expected_period_score": 13914.8,
+      "unshrunk_period_score": 13643.9,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13792.7,
+      "bootstrap_sd": 639.2,
+      "ci90": [
+       12652.8,
+       14775.5
+      ],
+      "expected_series": 3.323,
+      "n_series_observed": 38,
+      "n_events": 6,
+      "rank": 3,
+      "regret_to_best": 627.1,
+      "regret_pct": 4.31,
+      "p_is_best_bootstrap": 0.095
+     },
+     {
+      "organization": "BetBoom Team",
+      "expected_period_score": 13839.2,
+      "unshrunk_period_score": 13698.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13716.1,
+      "bootstrap_sd": 715.1,
+      "ci90": [
+       12585.9,
+       14974.0
+      ],
+      "expected_series": 3.492,
+      "n_series_observed": 43,
+      "n_events": 6,
+      "rank": 4,
+      "regret_to_best": 702.7,
+      "regret_pct": 4.83,
+      "p_is_best_bootstrap": 0.0925
+     },
+     {
+      "organization": "Team Spirit",
+      "expected_period_score": 13621.6,
+      "unshrunk_period_score": 12294.7,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13505.1,
+      "bootstrap_sd": 647.5,
+      "ci90": [
+       12520.1,
+       14593.3
+      ],
+      "expected_series": 3.427,
+      "n_series_observed": 32,
+      "n_events": 5,
+      "rank": 5,
+      "regret_to_best": 920.3,
+      "regret_pct": 6.33,
+      "p_is_best_bootstrap": 0.065
+     },
+     {
+      "organization": "Nigma Galaxy",
+      "expected_period_score": 13547.2,
+      "unshrunk_period_score": 13054.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13476.8,
+      "bootstrap_sd": 591.0,
+      "ci90": [
+       12542.0,
+       14435.8
+      ],
+      "expected_series": 3.213,
+      "n_series_observed": 19,
+      "n_events": 4,
+      "rank": 6,
+      "regret_to_best": 994.7,
+      "regret_pct": 6.84,
+      "p_is_best_bootstrap": 0.0375
+     },
+     {
+      "organization": "Team Yandex",
+      "expected_period_score": 13289.6,
+      "unshrunk_period_score": 11815.9,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13209.4,
+      "bootstrap_sd": 326.6,
+      "ci90": [
+       12611.2,
+       13667.1
+      ],
+      "expected_series": 3.672,
+      "n_series_observed": 22,
+      "n_events": 4,
+      "rank": 7,
+      "regret_to_best": 1252.3,
+      "regret_pct": 8.61,
+      "p_is_best_bootstrap": 0.0
+     },
+     {
+      "organization": "Tundra Esports",
+      "expected_period_score": 12913.9,
+      "unshrunk_period_score": 11985.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 12831.4,
+      "bootstrap_sd": 406.7,
+      "ci90": [
+       12181.5,
+       13539.0
+      ],
+      "expected_series": 3.059,
+      "n_series_observed": 36,
+      "n_events": 6,
+      "rank": 8,
+      "regret_to_best": 1628.0,
+      "regret_pct": 11.2,
+      "p_is_best_bootstrap": 0.0
+     }
+    ]
+   },
+   "support": {
+    "current_team": "Xtreme Gaming",
+    "current_team_is_survivor": false,
+    "banner": [
+     {
+      "slot": 1,
+      "stat": "lotuses_grabbed",
+      "colour": "blue",
+      "quality_tier": "III",
+      "trait": "Fractal",
+      "multiplier": 1.5
+     },
+     {
+      "slot": 2,
+      "stat": "tormentor_kills",
+      "colour": "green",
+      "quality_tier": "V",
+      "trait": "Vampiric",
+      "multiplier": 3.0
+     },
+     {
+      "slot": 3,
+      "stat": "wards_placed",
+      "colour": "blue",
+      "quality_tier": "II",
+      "trait": "Friendly",
+      "multiplier": 1.2
+     },
+     {
+      "slot": 4,
+      "stat": "teamfight_participation",
+      "colour": "green",
+      "quality_tier": "II",
+      "trait": "Friendly",
+      "multiplier": 1.3
+     },
+     {
+      "slot": 5,
+      "stat": "smokes_used",
+      "colour": "blue",
+      "quality_tier": "III",
+      "trait": "Fractal",
+      "multiplier": 1.6
+     }
+    ],
+    "coach": {
+     "prefix": "Otherworldly",
+     "suffix": "the Clutch"
+    },
+    "recommended_team": "Team Falcons",
+    "robustness": {
+     "family_size": 67,
+     "flips": 6,
+     "flip_fraction": 0.0896,
+     "label": "BANNER-DEPENDENT",
+     "flipping_perturbations": [
+      {
+       "perturbation": "slot2.stat->roshan_kills",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot2.stat->first_blood",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot2.stat->stuns",
+       "new_best": "Team Spirit"
+      },
+      {
+       "perturbation": "slot2.stat->courier_kills",
+       "new_best": "Team Yandex"
+      },
+      {
+       "perturbation": "slot4.quality->V",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot4.stat->first_blood",
+       "new_best": "PARIVISION"
+      }
+     ]
+    },
+    "shrinkage_sweep": {
+     "k_values": [
+      0.0,
+      2.0,
+      5.0,
+      10.0
+     ],
+     "production_k": 5.0,
+     "best_is_stable": false,
+     "leader_survives_family": false,
+     "by_k": {
+      "0.0": {
+       "best": "Team Falcons",
+       "top3": [
+        "Team Falcons",
+        "BetBoom Team",
+        "Tundra Esports"
+       ],
+       "gap_to_second_pct": 0.462
+      },
+      "2.0": {
+       "best": "Team Falcons",
+       "top3": [
+        "Team Falcons",
+        "BetBoom Team",
+        "PARIVISION"
+       ],
+       "gap_to_second_pct": 1.659
+      },
+      "5.0": {
+       "best": "Team Falcons",
+       "top3": [
+        "Team Falcons",
+        "PARIVISION",
+        "BetBoom Team"
+       ],
+       "gap_to_second_pct": 1.197
+      },
+      "10.0": {
+       "best": "PARIVISION",
+       "top3": [
+        "PARIVISION",
+        "Team Falcons",
+        "BetBoom Team"
+       ],
+       "gap_to_second_pct": 0.118
+      }
+     }
+    },
+    "unscored": {
+     "total_multiplier": 8.6,
+     "unscored_multiplier": 1.5,
+     "unscored_fraction": 0.1744,
+     "unscored_stats": [
+      "lotuses_grabbed"
+     ]
+    },
+    "unobservable_breakpoints": {
+     "unscored_slots": [
+      {
+       "slot": 1,
+       "stat": "lotuses_grabbed",
+       "multiplier": 1.5,
+       "coefficient": 176.0,
+       "points_per_extra_unit_per_player_game": 528.0,
+       "challengers": [
+        {
+         "challenger": "PARIVISION",
+         "gap_points": 166.6,
+         "extra_per_player_game_needed": 0.316
+        },
+        {
+         "challenger": "BetBoom Team",
+         "gap_points": 259.0,
+         "extra_per_player_game_needed": 0.491
+        },
+        {
+         "challenger": "Team Liquid",
+         "gap_points": 312.7,
+         "extra_per_player_game_needed": 0.592
+        }
+       ]
+      }
+     ],
+     "reading": "a challenger overtakes the leader only if its players average at least this many MORE of that stat per player-game than the leader's do. The stat has no public per-player source, so the sign of that difference is not established either way."
+    },
+    "ranking": [
+     {
+      "organization": "Team Falcons",
+      "expected_period_score": 13909.9,
+      "unshrunk_period_score": 13741.0,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13779.9,
+      "bootstrap_sd": 456.6,
+      "ci90": [
+       13060.1,
+       14559.0
+      ],
+      "expected_series": 3.737,
+      "n_series_observed": 42,
+      "n_events": 6,
+      "rank": 1,
+      "regret_to_best": 0.0,
+      "regret_pct": 0.0,
+      "p_is_best_bootstrap": 0.3475
+     },
+     {
+      "organization": "PARIVISION",
+      "expected_period_score": 13743.3,
+      "unshrunk_period_score": 13252.1,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13646.3,
+      "bootstrap_sd": 593.1,
+      "ci90": [
+       12709.9,
+       14555.9
+      ],
+      "expected_series": 4.077,
+      "n_series_observed": 30,
+      "n_events": 4,
+      "rank": 2,
+      "regret_to_best": 166.6,
+      "regret_pct": 1.2,
+      "p_is_best_bootstrap": 0.275
+     },
+     {
+      "organization": "BetBoom Team",
+      "expected_period_score": 13650.9,
+      "unshrunk_period_score": 13677.5,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13547.6,
+      "bootstrap_sd": 357.2,
+      "ci90": [
+       12931.5,
+       14149.2
+      ],
+      "expected_series": 3.492,
+      "n_series_observed": 43,
+      "n_events": 6,
+      "rank": 3,
+      "regret_to_best": 259.0,
+      "regret_pct": 1.86,
+      "p_is_best_bootstrap": 0.12
+     },
+     {
+      "organization": "Team Liquid",
+      "expected_period_score": 13597.2,
+      "unshrunk_period_score": 12943.7,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13528.9,
+      "bootstrap_sd": 467.5,
+      "ci90": [
+       12787.5,
+       14307.9
+      ],
+      "expected_series": 3.323,
+      "n_series_observed": 30,
+      "n_events": 5,
+      "rank": 4,
+      "regret_to_best": 312.7,
+      "regret_pct": 2.25,
+      "p_is_best_bootstrap": 0.1375
+     },
+     {
+      "organization": "Team Yandex",
+      "expected_period_score": 13477.8,
+      "unshrunk_period_score": 12989.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13444.6,
+      "bootstrap_sd": 348.3,
+      "ci90": [
+       12822.8,
+       13969.1
+      ],
+      "expected_series": 3.672,
+      "n_series_observed": 22,
+      "n_events": 4,
+      "rank": 5,
+      "regret_to_best": 432.1,
+      "regret_pct": 3.11,
+      "p_is_best_bootstrap": 0.0775
+     },
+     {
+      "organization": "Tundra Esports",
+      "expected_period_score": 13393.6,
+      "unshrunk_period_score": 13266.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13319.9,
+      "bootstrap_sd": 401.5,
+      "ci90": [
+       12601.1,
+       13895.0
+      ],
+      "expected_series": 3.059,
+      "n_series_observed": 36,
+      "n_events": 6,
+      "rank": 6,
+      "regret_to_best": 516.3,
+      "regret_pct": 3.71,
+      "p_is_best_bootstrap": 0.0325
+     },
+     {
+      "organization": "Team Spirit",
+      "expected_period_score": 13359.5,
+      "unshrunk_period_score": 12527.5,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 13294.4,
+      "bootstrap_sd": 302.5,
+      "ci90": [
+       12781.8,
+       13797.2
+      ],
+      "expected_series": 3.427,
+      "n_series_observed": 25,
+      "n_events": 4,
+      "rank": 7,
+      "regret_to_best": 550.4,
+      "regret_pct": 3.96,
+      "p_is_best_bootstrap": 0.01
+     },
+     {
+      "organization": "Nigma Galaxy",
+      "expected_period_score": 12701.9,
+      "unshrunk_period_score": 11850.3,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 12683.7,
+      "bootstrap_sd": 375.8,
+      "ci90": [
+       12118.5,
+       13327.9
+      ],
+      "expected_series": 3.213,
+      "n_series_observed": 21,
+      "n_events": 4,
+      "rank": 8,
+      "regret_to_best": 1208.0,
+      "regret_pct": 8.68,
+      "p_is_best_bootstrap": 0.0
+     }
+    ]
+   }
+  },
+  "target": {
+   "core": {
+    "current_team": "Xtreme Gaming",
+    "current_team_is_survivor": false,
+    "banner": [
+     {
+      "slot": 1,
+      "stat": "gpm",
+      "colour": "red",
+      "quality_tier": "II",
+      "trait": "Benevolent",
+      "multiplier": 1.5
+     },
+     {
+      "slot": 2,
+      "stat": "roshan_kills",
+      "colour": "green",
+      "quality_tier": "IV",
+      "trait": "Benevolent",
+      "multiplier": 2.1
+     },
+     {
+      "slot": 3,
+      "stat": "creep_score",
+      "colour": "red",
+      "quality_tier": "V",
+      "trait": "Vampiric",
+      "multiplier": 3.4
+     },
+     {
+      "slot": 4,
+      "stat": "tormentor_kills",
+      "colour": "green",
+      "quality_tier": "I",
+      "trait": "Benevolent",
+      "multiplier": 1.0
+     },
+     {
+      "slot": 5,
+      "stat": "madstone",
+      "colour": "red",
+      "quality_tier": "III",
+      "trait": "Unique",
+      "multiplier": 2.1
+     }
+    ],
+    "coach": {
+     "prefix": "Crimson",
+     "suffix": "the Clutch"
+    },
+    "recommended_team": "PARIVISION",
+    "robustness": {
+     "family_size": 67,
+     "flips": 0,
+     "flip_fraction": 0.0,
+     "label": "ROBUST",
+     "flipping_perturbations": []
+    },
+    "shrinkage_sweep": {
+     "k_values": [
+      0.0,
+      2.0,
+      5.0,
+      10.0
+     ],
+     "production_k": 5.0,
+     "best_is_stable": true,
+     "leader_survives_family": true,
+     "by_k": {
+      "0.0": {
+       "best": "PARIVISION",
+       "top3": [
+        "PARIVISION",
+        "Team Falcons",
+        "BetBoom Team"
+       ],
+       "gap_to_second_pct": 8.228
+      },
+      "2.0": {
+       "best": "PARIVISION",
+       "top3": [
+        "PARIVISION",
+        "Team Falcons",
+        "BetBoom Team"
+       ],
+       "gap_to_second_pct": 6.774
+      },
+      "5.0": {
+       "best": "PARIVISION",
+       "top3": [
+        "PARIVISION",
+        "Team Falcons",
+        "BetBoom Team"
+       ],
+       "gap_to_second_pct": 5.86
+      },
+      "10.0": {
+       "best": "PARIVISION",
+       "top3": [
+        "PARIVISION",
+        "Team Falcons",
+        "BetBoom Team"
+       ],
+       "gap_to_second_pct": 5.258
+      }
+     }
+    },
+    "unscored": {
+     "total_multiplier": 10.1,
+     "unscored_multiplier": 2.1,
+     "unscored_fraction": 0.2079,
+     "unscored_stats": [
+      "madstone"
+     ]
+    },
+    "unobservable_breakpoints": {
+     "unscored_slots": [
+      {
+       "slot": 5,
+       "stat": "madstone",
+       "multiplier": 2.1,
+       "coefficient": 13.0,
+       "points_per_extra_unit_per_player_game": 54.6,
+       "challengers": [
+        {
+         "challenger": "Team Falcons",
+         "gap_points": 1349.9,
+         "extra_per_player_game_needed": 24.723
+        },
+        {
+         "challenger": "BetBoom Team",
+         "gap_points": 1713.2,
+         "extra_per_player_game_needed": 31.377
+        },
+        {
+         "challenger": "Tundra Esports",
+         "gap_points": 2396.0,
+         "extra_per_player_game_needed": 43.883
+        }
+       ]
+      }
+     ],
+     "reading": "a challenger overtakes the leader only if its players average at least this many MORE of that stat per player-game than the leader's do. The stat has no public per-player source, so the sign of that difference is not established either way."
+    },
+    "ranking": [
+     {
+      "organization": "PARIVISION",
+      "expected_period_score": 23036.7,
+      "unshrunk_period_score": 23617.6,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 22702.9,
+      "bootstrap_sd": 1251.6,
+      "ci90": [
+       20780.1,
+       24757.5
+      ],
+      "expected_series": 4.077,
+      "n_series_observed": 23,
+      "n_events": 3,
+      "rank": 1,
+      "regret_to_best": 0.0,
+      "regret_pct": 0.0,
+      "p_is_best_bootstrap": 0.685
+     },
+     {
+      "organization": "Team Falcons",
+      "expected_period_score": 21686.8,
+      "unshrunk_period_score": 21674.4,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 21458.4,
+      "bootstrap_sd": 721.3,
+      "ci90": [
+       20318.1,
+       22668.8
+      ],
+      "expected_series": 3.737,
+      "n_series_observed": 42,
+      "n_events": 6,
+      "rank": 2,
+      "regret_to_best": 1349.9,
+      "regret_pct": 5.86,
+      "p_is_best_bootstrap": 0.1625
+     },
+     {
+      "organization": "BetBoom Team",
+      "expected_period_score": 21323.5,
+      "unshrunk_period_score": 21621.4,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 21077.2,
+      "bootstrap_sd": 728.2,
+      "ci90": [
+       19848.7,
+       22266.5
+      ],
+      "expected_series": 3.492,
+      "n_series_observed": 43,
+      "n_events": 6,
+      "rank": 3,
+      "regret_to_best": 1713.2,
+      "regret_pct": 7.44,
+      "p_is_best_bootstrap": 0.0525
+     },
+     {
+      "organization": "Tundra Esports",
+      "expected_period_score": 20640.7,
+      "unshrunk_period_score": 20086.5,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 20506.2,
+      "bootstrap_sd": 851.9,
+      "ci90": [
+       19163.7,
+       22013.4
+      ],
+      "expected_series": 3.059,
+      "n_series_observed": 33,
+      "n_events": 5,
+      "rank": 4,
+      "regret_to_best": 2396.0,
+      "regret_pct": 10.4,
+      "p_is_best_bootstrap": 0.025
+     },
+     {
+      "organization": "Team Yandex",
+      "expected_period_score": 20579.8,
+      "unshrunk_period_score": 19347.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 20533.1,
+      "bootstrap_sd": 851.8,
+      "ci90": [
+       19186.6,
+       21952.5
+      ],
+      "expected_series": 3.672,
+      "n_series_observed": 22,
+      "n_events": 4,
+      "rank": 5,
+      "regret_to_best": 2456.9,
+      "regret_pct": 10.67,
+      "p_is_best_bootstrap": 0.03
+     },
+     {
+      "organization": "Team Spirit",
+      "expected_period_score": 20543.3,
+      "unshrunk_period_score": 18499.1,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 20429.4,
+      "bootstrap_sd": 632.2,
+      "ci90": [
+       19338.1,
+       21461.9
+      ],
+      "expected_series": 3.427,
+      "n_series_observed": 25,
+      "n_events": 4,
+      "rank": 6,
+      "regret_to_best": 2493.4,
+      "regret_pct": 10.82,
+      "p_is_best_bootstrap": 0.0025
+     },
+     {
+      "organization": "Team Liquid",
+      "expected_period_score": 20166.6,
+      "unshrunk_period_score": 18491.3,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 20026.6,
+      "bootstrap_sd": 620.9,
+      "ci90": [
+       18975.0,
+       20993.3
+      ],
+      "expected_series": 3.323,
+      "n_series_observed": 38,
+      "n_events": 6,
+      "rank": 7,
+      "regret_to_best": 2870.1,
+      "regret_pct": 12.46,
+      "p_is_best_bootstrap": 0.0025
+     },
+     {
+      "organization": "Nigma Galaxy",
+      "expected_period_score": 19564.7,
+      "unshrunk_period_score": 18146.0,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 19571.7,
+      "bootstrap_sd": 1462.1,
+      "ci90": [
+       17328.3,
+       22032.4
+      ],
+      "expected_series": 3.213,
+      "n_series_observed": 14,
+      "n_events": 3,
+      "rank": 8,
+      "regret_to_best": 3472.0,
+      "regret_pct": 15.07,
+      "p_is_best_bootstrap": 0.04
+     }
+    ]
+   },
+   "mid": {
+    "current_team": "Team Yandex",
+    "current_team_is_survivor": true,
+    "banner": [
+     {
+      "slot": 1,
+      "stat": "deaths",
+      "colour": "red",
+      "quality_tier": "II",
+      "trait": "Vampiric",
+      "multiplier": 1.8
+     },
+     {
+      "slot": 2,
+      "stat": "wards_placed",
+      "colour": "blue",
+      "quality_tier": "III",
+      "trait": "Fractal",
+      "multiplier": 1.5
+     },
+     {
+      "slot": 3,
+      "stat": "stuns",
+      "colour": "green",
+      "quality_tier": "I",
+      "trait": "Fractal",
+      "multiplier": 1.1
+     },
+     {
+      "slot": 4,
+      "stat": "creep_score",
+      "colour": "red",
+      "quality_tier": "I",
+      "trait": "Fractal",
+      "multiplier": 1.1
+     },
+     {
+      "slot": 5,
+      "stat": "first_blood",
+      "colour": "green",
+      "quality_tier": "II",
+      "trait": "Unique",
+      "multiplier": 1.6
+     }
+    ],
+    "coach": {
+     "prefix": "Crimson",
+     "suffix": "the Clutch"
+    },
+    "recommended_team": "Team Falcons",
+    "robustness": {
+     "family_size": 71,
+     "flips": 5,
+     "flip_fraction": 0.0704,
+     "label": "BANNER-DEPENDENT",
+     "flipping_perturbations": [
+      {
+       "perturbation": "slot1.stat->tower_kills",
+       "new_best": "Team Yandex"
+      },
+      {
+       "perturbation": "slot3.stat->roshan_kills",
+       "new_best": "BetBoom Team"
+      },
+      {
+       "perturbation": "slot4.stat->tower_kills",
+       "new_best": "Team Yandex"
+      },
+      {
+       "perturbation": "slot5.stat->roshan_kills",
+       "new_best": "BetBoom Team"
+      },
+      {
+       "perturbation": "slot5.stat->courier_kills",
+       "new_best": "Nigma Galaxy"
+      }
+     ]
+    },
+    "shrinkage_sweep": {
+     "k_values": [
+      0.0,
+      2.0,
+      5.0,
+      10.0
+     ],
+     "production_k": 5.0,
+     "best_is_stable": true,
+     "leader_survives_family": true,
+     "by_k": {
+      "0.0": {
+       "best": "Team Falcons",
+       "top3": [
+        "Team Falcons",
+        "BetBoom Team",
+        "Nigma Galaxy"
+       ],
+       "gap_to_second_pct": 4.119
+      },
+      "2.0": {
+       "best": "Team Falcons",
+       "top3": [
+        "Team Falcons",
+        "BetBoom Team",
+        "Team Yandex"
+       ],
+       "gap_to_second_pct": 4.013
+      },
+      "5.0": {
+       "best": "Team Falcons",
+       "top3": [
+        "Team Falcons",
+        "Team Yandex",
+        "BetBoom Team"
+       ],
+       "gap_to_second_pct": 3.229
+      },
+      "10.0": {
+       "best": "Team Falcons",
+       "top3": [
+        "Team Falcons",
+        "Team Yandex",
+        "PARIVISION"
+       ],
+       "gap_to_second_pct": 2.577
+      }
+     }
+    },
+    "unscored": {
+     "total_multiplier": 7.1,
+     "unscored_multiplier": 0,
+     "unscored_fraction": 0.0,
+     "unscored_stats": []
+    },
+    "unobservable_breakpoints": {
+     "unscored_slots": [],
+     "note": "no unscored stat on this banner"
+    },
+    "ranking": [
+     {
+      "organization": "Team Falcons",
+      "expected_period_score": 12413.9,
+      "unshrunk_period_score": 12523.0,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 12269.6,
+      "bootstrap_sd": 582.0,
+      "ci90": [
+       11339.4,
+       13295.7
+      ],
+      "expected_series": 3.737,
+      "n_series_observed": 39,
+      "n_events": 5,
+      "rank": 1,
+      "regret_to_best": 0.0,
+      "regret_pct": 0.0,
+      "p_is_best_bootstrap": 0.4775
+     },
+     {
+      "organization": "Team Yandex",
+      "expected_period_score": 12013.1,
+      "unshrunk_period_score": 11461.1,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 11928.5,
+      "bootstrap_sd": 558.2,
+      "ci90": [
+       11077.4,
+       12913.3
+      ],
+      "expected_series": 3.672,
+      "n_series_observed": 22,
+      "n_events": 4,
+      "rank": 2,
+      "regret_to_best": 400.8,
+      "regret_pct": 3.23,
+      "p_is_best_bootstrap": 0.2125
+     },
+     {
+      "organization": "BetBoom Team",
+      "expected_period_score": 11936.7,
+      "unshrunk_period_score": 12007.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 11836.4,
+      "bootstrap_sd": 430.6,
+      "ci90": [
+       11252.9,
+       12606.9
+      ],
+      "expected_series": 3.492,
+      "n_series_observed": 43,
+      "n_events": 6,
+      "rank": 3,
+      "regret_to_best": 477.2,
+      "regret_pct": 3.84,
+      "p_is_best_bootstrap": 0.11
+     },
+     {
+      "organization": "PARIVISION",
+      "expected_period_score": 11840.6,
+      "unshrunk_period_score": 11225.9,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 11815.8,
+      "bootstrap_sd": 492.6,
+      "ci90": [
+       11055.2,
+       12606.6
+      ],
+      "expected_series": 4.077,
+      "n_series_observed": 30,
+      "n_events": 4,
+      "rank": 4,
+      "regret_to_best": 573.3,
+      "regret_pct": 4.62,
+      "p_is_best_bootstrap": 0.12
+     },
+     {
+      "organization": "Nigma Galaxy",
+      "expected_period_score": 11676.0,
+      "unshrunk_period_score": 11665.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 11591.3,
+      "bootstrap_sd": 539.1,
+      "ci90": [
+       10787.1,
+       12524.6
+      ],
+      "expected_series": 3.213,
+      "n_series_observed": 19,
+      "n_events": 4,
+      "rank": 5,
+      "regret_to_best": 737.9,
+      "regret_pct": 5.94,
+      "p_is_best_bootstrap": 0.07
+     },
+     {
+      "organization": "Team Liquid",
+      "expected_period_score": 11441.4,
+      "unshrunk_period_score": 10784.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 11374.7,
+      "bootstrap_sd": 263.8,
+      "ci90": [
+       10964.1,
+       11792.9
+      ],
+      "expected_series": 3.323,
+      "n_series_observed": 38,
+      "n_events": 6,
+      "rank": 6,
+      "regret_to_best": 972.5,
+      "regret_pct": 7.83,
+      "p_is_best_bootstrap": 0.005
+     },
+     {
+      "organization": "Team Spirit",
+      "expected_period_score": 11346.1,
+      "unshrunk_period_score": 9839.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 11280.0,
+      "bootstrap_sd": 280.1,
+      "ci90": [
+       10838.6,
+       11737.4
+      ],
+      "expected_series": 3.427,
+      "n_series_observed": 32,
+      "n_events": 5,
+      "rank": 7,
+      "regret_to_best": 1067.8,
+      "regret_pct": 8.6,
+      "p_is_best_bootstrap": 0.005
+     },
+     {
+      "organization": "Tundra Esports",
+      "expected_period_score": 11010.3,
+      "unshrunk_period_score": 10372.0,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 10954.2,
+      "bootstrap_sd": 224.7,
+      "ci90": [
+       10589.2,
+       11317.7
+      ],
+      "expected_series": 3.059,
+      "n_series_observed": 36,
+      "n_events": 6,
+      "rank": 8,
+      "regret_to_best": 1403.6,
+      "regret_pct": 11.31,
+      "p_is_best_bootstrap": 0.0
+     }
+    ]
+   },
+   "support": {
+    "current_team": "Xtreme Gaming",
+    "current_team_is_survivor": false,
+    "banner": [
+     {
+      "slot": 1,
+      "stat": "runes_grabbed",
+      "colour": "blue",
+      "quality_tier": "V",
+      "trait": "Vampiric",
+      "multiplier": 2.9
+     },
+     {
+      "slot": 2,
+      "stat": "first_blood",
+      "colour": "green",
+      "quality_tier": "I",
+      "trait": "Vampiric",
+      "multiplier": 1.5
+     },
+     {
+      "slot": 3,
+      "stat": "watchers_taken",
+      "colour": "blue",
+      "quality_tier": "II",
+      "trait": "Fractal",
+      "multiplier": 1.1
+     },
+     {
+      "slot": 4,
+      "stat": "teamfight_participation",
+      "colour": "green",
+      "quality_tier": "II",
+      "trait": "Vampiric",
+      "multiplier": 1.8
+     },
+     {
+      "slot": 5,
+      "stat": "wards_placed",
+      "colour": "blue",
+      "quality_tier": "III",
+      "trait": "Unique",
+      "multiplier": 1.8
+     }
+    ],
+    "coach": {
+     "prefix": "Crimson",
+     "suffix": "the Clutch"
+    },
+    "recommended_team": "Team Yandex",
+    "robustness": {
+     "family_size": 67,
+     "flips": 12,
+     "flip_fraction": 0.1791,
+     "label": "BANNER-DEPENDENT",
+     "flipping_perturbations": [
+      {
+       "perturbation": "slot1.quality->I",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot1.stat->smokes_used",
+       "new_best": "PARIVISION"
+      },
+      {
+       "perturbation": "slot1.stat->lotuses_grabbed",
+       "new_best": "Tundra Esports"
+      },
+      {
+       "perturbation": "slot2.stat->roshan_kills",
+       "new_best": "Team Falcons"
+      },
+      {
+       "perturbation": "slot2.stat->stuns",
+       "new_best": "Team Falcons"
+      },
+      {
+       "perturbation": "slot2.stat->tormentor_kills",
+       "new_best": "Team Falcons"
+      },
+      {
+       "perturbation": "slot3.stat->smokes_used",
+       "new_best": "Team Falcons"
+      },
+      {
+       "perturbation": "slot4.trait->Benevolent",
+       "new_best": "Team Falcons"
+      },
+      {
+       "perturbation": "slot4.stat->roshan_kills",
+       "new_best": "Team Falcons"
+      },
+      {
+       "perturbation": "slot4.stat->stuns",
+       "new_best": "Team Falcons"
+      },
+      {
+       "perturbation": "slot4.stat->tormentor_kills",
+       "new_best": "Team Falcons"
+      },
+      {
+       "perturbation": "slot5.quality->V",
+       "new_best": "Team Falcons"
+      }
+     ]
+    },
+    "shrinkage_sweep": {
+     "k_values": [
+      0.0,
+      2.0,
+      5.0,
+      10.0
+     ],
+     "production_k": 5.0,
+     "best_is_stable": true,
+     "leader_survives_family": true,
+     "by_k": {
+      "0.0": {
+       "best": "Team Yandex",
+       "top3": [
+        "Team Yandex",
+        "Tundra Esports",
+        "Team Falcons"
+       ],
+       "gap_to_second_pct": 2.196
+      },
+      "2.0": {
+       "best": "Team Yandex",
+       "top3": [
+        "Team Yandex",
+        "Team Falcons",
+        "Tundra Esports"
+       ],
+       "gap_to_second_pct": 1.17
+      },
+      "5.0": {
+       "best": "Team Yandex",
+       "top3": [
+        "Team Yandex",
+        "Team Falcons",
+        "PARIVISION"
+       ],
+       "gap_to_second_pct": 0.772
+      },
+      "10.0": {
+       "best": "Team Yandex",
+       "top3": [
+        "Team Yandex",
+        "PARIVISION",
+        "Team Falcons"
+       ],
+       "gap_to_second_pct": 0.171
+      }
+     }
+    },
+    "unscored": {
+     "total_multiplier": 9.1,
+     "unscored_multiplier": 1.1,
+     "unscored_fraction": 0.1209,
+     "unscored_stats": [
+      "watchers_taken"
+     ]
+    },
+    "unobservable_breakpoints": {
+     "unscored_slots": [
+      {
+       "slot": 3,
+       "stat": "watchers_taken",
+       "multiplier": 1.1,
+       "coefficient": 147.0,
+       "points_per_extra_unit_per_player_game": 323.4,
+       "challengers": [
+        {
+         "challenger": "Team Falcons",
+         "gap_points": 116.0,
+         "extra_per_player_game_needed": 0.359
+        },
+        {
+         "challenger": "PARIVISION",
+         "gap_points": 202.0,
+         "extra_per_player_game_needed": 0.625
+        },
+        {
+         "challenger": "Tundra Esports",
+         "gap_points": 308.5,
+         "extra_per_player_game_needed": 0.954
+        }
+       ]
+      }
+     ],
+     "reading": "a challenger overtakes the leader only if its players average at least this many MORE of that stat per player-game than the leader's do. The stat has no public per-player source, so the sign of that difference is not established either way."
+    },
+    "ranking": [
+     {
+      "organization": "Team Yandex",
+      "expected_period_score": 15025.5,
+      "unshrunk_period_score": 15011.2,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 14981.5,
+      "bootstrap_sd": 332.5,
+      "ci90": [
+       14376.0,
+       15509.9
+      ],
+      "expected_series": 3.672,
+      "n_series_observed": 22,
+      "n_events": 4,
+      "rank": 1,
+      "regret_to_best": 0.0,
+      "regret_pct": 0.0,
+      "p_is_best_bootstrap": 0.3725
+     },
+     {
+      "organization": "Team Falcons",
+      "expected_period_score": 14909.5,
+      "unshrunk_period_score": 14672.7,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 14778.9,
+      "bootstrap_sd": 486.1,
+      "ci90": [
+       14013.9,
+       15543.1
+      ],
+      "expected_series": 3.737,
+      "n_series_observed": 42,
+      "n_events": 6,
+      "rank": 2,
+      "regret_to_best": 116.0,
+      "regret_pct": 0.77,
+      "p_is_best_bootstrap": 0.21
+     },
+     {
+      "organization": "PARIVISION",
+      "expected_period_score": 14823.5,
+      "unshrunk_period_score": 14469.8,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 14733.8,
+      "bootstrap_sd": 488.5,
+      "ci90": [
+       14027.5,
+       15625.3
+      ],
+      "expected_series": 4.077,
+      "n_series_observed": 30,
+      "n_events": 4,
+      "rank": 3,
+      "regret_to_best": 202.0,
+      "regret_pct": 1.34,
+      "p_is_best_bootstrap": 0.2175
+     },
+     {
+      "organization": "Tundra Esports",
+      "expected_period_score": 14717.0,
+      "unshrunk_period_score": 14681.5,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 14637.3,
+      "bootstrap_sd": 415.4,
+      "ci90": [
+       13985.8,
+       15289.7
+      ],
+      "expected_series": 3.059,
+      "n_series_observed": 36,
+      "n_events": 6,
+      "rank": 4,
+      "regret_to_best": 308.5,
+      "regret_pct": 2.05,
+      "p_is_best_bootstrap": 0.0975
+     },
+     {
+      "organization": "BetBoom Team",
+      "expected_period_score": 14440.3,
+      "unshrunk_period_score": 14240.0,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 14351.9,
+      "bootstrap_sd": 301.6,
+      "ci90": [
+       13860.5,
+       14851.1
+      ],
+      "expected_series": 3.492,
+      "n_series_observed": 43,
+      "n_events": 6,
+      "rank": 5,
+      "regret_to_best": 585.2,
+      "regret_pct": 3.89,
+      "p_is_best_bootstrap": 0.0175
+     },
+     {
+      "organization": "Team Liquid",
+      "expected_period_score": 14363.8,
+      "unshrunk_period_score": 13954.3,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 14279.8,
+      "bootstrap_sd": 556.5,
+      "ci90": [
+       13442.7,
+       15256.4
+      ],
+      "expected_series": 3.323,
+      "n_series_observed": 30,
+      "n_events": 5,
+      "rank": 6,
+      "regret_to_best": 661.7,
+      "regret_pct": 4.4,
+      "p_is_best_bootstrap": 0.065
+     },
+     {
+      "organization": "Team Spirit",
+      "expected_period_score": 14267.4,
+      "unshrunk_period_score": 13223.1,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 14175.0,
+      "bootstrap_sd": 377.5,
+      "ci90": [
+       13601.9,
+       14862.9
+      ],
+      "expected_series": 3.427,
+      "n_series_observed": 25,
+      "n_events": 4,
+      "rank": 7,
+      "regret_to_best": 758.1,
+      "regret_pct": 5.05,
+      "p_is_best_bootstrap": 0.01
+     },
+     {
+      "organization": "Nigma Galaxy",
+      "expected_period_score": 14213.8,
+      "unshrunk_period_score": 13845.9,
+      "shrinkage_k": 5.0,
+      "bootstrap_mean": 14178.4,
+      "bootstrap_sd": 395.7,
+      "ci90": [
+       13509.1,
+       14807.1
+      ],
+      "expected_series": 3.213,
+      "n_series_observed": 21,
+      "n_events": 4,
+      "rank": 8,
+      "regret_to_best": 811.7,
+      "regret_pct": 5.4,
+      "p_is_best_bootstrap": 0.01
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,267 @@
+{
+ "schema_version": 1,
+ "event": "The International 2026 (TI15)",
+ "record": "POST-HOC DIAGNOSTIC: would in-event sequential assimilation have scored better?",
+ "status": "POST-HOC DIAGNOSTIC ONLY",
+ "created_at": "2026-08-24T02:42:00Z",
+ "preregistered": false,
+ "changes_the_official_forecast": false,
+ "promoted_to_production": false,
+ "frozen_hyperparameters_unchanged": {
+  "family": "B-bt",
+  "half_life_days": 90,
+  "lambda": 1.0,
+  "calibration": "none",
+  "map_prob": "side-neutral 0.5*(sigmoid(d+c)+sigmoid(d-c))",
+  "note": "only the training cutoff and the training set differ between arms"
+ },
+ "arms": {
+  "A_frozen_production": "the served state; one fit for all 14 series",
+  "B_decay_origin_control": "cutoff advances to each series' start; NO Main Event results",
+  "C_sequentially_assimilated": "cutoff advances AND completed Main Event results included"
+ },
+ "why_arm_B_exists": "without it, an A-to-C difference could be the moving decay origin rather than the new information",
+ "summary": {
+  "A_frozen_production": {
+   "mean_brier": 0.23664643546901507,
+   "mean_log_loss": 0.6679286655703753,
+   "favourite_accuracy": 0.6428571428571429,
+   "mean_probability_on_actual_winner": 0.5268596098648591
+  },
+  "B_decay_origin_control": {
+   "mean_brier": 0.23659145605435944,
+   "mean_log_loss": 0.667742622091504,
+   "favourite_accuracy": 0.6428571428571429,
+   "mean_probability_on_actual_winner": 0.5266797936002369
+  },
+  "C_sequentially_assimilated": {
+   "mean_brier": 0.2262135805120556,
+   "mean_log_loss": 0.6449943567599893,
+   "favourite_accuracy": 0.6428571428571429,
+   "mean_probability_on_actual_winner": 0.5349106685354236
+  }
+ },
+ "series": [
+  {
+   "selection_id": 801,
+   "round": "UBQF",
+   "start_time_utc": "2026-08-20T02:30:00Z",
+   "realized_matchup": [
+    "Team Spirit",
+    "Tundra Esports"
+   ],
+   "main_event_series_already_completed": 0,
+   "p_A_frozen": 0.5766477658886031,
+   "p_B_decay_control": 0.57617138211313,
+   "p_C_assimilated": 0.57617138211313,
+   "train_maps_B": 8799,
+   "train_maps_C": 8799
+  },
+  {
+   "selection_id": 802,
+   "round": "UBQF",
+   "start_time_utc": "2026-08-20T05:45:00Z",
+   "realized_matchup": [
+    "PARIVISION",
+    "BetBoom Team"
+   ],
+   "main_event_series_already_completed": 1,
+   "p_A_frozen": 0.6359525367593342,
+   "p_B_decay_control": 0.6349959554880873,
+   "p_C_assimilated": 0.6358211892143619,
+   "train_maps_B": 8799,
+   "train_maps_C": 8801
+  },
+  {
+   "selection_id": 803,
+   "round": "UBQF",
+   "start_time_utc": "2026-08-20T10:30:00Z",
+   "realized_matchup": [
+    "Team Yandex",
+    "Team Liquid"
+   ],
+   "main_event_series_already_completed": 2,
+   "p_A_frozen": 0.5729986424303625,
+   "p_B_decay_control": 0.5722489087942946,
+   "p_C_assimilated": 0.5718052321893934,
+   "train_maps_B": 8799,
+   "train_maps_C": 8804
+  },
+  {
+   "selection_id": 804,
+   "round": "UBQF",
+   "start_time_utc": "2026-08-20T13:20:00Z",
+   "realized_matchup": [
+    "Nigma Galaxy",
+    "Team Falcons"
+   ],
+   "main_event_series_already_completed": 3,
+   "p_A_frozen": 0.39095683940281933,
+   "p_B_decay_control": 0.3921537711313464,
+   "p_C_assimilated": 0.3924104162418186,
+   "train_maps_B": 8799,
+   "train_maps_C": 8806
+  },
+  {
+   "selection_id": 809,
+   "round": "LBR1",
+   "start_time_utc": "2026-08-21T02:00:00Z",
+   "realized_matchup": [
+    "BetBoom Team",
+    "Tundra Esports"
+   ],
+   "main_event_series_already_completed": 4,
+   "p_A_frozen": 0.6275905865016549,
+   "p_B_decay_control": 0.6268852054591068,
+   "p_C_assimilated": 0.6368359002450286,
+   "train_maps_B": 8799,
+   "train_maps_C": 8809
+  },
+  {
+   "selection_id": 810,
+   "round": "LBR1",
+   "start_time_utc": "2026-08-21T06:15:00Z",
+   "realized_matchup": [
+    "Team Liquid",
+    "Team Falcons"
+   ],
+   "main_event_series_already_completed": 5,
+   "p_A_frozen": 0.4131466106843833,
+   "p_B_decay_control": 0.41385246726272507,
+   "p_C_assimilated": 0.40833205045850585,
+   "train_maps_B": 8799,
+   "train_maps_C": 8812
+  },
+  {
+   "selection_id": 805,
+   "round": "UBSF",
+   "start_time_utc": "2026-08-21T10:20:00Z",
+   "realized_matchup": [
+    "PARIVISION",
+    "Team Spirit"
+   ],
+   "main_event_series_already_completed": 6,
+   "p_A_frozen": 0.6840059885958187,
+   "p_B_decay_control": 0.6826950006329879,
+   "p_C_assimilated": 0.6714975984822669,
+   "train_maps_B": 8799,
+   "train_maps_C": 8815
+  },
+  {
+   "selection_id": 806,
+   "round": "UBSF",
+   "start_time_utc": "2026-08-21T14:10:00Z",
+   "realized_matchup": [
+    "Team Yandex",
+    "Nigma Galaxy"
+   ],
+   "main_event_series_already_completed": 7,
+   "p_A_frozen": 0.5953939511644291,
+   "p_B_decay_control": 0.5936698633124258,
+   "p_C_assimilated": 0.6010794245505328,
+   "train_maps_B": 8799,
+   "train_maps_C": 8818
+  },
+  {
+   "selection_id": 812,
+   "round": "LBR2",
+   "start_time_utc": "2026-08-22T02:00:00Z",
+   "realized_matchup": [
+    "Team Spirit",
+    "Team Liquid"
+   ],
+   "main_event_series_already_completed": 8,
+   "p_A_frozen": 0.509814978888889,
+   "p_B_decay_control": 0.5097138281694821,
+   "p_C_assimilated": 0.5313954719433913,
+   "train_maps_B": 8799,
+   "train_maps_C": 8821
+  },
+  {
+   "selection_id": 811,
+   "round": "LBR2",
+   "start_time_utc": "2026-08-22T05:00:00Z",
+   "realized_matchup": [
+    "BetBoom Team",
+    "Nigma Galaxy"
+   ],
+   "main_event_series_already_completed": 9,
+   "p_A_frozen": 0.5850135255635494,
+   "p_B_decay_control": 0.5838891847781378,
+   "p_C_assimilated": 0.576796728995362,
+   "train_maps_B": 8799,
+   "train_maps_C": 8823
+  },
+  {
+   "selection_id": 807,
+   "round": "UBF",
+   "start_time_utc": "2026-08-22T08:45:00Z",
+   "realized_matchup": [
+    "PARIVISION",
+    "Team Yandex"
+   ],
+   "main_event_series_already_completed": 10,
+   "p_A_frozen": 0.6259167763620284,
+   "p_B_decay_control": 0.6252149300806998,
+   "p_C_assimilated": 0.6104529455749735,
+   "train_maps_B": 8799,
+   "train_maps_C": 8826
+  },
+  {
+   "selection_id": 813,
+   "round": "LBSF",
+   "start_time_utc": "2026-08-22T13:10:00Z",
+   "realized_matchup": [
+    "Team Spirit",
+    "BetBoom Team"
+   ],
+   "main_event_series_already_completed": 11,
+   "p_A_frozen": 0.4472169167807084,
+   "p_B_decay_control": 0.4473874838184121,
+   "p_C_assimilated": 0.47483923178229437,
+   "train_maps_B": 8799,
+   "train_maps_C": 8829
+  },
+  {
+   "selection_id": 814,
+   "round": "LBF",
+   "start_time_utc": "2026-08-23T02:10:00Z",
+   "realized_matchup": [
+    "Team Spirit",
+    "Team Yandex"
+   ],
+   "main_event_series_already_completed": 12,
+   "p_A_frozen": 0.4366549160625561,
+   "p_B_decay_control": 0.4377994127788476,
+   "p_C_assimilated": 0.4660321716925036,
+   "train_maps_B": 8799,
+   "train_maps_C": 8831
+  },
+  {
+   "selection_id": 808,
+   "round": "GF",
+   "start_time_utc": "2026-08-23T06:15:00Z",
+   "realized_matchup": [
+    "Team Spirit",
+    "PARIVISION"
+   ],
+   "main_event_series_already_completed": 13,
+   "p_A_frozen": 0.27472450302289303,
+   "p_B_decay_control": 0.2768397165836322,
+   "p_C_assimilated": 0.33527961601236816,
+   "train_maps_B": 8799,
+   "train_maps_C": 8833
+  }
+ ],
+ "interpretation_limits": [
+  "14 series, and the later ones share teams, so the observations are not independent",
+  "the comparison was chosen after the outcome was known; it is not a test",
+  "no confidence interval is quoted because none would be honest at this size",
+  "cross-event evidence over several tournaments is what would settle this"
+ ],
+ "required_next_step_if_pursued": "pre-register the arm, the metric and the decision rule, then evaluate it on a corpus of completed events that were never used to design it",
+ "phase": "post_event",
+ "post_event_only": true,
+ "observed_after_prediction": true,
+ "valid_production_input": false
+}

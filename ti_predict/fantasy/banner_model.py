@@ -1,4 +1,4 @@
-"""The exact period-0 War Banner: three emblems, real traits, real quality tiers.
+"""The exact War Banner evaluator: N emblems in a fixed colour layout, real traits and qualities.
 
 An earlier version of this project collapsed a banner into three independent scalar multipliers
 drawn from Uniform(0.9, 2.1). That was a stand-in, and it is withdrawn: it cannot represent
@@ -14,6 +14,39 @@ prior families plus a distribution-free worst case; the second is stated below a
 open question rather than hidden.
 """
 import itertools
+
+# Emblems per banner, and the colour of each slot in left-to-right order, PER PERIOD.
+#
+# Period 0 (three slots) is Tier-2: it came from the public calculator's role->colour map.
+# Period 1 (FIVE slots) is first-party: read by the operator off the client's own "Upgrade War
+# Banner" screen on 2026-08-17, which shows the complete banner. The Fantasy landing page renders
+# only three emblems, and an earlier round of this project transcribed that partial view as the
+# whole banner. That reading is WITHDRAWN. Do not infer a period's layout from the landing page,
+# and do not carry the period-0 layout into period 1: FantasyCraftingGemSlotData_t gates each slot
+# on m_nRequiredTabletLevel and FantasyPeriodData_t sets the level per period, so the banner is
+# expected to grow between periods and it did.
+LAYOUTS = {
+    0: {"core": ("red", "green", "red"),
+        "mid": ("red", "blue", "green"),
+        "support": ("blue", "green", "blue")},
+    1: {"core": ("red", "green", "red", "green", "red"),
+        "mid": ("red", "blue", "green", "red", "green"),
+        "support": ("blue", "green", "blue", "green", "blue")},
+}
+PRODUCTION_PERIOD = 1
+
+
+def layout(role, period=PRODUCTION_PERIOD):
+    """Colour of each slot, left to right, for this role in this period."""
+    try:
+        return LAYOUTS[period][role]
+    except KeyError:
+        raise KeyError(f"no layout for role={role!r} period={period!r}") from None
+
+
+def slot_count(role, period=PRODUCTION_PERIOD):
+    return len(layout(role, period))
+
 
 # Tier I..V, from DOTA_FantasyCraft_Quality_Explainer0..4 (Tier-1 client strings).
 QUALITY = (0.10, 0.30, 0.60, 1.00, 1.50)
@@ -101,25 +134,60 @@ PRIOR_FAMILIES = {
 }
 
 
-def sample_banner_state(rng, family="uniform"):
-    """(quality indices, trait names) for three slots, under a declared prior family."""
+def sample_banner_state(rng, family="uniform", n=3):
+    """(quality indices, trait names) for n slots, under a declared prior family."""
     fam = PRIOR_FAMILIES[family]
-    q = rng.choice(len(QUALITY), size=3, p=fam["quality"])
-    t = rng.choice(len(TRAITS), size=3, p=fam["trait"])
+    q = rng.choice(len(QUALITY), size=n, p=fam["quality"])
+    t = rng.choice(len(TRAITS), size=n, p=fam["trait"])
     return tuple(int(x) for x in q), tuple(TRAITS[int(i)] for i in t)
 
 
-def reachable_weight_extremes(max_states=None):
+def reachable_weight_extremes(max_states=None, n=3):
     """Every reachable (quality, trait) banner state, for the distribution-free worst case.
 
-    5^3 quality assignments times 7^3 trait assignments is 42875 states, which is small enough to
-    enumerate exactly. No prior is involved: this is the set of things the client can actually
-    produce, which is what a minimax statement has to range over.
+    5^n quality assignments times 7^n trait assignments. At n=3 that is 42875 states, small enough
+    to enumerate exactly; at n=5 it is 5^5 * 7^5 = 52.5 million, so a caller wanting a five-slot
+    envelope must pass max_states or work slot-wise instead. No prior is involved: this is the set
+    of things the client can actually produce, which is what a minimax statement ranges over.
     """
     states = []
-    for q in itertools.product(range(len(QUALITY)), repeat=3):
-        for t in itertools.product(TRAITS, repeat=3):
+    for q in itertools.product(range(len(QUALITY)), repeat=n):
+        for t in itertools.product(TRAITS, repeat=n):
             states.append((q, t))
             if max_states and len(states) >= max_states:
                 return states
     return states
+
+
+# The client prints quality as "Tier N"; the model indexes QUALITY from zero.
+def tier_to_index(tier):
+    """'III' / 3 / 'Tier 3' -> 2. Fails closed on anything it cannot read."""
+    roman = {"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5}
+    if isinstance(tier, int):
+        n = tier
+    else:
+        s = str(tier).strip().replace("Tier", "").strip()
+        n = roman.get(s.upper()) or (int(s) if s.isdigit() else None)
+    if n is None or not 1 <= n <= len(QUALITY):
+        raise ValueError(f"unreadable quality tier: {tier!r}")
+    return n - 1
+
+
+def evaluate(slots):
+    """Per-slot (multiplier, quality_bonus, net_trait_bonus) for an ordered list of emblem dicts.
+
+    Each slot dict needs `quality_tier` and `trait`. This is the one function that turns a
+    transcribed client banner into model weights, so every account state is validated through it
+    against the totals the client itself printed.
+    """
+    qi = [tier_to_index(s["quality_tier"]) for s in slots]
+    tr = [s["trait"] for s in slots]
+    net = trait_bonus(qi, tr)
+    out = []
+    for i, s in enumerate(slots):
+        q = QUALITY[qi[i]]
+        if tr[i] == "Incorruptible":
+            q = max(q, MIN_QUALITY_FLOOR)
+        out.append({"multiplier": round(1.0 + q + net[i], 10),
+                    "quality_bonus": q, "net_trait_bonus": round(net[i], 10)})
+    return out

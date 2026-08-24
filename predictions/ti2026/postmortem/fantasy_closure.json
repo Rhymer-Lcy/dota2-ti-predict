@@ -1,0 +1,105 @@
+{
+ "schema_version": 1,
+ "event": "The International 2026 (TI15)",
+ "phase": "post_event",
+ "post_event_only": true,
+ "observed_after_prediction": true,
+ "valid_production_input": false,
+ "created_at": "2026-08-24T02:42:00Z",
+ "record": "final closure of the TI2026 Fantasy track",
+ "status": "SEALED",
+ "sealed_meaning": "Fantasy reroll research and audit are permanently closed. Reroll optimisation, banner construction, coach-title search and model selection are not reopened by this archival phase and were not reopened to produce this file. This record preserves the sealed conclusion; it does not recompute it.",
+ "closed_at_repository_head": "fb46c89d240d816fe079e173f73d69762b025c81",
+ "final_review_verdict": "PASS_WITH_MATERIAL_UNCERTAINTY",
+ "verdict_reason": "the observed-data comparison is decisive on what can be observed, but several official Fantasy statistics are not observable from any source this project holds, and their true contribution is unknown rather than zero",
+
+ "account_labels": {
+  "convention": "account_a and account_b are the labels used in the sealed final review",
+  "mapping_to_real_accounts_is_not_published": true,
+  "why": "the two accounts belong to two different people and are never interchangeable. The mapping is operator-held. Publishing it would attach identity to results for no analytical gain, and this archive does not need it: every quantity below is stated per label."
+ },
+
+ "observed_data_plug_in_estimate": {
+  "estimator": "observed-data plug-in on the deployed configuration at the sealed final state",
+  "account_a_total": 73679.8,
+  "account_b_total": 76934.1,
+  "difference_b_minus_a": 3254.3,
+  "unit": "projected Fantasy points under the project's own value model",
+  "per_role_winner": {"core": "account_a", "mid": "account_b", "support": "account_b"}
+ },
+
+ "reconciled_decomposition": {
+  "note": "reconciled under a single estimator; the three components sum to the headline difference",
+  "emblem_and_banner_slot_effect": 2388.0,
+  "coach_title_effect": 590.0,
+  "team_and_deployment_effect": 276.0,
+  "total": 3254.0,
+  "rounding_note": "components are reported to the nearest point and sum to 3254; the headline difference carries one decimal at 3254.3",
+  "beneficiary": "account_b in all three components"
+ },
+
+ "uncertainty_semantics": {
+  "the_correction_that_matters": "a statistic excluded from the observed-data estimator contributes 0 TO THAT ESTIMATOR BY EXCLUSION. Its TRUE contribution is UNKNOWN, not zero. These are different claims and the second must never be substituted for the first.",
+  "full_difference_equation": "delta_full(B - A) = +3254.3 + U_B_madstone + U_B_watchers - U_A_madstone - U_A_lotuses",
+  "necessary_condition_for_a_to_overturn_b": "U_A_madstone + U_A_lotuses > 3254.3",
+  "condition_derivation": "from the signs of the official scoring coefficients alone; it does not depend on any behavioural assumption about how the statistics are generated",
+  "is_the_condition_sufficient": false,
+  "sufficiency_note": "it is necessary, not sufficient: the unobserved terms on B's side are also unbounded and can only widen B's lead",
+  "upper_bound_available": false,
+  "upper_bound_note": "the verified mechanics contain no finite cap on these statistics, so no upper bound exists to close the question mathematically. The flip is quantified and cannot be excluded.",
+  "unobservable_statistics": ["madstone", "watchers_taken", "lotuses_grabbed"],
+  "no_prior_was_invented": "no behavioural prior, rate estimate or proxy was introduced to close the gap. An absence of public data is not an event-rate estimate."
+ },
+
+ "withdrawn_claims_do_not_revive": [
+  {
+   "claim": "unobservable per-slot statistics can be estimated from banner-wide points per scored multiplier unit",
+   "status": "WITHDRAWN",
+   "why": "that quantity is an aggregate ratio, not a per-statistic rate; using it as a rate estimator was an invalid inference. Three downstream conclusions were withdrawn with it.",
+   "replacement": "no proxy. The terms stay symbolic and unknown."
+  },
+  {
+   "claim": "First Blood contributes at most 1/10 for an individual",
+   "status": "WITHDRAWN",
+   "why": "1/10 is a per-game share across ten players, not an upper bound on any individual's rate over a period",
+   "replacement": "no individual upper bound is claimed"
+  }
+ ],
+
+ "realized_fantasy_outcome": {
+  "status": "OFFICIAL_FANTASY_OUTCOME_NOT_ARCHIVED",
+  "reason": "no authoritative first-party settlement of a Fantasy period score was captured. The post-event client capture that this archive does hold (ti2026-ev-003) is the PREDICTIONS page; it settles the 14 bracket selections and does not show a Fantasy period result.",
+  "explicitly_not_a_fantasy_score": [
+   "the account's overall event point total shown in the client sidebar",
+   "the account's percentile shown in the client sidebar",
+   "the Main Event prediction settlement of 8/14"
+  ],
+  "why_no_reconstruction_was_attempted": "reconstructing an official Fantasy score from public match statistics would require the very statistics that are unobservable here (madstones, lotuses, watchers). A reconstruction missing those terms is not an official score and would be mistaken for one the moment it was written down.",
+  "what_would_close_it": "a first-party in-client capture of the settled Fantasy period standing for each account"
+ },
+
+ "leaderboard_percentile": {
+  "status": "NOT ESTIMATED",
+  "reason": "the repository contains no defensible population model for the Fantasy leaderboard, and an undefensible percentile is worse than none"
+ },
+
+ "tokens": {
+  "account_b_remaining": 2,
+  "treatment": "intentionally unused",
+  "recommendation": "none. Spending them is not recommended and was never recommended."
+ },
+
+ "reusable_findings": [
+  "the scoring chain is a maximum over series within a period, not a sum: a single outstanding series sets the period score, so variance across series matters more than consistency",
+  "banner value decomposes cleanly into emblem/slot layout, coach title and team deployment, and the three can be attributed separately under one estimator",
+  "an observability matrix must be built BEFORE optimisation: three of the official statistics turned out to be unobservable from every source held, and that was discovered late",
+  "displayed multiplier alone is not banner value; the multiplier interacts with which statistics the slot actually scores"
+ ],
+
+ "permitted_future_work_at_seal_time": [
+  "decide whether to make free team changes before the roster snapshot (closed at 2026-08-20T02:00:00Z, now past)",
+  "update deployment if genuinely new match or period information becomes available (now moot: the event is over)"
+ ],
+ "both_permitted_items_are_now_moot": true,
+ "moot_reason": "the roster snapshot at 2026-08-20T02:00:00Z has passed and the tournament has concluded, so neither permitted action remains available. The Fantasy track is closed in full."
+}

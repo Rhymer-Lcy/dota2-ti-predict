@@ -1,0 +1,2118 @@
+{
+ "manifest": {
+  "artifact_family": "TI15 period-1 (Main Event) Fantasy",
+  "generated_at": "2026-08-17T12:30:33+00:00",
+  "code_commit": "8c6b715",
+  "git_dirty_at_start": false,
+  "information_cutoff": "2026-08-17T00:00:00Z",
+  "main_event_results_used": false,
+  "leakage_note": "every input match starts before 2026-08-20T00:00:00Z, asserted in the fetcher on both the league listing and each match payload",
+  "runtime_seconds": 31.4,
+  "estimator": {
+   "chain": "player-game -> role arithmetic mean -> top two games in a series -> best series in the period -> equal-weight mean over event blocks -> expectation over the Main Event series-count distribution",
+   "expected_maximum": "closed form over the empirical series pool, not simulated",
+   "uncertainty": "hierarchical bootstrap: resample event blocks, then series within",
+   "bootstrap_draws": 400,
+   "coach_stacking": "additive (prefix + suffix); multiplicative reported as sensitivity"
+  },
+  "data": {
+   "historical_player_maps": {
+    "path": "data\\ti2026\\processed\\fantasy\\player_map_stats.csv",
+    "sha256": "8e97d77c899edbbc6645c08984e1434034308e1658d7f3049652b18d868445b7"
+   },
+   "historical_extras": {
+    "path": "data\\ti2026\\processed\\fantasy\\hist_player_map_extras.csv",
+    "sha256": "3a68d699e9590eccb7f56d4111f94350c0a2cd7d7ecce7038fef727c6e167fd6"
+   },
+   "historical_match_extras": {
+    "path": "data\\ti2026\\processed\\fantasy\\match_extras.csv",
+    "sha256": "e566b3a56ed43e59e0285def25b15c2b2dd0c0601f95f1306b66f48a6a7baab2"
+   },
+   "ti15_player_maps": {
+    "path": "data\\ti2026\\processed\\fantasy\\ti15_player_map_stats.csv",
+    "sha256": "42235d33dbde3aae5ad16d3ca7c014fa804d9d54927a481c751a63f1dd4e5944"
+   },
+   "ti15_match_extras": {
+    "path": "data\\ti2026\\processed\\fantasy\\ti15_match_extras.csv",
+    "sha256": "b09ac9c9f0094a85366c5abda344058d341824a6534c0adc9d971a96732d68ee"
+   },
+   "roster_positions": {
+    "path": "data\\ti2026\\inputs\\fantasy\\roster_positions.csv",
+    "sha256": "b416e7f7d88d300d67ef73999b4136359a4222c66a27c779b181f8ebc26b28ac"
+   }
+  },
+  "bracket_isolation": {
+   "committed_artifact": "predictions\\ti2026\\playoffs\\ti15_main_event_prediction.json",
+   "artifact_generated_at": "2026-08-17T09:41:58+00:00",
+   "artifact_code_commit": "0f6c691",
+   "consumed_read_only": [
+    "strength_evolution[*].serve",
+    "states.C_serve.radiant_c",
+    "the saved league feed topology via ti_predict.bracket"
+   ],
+   "refit": false,
+   "modified": false,
+   "universe_maps_csv_touched": false
+  },
+  "coverage": {
+   "Aurora Gaming|core": {
+    "series": 37,
+    "games": 93,
+    "player_games": 186,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Aurora Gaming|mid": {
+    "series": 37,
+    "games": 93,
+    "player_games": 93,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Aurora Gaming|support": {
+    "series": 37,
+    "games": 93,
+    "player_games": 186,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Tundra Esports|core": {
+    "series": 36,
+    "games": 78,
+    "player_games": 156,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Tundra Esports|support": {
+    "series": 36,
+    "games": 87,
+    "player_games": 174,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Tundra Esports|mid": {
+    "series": 36,
+    "games": 87,
+    "player_games": 87,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Spirit|core": {
+    "series": 32,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Spirit|support": {
+    "series": 32,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Spirit|mid": {
+    "series": 32,
+    "games": 74,
+    "player_games": 74,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Yandex|core": {
+    "series": 22,
+    "games": 55,
+    "player_games": 110,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Yandex|mid": {
+    "series": 22,
+    "games": 55,
+    "player_games": 55,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Yandex|support": {
+    "series": 22,
+    "games": 55,
+    "player_games": 110,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Falcons|support": {
+    "series": 42,
+    "games": 98,
+    "player_games": 196,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Falcons|core": {
+    "series": 42,
+    "games": 98,
+    "player_games": 196,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Liquid|support": {
+    "series": 38,
+    "games": 73,
+    "player_games": 146,
+    "events": [
+     "19101",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Liquid|core": {
+    "series": 38,
+    "games": 93,
+    "player_games": 186,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Liquid|mid": {
+    "series": 38,
+    "games": 93,
+    "player_games": 93,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Nigma Galaxy|core": {
+    "series": 24,
+    "games": 27,
+    "player_games": 54,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "LGD Gaming|core": {
+    "series": 35,
+    "games": 66,
+    "player_games": 132,
+    "events": [
+     "19101",
+     "19543",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "LGD Gaming|support": {
+    "series": 35,
+    "games": 80,
+    "player_games": 160,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "BetBoom Team|core": {
+    "series": 43,
+    "games": 101,
+    "player_games": 202,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "BetBoom Team|mid": {
+    "series": 43,
+    "games": 101,
+    "player_games": 101,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "BetBoom Team|support": {
+    "series": 43,
+    "games": 101,
+    "player_games": 202,
+    "events": [
+     "19101",
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Xtreme Gaming|core": {
+    "series": 25,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Xtreme Gaming|mid": {
+    "series": 25,
+    "games": 57,
+    "player_games": 57,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Xtreme Gaming|support": {
+    "series": 25,
+    "games": 57,
+    "player_games": 114,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Vici Gaming|core": {
+    "series": 33,
+    "games": 75,
+    "player_games": 150,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Vici Gaming|mid": {
+    "series": 33,
+    "games": 75,
+    "player_games": 75,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Vici Gaming|support": {
+    "series": 33,
+    "games": 75,
+    "player_games": 150,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "GamerLegion|core": {
+    "series": 27,
+    "games": 59,
+    "player_games": 118,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "GamerLegion|mid": {
+    "series": 27,
+    "games": 59,
+    "player_games": 59,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "GamerLegion|support": {
+    "series": 27,
+    "games": 59,
+    "player_games": 118,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "PARIVISION|mid": {
+    "series": 30,
+    "games": 80,
+    "player_games": 80,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "PARIVISION|support": {
+    "series": 30,
+    "games": 80,
+    "player_games": 160,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Nigma Galaxy|mid": {
+    "series": 19,
+    "games": 40,
+    "player_games": 40,
+    "events": [
+     "19543",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "PARIVISION|core": {
+    "series": 30,
+    "games": 62,
+    "player_games": 124,
+    "events": [
+     "19696",
+     "19719",
+     "19785"
+    ]
+   },
+   "Team Falcons|mid": {
+    "series": 39,
+    "games": 91,
+    "player_games": 91,
+    "events": [
+     "19543",
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Nigma Galaxy|support": {
+    "series": 21,
+    "games": 42,
+    "player_games": 84,
+    "events": [
+     "19696",
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "Team Resilience|core": {
+    "series": 6,
+    "games": 16,
+    "player_games": 32,
+    "events": [
+     "19719"
+    ]
+   },
+   "Team Resilience|mid": {
+    "series": 6,
+    "games": 16,
+    "player_games": 16,
+    "events": [
+     "19719"
+    ]
+   },
+   "Team Resilience|support": {
+    "series": 6,
+    "games": 16,
+    "player_games": 32,
+    "events": [
+     "19719"
+    ]
+   },
+   "OG|mid": {
+    "series": 16,
+    "games": 34,
+    "player_games": 34,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "OG|support": {
+    "series": 16,
+    "games": 34,
+    "player_games": 68,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "OG|core": {
+    "series": 16,
+    "games": 34,
+    "player_games": 68,
+    "events": [
+     "19719",
+     "19785",
+     "20009"
+    ]
+   },
+   "HULIGANI|mid": {
+    "series": 9,
+    "games": 20,
+    "player_games": 20,
+    "events": [
+     "19719",
+     "19785"
+    ]
+   },
+   "HULIGANI|support": {
+    "series": 9,
+    "games": 10,
+    "player_games": 20,
+    "events": [
+     "19719"
+    ]
+   },
+   "HULIGANI|core": {
+    "series": 9,
+    "games": 20,
+    "player_games": 40,
+    "events": [
+     "19719",
+     "19785"
+    ]
+   }
+  },
+  "accounts": {
+   "operator": {
+    "file": "predictions\\ti2026\\fantasy\\main_event\\account_state_operator_20260817.json",
+    "sha256": "77439bff75de0e7d615a7242c22bf4ca52f556029e773f788a045d78e17f4c99",
+    "roll_tokens": 40,
+    "coach": {
+     "prefix": "Elemental",
+     "prefix_bonus_percent": 8,
+     "suffix": "the Tormented",
+     "suffix_bonus_percent": 23,
+     "status": "observed in client",
+     "change_cost_tokens": 0
+    }
+   },
+   "target": {
+    "file": "predictions\\ti2026\\fantasy\\main_event\\account_state_target_20260817.json",
+    "sha256": "3f86bd1125d9db05d04ba1c9ced2cf911d59b61e781ddefaf91e81c835a933d6",
+    "roll_tokens": 36,
+    "coach": {
+     "prefix": "Elemental",
+     "prefix_bonus_percent": 8,
+     "suffix": "the Tormented",
+     "suffix_bonus_percent": 23,
+     "status": "observed in client",
+     "change_cost_tokens": 0
+    }
+   }
+  }
+ },
+ "offers": {
+  "operator": {
+   "core": null,
+   "mid": [
+    {
+     "offer_id": "OP1",
+     "kind": "quality_multi",
+     "colour": null,
+     "which": "random",
+     "semantics_status": "TARGET_SELECTION_SEMANTICS_UNKNOWN",
+     "semantics_note": "Which slots are raised, which is lowered, and the tier step size are all unstated. Enumerated as an unweighted outcome set, never as an expectation.",
+     "evaluated_on_team": "Team Falcons",
+     "base_period_score": 14541.9,
+     "readings": {
+      "one_tier_step_assumed": {
+       "n_outcomes": 30,
+       "min_delta": -1059.1,
+       "max_delta": 2758.6,
+       "median_delta": 1038.5,
+       "fraction_improving": 0.7667,
+       "fraction_improving_is_a_combinatorial_fraction_not_a_probability": true,
+       "mean_delta_under_hypothetical_uniform": 823.7,
+       "outcomes": [
+        {
+         "outcome": "up [2, 4] down slot1",
+         "at_tier_ceiling": false,
+         "delta": 2758.6
+        },
+        {
+         "outcome": "up [2, 4] down slot3",
+         "at_tier_ceiling": false,
+         "delta": 2671.3
+        },
+        {
+         "outcome": "up [2, 4] down slot5",
+         "at_tier_ceiling": false,
+         "delta": 2588.4
+        },
+        {
+         "outcome": "up [4, 5] down slot1",
+         "at_tier_ceiling": false,
+         "delta": 1798.0
+        },
+        {
+         "outcome": "up [4, 5] down slot3",
+         "at_tier_ceiling": false,
+         "delta": 1713.8
+        },
+        {
+         "outcome": "up [3, 4] down slot1",
+         "at_tier_ceiling": false,
+         "delta": 1633.9
+        },
+        {
+         "outcome": "up [2, 5] down slot1",
+         "at_tier_ceiling": false,
+         "delta": 1549.3
+        },
+        {
+         "outcome": "up [2, 5] down slot3",
+         "at_tier_ceiling": false,
+         "delta": 1463.9
+        },
+        {
+         "outcome": "up [3, 4] down slot5",
+         "at_tier_ceiling": false,
+         "delta": 1455.2
+        },
+        {
+         "outcome": "up [1, 4] down slot3",
+         "at_tier_ceiling": false,
+         "delta": 1424.7
+        },
+        {
+         "outcome": "up [2, 3] down slot1",
+         "at_tier_ceiling": false,
+         "delta": 1383.1
+        },
+        {
+         "outcome": "up [1, 4] down slot5",
+         "at_tier_ceiling": false,
+         "delta": 1333.5
+        },
+        {
+         "outcome": "up [2, 3] down slot5",
+         "at_tier_ceiling": false,
+         "delta": 1212.9
+        },
+        {
+         "outcome": "up [1, 2] down slot3",
+         "at_tier_ceiling": false,
+         "delta": 1174.6
+        },
+        {
+         "outcome": "up [1, 2] down slot5",
+         "at_tier_ceiling": false,
+         "delta": 1088.8
+        },
+        {
+         "outcome": "up [4, 5] down slot2",
+         "at_tier_ceiling": false,
+         "delta": 988.2
+        },
+        {
+         "outcome": "up [3, 4] down slot2",
+         "at_tier_ceiling": false,
+         "delta": 820.0
+        },
+        {
+         "outcome": "up [1, 4] down slot2",
+         "at_tier_ceiling": false,
+         "delta": 696.5
+        },
+        {
+         "outcome": "up [3, 5] down slot1",
+         "at_tier_ceiling": false,
+         "delta": 420.7
+        },
+        {
+         "outcome": "up [2, 5] down slot4",
+         "at_tier_ceiling": false,
+         "delta": 378.9
+        },
+        {
+         "outcome": "up [1, 5] down slot3",
+         "at_tier_ceiling": false,
+         "delta": 216.9
+        },
+        {
+         "outcome": "up [2, 3] down slot4",
+         "at_tier_ceiling": false,
+         "delta": 214.0
+        },
+        {
+         "outcome": "up [1, 2] down slot4",
+         "at_tier_ceiling": false,
+         "delta": 91.2
+        },
+        {
+         "outcome": "up [1, 3] down slot5",
+         "at_tier_ceiling": false,
+         "delta": -57.7
+        },
+        {
+         "outcome": "up [3, 5] down slot2",
+         "at_tier_ceiling": false,
+         "delta": -399.0
+        },
+        {
+         "outcome": "up [1, 5] down slot2",
+         "at_tier_ceiling": false,
+         "delta": -520.3
+        },
+        {
+         "outcome": "up [1, 3] down slot2",
+         "at_tier_ceiling": false,
+         "delta": -699.4
+        },
+        {
+         "outcome": "up [3, 5] down slot4",
+         "at_tier_ceiling": false,
+         "delta": -753.9
+        },
+        {
+         "outcome": "up [1, 5] down slot4",
+         "at_tier_ceiling": false,
+         "delta": -877.1
+        },
+        {
+         "outcome": "up [1, 3] down slot4",
+         "at_tier_ceiling": false,
+         "delta": -1059.1
+        }
+       ]
+      }
+     }
+    },
+    {
+     "offer_id": "OP2",
+     "kind": "stat",
+     "colour": "green",
+     "which": "first",
+     "semantics_status": "TARGET_RESOLVED",
+     "semantics_note": "Mid layout is red/blue/green/red/green, so the first green emblem is slot 3.",
+     "evaluated_on_team": "Team Falcons",
+     "base_period_score": 14541.9,
+     "readings": {
+      "resolved": {
+       "n_outcomes": 4,
+       "min_delta": 644.2,
+       "max_delta": 4818.2,
+       "median_delta": 1291.8,
+       "fraction_improving": 1.0,
+       "fraction_improving_is_a_combinatorial_fraction_not_a_probability": true,
+       "mean_delta_under_hypothetical_uniform": 2011.5,
+       "outcomes": [
+        {
+         "outcome": "slot3 stat -> teamfight_participation",
+         "observable": true,
+         "delta": 4818.2
+        },
+        {
+         "outcome": "slot3 stat -> stuns",
+         "observable": true,
+         "delta": 1336.1
+        },
+        {
+         "outcome": "slot3 stat -> roshan_kills",
+         "observable": true,
+         "delta": 1247.5
+        },
+        {
+         "outcome": "slot3 stat -> courier_kills",
+         "observable": true,
+         "delta": 644.2
+        }
+       ]
+      }
+     }
+    },
+    {
+     "offer_id": "OP3",
+     "kind": "quality",
+     "colour": "red",
+     "which": "all_of_colour_reading",
+     "semantics_status": "TARGET_SELECTION_SEMANTICS_UNKNOWN",
+     "semantics_note": "No positional qualifier. The repository precedent (state 7, DOTA_FantasyCraft_Operation_Target_Ruby = 'Red Emblems') reads a bare colour as the ALL-of-colour target, as distinct from the first/last/random variants which this same board also carries. That reading is recorded but NOT asserted: both the all-of-colour and the single-unknown-slot readings are evaluated.",
+     "evaluated_on_team": "Team Falcons",
+     "base_period_score": 14541.9,
+     "readings": {
+      "all_of_colour": {
+       "n_outcomes": 25,
+       "min_delta": -2638.8,
+       "max_delta": 1512.8,
+       "median_delta": -1183.9,
+       "fraction_improving": 0.2,
+       "fraction_improving_is_a_combinatorial_fraction_not_a_probability": true,
+       "mean_delta_under_hypothetical_uniform": -873.9,
+       "outcomes": [
+        {
+         "outcome": "slot1->Tier I; slot4->Tier V",
+         "delta": 1512.8
+        },
+        {
+         "outcome": "slot1->Tier II; slot4->Tier V",
+         "delta": 1512.8
+        },
+        {
+         "outcome": "slot1->Tier III; slot4->Tier V",
+         "delta": 1512.8
+        },
+        {
+         "outcome": "slot1->Tier IV; slot4->Tier V",
+         "delta": 1512.8
+        },
+        {
+         "outcome": "slot1->Tier V; slot4->Tier V",
+         "delta": 1512.8
+        },
+        {
+         "outcome": "slot1->Tier I; slot4->Tier IV",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot1->Tier II; slot4->Tier IV",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot1->Tier III; slot4->Tier IV",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot1->Tier IV; slot4->Tier IV",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot1->Tier V; slot4->Tier IV",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot1->Tier I; slot4->Tier III",
+         "delta": -1183.9
+        },
+        {
+         "outcome": "slot1->Tier II; slot4->Tier III",
+         "delta": -1183.9
+        },
+        {
+         "outcome": "slot1->Tier III; slot4->Tier III",
+         "delta": -1183.9
+        },
+        {
+         "outcome": "slot1->Tier IV; slot4->Tier III",
+         "delta": -1183.9
+        },
+        {
+         "outcome": "slot1->Tier V; slot4->Tier III",
+         "delta": -1183.9
+        },
+        {
+         "outcome": "slot1->Tier I; slot4->Tier II",
+         "delta": -2059.6
+        },
+        {
+         "outcome": "slot1->Tier II; slot4->Tier II",
+         "delta": -2059.6
+        },
+        {
+         "outcome": "slot1->Tier III; slot4->Tier II",
+         "delta": -2059.6
+        },
+        {
+         "outcome": "slot1->Tier IV; slot4->Tier II",
+         "delta": -2059.6
+        },
+        {
+         "outcome": "slot1->Tier V; slot4->Tier II",
+         "delta": -2059.6
+        },
+        {
+         "outcome": "slot1->Tier I; slot4->Tier I",
+         "delta": -2638.8
+        },
+        {
+         "outcome": "slot1->Tier II; slot4->Tier I",
+         "delta": -2638.8
+        },
+        {
+         "outcome": "slot1->Tier III; slot4->Tier I",
+         "delta": -2638.8
+        },
+        {
+         "outcome": "slot1->Tier IV; slot4->Tier I",
+         "delta": -2638.8
+        },
+        {
+         "outcome": "slot1->Tier V; slot4->Tier I",
+         "delta": -2638.8
+        }
+       ]
+      },
+      "single_unknown_slot": {
+       "n_outcomes": 10,
+       "min_delta": -2638.8,
+       "max_delta": 1512.8,
+       "median_delta": 0.0,
+       "fraction_improving": 0.1,
+       "fraction_improving_is_a_combinatorial_fraction_not_a_probability": true,
+       "mean_delta_under_hypothetical_uniform": -436.9,
+       "outcomes": [
+        {
+         "outcome": "slot4 -> Tier V",
+         "delta": 1512.8
+        },
+        {
+         "outcome": "slot1 -> Tier I",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot1 -> Tier II",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot1 -> Tier III",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot1 -> Tier IV",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot1 -> Tier V",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot4 -> Tier IV",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot4 -> Tier III",
+         "delta": -1183.9
+        },
+        {
+         "outcome": "slot4 -> Tier II",
+         "delta": -2059.6
+        },
+        {
+         "outcome": "slot4 -> Tier I",
+         "delta": -2638.8
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "support": null
+  },
+  "target": {
+   "core": [
+    {
+     "offer_id": "TG1",
+     "kind": "trait",
+     "colour": "red",
+     "which": "all_of_colour_reading",
+     "semantics_status": "TARGET_SELECTION_SEMANTICS_UNKNOWN",
+     "semantics_note": "Bare colour, no positional qualifier; same ambiguity as OP3 and evaluated both ways.",
+     "evaluated_on_team": "PARIVISION",
+     "base_period_score": 23036.7,
+     "readings": {
+      "all_of_colour": {
+       "n_outcomes": 216,
+       "min_delta": -2228.6,
+       "max_delta": 2299.8,
+       "median_delta": -765.6,
+       "fraction_improving": 0.2778,
+       "fraction_improving_is_a_combinatorial_fraction_not_a_probability": true,
+       "mean_delta_under_hypothetical_uniform": -646.0,
+       "outcomes": [
+        {
+         "outcome": "slot1->Fractal; slot3->Fractal; slot5->Benevolent",
+         "delta": 2299.8
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Fractal; slot5->Base",
+         "delta": 2229.3
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Fractal; slot5->Incorruptible",
+         "delta": 2229.3
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Fractal; slot5->Friendly",
+         "delta": 2229.3
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Fractal; slot5->Fractal",
+         "delta": 2229.3
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Fractal; slot5->Vampiric",
+         "delta": 2194.2
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Fractal; slot5->Benevolent",
+         "delta": 1793.7
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Fractal; slot5->Base",
+         "delta": 1723.1
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Fractal; slot5->Incorruptible",
+         "delta": 1723.1
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Fractal; slot5->Friendly",
+         "delta": 1723.1
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Fractal; slot5->Fractal",
+         "delta": 1723.1
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Fractal; slot5->Vampiric",
+         "delta": 1688.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Friendly; slot5->Friendly",
+         "delta": 1490.2
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Fractal; slot5->Benevolent",
+         "delta": 1318.0
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Fractal; slot5->Benevolent",
+         "delta": 1318.0
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Fractal; slot5->Base",
+         "delta": 1247.4
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Fractal; slot5->Incorruptible",
+         "delta": 1247.4
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Fractal; slot5->Friendly",
+         "delta": 1247.4
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Fractal; slot5->Fractal",
+         "delta": 1247.4
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Fractal; slot5->Base",
+         "delta": 1247.4
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Fractal; slot5->Incorruptible",
+         "delta": 1247.4
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Fractal; slot5->Friendly",
+         "delta": 1247.4
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Fractal; slot5->Fractal",
+         "delta": 1247.4
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Fractal; slot5->Vampiric",
+         "delta": 1212.2
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Fractal; slot5->Vampiric",
+         "delta": 1212.2
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Unique; slot5->Benevolent",
+         "delta": 1068.1
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Unique; slot5->Base",
+         "delta": 998.6
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Unique; slot5->Incorruptible",
+         "delta": 998.6
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Unique; slot5->Friendly",
+         "delta": 998.6
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Unique; slot5->Fractal",
+         "delta": 998.6
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Unique; slot5->Vampiric",
+         "delta": 964.2
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Unique; slot5->Benevolent",
+         "delta": 558.1
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Unique; slot5->Base",
+         "delta": 487.4
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Unique; slot5->Incorruptible",
+         "delta": 487.4
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Unique; slot5->Friendly",
+         "delta": 487.4
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Unique; slot5->Fractal",
+         "delta": 487.4
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Unique; slot5->Vampiric",
+         "delta": 452.3
+        },
+        {
+         "outcome": "slot1->Base; slot3->Fractal; slot5->Benevolent",
+         "delta": 336.9
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Fractal; slot5->Benevolent",
+         "delta": 336.9
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Benevolent; slot5->Benevolent",
+         "delta": 291.7
+        },
+        {
+         "outcome": "slot1->Base; slot3->Fractal; slot5->Base",
+         "delta": 266.1
+        },
+        {
+         "outcome": "slot1->Base; slot3->Fractal; slot5->Incorruptible",
+         "delta": 266.1
+        },
+        {
+         "outcome": "slot1->Base; slot3->Fractal; slot5->Friendly",
+         "delta": 266.1
+        },
+        {
+         "outcome": "slot1->Base; slot3->Fractal; slot5->Fractal",
+         "delta": 266.1
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Fractal; slot5->Base",
+         "delta": 266.1
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Fractal; slot5->Incorruptible",
+         "delta": 266.1
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Fractal; slot5->Friendly",
+         "delta": 266.1
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Fractal; slot5->Fractal",
+         "delta": 266.1
+        },
+        {
+         "outcome": "slot1->Base; slot3->Fractal; slot5->Vampiric",
+         "delta": 230.8
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Fractal; slot5->Vampiric",
+         "delta": 230.8
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Benevolent; slot5->Base",
+         "delta": 220.3
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Benevolent; slot5->Incorruptible",
+         "delta": 220.3
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Benevolent; slot5->Friendly",
+         "delta": 220.3
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Benevolent; slot5->Fractal",
+         "delta": 220.3
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Benevolent; slot5->Vampiric",
+         "delta": 184.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Unique; slot5->Benevolent",
+         "delta": 84.5
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Unique; slot5->Base",
+         "delta": 15.1
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Unique; slot5->Incorruptible",
+         "delta": 15.1
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Unique; slot5->Friendly",
+         "delta": 15.1
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Unique; slot5->Fractal",
+         "delta": 15.1
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Unique; slot5->Vampiric",
+         "delta": -19.4
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Base; slot5->Benevolent",
+         "delta": -155.5
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Incorruptible; slot5->Benevolent",
+         "delta": -155.5
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Friendly; slot5->Benevolent",
+         "delta": -155.5
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Benevolent; slot5->Benevolent",
+         "delta": -225.3
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Base; slot5->Base",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Base; slot5->Incorruptible",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Base; slot5->Friendly",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Base; slot5->Fractal",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Incorruptible; slot5->Base",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Incorruptible; slot5->Incorruptible",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Incorruptible; slot5->Friendly",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Incorruptible; slot5->Fractal",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Friendly; slot5->Base",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Friendly; slot5->Incorruptible",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Friendly; slot5->Friendly",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Friendly; slot5->Fractal",
+         "delta": -226.0
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Base; slot5->Vampiric",
+         "delta": -260.6
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Incorruptible; slot5->Vampiric",
+         "delta": -260.6
+        },
+        {
+         "outcome": "slot1->Fractal; slot3->Friendly; slot5->Vampiric",
+         "delta": -260.6
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Benevolent; slot5->Base",
+         "delta": -296.6
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Benevolent; slot5->Incorruptible",
+         "delta": -296.6
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Benevolent; slot5->Friendly",
+         "delta": -296.6
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Benevolent; slot5->Fractal",
+         "delta": -296.6
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Benevolent; slot5->Vampiric",
+         "delta": -331.9
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Base; slot5->Benevolent",
+         "delta": -669.4
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Incorruptible; slot5->Benevolent",
+         "delta": -669.4
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Friendly; slot5->Benevolent",
+         "delta": -669.4
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Benevolent; slot5->Benevolent",
+         "delta": -694.3
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Benevolent; slot5->Benevolent",
+         "delta": -694.3
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Base; slot5->Base",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Base; slot5->Incorruptible",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Base; slot5->Friendly",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Base; slot5->Fractal",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Incorruptible; slot5->Base",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Incorruptible; slot5->Incorruptible",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Incorruptible; slot5->Friendly",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Incorruptible; slot5->Fractal",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Friendly; slot5->Base",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Friendly; slot5->Incorruptible",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Friendly; slot5->Friendly",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Friendly; slot5->Fractal",
+         "delta": -740.0
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Benevolent; slot5->Base",
+         "delta": -765.6
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Benevolent; slot5->Incorruptible",
+         "delta": -765.6
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Benevolent; slot5->Friendly",
+         "delta": -765.6
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Benevolent; slot5->Fractal",
+         "delta": -765.6
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Benevolent; slot5->Base",
+         "delta": -765.6
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Benevolent; slot5->Incorruptible",
+         "delta": -765.6
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Benevolent; slot5->Friendly",
+         "delta": -765.6
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Benevolent; slot5->Fractal",
+         "delta": -765.6
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Base; slot5->Vampiric",
+         "delta": -774.5
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Incorruptible; slot5->Vampiric",
+         "delta": -774.5
+        },
+        {
+         "outcome": "slot1->Vampiric; slot3->Friendly; slot5->Vampiric",
+         "delta": -774.5
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Benevolent; slot5->Vampiric",
+         "delta": -800.9
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Benevolent; slot5->Vampiric",
+         "delta": -800.9
+        },
+        {
+         "outcome": "slot1->Base; slot3->Unique; slot5->Benevolent",
+         "delta": -898.1
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Unique; slot5->Benevolent",
+         "delta": -898.1
+        },
+        {
+         "outcome": "slot1->Base; slot3->Unique; slot5->Base",
+         "delta": -967.8
+        },
+        {
+         "outcome": "slot1->Base; slot3->Unique; slot5->Incorruptible",
+         "delta": -967.8
+        },
+        {
+         "outcome": "slot1->Base; slot3->Unique; slot5->Friendly",
+         "delta": -967.8
+        },
+        {
+         "outcome": "slot1->Base; slot3->Unique; slot5->Fractal",
+         "delta": -967.8
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Unique; slot5->Base",
+         "delta": -967.8
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Unique; slot5->Incorruptible",
+         "delta": -967.8
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Unique; slot5->Friendly",
+         "delta": -967.8
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Unique; slot5->Fractal",
+         "delta": -967.8
+        },
+        {
+         "outcome": "slot1->Base; slot3->Unique; slot5->Vampiric",
+         "delta": -1002.4
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Unique; slot5->Vampiric",
+         "delta": -1002.4
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Base; slot5->Benevolent",
+         "delta": -1140.6
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Incorruptible; slot5->Benevolent",
+         "delta": -1140.6
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Friendly; slot5->Benevolent",
+         "delta": -1140.6
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Base; slot5->Benevolent",
+         "delta": -1140.6
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Incorruptible; slot5->Benevolent",
+         "delta": -1140.6
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Friendly; slot5->Benevolent",
+         "delta": -1140.6
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Base; slot5->Base",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Base; slot5->Incorruptible",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Base; slot5->Friendly",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Base; slot5->Fractal",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Incorruptible; slot5->Base",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Incorruptible; slot5->Incorruptible",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Incorruptible; slot5->Friendly",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Incorruptible; slot5->Fractal",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Friendly; slot5->Base",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Friendly; slot5->Incorruptible",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Friendly; slot5->Friendly",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Friendly; slot5->Fractal",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Base; slot5->Base",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Base; slot5->Incorruptible",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Base; slot5->Friendly",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Base; slot5->Fractal",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Incorruptible; slot5->Base",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Incorruptible; slot5->Incorruptible",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Incorruptible; slot5->Friendly",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Incorruptible; slot5->Fractal",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Friendly; slot5->Base",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Friendly; slot5->Incorruptible",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Friendly; slot5->Friendly",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Friendly; slot5->Fractal",
+         "delta": -1210.8
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Base; slot5->Vampiric",
+         "delta": -1245.2
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Incorruptible; slot5->Vampiric",
+         "delta": -1245.2
+        },
+        {
+         "outcome": "slot1->Incorruptible; slot3->Friendly; slot5->Vampiric",
+         "delta": -1245.2
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Base; slot5->Vampiric",
+         "delta": -1245.2
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Incorruptible; slot5->Vampiric",
+         "delta": -1245.2
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Friendly; slot5->Vampiric",
+         "delta": -1245.2
+        },
+        {
+         "outcome": "slot1->Base; slot3->Benevolent; slot5->Benevolent",
+         "delta": -1679.4
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Benevolent; slot5->Benevolent",
+         "delta": -1679.4
+        },
+        {
+         "outcome": "slot1->Base; slot3->Benevolent; slot5->Base",
+         "delta": -1750.8
+        },
+        {
+         "outcome": "slot1->Base; slot3->Benevolent; slot5->Incorruptible",
+         "delta": -1750.8
+        },
+        {
+         "outcome": "slot1->Base; slot3->Benevolent; slot5->Friendly",
+         "delta": -1750.8
+        },
+        {
+         "outcome": "slot1->Base; slot3->Benevolent; slot5->Fractal",
+         "delta": -1750.8
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Benevolent; slot5->Base",
+         "delta": -1750.8
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Benevolent; slot5->Incorruptible",
+         "delta": -1750.8
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Benevolent; slot5->Friendly",
+         "delta": -1750.8
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Benevolent; slot5->Fractal",
+         "delta": -1750.8
+        },
+        {
+         "outcome": "slot1->Base; slot3->Benevolent; slot5->Vampiric",
+         "delta": -1786.2
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Benevolent; slot5->Vampiric",
+         "delta": -1786.2
+        },
+        {
+         "outcome": "slot1->Base; slot3->Base; slot5->Benevolent",
+         "delta": -2123.9
+        },
+        {
+         "outcome": "slot1->Base; slot3->Incorruptible; slot5->Benevolent",
+         "delta": -2123.9
+        },
+        {
+         "outcome": "slot1->Base; slot3->Friendly; slot5->Benevolent",
+         "delta": -2123.9
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Unique; slot5->Benevolent",
+         "delta": -2123.9
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Base; slot5->Benevolent",
+         "delta": -2123.9
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Incorruptible; slot5->Benevolent",
+         "delta": -2123.9
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Friendly; slot5->Benevolent",
+         "delta": -2123.9
+        },
+        {
+         "outcome": "slot1->Base; slot3->Base; slot5->Base",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Base; slot5->Incorruptible",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Base; slot5->Friendly",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Base; slot5->Fractal",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Incorruptible; slot5->Base",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Incorruptible; slot5->Incorruptible",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Incorruptible; slot5->Friendly",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Incorruptible; slot5->Fractal",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Friendly; slot5->Base",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Friendly; slot5->Incorruptible",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Friendly; slot5->Friendly",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Friendly; slot5->Fractal",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Unique; slot5->Base",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Unique; slot5->Incorruptible",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Unique; slot5->Friendly",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Unique; slot5->Fractal",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Base; slot5->Base",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Base; slot5->Incorruptible",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Base; slot5->Friendly",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Base; slot5->Fractal",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Incorruptible; slot5->Base",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Incorruptible; slot5->Incorruptible",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Incorruptible; slot5->Friendly",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Incorruptible; slot5->Fractal",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Friendly; slot5->Base",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Friendly; slot5->Incorruptible",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Friendly; slot5->Fractal",
+         "delta": -2194.0
+        },
+        {
+         "outcome": "slot1->Base; slot3->Base; slot5->Vampiric",
+         "delta": -2228.6
+        },
+        {
+         "outcome": "slot1->Base; slot3->Incorruptible; slot5->Vampiric",
+         "delta": -2228.6
+        },
+        {
+         "outcome": "slot1->Base; slot3->Friendly; slot5->Vampiric",
+         "delta": -2228.6
+        },
+        {
+         "outcome": "slot1->Unique; slot3->Unique; slot5->Vampiric",
+         "delta": -2228.6
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Base; slot5->Vampiric",
+         "delta": -2228.6
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Incorruptible; slot5->Vampiric",
+         "delta": -2228.6
+        },
+        {
+         "outcome": "slot1->Friendly; slot3->Friendly; slot5->Vampiric",
+         "delta": -2228.6
+        }
+       ]
+      },
+      "single_unknown_slot": {
+       "n_outcomes": 18,
+       "min_delta": -1821.1,
+       "max_delta": 1602.9,
+       "median_delta": -17.2,
+       "fraction_improving": 0.2778,
+       "fraction_improving_is_a_combinatorial_fraction_not_a_probability": true,
+       "mean_delta_under_hypothetical_uniform": -319.7,
+       "outcomes": [
+        {
+         "outcome": "slot1->Fractal",
+         "delta": 1602.9
+        },
+        {
+         "outcome": "slot1->Vampiric",
+         "delta": 1097.0
+        },
+        {
+         "outcome": "slot3->Fractal",
+         "delta": 627.9
+        },
+        {
+         "outcome": "slot1->Incorruptible",
+         "delta": 621.1
+        },
+        {
+         "outcome": "slot5->Benevolent",
+         "delta": 69.3
+        },
+        {
+         "outcome": "slot5->Base",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot5->Incorruptible",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot5->Friendly",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot5->Fractal",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot5->Vampiric",
+         "delta": -34.5
+        },
+        {
+         "outcome": "slot1->Base",
+         "delta": -360.4
+        },
+        {
+         "outcome": "slot1->Unique",
+         "delta": -360.4
+        },
+        {
+         "outcome": "slot1->Friendly",
+         "delta": -360.4
+        },
+        {
+         "outcome": "slot3->Benevolent",
+         "delta": -1372.4
+        },
+        {
+         "outcome": "slot3->Base",
+         "delta": -1821.1
+        },
+        {
+         "outcome": "slot3->Incorruptible",
+         "delta": -1821.1
+        },
+        {
+         "outcome": "slot3->Unique",
+         "delta": -1821.1
+        },
+        {
+         "outcome": "slot3->Friendly",
+         "delta": -1821.1
+        }
+       ]
+      }
+     }
+    },
+    {
+     "offer_id": "TG2",
+     "kind": "quality",
+     "colour": "red",
+     "which": "random_one",
+     "semantics_status": "TARGET_RANDOM_ONE",
+     "semantics_note": "The client states the target is random. Which of the three reds is hit is genuinely stochastic; the tier outcome distribution is separately unknown.",
+     "evaluated_on_team": "PARIVISION",
+     "base_period_score": 23036.7,
+     "readings": {
+      "random_one_of_colour": {
+       "n_outcomes": 15,
+       "min_delta": -5674.4,
+       "max_delta": 3934.9,
+       "median_delta": 0.0,
+       "fraction_improving": 0.2,
+       "fraction_improving_is_a_combinatorial_fraction_not_a_probability": true,
+       "mean_delta_under_hypothetical_uniform": -646.7,
+       "outcomes": [
+        {
+         "outcome": "slot1 -> Tier V",
+         "delta": 3934.9
+        },
+        {
+         "outcome": "slot1 -> Tier IV",
+         "delta": 2294.3
+        },
+        {
+         "outcome": "slot1 -> Tier III",
+         "delta": 983.0
+        },
+        {
+         "outcome": "slot1 -> Tier II",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot3 -> Tier V",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot5 -> Tier I",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot5 -> Tier II",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot5 -> Tier III",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot5 -> Tier IV",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot5 -> Tier V",
+         "delta": 0.0
+        },
+        {
+         "outcome": "slot1 -> Tier I",
+         "delta": -654.3
+        },
+        {
+         "outcome": "slot3 -> Tier IV",
+         "delta": -2043.1
+        },
+        {
+         "outcome": "slot3 -> Tier III",
+         "delta": -3665.6
+        },
+        {
+         "outcome": "slot3 -> Tier II",
+         "delta": -4875.8
+        },
+        {
+         "outcome": "slot3 -> Tier I",
+         "delta": -5674.4
+        }
+       ]
+      }
+     }
+    },
+    {
+     "offer_id": "TG3",
+     "kind": "stat",
+     "colour": "green",
+     "which": "last",
+     "semantics_status": "TARGET_RESOLVED",
+     "semantics_note": "Core layout is red/green/red/green/red, so the last green emblem is slot 4.",
+     "evaluated_on_team": "PARIVISION",
+     "base_period_score": 23036.7,
+     "readings": {
+      "resolved": {
+       "n_outcomes": 4,
+       "min_delta": 45.4,
+       "max_delta": 2644.3,
+       "median_delta": 315.4,
+       "fraction_improving": 1.0,
+       "fraction_improving_is_a_combinatorial_fraction_not_a_probability": true,
+       "mean_delta_under_hypothetical_uniform": 830.2,
+       "outcomes": [
+        {
+         "outcome": "slot4 stat -> teamfight_participation",
+         "observable": true,
+         "delta": 2644.3
+        },
+        {
+         "outcome": "slot4 stat -> stuns",
+         "observable": true,
+         "delta": 416.5
+        },
+        {
+         "outcome": "slot4 stat -> first_blood",
+         "observable": true,
+         "delta": 214.4
+        },
+        {
+         "outcome": "slot4 stat -> courier_kills",
+         "observable": true,
+         "delta": 45.4
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "mid": null,
+   "support": null
+  }
+ }
+}

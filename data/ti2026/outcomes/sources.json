@@ -1,0 +1,86 @@
+{
+ "schema_version": 1,
+ "event": "The International 2026 (TI15)",
+ "phase": "post_event",
+ "post_event_only": true,
+ "observed_after_prediction": true,
+ "valid_production_input": false,
+ "created_at": "2026-08-24T02:42:00Z",
+ "record": "provenance for the TI2026 post-event outcome archive",
+ "network_policy": {
+  "network_used_for_this_archive": true,
+  "scope": "retrieval of completed TI2026 Main Event results only, after the tournament ended",
+  "separation_from_production": "The frozen 2026 production run recorded network_used=false, odds_used=false and future_main_event_results_used=false. Those fields describe the production run and remain true and unmodified. Network access here belongs to the archival phase and produced no input to any 2026 prediction.",
+  "excluded_by_policy": [
+   "betting odds",
+   "market or implied probabilities",
+   "prediction markets",
+   "crowd or community picks",
+   "retrospective analyst opinion used as factual input"
+  ]
+ },
+ "sources": [
+  {
+   "id": "ti2026-ev-003",
+   "tier": 1,
+   "type": "first-party in-client capture (operator's logged-in Dota 2 client)",
+   "url": null,
+   "retrieved_at": "2026-08-24T02:35:00Z",
+   "retrieval_method": "operator-supplied local file; no network",
+   "scope": "official in-client settlement of the operator's own 14 Main Event bracket selections: the aggregate 8/14 and a per-node correct/incorrect mark on every one of the 14 nodes",
+   "content_sha256": "1a8749f735c202506897c6ac0a8e45f7097555b0f4bb11eaff22f66cd9e22c48",
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "establishes": [
+    "official_settlement_correct_count",
+    "per_node_official_credit"
+   ],
+   "does_not_establish": [
+    "realized participants at a node",
+    "series scores",
+    "match times"
+   ]
+  },
+  {
+   "id": "liquipedia-ti2026-main-event",
+   "tier": 2,
+   "type": "community-maintained authoritative match database (Liquipedia)",
+   "url": "https://liquipedia.net/dota2/api.php?action=parse&page=The_International/2026/Main_Event&format=json&prop=text",
+   "page_url": "https://liquipedia.net/dota2/The_International/2026/Main_Event",
+   "retrieved_at": "2026-08-24T02:42:00Z",
+   "retrieval_method": "HTTPS GET via the MediaWiki parse API with a descriptive User-Agent",
+   "scope": "all 14 Main Event series: participants, map scores and scheduled start times",
+   "content_sha256": "5528fa0d9ee0a2fc22fb4fe53b67036b3e1cf35e3485dc375ad20a9f10963aab",
+   "content_bytes": 879395,
+   "establishes": [
+    "realized participants",
+    "series scores",
+    "series start times"
+   ],
+   "note": "the rendered page itself returns HTTP 403 to non-browser clients; the parse API serves the same rendered bracket and is what was hashed"
+  },
+  {
+   "id": "egamersworld-ti2026-main-event",
+   "tier": 3,
+   "type": "independent esports results site",
+   "url": "https://egamersworld.com/dota2/event-hub/the-international/playoffs/the-international-2026-main-event-EkFM_hMLVx",
+   "retrieved_at": "2026-08-24T02:44:00Z",
+   "retrieval_method": "HTTPS GET",
+   "scope": "corroboration of all 14 Main Event series results and scores",
+   "content_sha256": "1dcaefc3013e0625b4f9bc75e1a39873a1b157a79c2d37aefe0cb635e67db6b6",
+   "establishes": [
+    "independent corroboration of every score"
+   ],
+   "note": "uses a different display-name convention ('1w Team', 'PARIVISION', 'BetBoom Team') than Liquipedia; both resolve through the repository's existing identity table"
+  }
+ ],
+ "corroboration": {
+  "series_results": "14 of 14 series agree between Liquipedia (tier 2) and egamersworld (tier 3) on participants, winner and exact map score",
+  "node_winners": "independently, all 14 winners agree with the tier-1 in-client settlement: the client's per-node correct/incorrect marks against the frozen submitted slate reproduce exactly under the retrieved winners",
+  "champion": "Team Spirit, agreed by all three sources",
+  "unresolved": []
+ },
+ "not_used": {
+  "gosugamers-article": "read during retrieval and NOT used as a data source: its summary rendered the series scores in a best-of-5 form (3-0, 3-2) that contradicts the verified best-of-3 format of every non-final Main Event series. The hashed sources above are authoritative here."
+ }
+}

@@ -1,0 +1,297 @@
+{
+ "schema_version": 1,
+ "what": "Main Event (period 1) series-count distribution per team, exact over the 2^14 coherent bracket outcomes.",
+ "bracket_isolation": {
+  "committed_artifact": "predictions\\ti2026\\playoffs\\ti15_main_event_prediction.json",
+  "artifact_generated_at": "2026-08-17T09:41:58+00:00",
+  "artifact_code_commit": "0f6c691",
+  "consumed_read_only": [
+   "strength_evolution[*].serve",
+   "states.C_serve.radiant_c",
+   "the saved league feed topology via ti_predict.bracket"
+  ],
+  "refit": false,
+  "modified": false,
+  "universe_maps_csv_touched": false
+ },
+ "seating": {
+  "14": [
+   "Tundra Esports",
+   "Team Spirit"
+  ],
+  "15": [
+   "PARIVISION",
+   "BetBoom Team"
+  ],
+  "16": [
+   "Team Liquid",
+   "Team Yandex"
+  ],
+  "17": [
+   "Nigma Galaxy",
+   "Team Falcons"
+  ]
+ },
+ "n_outcomes": 16384,
+ "consistency_gate": {
+  "max_abs_deviation": 0.01675,
+  "tolerance": 0.06,
+  "within_tolerance": true,
+  "why_nonzero": "the committed marginals are averaged over 1000 series-blocked bootstrap draws of the strengths; this reconstruction uses the committed POINT-ESTIMATE serve strengths, which is the only strength vector the artifact publishes",
+  "per_team": {
+   "BetBoom Team": {
+    "reconstructed": {
+     "champion": 0.11088,
+     "reach_grand_final": 0.22892,
+     "win_ubqf": 0.36403
+    },
+    "committed": {
+     "champion": 0.1126,
+     "reach_grand_final": 0.2308,
+     "win_ubqf": 0.3659
+    },
+    "deviation": {
+     "champion": -0.00172,
+     "reach_grand_final": -0.00188,
+     "win_ubqf": -0.00187
+    }
+   },
+   "Nigma Galaxy": {
+    "reconstructed": {
+     "champion": 0.05054,
+     "reach_grand_final": 0.14442,
+     "win_ubqf": 0.39094
+    },
+    "committed": {
+     "champion": 0.0624,
+     "reach_grand_final": 0.1586,
+     "win_ubqf": 0.397
+    },
+    "deviation": {
+     "champion": -0.01186,
+     "reach_grand_final": -0.01418,
+     "win_ubqf": -0.00606
+    }
+   },
+   "PARIVISION": {
+    "reconstructed": {
+     "champion": 0.36475,
+     "reach_grand_final": 0.53017,
+     "win_ubqf": 0.63597
+    },
+    "committed": {
+     "champion": 0.348,
+     "reach_grand_final": 0.5195,
+     "win_ubqf": 0.6341
+    },
+    "deviation": {
+     "champion": 0.01675,
+     "reach_grand_final": 0.01067,
+     "win_ubqf": 0.00187
+    }
+   },
+   "Team Falcons": {
+    "reconstructed": {
+     "champion": 0.15919,
+     "reach_grand_final": 0.33036,
+     "win_ubqf": 0.60906
+    },
+    "committed": {
+     "champion": 0.1576,
+     "reach_grand_final": 0.3243,
+     "win_ubqf": 0.603
+    },
+    "deviation": {
+     "champion": 0.00159,
+     "reach_grand_final": 0.00606,
+     "win_ubqf": 0.00606
+    }
+   },
+   "Team Liquid": {
+    "reconstructed": {
+     "champion": 0.06486,
+     "reach_grand_final": 0.17284,
+     "win_ubqf": 0.42698
+    },
+    "committed": {
+     "champion": 0.0667,
+     "reach_grand_final": 0.1738,
+     "win_ubqf": 0.4284
+    },
+    "deviation": {
+     "champion": -0.00184,
+     "reach_grand_final": -0.00096,
+     "win_ubqf": -0.00142
+    }
+   },
+   "Team Spirit": {
+    "reconstructed": {
+     "champion": 0.07916,
+     "reach_grand_final": 0.19423,
+     "win_ubqf": 0.57665
+    },
+    "committed": {
+     "champion": 0.0793,
+     "reach_grand_final": 0.1923,
+     "win_ubqf": 0.571
+    },
+    "deviation": {
+     "champion": -0.00014,
+     "reach_grand_final": 0.00193,
+     "win_ubqf": 0.00565
+    }
+   },
+   "Team Yandex": {
+    "reconstructed": {
+     "champion": 0.13817,
+     "reach_grand_final": 0.29822,
+     "win_ubqf": 0.57302
+    },
+    "committed": {
+     "champion": 0.138,
+     "reach_grand_final": 0.2947,
+     "win_ubqf": 0.5716
+    },
+    "deviation": {
+     "champion": 0.00017,
+     "reach_grand_final": 0.00352,
+     "win_ubqf": 0.00142
+    }
+   },
+   "Tundra Esports": {
+    "reconstructed": {
+     "champion": 0.03245,
+     "reach_grand_final": 0.10084,
+     "win_ubqf": 0.42335
+    },
+    "committed": {
+     "champion": 0.0356,
+     "reach_grand_final": 0.106,
+     "win_ubqf": 0.429
+    },
+    "deviation": {
+     "champion": -0.00315,
+     "reach_grand_final": -0.00516,
+     "win_ubqf": -0.00565
+    }
+   }
+  }
+ },
+ "exposure": {
+  "BetBoom Team": {
+   "dist": {
+    "2": 0.256989,
+    "3": 0.251327,
+    "4": 0.303765,
+    "5": 0.118432,
+    "6": 0.069487
+   },
+   "expected_series": 3.4921,
+   "min_series": 2,
+   "max_series": 6
+  },
+  "Nigma Galaxy": {
+   "dist": {
+    "2": 0.337357,
+    "3": 0.278728,
+    "4": 0.252831,
+    "5": 0.095341,
+    "6": 0.035743
+   },
+   "expected_series": 3.2134,
+   "min_series": 2,
+   "max_series": 6
+  },
+  "PARIVISION": {
+   "dist": {
+    "2": 0.101589,
+    "3": 0.15168,
+    "4": 0.445718,
+    "5": 0.170043,
+    "6": 0.13097
+   },
+   "expected_series": 4.0771,
+   "min_series": 2,
+   "max_series": 6
+  },
+  "Team Falcons": {
+   "dist": {
+    "2": 0.17364,
+    "3": 0.228925,
+    "4": 0.361558,
+    "5": 0.158559,
+    "6": 0.077318
+   },
+   "expected_series": 3.737,
+   "min_series": 2,
+   "max_series": 6
+  },
+  "Team Liquid": {
+   "dist": {
+    "2": 0.297959,
+    "3": 0.276167,
+    "4": 0.27441,
+    "5": 0.108023,
+    "6": 0.043441
+   },
+   "expected_series": 3.3228,
+   "min_series": 2,
+   "max_series": 6
+  },
+  "Team Spirit": {
+   "dist": {
+    "2": 0.25424,
+    "3": 0.280284,
+    "4": 0.301238,
+    "5": 0.113178,
+    "6": 0.05106
+   },
+   "expected_series": 3.4265,
+   "min_series": 2,
+   "max_series": 6
+  },
+  "Team Yandex": {
+   "dist": {
+    "2": 0.191044,
+    "3": 0.24082,
+    "4": 0.345619,
+    "5": 0.150451,
+    "6": 0.072067
+   },
+   "expected_series": 3.6717,
+   "min_series": 2,
+   "max_series": 6
+  },
+  "Tundra Esports": {
+   "dist": {
+    "2": 0.387182,
+    "3": 0.292069,
+    "4": 0.221279,
+    "5": 0.073141,
+    "6": 0.02633
+   },
+   "expected_series": 3.0594,
+   "min_series": 2,
+   "max_series": 6
+  }
+ },
+ "reference_option_value": {
+  "note": "E[max of n draws] / E[max of 2 draws] for two illustrative right-skewed shapes. Not used in production; production uses each team's own empirical series pool.",
+  "table": {
+   "lognormal_sd0.30": {
+    "2": 1.0,
+    "3": 1.0829,
+    "4": 1.145,
+    "5": 1.1906,
+    "6": 1.2284
+   },
+   "lognormal_sd0.50": {
+    "2": 1.0,
+    "3": 1.1299,
+    "4": 1.2211,
+    "5": 1.2967,
+    "6": 1.3584
+   }
+  }
+ }
+}

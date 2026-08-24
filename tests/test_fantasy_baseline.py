@@ -128,9 +128,23 @@ def test_the_period_zero_layout_is_three_emblems_in_real_colours():
     assert set(layout["mid"]) == {"red", "blue", "green"}   # mid is the only three-colour banner
 
 
-def test_the_slot_count_is_known_to_grow_with_tablet_level():
-    g = RULES["emblems"]["slot_layout"]["grows_with_tablet_level"]
-    assert g["status"] == "CONFIRMED" and g["period_1_slot_count"] is None
+def test_the_slot_count_grew_with_tablet_level_exactly_as_the_schema_predicted():
+    """Updated on evidence, not weakened: period 1 was observed and it is five, not three.
+
+    The schema said gem slots are gated by m_nRequiredTabletLevel and that the level is set per
+    period, so the banner was expected to grow between periods. It did: three in period 0, five in
+    period 1, on the same carried-over banner. This assertion used to require the period-1 count to
+    be UNRESOLVED; it now pins the observed value, and separately pins that period 0 did not change.
+    """
+    sl = RULES["emblems"]["slot_layout"]
+    g = sl["grows_with_tablet_level"]
+    assert g["status"] == "CONFIRMED"
+    assert g["period_1_slot_count"] == 5
+    assert sl["period_0_emblems_per_banner"] == 3
+    assert sl["period_1_emblems_per_banner"] == 5
+    for role, colours in sl["period_1_color_composition"].items():
+        assert len(colours) == 5
+        assert set(colours) <= {"red", "blue", "green"}
 
 
 def _full_rows(sid, n_maps, acct=1, league="L"):

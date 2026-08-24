@@ -1,0 +1,485 @@
+{
+ "schema_version": 1,
+ "event": "The International 2026 (TI15)",
+ "phase": "post_event",
+ "post_event_only": true,
+ "observed_after_prediction": true,
+ "valid_production_input": false,
+ "created_at": "2026-08-24T02:42:00Z",
+ "record": "complete TI2026 Main Event result archive - 14 series",
+ "chronology_warning": "Every fact in this file was observed AFTER the 2026 prediction was submitted and locked. It is postmortem truth. It must never be added to the TI2026 rating universe, the TI2026 production fit, or any TI2026 artifact. When TI2026 is used as history in a later season it must be ingested through that season's own historical-data pipeline.",
+ "bracket": {
+  "topology_source": "official Valve league feed 19719, Playoff node group (local snapshot)",
+  "shape": {
+   "UBQF": 4,
+   "UBSF": 2,
+   "UBF": 1,
+   "LBR1": 2,
+   "LBR2": 2,
+   "LBSF": 1,
+   "LBF": 1,
+   "GF": 1
+  },
+  "seeding_source": "data/ti2026/inputs/evidence/main_event_seating/ti15_main_event_seating.json (pre-event, hash-gated)",
+  "node_assignment_method": "DERIVED, not transcribed. The 14 retrieved records are treated as an unordered bag; the archived opening seating fixes the four seeded nodes and the verified Valve-feed graph propagates winners and losers forward. Each node is matched to the unique record whose participant pair equals the propagated pair. A missing, duplicated or incoherent record makes the build fail rather than produce a guess.",
+  "best_of_check": "the winner's map count equals the clinch number of the node's declared best-of (2 of 3 everywhere except the Grand Final, 3 of 5)"
+ },
+ "champion": "Team Spirit",
+ "runner_up": "PARIVISION",
+ "grand_final": {
+  "selection_id": 808,
+  "node_id": 21,
+  "round": "GF",
+  "client_series": "Grand Final",
+  "best_of": 5,
+  "participants_canonical": [
+   "PARIVISION",
+   "Team Spirit"
+  ],
+  "participants_source_display": [
+   "TEAM VISION",
+   "Team Spirit"
+  ],
+  "winner": "Team Spirit",
+  "loser": "PARIVISION",
+  "series_score": {
+   "winner_maps": 3,
+   "loser_maps": 2
+  },
+  "score_as_reported": "TEAM VISION 2-3 Team Spirit",
+  "start_time_utc": "2026-08-23T06:15:00Z",
+  "start_time_epoch": 1787465700,
+  "participants_derivation": "propagated: W20, W27",
+  "sources": [
+   "liquipedia-ti2026-main-event",
+   "egamersworld-ti2026-main-event",
+   "ti2026-ev-003"
+  ]
+ },
+ "series": [
+  {
+   "selection_id": 801,
+   "node_id": 14,
+   "round": "UBQF",
+   "client_series": "Upper Bracket Round 1 Match 1",
+   "best_of": 3,
+   "participants_canonical": [
+    "Team Spirit",
+    "Tundra Esports"
+   ],
+   "participants_source_display": [
+    "Iron Wing",
+    "Team Spirit"
+   ],
+   "winner": "Team Spirit",
+   "loser": "Tundra Esports",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 0
+   },
+   "score_as_reported": "Iron Wing 0-2 Team Spirit",
+   "start_time_utc": "2026-08-20T02:30:00Z",
+   "start_time_epoch": 1787193000,
+   "participants_derivation": "seeded from the archived opening seating",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 802,
+   "node_id": 15,
+   "round": "UBQF",
+   "client_series": "Upper Bracket Round 1 Match 2",
+   "best_of": 3,
+   "participants_canonical": [
+    "BetBoom Team",
+    "PARIVISION"
+   ],
+   "participants_source_display": [
+    "TEAM VISION",
+    "BoomBoys"
+   ],
+   "winner": "PARIVISION",
+   "loser": "BetBoom Team",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 1
+   },
+   "score_as_reported": "TEAM VISION 2-1 BoomBoys",
+   "start_time_utc": "2026-08-20T05:45:00Z",
+   "start_time_epoch": 1787204700,
+   "participants_derivation": "seeded from the archived opening seating",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 803,
+   "node_id": 16,
+   "round": "UBQF",
+   "client_series": "Upper Bracket Round 1 Match 3",
+   "best_of": 3,
+   "participants_canonical": [
+    "Team Liquid",
+    "Team Yandex"
+   ],
+   "participants_source_display": [
+    "Team Liquid",
+    "Team Yandex"
+   ],
+   "winner": "Team Yandex",
+   "loser": "Team Liquid",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 0
+   },
+   "score_as_reported": "Team Liquid 0-2 Team Yandex",
+   "start_time_utc": "2026-08-20T10:30:00Z",
+   "start_time_epoch": 1787221800,
+   "participants_derivation": "seeded from the archived opening seating",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 804,
+   "node_id": 17,
+   "round": "UBQF",
+   "client_series": "Upper Bracket Round 1 Match 4",
+   "best_of": 3,
+   "participants_canonical": [
+    "Nigma Galaxy",
+    "Team Falcons"
+   ],
+   "participants_source_display": [
+    "Nigma Galaxy",
+    "Team Falcons"
+   ],
+   "winner": "Nigma Galaxy",
+   "loser": "Team Falcons",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 1
+   },
+   "score_as_reported": "Nigma Galaxy 2-1 Team Falcons",
+   "start_time_utc": "2026-08-20T13:20:00Z",
+   "start_time_epoch": 1787232000,
+   "participants_derivation": "seeded from the archived opening seating",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 805,
+   "node_id": 18,
+   "round": "UBSF",
+   "client_series": "Upper Bracket Round 2 Match 1",
+   "best_of": 3,
+   "participants_canonical": [
+    "PARIVISION",
+    "Team Spirit"
+   ],
+   "participants_source_display": [
+    "Team Spirit",
+    "TEAM VISION"
+   ],
+   "winner": "PARIVISION",
+   "loser": "Team Spirit",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 1
+   },
+   "score_as_reported": "Team Spirit 1-2 TEAM VISION",
+   "start_time_utc": "2026-08-21T10:20:00Z",
+   "start_time_epoch": 1787307600,
+   "participants_derivation": "propagated: W14, W15",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 806,
+   "node_id": 19,
+   "round": "UBSF",
+   "client_series": "Upper Bracket Round 2 Match 2",
+   "best_of": 3,
+   "participants_canonical": [
+    "Nigma Galaxy",
+    "Team Yandex"
+   ],
+   "participants_source_display": [
+    "Team Yandex",
+    "Nigma Galaxy"
+   ],
+   "winner": "Team Yandex",
+   "loser": "Nigma Galaxy",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 1
+   },
+   "score_as_reported": "Team Yandex 2-1 Nigma Galaxy",
+   "start_time_utc": "2026-08-21T14:10:00Z",
+   "start_time_epoch": 1787321400,
+   "participants_derivation": "propagated: W16, W17",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 807,
+   "node_id": 20,
+   "round": "UBF",
+   "client_series": "Upper Bracket Final",
+   "best_of": 3,
+   "participants_canonical": [
+    "PARIVISION",
+    "Team Yandex"
+   ],
+   "participants_source_display": [
+    "TEAM VISION",
+    "Team Yandex"
+   ],
+   "winner": "PARIVISION",
+   "loser": "Team Yandex",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 1
+   },
+   "score_as_reported": "TEAM VISION 2-1 Team Yandex",
+   "start_time_utc": "2026-08-22T08:45:00Z",
+   "start_time_epoch": 1787388300,
+   "participants_derivation": "propagated: W18, W19",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 808,
+   "node_id": 21,
+   "round": "GF",
+   "client_series": "Grand Final",
+   "best_of": 5,
+   "participants_canonical": [
+    "PARIVISION",
+    "Team Spirit"
+   ],
+   "participants_source_display": [
+    "TEAM VISION",
+    "Team Spirit"
+   ],
+   "winner": "Team Spirit",
+   "loser": "PARIVISION",
+   "series_score": {
+    "winner_maps": 3,
+    "loser_maps": 2
+   },
+   "score_as_reported": "TEAM VISION 2-3 Team Spirit",
+   "start_time_utc": "2026-08-23T06:15:00Z",
+   "start_time_epoch": 1787465700,
+   "participants_derivation": "propagated: W20, W27",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 809,
+   "node_id": 22,
+   "round": "LBR1",
+   "client_series": "Lower Bracket Round 1 Match 1",
+   "best_of": 3,
+   "participants_canonical": [
+    "BetBoom Team",
+    "Tundra Esports"
+   ],
+   "participants_source_display": [
+    "Iron Wing",
+    "BoomBoys"
+   ],
+   "winner": "BetBoom Team",
+   "loser": "Tundra Esports",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 1
+   },
+   "score_as_reported": "Iron Wing 1-2 BoomBoys",
+   "start_time_utc": "2026-08-21T02:00:00Z",
+   "start_time_epoch": 1787277600,
+   "participants_derivation": "propagated: L14, L15",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 810,
+   "node_id": 23,
+   "round": "LBR1",
+   "client_series": "Lower Bracket Round 1 Match 2",
+   "best_of": 3,
+   "participants_canonical": [
+    "Team Falcons",
+    "Team Liquid"
+   ],
+   "participants_source_display": [
+    "Team Liquid",
+    "Team Falcons"
+   ],
+   "winner": "Team Liquid",
+   "loser": "Team Falcons",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 1
+   },
+   "score_as_reported": "Team Liquid 2-1 Team Falcons",
+   "start_time_utc": "2026-08-21T06:15:00Z",
+   "start_time_epoch": 1787292900,
+   "participants_derivation": "propagated: L16, L17",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 811,
+   "node_id": 24,
+   "round": "LBR2",
+   "client_series": "Lower Bracket Round 2 Match 1",
+   "best_of": 3,
+   "participants_canonical": [
+    "BetBoom Team",
+    "Nigma Galaxy"
+   ],
+   "participants_source_display": [
+    "Nigma Galaxy",
+    "BoomBoys"
+   ],
+   "winner": "BetBoom Team",
+   "loser": "Nigma Galaxy",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 1
+   },
+   "score_as_reported": "Nigma Galaxy 1-2 BoomBoys",
+   "start_time_utc": "2026-08-22T05:00:00Z",
+   "start_time_epoch": 1787374800,
+   "participants_derivation": "propagated: L19, W22",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 812,
+   "node_id": 25,
+   "round": "LBR2",
+   "client_series": "Lower Bracket Round 2 Match 2",
+   "best_of": 3,
+   "participants_canonical": [
+    "Team Liquid",
+    "Team Spirit"
+   ],
+   "participants_source_display": [
+    "Team Spirit",
+    "Team Liquid"
+   ],
+   "winner": "Team Spirit",
+   "loser": "Team Liquid",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 0
+   },
+   "score_as_reported": "Team Spirit 2-0 Team Liquid",
+   "start_time_utc": "2026-08-22T02:00:00Z",
+   "start_time_epoch": 1787364000,
+   "participants_derivation": "propagated: L18, W23",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 813,
+   "node_id": 26,
+   "round": "LBSF",
+   "client_series": "Lower Bracket Round 3",
+   "best_of": 3,
+   "participants_canonical": [
+    "BetBoom Team",
+    "Team Spirit"
+   ],
+   "participants_source_display": [
+    "BoomBoys",
+    "Team Spirit"
+   ],
+   "winner": "Team Spirit",
+   "loser": "BetBoom Team",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 0
+   },
+   "score_as_reported": "BoomBoys 0-2 Team Spirit",
+   "start_time_utc": "2026-08-22T13:10:00Z",
+   "start_time_epoch": 1787404200,
+   "participants_derivation": "propagated: W24, W25",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  },
+  {
+   "selection_id": 814,
+   "node_id": 27,
+   "round": "LBF",
+   "client_series": "Lower Bracket Final",
+   "best_of": 3,
+   "participants_canonical": [
+    "Team Spirit",
+    "Team Yandex"
+   ],
+   "participants_source_display": [
+    "Team Yandex",
+    "Team Spirit"
+   ],
+   "winner": "Team Spirit",
+   "loser": "Team Yandex",
+   "series_score": {
+    "winner_maps": 2,
+    "loser_maps": 0
+   },
+   "score_as_reported": "Team Yandex 0-2 Team Spirit",
+   "start_time_utc": "2026-08-23T02:10:00Z",
+   "start_time_epoch": 1787451000,
+   "participants_derivation": "propagated: L20, W26",
+   "sources": [
+    "liquipedia-ti2026-main-event",
+    "egamersworld-ti2026-main-event",
+    "ti2026-ev-003"
+   ]
+  }
+ ],
+ "identity": {
+  "canonical_layer": "ti_predict.ti15_results.ALIAS (the repository's existing identity table)",
+  "note": "the two independent sources use different display names for the same organisations (Liquipedia 'Iron Wing' / 'TEAM VISION' / 'BoomBoys' vs egamersworld '1w Team' / 'PARIVISION' / 'BetBoom Team'); both resolve through the existing table, which is itself a check on the table."
+ }
+}

@@ -1,0 +1,271 @@
+{
+ "schema_version": 1,
+ "event": "The International 2026 (TI15)",
+ "record": "public index of first-party Dota 2 client evidence held privately outside this repository",
+ "created_at": "2026-08-24T02:42:00Z",
+ "why_this_file_exists": "Raw client captures are load-bearing evidence for this project and are also personally identifying: they show the operator's Steam persona, a friend's display name, avatars, the friend leaderboard and account point totals. None of that is evidence for anything this repository claims. So the raw bytes stay in a private archive and the public repository publishes the sha256 of each original plus a transcription of only the facts the project actually uses. The hash is a commitment: it pins exactly which bytes were read, so a later reviewer can be handed the private file and verify it is the one that was transcribed, without the image ever being published.",
+ "raw_evidence_storage": "private_local_external",
+ "raw_evidence_public": false,
+ "private_archive_layout": "<private evidence root>/ti2026/{pre_event,post_event}/ plus manifest.private.json. The absolute location is deliberately not recorded here; it is an operator-local path.",
+ "repository_local_ingress": "evidence_local/ is git-ignored and exists as a staging area for new private captures before they are moved to the private archive. Nothing in it is ever committed.",
+ "trust_boundary": "Transcription from image to text is done by human-reviewed reading, not by runtime OCR. The hash proves the image has not changed since it was read; it does not prove the reading was correct. Any future change to an image invalidates its record until it is re-read.",
+ "evidence": [
+  {
+   "evidence_id": "ti2026-ev-001",
+   "media_type": "image/png",
+   "sha256": "3a3abff414059d56c6301cfd6fd12dfa81062990c89bf0fdff65a4f854ebfb52",
+   "bytes": 1212870,
+   "pixels": [2048, 1152],
+   "evidence_phase": "pre_event",
+   "source_type": "first-party in-client capture (uncropped original)",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the uncropped frame shows the operator's Steam persona, a friend's display name, the friend leaderboard, avatars and account points/percentile",
+   "used_in_original_production": true,
+   "production_use": "the privacy-preserving crop derived from this original (ti2026-ev-002) is the hash-gated seeded-participant evidence consumed by ti_predict/seating_evidence.py",
+   "observed_after_prediction": false,
+   "public_safe_transcription": {
+    "view": "TI2026 in-client Predictions page, Main Event tab, before the Main Event began",
+    "main_event_tab_state": "locking in 2 days; no result marks present",
+    "group_stage_tab_state": "not yet open",
+    "bracket_layout": "complete 14-node double-elimination bracket with routing labels; only the four seeded upper-bracket quarterfinals carry teams, every later node is empty",
+    "seeded_quarterfinals": [
+     {"client_block": "A", "client_date": "2026-08-20", "teams": ["IW", "TSpirit"]},
+     {"client_block": "B", "client_date": "2026-08-20", "teams": ["VSN", "BB"]},
+     {"client_block": "C", "client_date": "2026-08-20", "teams": ["Liquid", "TY"]},
+     {"client_block": "D", "client_date": "2026-08-20", "teams": ["NGX", "FLCN"]}
+    ],
+    "detailed_transcription_lives_in": "data/ti2026/inputs/evidence/main_event_seating/ti15_main_event_seating.json"
+   }
+  },
+  {
+   "evidence_id": "ti2026-ev-002",
+   "media_type": "image/png",
+   "sha256": "ee343c08320c46d337363cda02ceb67ae57a37bd73175fe1cbe44d14355f48b2",
+   "bytes": 427163,
+   "pixels": [1624, 1000],
+   "evidence_phase": "pre_event",
+   "source_type": "first-party in-client capture, privacy-preserving crop (crop only, no pixel edits)",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": true,
+   "raw_evidence_storage": "committed_in_repository_and_backed_up_privately",
+   "committed_at": "data/ti2026/inputs/evidence/main_event_seating/ti15_main_event_bracket_client_crop_20260817.png",
+   "derived_from": "ti2026-ev-001",
+   "transformation": "crop only, PIL box (424, 0, 2048, 1000) of the 2048x1152 original",
+   "reason_committed": "cropping removes every identifying region while retaining the whole bracket, so this frame is publishable and is what the production gate hashes",
+   "deduplication_note": "identical bytes exist in two places by design: the committed copy above, and a backup in the private archive. Neither was deleted. The committed copy keeps its original filename because a frozen pre-event gate hashes it by path.",
+   "used_in_original_production": true,
+   "observed_after_prediction": false
+  },
+  {
+   "evidence_id": "ti2026-ev-003",
+   "media_type": "image/png",
+   "sha256": "1a8749f735c202506897c6ac0a8e45f7097555b0f4bb11eaff22f66cd9e22c48",
+   "bytes": 2070115,
+   "pixels": [3840, 2160],
+   "evidence_phase": "post_event",
+   "source_type": "first-party in-client capture (uncropped original)",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the frame shows the operator's Steam persona, a friend's display name, the friend leaderboard, avatars and account points/percentile",
+   "used_in_original_production": false,
+   "production_use": "none. This is post-event truth and must never enter the TI2026 fit.",
+   "observed_after_prediction": true,
+   "capture_time_basis": "not recorded in the image. Bounded below by the conclusion of the Grand Final, which the capture shows as settled; the Grand Final began 2026-08-23T06:15:00Z.",
+   "public_safe_transcription": {
+    "view": "TI2026 in-client Predictions page after the tournament, both tracks settled",
+    "main_event_prediction_settlement": {
+     "track": "Main Event bracket predictions (client tab: International Invitational)",
+     "state": "locked and settled",
+     "correct_predictions": 8,
+     "incorrect_predictions": 6,
+     "total_predictions": 14,
+     "official_points_displayed_by_client": null,
+     "official_points_visible_in_this_capture": false,
+     "official_points_basis": "This capture frames the bracket page. It directly shows the 8/14 count for this track, the 6/16 count for the group track, and a settlement mark on every one of the 14 nodes; it does not include the client's settlement summary modal, so no points figure appears anywhere in this frame. The points figure is proved separately and directly by ti2026-ev-006, the settlement summary capture, and independently by deterministic recomputation against entry 8 of the committed 15-entry Main Event scoring vector in data/ti2026/inputs/prediction_questions.json. This record is unchanged in substance and remains valid; it is complemented by ev-006, not corrected by it. See INC-16, now closed.",
+     "coverage_basis": "the whole 3840x2160 frame was re-examined at native resolution in six tiles during the 2026-08-24 archival correction; the file is a single-frame PNG with no alpha and no hidden frame.",
+     "per_node_credit": {
+      "801": true,
+      "802": true,
+      "803": true,
+      "804": false,
+      "805": true,
+      "806": false,
+      "807": true,
+      "808": false,
+      "809": true,
+      "810": false,
+      "811": true,
+      "812": true,
+      "813": false,
+      "814": false
+     },
+     "per_node_credit_basis": "the capture renders the full 14-node bracket with the operator's submitted pick highlighted at every node and marked by the client with a green check or a red cross. Node identity is established by matching each rendered block against the predicted_matchup recorded in the frozen pre-event artifact, which agrees at all 14 nodes.",
+     "display_semantics": "the client renders the operator's PREDICTED path at every node, not the realized participants. Downstream blocks therefore show teams that did not play there. The check/cross mark is settlement against the realized node winner, which is why a pick can be marked wrong at a node its team never reached."
+    },
+    "group_stage_prediction_settlement": {
+     "track": "Group stage predictions",
+     "state": "locked and settled",
+     "correct_predictions": 6,
+     "total_predictions": 16,
+     "note": "recorded for completeness; the group slate is a separate tracked production artifact. Its pre-event expectation was 5.249 correct."
+    },
+    "deliberately_not_transcribed": "the account's overall event point total and percentile, the friend leaderboard and all display names and avatars. The overall point total is NOT a Main Event prediction score and NOT a Fantasy score, and must never be read as either."
+   }
+  },
+  {
+   "evidence_id": "ti2026-ev-006",
+   "media_type": "image/png",
+   "sha256": "766f5dca875744132aca065dcb35136c764ffbb63ac13187913bb316e4845f96",
+   "bytes": 1249098,
+   "pixels": [2048, 1152],
+   "evidence_phase": "post_event",
+   "source_type": "first_party_in_client_capture",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the frame also shows the operator's Steam persona, a friend's display name, the friend leaderboard, avatars and the account's overall event points and percentile",
+   "used_in_original_production": false,
+   "production_use": "none. This is post-event truth and must never enter the TI2026 fit.",
+   "observed_after_prediction": true,
+   "capture_time_basis": "not recorded in the image. Bounded below by the conclusion of the Grand Final, which the settlement presupposes.",
+   "public_safe_transcription": {
+    "view": "the client's Main Event prediction settlement summary modal, headed 'The International / Your Predictions'",
+    "main_event_prediction_settlement": {
+     "track": "Main Event bracket predictions (client tab: International Invitational)",
+     "correct_predictions": 8,
+     "incorrect_predictions": 6,
+     "official_points_earned": 4320,
+     "transcription_basis": "read directly from the modal at native resolution: the correct count and the incorrect count sit side by side above the awarded points, each with the client's own check or cross glyph"
+    },
+    "distinct_from_account_total": "the +4,320 in the modal is the award for this track. The sidebar of the same frame separately shows the account's running overall event points and percentile; those are a different quantity and are deliberately not transcribed.",
+    "scope_limits": {
+     "this_frame_is_pre_acknowledgement": "the modal's confirm button is still displayed, so the tab counters behind it have not populated in this view",
+     "group_stage_tab_reads_0_of_16_here": "recorded so it is never mistaken for a contradiction of ti2026-ev-003. This capture is NOT evidence for the group-stage count; ti2026-ev-003, taken after acknowledgement with the counters populated, is.",
+     "not_evidence_for": ["group-stage settlement", "per-node correctness", "any Fantasy result"]
+    },
+    "relation_to_ev003": "complementary, not corrective. ti2026-ev-003 remains valid and unchanged: it is the bracket view proving 8/14 on the Main Event tab, 6/16 on the group tab and the per-node marks on all 14 nodes. This capture is the settlement summary view and proves the three summary fields directly.",
+    "deliberately_not_transcribed": "the account's overall event point total and percentile, the friend leaderboard, and all display names and avatars"
+   }
+  },
+  {
+   "evidence_id": "ti2026-ev-004",
+   "media_type": "application/json",
+   "sha256": "efc425aa2706e003bebfd9b9b465e9cf0a46fbe0c88e67ac0d11cf27d6777220",
+   "bytes": 5619,
+   "evidence_phase": "pre_event",
+   "source_type": "hand transcription of a first-party Dota 2 client screenshot, operator-supplied",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the transcription names the account holder",
+   "public_account_label": "account_a",
+   "used_in_original_production": true,
+   "production_use": "the final deployed period-1 banner state underlying the sealed two-account Fantasy comparison",
+   "observed_after_prediction": false,
+   "public_safe_transcription": {
+    "what_it_is": "the FINAL deployed period-1 Fantasy banner state for account_a: three role banners (core, mid, support), five emblem slots each, plus the coach title prefix and suffix",
+    "remaining_reroll_tokens": 0,
+    "role_banners": ["core", "mid", "support"],
+    "emblem_slots_per_banner": 5,
+    "relation_to_sealed_closure": "this is PROVENANCE for the result already recorded in predictions/ti2026/postmortem/fantasy_closure.json, not a new analytical input. Archiving it changes no Fantasy number and reopens nothing.",
+    "account_mapping_basis": "the file states its own review label; the mapping is read from it, not inferred"
+   }
+  },
+  {
+   "evidence_id": "ti2026-ev-005",
+   "media_type": "application/json",
+   "sha256": "952391b447c55c1e6e1e6b5052a26498d1f97d88fc2aa97fd01bd1caf4841647",
+   "bytes": 5631,
+   "evidence_phase": "pre_event",
+   "source_type": "hand transcription of a first-party Dota 2 client screenshot, operator-supplied",
+   "source_tier": 1,
+   "operator_supplied": true,
+   "network_access_used": false,
+   "raw_evidence_public": false,
+   "raw_evidence_storage": "private_local_external",
+   "reason_not_committed": "the transcription names the account holder, who for this entry is a third party rather than the operator",
+   "public_account_label": "account_b",
+   "used_in_original_production": true,
+   "production_use": "the final deployed period-1 banner state underlying the sealed two-account Fantasy comparison",
+   "observed_after_prediction": false,
+   "public_safe_transcription": {
+    "what_it_is": "the FINAL deployed period-1 Fantasy banner state for account_b: three role banners (core, mid, support), five emblem slots each, plus the coach title prefix and suffix",
+    "remaining_reroll_tokens": 2,
+    "role_banners": ["core", "mid", "support"],
+    "emblem_slots_per_banner": 5,
+    "relation_to_sealed_closure": "this is PROVENANCE for the result already recorded in predictions/ti2026/postmortem/fantasy_closure.json, not a new analytical input. Archiving it changes no Fantasy number and reopens nothing.",
+    "account_mapping_basis": "the file states its own review label; the mapping is read from it, not inferred"
+   }
+  }
+ ],
+ "settlement_provenance": {
+  "claim": "TI2026 Main Event settlement is 8 correct / 6 incorrect / 4320 points",
+  "independent_paths": [
+   {
+    "path": "A",
+    "evidence_id": "ti2026-ev-003",
+    "kind": "first-party client bracket view",
+    "establishes": {"correct_predictions": 8, "total_predictions": 14,
+                    "per_node_marks": 14},
+    "does_not_establish": ["official_points_earned"]
+   },
+   {
+    "path": "B",
+    "evidence_id": "ti2026-ev-006",
+    "kind": "first-party client settlement summary view",
+    "establishes": {"correct_predictions": 8, "incorrect_predictions": 6,
+                    "official_points_earned": 4320},
+    "does_not_establish": ["per-node correctness", "group-stage settlement"]
+   },
+   {
+    "path": "C",
+    "evidence_id": null,
+    "kind": "deterministic recomputation",
+    "inputs": ["the frozen submitted slate in predictions/ti2026/playoffs/ti15_main_event_prediction.json",
+               "the realized node winners in data/ti2026/outcomes/main_event_results.json",
+               "the committed official scoring vector in data/ti2026/inputs/prediction_questions.json"],
+    "establishes": {"correct_predictions": 8, "incorrect_predictions": 6,
+                    "official_points_earned": 4320}
+   }
+  ],
+  "agreement": "all three agree on 8 correct / 6 incorrect / 4320 points",
+  "independence_note": "A and B are separate client views captured at different moments; C uses no image at all. The evaluator fails closed on any disagreement, so the agreement is enforced rather than observed.",
+  "status": "dual first-party plus deterministic provenance established"
+ },
+ "legacy_identity_exposure": {
+  "status": "ACCEPTED_LEGACY_EXPOSURE_PRESERVE_HISTORY",
+  "incident": "INC-19",
+  "what": "a legacy display-name exposure in frozen pre-event Fantasy state files, published before the post-event archival began",
+  "decision": "preserve history; do not rewrite it",
+  "rationale": [
+   "the exposure already exists in published Git history",
+   "rewriting history would break published commit identities and the reproduction they anchor",
+   "a rewrite could not recall existing clones, forks or caches in any case",
+   "the value is a display nickname, not a datum any conclusion depends on",
+   "forward controls that stop it spreading are the effective remedy here"
+  ],
+  "forward_control": "a test fails if any NEW tracked file carries the name, and fails again if the register of affected files goes stale",
+  "if_removal_is_later_requested": "if the affected person explicitly asks for stronger removal, handle it as a separate privacy and history-rewrite operation, not as part of TI2026 scientific archival work. It is deliberately not performed here."
+ },
+ "excluded_from_this_file": [
+  "absolute filesystem paths to the private archive",
+  "account or friend display names",
+  "avatars or any person identity",
+  "Steam or account identifiers",
+  "leaderboard entries",
+  "account point totals and percentile"
+ ]
+}
